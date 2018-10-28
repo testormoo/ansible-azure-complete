@@ -1,9 +1,9 @@
 ---
 - hosts: localhost
   vars:
-    resource_group: zimshdboobooxx
+    resource_group: testrgxyzabc
   roles:
-    - ../playbooks
+    - ../ansible-examples
 
   tasks:
     - name: Create a resource group
