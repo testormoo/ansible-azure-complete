@@ -3,7 +3,7 @@
   vars:
     resource_group: testrgxyzabc
   roles:
-    - ../ansible-examples
+    - modules
 
   tasks:
     - name: Create a resource group

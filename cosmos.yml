@@ -1,0 +1,54 @@
+
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  vars:
+    resource_group: zimsansiblefest
+    vm_name: ansiblefesttestvm
+    location: eastus
+  roles:
+    - ../playbooks
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    #- name: Get Cosmos DB
+    #  azure_rm_cosmosdbaccount_facts:
+    #    resource_group: "{{ resource_group }}"
+    #    account_name: zimscosmos
+    #  register: output
+
+    #- debug:
+    #    var: output
+
+    #- name: Create Dabatase account
+    #  azure_rm_resource:
+    #    #url: /subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/{{ resource_group }}/providers/Microsoft.DocumentDB/databaseAccounts/cosmosdbaccount
+    #    api_version: '2015-04-08'
+    #    resource_group: "{{ resource_group }}"
+    #    provider: documentdb
+    #    resource_type: databaseaccounts
+    #    resource_name: zimscosmosdbxxxxxx
+    #    body:
+    #      location: eastus
+    #      #kind: GlobalDocumentDB
+    #      properties: 
+    #        locations: 
+    #          - locationName: southcentralus
+    #            failoverPriority: 0
+    #        databaseAccountOfferType: Standard
+    
+    - name: Create Cosmos DB
+      azure_rm_cosmosdbaccount:
+        resource_group: "{{ resource_group }}"
+        account_name: cosmosdbaccounx
+        location: eastus
+        locations:
+          - location_name: eastus
+            failover_priority: 0
+        database_account_offer_type: Standard
+
+
