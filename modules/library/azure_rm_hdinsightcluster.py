@@ -93,6 +93,12 @@ options:
                 description:
                     - Optional. The Distinguished Names for cluster user groups
                 type: list
+            aadds_resource_id:
+                description:
+                    - "The resource ID of the user's Azure Active Directory I(domain) Service."
+            msi_resource_id:
+                description:
+                    - "User assigned identity that has permissions to read and create cluster-related artifacts in the user's AADDS."
     compute_profile:
         description:
             - The compute profile.
@@ -177,10 +183,32 @@ options:
                             - Whether or not the storage account is the default storage account.
                     container:
                         description:
-                            - The container in the storage account.
+                            - The container in the storage account, only to be specified for WASB storage accounts.
+                    file_system:
+                        description:
+                            - The filesystem, only to be specified for Azure Data Lake Storage Gen 2.
                     key:
                         description:
                             - The storage account access key.
+    identity:
+        description:
+            - The identity of the cluster, if configured.
+        suboptions:
+            type:
+                description:
+                    - "The type of identity used for the cluster. The type 'C(system_assigned), C(user_assigned)' includes both an implicitly created
+                       identity and a set of user assigned identities."
+                choices:
+                    - 'system_assigned'
+                    - 'user_assigned'
+                    - 'system_assigned, _user_assigned'
+                    - 'none'
+            user_assigned_identities:
+                description:
+                    - "The list of user identities associated with the cluster. The user identity dictionary key references will be ARM resource ids in the
+                       form:
+                       '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{ident
+                      ityName}'."
     state:
       description:
         - Assert the state of the Cluster.
@@ -234,6 +262,7 @@ from ansible.module_utils.azure_rm_common import AzureRMModuleBase
 try:
     from msrestazure.azure_exceptions import CloudError
     from msrest.polling import LROPoller
+    from msrestazure.azure_operation import AzureOperationPoller
     from azure.mgmt.hdinsight import HDInsightManagementClient
     from msrest.serialization import Model
 except ImportError:
@@ -286,6 +315,9 @@ class AzureRMClusters(AzureRMModuleBase):
             storage_profile=dict(
                 type='dict'
             ),
+            identity=dict(
+                type='dict'
+            ),
             state=dict(
                 type='str',
                 default='present',
@@ -333,6 +365,18 @@ class AzureRMClusters(AzureRMModuleBase):
                     self.parameters.setdefault("properties", {})["compute_profile"] = kwargs[key]
                 elif key == "storage_profile":
                     self.parameters.setdefault("properties", {})["storage_profile"] = kwargs[key]
+                elif key == "identity":
+                    ev = kwargs[key]
+                    if 'type' in ev:
+                        if ev['type'] == 'system_assigned':
+                            ev['type'] = 'SystemAssigned'
+                        elif ev['type'] == 'user_assigned':
+                            ev['type'] = 'UserAssigned'
+                        elif ev['type'] == 'system_assigned, _user_assigned':
+                            ev['type'] = 'SystemAssigned, UserAssigned'
+                        elif ev['type'] == 'none':
+                            ev['type'] = 'None'
+                    self.parameters["identity"] = ev
 
         old_response = None
         response = None
@@ -392,7 +436,8 @@ class AzureRMClusters(AzureRMModuleBase):
             self.results['changed'] = False
             response = old_response
 
-        self.results.update(self.format_item(response))
+        if self.state == 'present':
+            self.results.update(self.format_item(response))
         return self.results
 
     def create_update_cluster(self):
@@ -410,9 +455,8 @@ class AzureRMClusters(AzureRMModuleBase):
                                                             parameters=self.parameters)
             else:
                 response = self.mgmt_client.clusters.update(resource_group_name=self.resource_group,
-                                                            cluster_name=self.name,
-                                                            parameters=self.parameters)
-            if isinstance(response, LROPoller):
+                                                            cluster_name=self.name)
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
         except CloudError as exc:
@@ -450,17 +494,16 @@ class AzureRMClusters(AzureRMModuleBase):
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cluster instance : {0} found".format(response.name))
-        except Exception as e:
+        except CloudError as e:
             self.log('Did not find the Cluster instance.')
         if found is True:
             return response.as_dict()
 
         return False
 
-    def format_item(self, item):
-        d = item.as_dict()
+    def format_item(self, d):
         d = {
-            'id': d['id']
+            'id': d.get('id', None)
         }
         return d
 
