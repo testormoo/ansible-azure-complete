@@ -8,7 +8,7 @@
     vm_name: ansiblefesttestvm
     location: eastus
   roles:
-    - ../playbooks
+    - modules
   tasks:
     - name: Create a resource group
       azure_rm_resourcegroup:
