@@ -1,0 +1,117 @@
+#!/usr/bin/python
+#
+# Copyright (c) 2018 Zim Kalinowski, <zikalino@microsoft.com>
+#
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+
+DOCUMENTATION = '''
+---
+module: azure_rm_commerceratecard_facts
+version_added: "2.8"
+short_description: Get Azure Rate Card facts.
+description:
+    - Get facts of Azure Rate Card.
+
+options:
+    filter:
+        description:
+            - "The filter to apply on the operation. It ONLY supports the 'eq' and 'and' logical operators at this time. All the 4 query parameters
+               'OfferDurableId',  'Currency', 'Locale', 'Region' are required to be a part of the $filter."
+        required: True
+
+extends_documentation_fragment:
+    - azure
+
+author:
+    - "Zim Kalinowski (@zikalino)"
+
+'''
+
+EXAMPLES = '''
+  - name: Get instance of Rate Card
+    azure_rm_commerceratecard_facts:
+      filter: filter
+'''
+
+RETURN = '''
+rate_card:
+    description: A list of dictionaries containing facts for Rate Card.
+    returned: always
+    type: complex
+    contains:
+'''
+
+from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+
+try:
+    from msrestazure.azure_exceptions import CloudError
+    from azure.mgmt.commerce import UsageManagementClient
+    from msrest.serialization import Model
+except ImportError:
+    # This is handled in azure_rm_common
+    pass
+
+
+class AzureRMRateCardFacts(AzureRMModuleBase):
+    def __init__(self):
+        # define user inputs into argument
+        self.module_arg_spec = dict(
+            filter=dict(
+                type='str',
+                required=True
+            )
+        )
+        # store the results of the module operation
+        self.results = dict(
+            changed=False
+        )
+        self.mgmt_client = None
+        self.filter = None
+        super(AzureRMRateCardFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+
+    def exec_module(self, **kwargs):
+        for key in self.module_arg_spec:
+            setattr(self, key, kwargs[key])
+        self.mgmt_client = self.get_mgmt_svc_client(UsageManagementClient,
+                                                    base_url=self._cloud_environment.endpoints.resource_manager)
+
+        self.results['rate_card'] = self.get()
+        return self.results
+
+    def get(self):
+        response = None
+        results = []
+        try:
+            response = self.mgmt_client.rate_card.get(filter=self.filter)
+            self.log("Response : {0}".format(response))
+        except CloudError as e:
+            self.log('Could not get facts for RateCard.')
+
+        if response is not None:
+            results.append(self.format_item(response))
+
+        return results
+
+    def format_item(self, item):
+        d = item.as_dict()
+        d = {
+            'resource_group': self.resource_group,
+        }
+        return d
+
+
+def main():
+    AzureRMRateCardFacts()
+
+
+if __name__ == '__main__':
+    main()

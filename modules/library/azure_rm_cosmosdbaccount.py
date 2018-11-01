@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure resource group.
         required: True
-    account_name:
+    name:
         description:
             - Cosmos DB database account name.
         required: True
@@ -76,6 +76,7 @@ options:
                        (total number of regions - 1). Failover priority values must be unique for each of the regions in which the database account exists."
     database_account_offer_type:
         description:
+            - TBD
     ip_range_filter:
         description:
             - "Cosmos DB Firewall Support: This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list
@@ -87,6 +88,7 @@ options:
         description:
             - "Enables automatic failover of the write region in the rare event that the region is unavailable due to an outage. Automatic failover will
                result in a new write region for the account and is chosen based on the failover priorities configured for the account."
+        type: bool
     capabilities:
         description:
             - List of Cosmos DB capabilities for the account
@@ -131,8 +133,12 @@ EXAMPLES = '''
   - name: Create (or update) Database Account
     azure_rm_cosmosdbaccount:
       resource_group: rg1
-      account_name: ddb1
+      name: ddb1
       location: westus
+      locations:
+        - location_name: eastus
+          failover_priority: 0
+      database_account_offer_type: Standard
 '''
 
 RETURN = '''
@@ -157,6 +163,7 @@ except ImportError:
     # This is handled in azure_rm_common
     pass
 
+comparison_failure = {}
 
 class Actions:
     NoAction, Create, Update, Delete = range(4)
@@ -171,7 +178,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -200,7 +207,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 type='str'
             ),
             enable_automatic_failover=dict(
-                type='str'
+                type='bool'
             ),
             capabilities=dict(
                 type='list'
@@ -219,7 +226,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -278,7 +285,6 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 elif key == "enable_multiple_write_locations":
                     self.parameters["enable_multiple_write_locations"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CosmosDB,
@@ -302,8 +308,25 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Database Account instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                old_response['locations'] = old_response['failover_policies']
+                if (not compare(self.parameters, old_response,
+                                {'location': 'location',
+                                 'kind': None,
+                                 'consistency_policy': {
+                                     'default_consistency_level': None,
+                                     'max_staleness_prefix': None,
+                                     'max_interval_in_seconds': None
+                                 },
+                                 'ip_range_filter': None,
+                                 'enable_automatic_failover': None,
+                                 'enable_multiple_write_locations': None,
+                                 'locations': {
+                                     'location_name': 'location',
+                                     '__sort__': 'failover_priority'
+                                 }
+                                })):
+                    self.to_do = Actions.Update
+                self.results['comparison_failure'] = comparison_failure
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Database Account instance")
@@ -313,11 +336,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 return self.results
 
             response = self.create_update_databaseaccount()
-
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Database Account instance deleted")
@@ -346,11 +365,11 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
 
         :return: deserialized Database Account instance state dictionary
         '''
-        self.log("Creating / Updating the Database Account instance {0}".format(self.account_name))
+        self.log("Creating / Updating the Database Account instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.database_accounts.create_or_update(resource_group_name=self.resource_group,
-                                                                           account_name=self.account_name,
+                                                                           account_name=self.name,
                                                                            create_update_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -366,10 +385,10 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Database Account instance {0}".format(self.account_name))
+        self.log("Deleting the Database Account instance {0}".format(self.name))
         try:
             response = self.mgmt_client.database_accounts.delete(resource_group_name=self.resource_group,
-                                                                 account_name=self.account_name)
+                                                                 account_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Database Account instance.')
             self.fail("Error deleting the Database Account instance: {0}".format(str(e)))
@@ -382,11 +401,11 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
 
         :return: deserialized Database Account instance state dictionary
         '''
-        self.log("Checking if the Database Account instance {0} is present".format(self.account_name))
+        self.log("Checking if the Database Account instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.database_accounts.get(resource_group_name=self.resource_group,
-                                                              account_name=self.account_name)
+                                                              account_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Database Account instance : {0} found".format(response.name))
@@ -402,6 +421,57 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def compare(a, b, t):
+    if isinstance(t, dict):
+        if isinstance(a, list) and isinstance(b, list):
+            s = t.get('__sort__', None)
+            if s is not None:
+                a = sorted(a, key=lambda x: x[s])
+                b = sorted(b, key=lambda x: x[s])
+            if len(a) != len(b):
+                comparison_failure['error'] = "DDD " + str(a) + "--" + str(b) 
+                return False
+            for i in range(len(a)):
+                if not compare(a[i], b[i], t):
+                    return False
+            return True
+        elif isinstance(a, dict) and isinstance(b, dict):
+            for k in t.keys():
+                if not k == '__sort__':
+                    if not compare(a.get(k, None), b.get(k, None), t[k]):
+                        return False
+            return True
+        else:
+            comparison_failure['error'] = "AAA " + str(a) + "--" + str(b) 
+            return a is None
+    else:
+        if a is None:
+            return True
+        if t == "location":
+            # location needs to be normalized, remove spaces, lowercase
+            a = a.replace(' ', '').lower()
+            b = b.replace(' ', '').lower()
+            if a != b:
+                comparison_failure['error'] = "BBB " + str(a) + "--" + str(b) 
+            return a == b
+        else:
+            # default comparison
+            if type(a) == 'bool':
+                a = str(a)
+            if (type(b) == 'bool'):
+                b = str(b)
+            if a != b:
+                comparison_failure['error'] = ("CCC " +
+                                              str(type(a)) +
+                                              ":" +
+                                              str(a) +
+                                              "--" +
+                                              str(type(b)) +
+                                              ":" +
+                                              str(b))
+            return a == b
 
 
 def _snake_to_camel(snake, capitalize_first=False):
