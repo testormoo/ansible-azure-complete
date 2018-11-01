@@ -1,0 +1,125 @@
+#!/usr/bin/python
+#
+# Copyright (c) 2018 Zim Kalinowski, <zikalino@microsoft.com>
+#
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+
+DOCUMENTATION = '''
+---
+module: azure_rm_sqlcapability_facts
+version_added: "2.8"
+short_description: Get Azure Capability facts.
+description:
+    - Get facts of Azure Capability.
+
+options:
+    location_name:
+        description:
+            - The location name whose capabilities are retrieved.
+        required: True
+    include:
+        description:
+            - If specified, restricts the response to only include the selected item.
+
+extends_documentation_fragment:
+    - azure
+
+author:
+    - "Zim Kalinowski (@zikalino)"
+
+'''
+
+EXAMPLES = '''
+  - name: List instances of Capability
+    azure_rm_sqlcapability_facts:
+      location_name: location_name
+      include: include
+'''
+
+RETURN = '''
+capabilities:
+    description: A list of dictionaries containing facts for Capability.
+    returned: always
+    type: complex
+    contains:
+'''
+
+from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+
+try:
+    from msrestazure.azure_exceptions import CloudError
+    from azure.mgmt.sql import SqlManagementClient
+    from msrest.serialization import Model
+except ImportError:
+    # This is handled in azure_rm_common
+    pass
+
+
+class AzureRMCapabilitiesFacts(AzureRMModuleBase):
+    def __init__(self):
+        # define user inputs into argument
+        self.module_arg_spec = dict(
+            location_name=dict(
+                type='str',
+                required=True
+            ),
+            include=dict(
+                type='str'
+            )
+        )
+        # store the results of the module operation
+        self.results = dict(
+            changed=False
+        )
+        self.mgmt_client = None
+        self.location_name = None
+        self.include = None
+        super(AzureRMCapabilitiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+
+    def exec_module(self, **kwargs):
+        for key in self.module_arg_spec:
+            setattr(self, key, kwargs[key])
+        self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
+                                                    base_url=self._cloud_environment.endpoints.resource_manager)
+
+        self.results['capabilities'] = self.list_by_location()
+        return self.results
+
+    def list_by_location(self):
+        response = None
+        results = []
+        try:
+            response = self.mgmt_client.capabilities.list_by_location(location_name=self.location_name)
+            self.log("Response : {0}".format(response))
+        except CloudError as e:
+            self.log('Could not get facts for Capabilities.')
+
+        if response is not None:
+            for item in response:
+                results.append(self.format_item(item))
+
+        return results
+
+    def format_item(self, item):
+        d = item.as_dict()
+        d = {
+            'resource_group': self.resource_group,
+        }
+        return d
+
+
+def main():
+    AzureRMCapabilitiesFacts()
+
+
+if __name__ == '__main__':
+    main()

@@ -26,5 +26,8 @@
           - location_name: eastus
             failover_priority: 0
         database_account_offer_type: Standard
+        enable_automatic_failover: True
+      register: output
 
-
+    - debug:
+        var: output

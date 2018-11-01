@@ -1,0 +1,199 @@
+#!/usr/bin/python
+#
+# Copyright (c) 2018 Zim Kalinowski, <zikalino@microsoft.com>
+#
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+
+DOCUMENTATION = '''
+---
+module: azure_rm_notificationhubsnamespace_facts
+version_added: "2.8"
+short_description: Get Azure Namespace facts.
+description:
+    - Get facts of Azure Namespace.
+
+options:
+    resource_group:
+        description:
+            - The name of the resource group.
+        required: True
+    namespace_name:
+        description:
+            - The namespace name.
+        required: True
+    tags:
+        description:
+            - Limit results by providing a list of tags. Format tags as 'key' or 'key:value'.
+
+extends_documentation_fragment:
+    - azure
+
+author:
+    - "Zim Kalinowski (@zikalino)"
+
+'''
+
+EXAMPLES = '''
+  - name: Get instance of Namespace
+    azure_rm_notificationhubsnamespace_facts:
+      resource_group: resource_group_name
+      namespace_name: namespace_name
+'''
+
+RETURN = '''
+namespaces:
+    description: A list of dictionaries containing facts for Namespace.
+    returned: always
+    type: complex
+    contains:
+        id:
+            description:
+                - Resource Id
+            returned: always
+            type: str
+            sample: /subscriptions/29cfa613-cbbc-4512-b1d6-1b3a92c7fa40/resourceGroups/5ktrial/providers/Microsoft.NotificationHubs/namespaces/nh-sdk-ns
+        name:
+            description:
+                - Resource name
+            returned: always
+            type: str
+            sample: nh-sdk-ns
+        location:
+            description:
+                - Resource location
+            returned: always
+            type: str
+            sample: South Central US
+        tags:
+            description:
+                - Resource tags
+            returned: always
+            type: complex
+            sample: {}
+        sku:
+            description:
+                - The sku of the created namespace
+            returned: always
+            type: complex
+            sample: sku
+            contains:
+                name:
+                    description:
+                        - "Name of the notification hub sku. Possible values include: 'Free', 'Basic', 'Standard'"
+                    returned: always
+                    type: str
+                    sample: Basic
+        status:
+            description:
+                - "Status of the namespace. It can be any of these values:1 = Created/Active2 = Creating3 = Suspended4 = Deleting"
+            returned: always
+            type: str
+            sample: Active
+        enabled:
+            description:
+                - Whether or not the namespace is currently enabled.
+            returned: always
+            type: str
+            sample: True
+        critical:
+            description:
+                - Whether or not the namespace is set as Critical.
+            returned: always
+            type: str
+            sample: False
+'''
+
+from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+
+try:
+    from msrestazure.azure_exceptions import CloudError
+    from azure.mgmt.notificationhubs import NotificationHubsManagementClient
+    from msrest.serialization import Model
+except ImportError:
+    # This is handled in azure_rm_common
+    pass
+
+
+class AzureRMNamespacesFacts(AzureRMModuleBase):
+    def __init__(self):
+        # define user inputs into argument
+        self.module_arg_spec = dict(
+            resource_group=dict(
+                type='str',
+                required=True
+            ),
+            namespace_name=dict(
+                type='str',
+                required=True
+            ),
+            tags=dict(
+                type='list'
+            )
+        )
+        # store the results of the module operation
+        self.results = dict(
+            changed=False
+        )
+        self.mgmt_client = None
+        self.resource_group = None
+        self.namespace_name = None
+        self.tags = None
+        super(AzureRMNamespacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+
+    def exec_module(self, **kwargs):
+        for key in self.module_arg_spec:
+            setattr(self, key, kwargs[key])
+        self.mgmt_client = self.get_mgmt_svc_client(NotificationHubsManagementClient,
+                                                    base_url=self._cloud_environment.endpoints.resource_manager)
+
+        self.results['namespaces'] = self.get()
+        return self.results
+
+    def get(self):
+        response = None
+        results = []
+        try:
+            response = self.mgmt_client.namespaces.get(resource_group_name=self.resource_group,
+                                                       namespace_name=self.namespace_name)
+            self.log("Response : {0}".format(response))
+        except CloudError as e:
+            self.log('Could not get facts for Namespaces.')
+
+        if response and self.has_tags(response.tags, self.tags):
+            results.append(self.format_item(response))
+
+        return results
+
+    def format_item(self, item):
+        d = item.as_dict()
+        d = {
+            'resource_group': self.resource_group,
+            'id': d.get('id', None),
+            'name': d.get('name', None),
+            'location': d.get('location', None),
+            'tags': d.get('tags', None),
+            'sku': {
+                'name': d.get('sku', {}).get('name', None)
+            },
+            'status': d.get('status', None),
+            'enabled': d.get('enabled', None),
+            'critical': d.get('critical', None)
+        }
+        return d
+
+
+def main():
+    AzureRMNamespacesFacts()
+
+
+if __name__ == '__main__':
+    main()
