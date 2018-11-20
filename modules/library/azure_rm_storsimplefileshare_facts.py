@@ -36,7 +36,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -56,20 +56,20 @@ EXAMPLES = '''
       file_server_name: file_server_name
       share_name: share_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of File Share
     azure_rm_storsimplefileshare_facts:
       device_name: device_name
       file_server_name: file_server_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of File Share
     azure_rm_storsimplefileshare_facts:
       device_name: device_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -128,7 +128,7 @@ class AzureRMFileSharesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -142,7 +142,7 @@ class AzureRMFileSharesFacts(AzureRMModuleBase):
         self.file_server_name = None
         self.share_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMFileSharesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -168,7 +168,7 @@ class AzureRMFileSharesFacts(AzureRMModuleBase):
                                                         file_server_name=self.file_server_name,
                                                         share_name=self.share_name,
                                                         resource_group_name=self.resource_group,
-                                                        manager_name=self.manager_name)
+                                                        manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FileShares.')
@@ -185,7 +185,7 @@ class AzureRMFileSharesFacts(AzureRMModuleBase):
             response = self.mgmt_client.file_shares.list_by_file_server(device_name=self.device_name,
                                                                         file_server_name=self.file_server_name,
                                                                         resource_group_name=self.resource_group,
-                                                                        manager_name=self.manager_name)
+                                                                        manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FileShares.')
@@ -202,7 +202,7 @@ class AzureRMFileSharesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.file_shares.list_by_device(device_name=self.device_name,
                                                                    resource_group_name=self.resource_group,
-                                                                   manager_name=self.manager_name)
+                                                                   manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FileShares.')

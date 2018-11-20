@@ -30,7 +30,7 @@ options:
         description:
             - The name of the secret resource.
         required: True
-    secret_value_resource_name:
+    name:
         description:
             - The name of the secret resource value which is typically the version identifier for the value.
         required: True
@@ -42,7 +42,7 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             value:
                 description:
                     - The actual value of the secret.
@@ -69,7 +69,9 @@ EXAMPLES = '''
     azure_rm_servicefabricmeshsecretvalue:
       resource_group: sbz_demo
       secret_resource_name: dbConnectionString
-      secret_value_resource_name: v1
+      name: v1
+      secret_value_resource_description:
+        value: mongodb://contoso123:0Fc3IolnL12312asdfawejunASDF@asdfYXX2t8a97kghVcUzcDv98hawelufhawefafnoQRGwNj2nMPL1Y9qsIr9Srdw==@contoso123.documents.azure.com:10255/mydatabase?ssl=true
 '''
 
 RETURN = '''
@@ -114,7 +116,7 @@ class AzureRMSecretValue(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            secret_value_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +133,7 @@ class AzureRMSecretValue(AzureRMModuleBase):
 
         self.resource_group = None
         self.secret_resource_name = None
-        self.secret_value_resource_name = None
+        self.name = None
         self.secret_value_resource_description = dict()
 
         self.results = dict(changed=False)
@@ -155,7 +157,6 @@ class AzureRMSecretValue(AzureRMModuleBase):
                 elif key == "value":
                     self.secret_value_resource_description["value"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ServiceFabricMeshManagementClient,
@@ -176,8 +177,8 @@ class AzureRMSecretValue(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Secret Value instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Secret Value instance")
@@ -188,10 +189,7 @@ class AzureRMSecretValue(AzureRMModuleBase):
 
             response = self.create_update_secretvalue()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Secret Value instance deleted")
@@ -220,13 +218,13 @@ class AzureRMSecretValue(AzureRMModuleBase):
 
         :return: deserialized Secret Value instance state dictionary
         '''
-        self.log("Creating / Updating the Secret Value instance {0}".format(self.secret_value_resource_name))
+        self.log("Creating / Updating the Secret Value instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.secret_value.create(resource_group_name=self.resource_group,
                                                                 secret_resource_name=self.secret_resource_name,
-                                                                secret_value_resource_name=self.secret_value_resource_name,
+                                                                secret_value_resource_name=self.name,
                                                                 secret_value_resource_description=self.secret_value_resource_description)
             else:
                 response = self.mgmt_client.secret_value.update()
@@ -244,11 +242,11 @@ class AzureRMSecretValue(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Secret Value instance {0}".format(self.secret_value_resource_name))
+        self.log("Deleting the Secret Value instance {0}".format(self.name))
         try:
             response = self.mgmt_client.secret_value.delete(resource_group_name=self.resource_group,
                                                             secret_resource_name=self.secret_resource_name,
-                                                            secret_value_resource_name=self.secret_value_resource_name)
+                                                            secret_value_resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Secret Value instance.')
             self.fail("Error deleting the Secret Value instance: {0}".format(str(e)))
@@ -261,12 +259,12 @@ class AzureRMSecretValue(AzureRMModuleBase):
 
         :return: deserialized Secret Value instance state dictionary
         '''
-        self.log("Checking if the Secret Value instance {0} is present".format(self.secret_value_resource_name))
+        self.log("Checking if the Secret Value instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.secret_value.get(resource_group_name=self.resource_group,
                                                          secret_resource_name=self.secret_resource_name,
-                                                         secret_value_resource_name=self.secret_value_resource_name)
+                                                         secret_value_resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Secret Value instance : {0} found".format(response.name))
@@ -282,6 +280,38 @@ class AzureRMSecretValue(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

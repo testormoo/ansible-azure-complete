@@ -31,7 +31,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    job_name:
+    name:
         description:
             - The name of the streaming job.
     tags:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_streamingjob_facts:
       expand: expand
       resource_group: resource_group_name
-      job_name: job_name
+      name: job_name
 
   - name: List instances of Streaming Job
     azure_rm_streamingjob_facts:
@@ -126,7 +126,7 @@ class AzureRMStreamingJobsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -140,7 +140,7 @@ class AzureRMStreamingJobsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.expand = None
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.tags = None
         super(AzureRMStreamingJobsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -150,7 +150,7 @@ class AzureRMStreamingJobsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(StreamAnalyticsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.job_name is not None:
+        if self.name is not None:
             self.results['streaming_jobs'] = self.get()
         else:
             self.results['streaming_jobs'] = self.list_by_resource_group()
@@ -161,7 +161,7 @@ class AzureRMStreamingJobsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.streaming_jobs.get(resource_group_name=self.resource_group,
-                                                           job_name=self.job_name)
+                                                           job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StreamingJobs.')

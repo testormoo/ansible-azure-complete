@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    dataset_name:
+    name:
         description:
             - The dataset name.
     if_none_match:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datafactorydataset_facts:
       resource_group: resource_group_name
       factory_name: factory_name
-      dataset_name: dataset_name
+      name: dataset_name
       if_none_match: if_none_match
 
   - name: List instances of Dataset
@@ -135,7 +135,7 @@ class AzureRMDatasetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            dataset_name=dict(
+            name=dict(
                 type='str'
             ),
             if_none_match=dict(
@@ -149,7 +149,7 @@ class AzureRMDatasetsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.factory_name = None
-        self.dataset_name = None
+        self.name = None
         self.if_none_match = None
         super(AzureRMDatasetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -159,7 +159,7 @@ class AzureRMDatasetsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.dataset_name is not None:
+        if self.name is not None:
             self.results['datasets'] = self.get()
         else:
             self.results['datasets'] = self.list_by_factory()
@@ -171,7 +171,7 @@ class AzureRMDatasetsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.datasets.get(resource_group_name=self.resource_group,
                                                      factory_name=self.factory_name,
-                                                     dataset_name=self.dataset_name)
+                                                     dataset_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Datasets.')

@@ -29,7 +29,7 @@ options:
     web_test_name:
         description:
             - The name of the Application Insights webtest resource.
-    component_name:
+    name:
         description:
             - The name of the Application Insights component resource.
     tags:
@@ -52,7 +52,7 @@ EXAMPLES = '''
 
   - name: List instances of Web Test
     azure_rm_applicationinsightswebtest_facts:
-      component_name: component_name
+      name: component_name
       resource_group: resource_group_name
 
   - name: List instances of Web Test
@@ -122,7 +122,7 @@ class AzureRMWebTestsFacts(AzureRMModuleBase):
             web_test_name=dict(
                 type='str'
             ),
-            component_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -136,7 +136,7 @@ class AzureRMWebTestsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.web_test_name = None
-        self.component_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWebTestsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -148,7 +148,7 @@ class AzureRMWebTestsFacts(AzureRMModuleBase):
 
         if self.web_test_name is not None:
             self.results['web_tests'] = self.get()
-        elif self.component_name is not None:
+        elif self.name is not None:
             self.results['web_tests'] = self.list_by_component()
         else:
             self.results['web_tests'] = self.list_by_resource_group()
@@ -173,7 +173,7 @@ class AzureRMWebTestsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.web_tests.list_by_component(component_name=self.component_name,
+            response = self.mgmt_client.web_tests.list_by_component(component_name=self.name,
                                                                     resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:

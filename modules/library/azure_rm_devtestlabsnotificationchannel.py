@@ -32,39 +32,31 @@ options:
         required: True
     name:
         description:
-            - The name of the I(notification_channel).
+            - The name of the notificationChannel.
         required: True
-    notification_channel:
+    location:
         description:
-            - A notification.
-        required: True
+            - The location of the resource.
+    web_hook_url:
+        description:
+            - The webhook URL to send notifications to.
+    description:
+        description:
+            - Description of notification.
+    events:
+        description:
+            - The list of event for which this notification is enabled.
+        type: list
         suboptions:
-            location:
+            event_name:
                 description:
-                    - The location of the resource.
-            web_hook_url:
-                description:
-                    - The webhook URL to send notifications to.
-            description:
-                description:
-                    - Description of notification.
-            events:
-                description:
-                    - The list of event for which this notification is enabled.
-                type: list
-                suboptions:
-                    event_name:
-                        description:
-                            - The event type for which this notification is enabled (i.e. C(auto_shutdown), C(cost)).
-                        choices:
-                            - 'auto_shutdown'
-                            - 'cost'
-            provisioning_state:
-                description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+                    - The event type for which this notification is enabled (i.e. C(auto_shutdown), C(cost)).
+                choices:
+                    - 'auto_shutdown'
+                    - 'cost'
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Notification Channel.
@@ -135,9 +127,20 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            notification_channel=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            web_hook_url=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            events=dict(
+                type='list'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -181,12 +184,9 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
                         elif ev['event_name'] == 'cost':
                             ev['event_name'] = 'Cost'
                     self.notification_channel["events"] = ev
-                elif key == "provisioning_state":
-                    self.notification_channel["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.notification_channel["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -207,8 +207,8 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Notification Channel instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.notification_channel, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Notification Channel instance")
@@ -219,10 +219,7 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
 
             response = self.create_update_notificationchannel()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Notification Channel instance deleted")
@@ -310,6 +307,38 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

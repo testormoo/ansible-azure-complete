@@ -30,14 +30,14 @@ options:
         description:
             - The name of the automation account.
         required: True
-    node_configuration_name:
+    name:
         description:
             - The Dsc node I(configuration) name.
         required: True
     source:
         description:
             - Gets or sets the source.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             hash:
                 description:
@@ -46,11 +46,11 @@ options:
                     algorithm:
                         description:
                             - Gets or sets the content hash algorithm used to hash the content.
-                        required: True
+                            - Required when C(state) is I(present).
                     value:
                         description:
                             - Gets or sets expected hash value of the content.
-                        required: True
+                            - Required when C(state) is I(present).
             type:
                 description:
                     - Gets or sets the content source type.
@@ -66,7 +66,7 @@ options:
     configuration:
         description:
             - Gets or sets the configuration of the node.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
@@ -99,7 +99,37 @@ EXAMPLES = '''
     azure_rm_automationdscnodeconfiguration:
       resource_group: rg
       automation_account_name: myAutomationAccount20
-      node_configuration_name: configName.nodeConfigName
+      name: configName.nodeConfigName
+      source:
+        hash:
+          algorithm: sha256
+          value: 6DE256A57F01BFA29B88696D5E77A383D6E61484C7686E8DB955FA10ACE9FFE5
+        type: embeddedContent
+        value:
+instance of MSFT_RoleResource as $MSFT_RoleResource1ref
+{
+ResourceID = "[WindowsFeature]IIS";
+ Ensure = "Present";
+ SourceInfo = "::3::32::WindowsFeature";
+ Name = "Web-Server";
+ ModuleName = "PsDesiredStateConfiguration";
+ModuleVersion = "1.0";
+ ConfigurationName = "configName";
+};
+instance of OMI_ConfigurationDocument
+                    {
+ Version="2.0.0";
+                        MinimumCompatibleVersion = "1.0.0";
+                        CompatibleVersionAdditionalProperties= {"Omi_BaseResource:ConfigurationName"};
+                        Author="weijiel";
+                        GenerationDate="03/30/2017 13:40:25";
+                        GenerationHost="TEST-BACKEND";
+                        Name="configName";
+                    };
+        version: 1.0
+      configuration:
+        name: configName
+      increment_node_configuration_build: True
       name: configName.nodeConfigName
 '''
 
@@ -143,17 +173,15 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            node_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             source=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             configuration=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             increment_node_configuration_build=dict(
                 type='str'
@@ -170,7 +198,7 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.node_configuration_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -202,7 +230,6 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -223,8 +250,8 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Dsc Node Configuration instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Dsc Node Configuration instance")
@@ -235,10 +262,7 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
 
             response = self.create_update_dscnodeconfiguration()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Dsc Node Configuration instance deleted")
@@ -267,12 +291,12 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
 
         :return: deserialized Dsc Node Configuration instance state dictionary
         '''
-        self.log("Creating / Updating the Dsc Node Configuration instance {0}".format(self.node_configuration_name))
+        self.log("Creating / Updating the Dsc Node Configuration instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.dsc_node_configuration.create_or_update(resource_group_name=self.resource_group,
                                                                                 automation_account_name=self.automation_account_name,
-                                                                                node_configuration_name=self.node_configuration_name,
+                                                                                node_configuration_name=self.name,
                                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -288,11 +312,11 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Dsc Node Configuration instance {0}".format(self.node_configuration_name))
+        self.log("Deleting the Dsc Node Configuration instance {0}".format(self.name))
         try:
             response = self.mgmt_client.dsc_node_configuration.delete(resource_group_name=self.resource_group,
                                                                       automation_account_name=self.automation_account_name,
-                                                                      node_configuration_name=self.node_configuration_name)
+                                                                      node_configuration_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Dsc Node Configuration instance.')
             self.fail("Error deleting the Dsc Node Configuration instance: {0}".format(str(e)))
@@ -305,12 +329,12 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
 
         :return: deserialized Dsc Node Configuration instance state dictionary
         '''
-        self.log("Checking if the Dsc Node Configuration instance {0} is present".format(self.node_configuration_name))
+        self.log("Checking if the Dsc Node Configuration instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.dsc_node_configuration.get(resource_group_name=self.resource_group,
                                                                    automation_account_name=self.automation_account_name,
-                                                                   node_configuration_name=self.node_configuration_name)
+                                                                   node_configuration_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Dsc Node Configuration instance : {0} found".format(response.name))
@@ -326,6 +350,38 @@ class AzureRMDscNodeConfiguration(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

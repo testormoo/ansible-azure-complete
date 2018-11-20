@@ -26,7 +26,7 @@ options:
         description:
             - azure subscriptionId, which we assign the blueprint to.
         required: True
-    assignment_name:
+    name:
         description:
             - name of the assignment.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Assignment
     azure_rm_blueprintassignment_facts:
       subscription_id: subscription_id
-      assignment_name: assignment_name
+      name: assignment_name
 '''
 
 RETURN = '''
@@ -124,7 +124,7 @@ class AzureRMAssignmentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            assignment_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -135,7 +135,7 @@ class AzureRMAssignmentsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.subscription_id = None
-        self.assignment_name = None
+        self.name = None
         super(AzureRMAssignmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -152,7 +152,7 @@ class AzureRMAssignmentsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.assignments.get(subscription_id=self.subscription_id,
-                                                        assignment_name=self.assignment_name)
+                                                        assignment_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Assignments.')

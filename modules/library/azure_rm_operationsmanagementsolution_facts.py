@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group to get. The name is case insensitive.
-    solution_name:
+    name:
         description:
             - User Solution Name.
 
@@ -41,7 +41,7 @@ EXAMPLES = '''
   - name: Get instance of Solution
     azure_rm_operationsmanagementsolution_facts:
       resource_group: resource_group_name
-      solution_name: solution_name
+      name: solution_name
 
   - name: List instances of Solution
     azure_rm_operationsmanagementsolution_facts:
@@ -129,7 +129,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            solution_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -139,7 +139,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.solution_name = None
+        self.name = None
         super(AzureRMSolutionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -149,7 +149,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.solution_name is not None):
+                self.name is not None):
             self.results['solutions'] = self.get()
         elif self.resource_group is not None:
             self.results['solutions'] = self.list_by_resource_group()
@@ -162,7 +162,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.solutions.get(resource_group_name=self.resource_group,
-                                                      solution_name=self.solution_name)
+                                                      solution_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Solutions.')

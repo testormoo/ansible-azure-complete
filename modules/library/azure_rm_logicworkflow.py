@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name.
         required: True
-    workflow_name:
+    name:
         description:
             - The I(workflow) name.
         required: True
@@ -55,7 +55,7 @@ options:
                     name:
                         description:
                             - The name.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'not_specified'
                             - 'free'
@@ -97,9 +97,60 @@ EXAMPLES = '''
   - name: Create (or update) Workflow
     azure_rm_logicworkflow:
       resource_group: test-resource-group
-      workflow_name: test-workflow
+      name: test-workflow
       workflow:
         location: brazilsouth
+        integration_account: {
+  "name": "test-integration-account",
+  "id": "/subscriptions/34adfa4f-cedf-4dc0-ba29-b6d1a69ab345/resourceGroups/test-resource-group/providers/Microsoft.Logic/integrationAccounts/test-integration-account",
+  "type": "Microsoft.Logic/integrationAccounts"
+}
+        definition: {
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    }
+  },
+  "triggers": {
+    "manual": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "schema": {}
+      }
+    }
+  },
+  "actions": {
+    "Find_pet_by_ID": {
+      "runAfter": {},
+      "type": "ApiConnection",
+      "inputs": {
+        "host": {
+          "connection": {
+            "name": "@parameters('$connections')['test-custom-connector']['connectionId']"
+          }
+        },
+        "method": "get",
+        "path": "/pet/@{encodeURIComponent('1')}"
+      }
+    }
+  },
+  "outputs": {}
+}
+        parameters: {
+  "$connections": {
+    "value": {
+      "test-custom-connector": {
+        "connectionId": "/subscriptions/34adfa4f-cedf-4dc0-ba29-b6d1a69ab345/resourceGroups/test-resource-group/providers/Microsoft.Web/connections/test-custom-connector",
+        "connectionName": "test-custom-connector",
+        "id": "/subscriptions/34adfa4f-cedf-4dc0-ba29-b6d1a69ab345/providers/Microsoft.Web/locations/brazilsouth/managedApis/test-custom-connector"
+      }
+    }
+  }
+}
 '''
 
 RETURN = '''
@@ -150,7 +201,7 @@ class AzureRMWorkflows(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workflow_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -166,7 +217,7 @@ class AzureRMWorkflows(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.workflow_name = None
+        self.name = None
         self.workflow = dict()
 
         self.results = dict(changed=False)
@@ -212,7 +263,6 @@ class AzureRMWorkflows(AzureRMModuleBase):
                 elif key == "parameters":
                     self.workflow["parameters"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -233,8 +283,8 @@ class AzureRMWorkflows(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Workflow instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Workflow instance")
@@ -245,10 +295,7 @@ class AzureRMWorkflows(AzureRMModuleBase):
 
             response = self.create_update_workflow()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Workflow instance deleted")
@@ -277,11 +324,11 @@ class AzureRMWorkflows(AzureRMModuleBase):
 
         :return: deserialized Workflow instance state dictionary
         '''
-        self.log("Creating / Updating the Workflow instance {0}".format(self.workflow_name))
+        self.log("Creating / Updating the Workflow instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.workflows.create_or_update(resource_group_name=self.resource_group,
-                                                                   workflow_name=self.workflow_name,
+                                                                   workflow_name=self.name,
                                                                    workflow=self.workflow)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -297,10 +344,10 @@ class AzureRMWorkflows(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Workflow instance {0}".format(self.workflow_name))
+        self.log("Deleting the Workflow instance {0}".format(self.name))
         try:
             response = self.mgmt_client.workflows.delete(resource_group_name=self.resource_group,
-                                                         workflow_name=self.workflow_name)
+                                                         workflow_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Workflow instance.')
             self.fail("Error deleting the Workflow instance: {0}".format(str(e)))
@@ -313,11 +360,11 @@ class AzureRMWorkflows(AzureRMModuleBase):
 
         :return: deserialized Workflow instance state dictionary
         '''
-        self.log("Checking if the Workflow instance {0} is present".format(self.workflow_name))
+        self.log("Checking if the Workflow instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.workflows.get(resource_group_name=self.resource_group,
-                                                      workflow_name=self.workflow_name)
+                                                      workflow_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Workflow instance : {0} found".format(response.name))
@@ -335,6 +382,38 @@ class AzureRMWorkflows(AzureRMModuleBase):
             'version': d.get('version', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

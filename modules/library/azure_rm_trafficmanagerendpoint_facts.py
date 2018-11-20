@@ -34,7 +34,7 @@ options:
         description:
             - The type of the Traffic Manager endpoint.
         required: True
-    endpoint_name:
+    name:
         description:
             - The name of the Traffic Manager endpoint.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       profile_name: profile_name
       endpoint_type: endpoint_type
-      endpoint_name: endpoint_name
+      name: endpoint_name
 '''
 
 RETURN = '''
@@ -126,7 +126,7 @@ class AzureRMEndpointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -139,7 +139,7 @@ class AzureRMEndpointsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.profile_name = None
         self.endpoint_type = None
-        self.endpoint_name = None
+        self.name = None
         super(AzureRMEndpointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -158,7 +158,7 @@ class AzureRMEndpointsFacts(AzureRMModuleBase):
             response = self.mgmt_client.endpoints.get(resource_group_name=self.resource_group,
                                                       profile_name=self.profile_name,
                                                       endpoint_type=self.endpoint_type,
-                                                      endpoint_name=self.endpoint_name)
+                                                      endpoint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Endpoints.')

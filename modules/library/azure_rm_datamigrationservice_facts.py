@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group
         required: True
-    service_name:
+    name:
         description:
             - Name of the service
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Service
     azure_rm_datamigrationservice_facts:
       group_name: group_name
-      service_name: service_name
+      name: service_name
 
   - name: List instances of Service
     azure_rm_datamigrationservice_facts:
@@ -135,7 +135,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -148,7 +148,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.group_name = None
-        self.service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -158,7 +158,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataMigrationServiceClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.service_name is not None:
+        if self.name is not None:
             self.results['services'] = self.get()
         else:
             self.results['services'] = self.list_by_resource_group()
@@ -169,7 +169,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.services.get(group_name=self.group_name,
-                                                     service_name=self.service_name)
+                                                     service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Services.')

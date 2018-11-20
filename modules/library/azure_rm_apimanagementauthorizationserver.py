@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -55,11 +55,11 @@ options:
             name:
                 description:
                     - body parameter name.
-                required: True
+                    - Required when C(state) is I(present).
             value:
                 description:
                     - body parameter value.
-                required: True
+                    - Required when C(state) is I(present).
     token_endpoint:
         description:
             - OAuth token endpoint. Contains absolute URI to entity being referenced.
@@ -87,25 +87,25 @@ options:
     display_name:
         description:
             - User-friendly authorization server name.
-        required: True
+            - Required when C(state) is I(present).
     client_registration_endpoint:
         description:
             - "Optional reference to a page where client or app registration for this authorization server is performed. Contains absolute URL to entity
                being referenced."
-        required: True
+            - Required when C(state) is I(present).
     authorization_endpoint:
         description:
             - "OAuth authorization endpoint. See http://tools.ietf.org/html/rfc6749#section-3.2."
-        required: True
+            - Required when C(state) is I(present).
     grant_types:
         description:
             - Form of an authorization grant, which the client uses to request the access token.
-        required: True
+            - Required when C(state) is I(present).
         type: list
     client_id:
         description:
             - Client or app id registered with this authorization server.
-        required: True
+            - Required when C(state) is I(present).
     if_match:
         description:
             - ETag of the Entity. Not required when creating an entity, but required when updating an entity.
@@ -130,8 +130,32 @@ EXAMPLES = '''
   - name: Create (or update) Authorization Server
     azure_rm_apimanagementauthorizationserver:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       authsid: newauthServer
+      description: test server
+      authorization_methods:
+        - [
+  "GET"
+]
+      token_endpoint: https://www.contoso.com/oauth2/token
+      support_state: True
+      default_scope: read write
+      bearer_token_sending_methods:
+        - [
+  "authorizationHeader"
+]
+      client_secret: 2
+      resource_owner_username: un
+      resource_owner_password: pwd
+      display_name: test2
+      client_registration_endpoint: https://www.contoso.com/apps
+      authorization_endpoint: https://www.contoso.com/oauth2/auth
+      grant_types:
+        - [
+  "authorizationCode",
+  "implicit"
+]
+      client_id: 1
       if_match: NOT FOUND
 '''
 
@@ -165,7 +189,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -208,24 +232,19 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
                 no_log=True
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             client_registration_endpoint=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             authorization_endpoint=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             grant_types=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             client_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             if_match=dict(
                 type='str'
@@ -238,7 +257,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.authsid = None
         self.parameters = dict()
         self.if_match = None
@@ -292,7 +311,6 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
                 elif key == "client_id":
                     self.parameters["client_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -313,8 +331,8 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Authorization Server instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Authorization Server instance")
@@ -325,10 +343,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
 
             response = self.create_update_authorizationserver()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Authorization Server instance deleted")
@@ -361,7 +376,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.authorization_server.create_or_update(resource_group_name=self.resource_group,
-                                                                              service_name=self.service_name,
+                                                                              service_name=self.name,
                                                                               authsid=self.authsid,
                                                                               parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -381,7 +396,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
         self.log("Deleting the Authorization Server instance {0}".format(self.authsid))
         try:
             response = self.mgmt_client.authorization_server.delete(resource_group_name=self.resource_group,
-                                                                    service_name=self.service_name,
+                                                                    service_name=self.name,
                                                                     authsid=self.authsid,
                                                                     if_match=self.if_match)
         except CloudError as e:
@@ -400,7 +415,7 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.authorization_server.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  authsid=self.authsid)
             found = True
             self.log("Response : {0}".format(response))
@@ -416,6 +431,38 @@ class AzureRMAuthorizationServer(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

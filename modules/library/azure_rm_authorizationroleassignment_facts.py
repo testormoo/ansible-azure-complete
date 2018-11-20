@@ -26,7 +26,7 @@ options:
         description:
             - The scope of the role assignment.
         required: True
-    role_assignment_name:
+    name:
         description:
             - The name of the role assignment to get.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Role Assignment
     azure_rm_authorizationroleassignment_facts:
       scope: scope
-      role_assignment_name: role_assignment_name
+      name: role_assignment_name
 '''
 
 RETURN = '''
@@ -98,7 +98,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            role_assignment_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -109,7 +109,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.scope = None
-        self.role_assignment_name = None
+        self.name = None
         super(AzureRMRoleAssignmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -126,7 +126,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.role_assignments.get(scope=self.scope,
-                                                             role_assignment_name=self.role_assignment_name)
+                                                             role_assignment_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RoleAssignments.')

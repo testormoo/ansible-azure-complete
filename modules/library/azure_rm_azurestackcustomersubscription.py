@@ -30,13 +30,10 @@ options:
         description:
             - Name of the Azure Stack registration.
         required: True
-    customer_subscription_name:
+    name:
         description:
             - Name of the product.
         required: True
-    etag:
-        description:
-            - The entity tag used for optimistic concurency when modifying the resource.
     tenant_id:
         description:
             - Tenant Id.
@@ -62,7 +59,8 @@ EXAMPLES = '''
     azure_rm_azurestackcustomersubscription:
       resource_group: azurestack
       registration_name: testregistration
-      customer_subscription_name: E09A4E93-29A7-4EBA-A6D4-76202383F07F
+      name: E09A4E93-29A7-4EBA-A6D4-76202383F07F
+      tenant_id: dbab3982-796f-4d03-9908-044c08aef8a2
 '''
 
 RETURN = '''
@@ -105,12 +103,9 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            customer_subscription_name=dict(
+            name=dict(
                 type='str',
                 required=True
-            ),
-            etag=dict(
-                type='str'
             ),
             tenant_id=dict(
                 type='str'
@@ -124,7 +119,7 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
 
         self.resource_group = None
         self.registration_name = None
-        self.customer_subscription_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -143,12 +138,9 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "etag":
-                    self.parameters["etag"] = kwargs[key]
-                elif key == "tenant_id":
+                if key == "tenant_id":
                     self.parameters["tenant_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureStackManagementClient,
@@ -167,8 +159,8 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Customer Subscription instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Customer Subscription instance")
@@ -179,10 +171,7 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
 
             response = self.create_update_customersubscription()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Customer Subscription instance deleted")
@@ -211,13 +200,13 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
 
         :return: deserialized Customer Subscription instance state dictionary
         '''
-        self.log("Creating / Updating the Customer Subscription instance {0}".format(self.customer_subscription_name))
+        self.log("Creating / Updating the Customer Subscription instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.customer_subscriptions.create(resource_group=self.resource_group,
                                                                           registration_name=self.registration_name,
-                                                                          customer_subscription_name=self.customer_subscription_name,
+                                                                          customer_subscription_name=self.name,
                                                                           customer_creation_parameters=self.parameters)
             else:
                 response = self.mgmt_client.customer_subscriptions.update()
@@ -235,11 +224,11 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Customer Subscription instance {0}".format(self.customer_subscription_name))
+        self.log("Deleting the Customer Subscription instance {0}".format(self.name))
         try:
             response = self.mgmt_client.customer_subscriptions.delete(resource_group=self.resource_group,
                                                                       registration_name=self.registration_name,
-                                                                      customer_subscription_name=self.customer_subscription_name)
+                                                                      customer_subscription_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Customer Subscription instance.')
             self.fail("Error deleting the Customer Subscription instance: {0}".format(str(e)))
@@ -252,12 +241,12 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
 
         :return: deserialized Customer Subscription instance state dictionary
         '''
-        self.log("Checking if the Customer Subscription instance {0} is present".format(self.customer_subscription_name))
+        self.log("Checking if the Customer Subscription instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.customer_subscriptions.get(resource_group=self.resource_group,
                                                                    registration_name=self.registration_name,
-                                                                   customer_subscription_name=self.customer_subscription_name)
+                                                                   customer_subscription_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Customer Subscription instance : {0} found".format(response.name))
@@ -273,6 +262,38 @@ class AzureRMCustomerSubscriptions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

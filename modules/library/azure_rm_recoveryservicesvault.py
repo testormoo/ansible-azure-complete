@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group where the recovery services I(vault) is present.
         required: True
-    vault_name:
+    name:
         description:
             - The name of the recovery services I(vault).
         required: True
@@ -41,7 +41,7 @@ options:
             location:
                 description:
                     - Resource location.
-                required: True
+                    - Required when C(state) is I(present).
             upgrade_details:
                 description:
             sku:
@@ -50,7 +50,7 @@ options:
                     name:
                         description:
                             - The Sku name.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'standard'
                             - 'rs0'
@@ -76,7 +76,7 @@ EXAMPLES = '''
   - name: Create (or update) Vault
     azure_rm_recoveryservicesvault:
       resource_group: Default-RecoveryServices-ResourceGroup
-      vault_name: swaggerExample
+      name: swaggerExample
       vault:
         location: West US
         sku:
@@ -119,7 +119,7 @@ class AzureRMVaults(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vault_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -135,7 +135,7 @@ class AzureRMVaults(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.vault_name = None
+        self.name = None
         self.vault = dict()
 
         self.results = dict(changed=False)
@@ -169,7 +169,6 @@ class AzureRMVaults(AzureRMModuleBase):
                             ev['name'] = 'RS0'
                     self.vault["sku"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(RecoveryServicesClient,
@@ -190,8 +189,8 @@ class AzureRMVaults(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Vault instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Vault instance")
@@ -202,10 +201,7 @@ class AzureRMVaults(AzureRMModuleBase):
 
             response = self.create_update_vault()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Vault instance deleted")
@@ -234,11 +230,11 @@ class AzureRMVaults(AzureRMModuleBase):
 
         :return: deserialized Vault instance state dictionary
         '''
-        self.log("Creating / Updating the Vault instance {0}".format(self.vault_name))
+        self.log("Creating / Updating the Vault instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.vaults.create_or_update(resource_group_name=self.resource_group,
-                                                                vault_name=self.vault_name,
+                                                                vault_name=self.name,
                                                                 vault=self.vault)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -254,10 +250,10 @@ class AzureRMVaults(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Vault instance {0}".format(self.vault_name))
+        self.log("Deleting the Vault instance {0}".format(self.name))
         try:
             response = self.mgmt_client.vaults.delete(resource_group_name=self.resource_group,
-                                                      vault_name=self.vault_name)
+                                                      vault_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Vault instance.')
             self.fail("Error deleting the Vault instance: {0}".format(str(e)))
@@ -270,11 +266,11 @@ class AzureRMVaults(AzureRMModuleBase):
 
         :return: deserialized Vault instance state dictionary
         '''
-        self.log("Checking if the Vault instance {0} is present".format(self.vault_name))
+        self.log("Checking if the Vault instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.vaults.get(resource_group_name=self.resource_group,
-                                                   vault_name=self.vault_name)
+                                                   vault_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Vault instance : {0} found".format(response.name))
@@ -290,6 +286,38 @@ class AzureRMVaults(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

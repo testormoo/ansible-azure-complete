@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    webhook_name:
+    name:
         description:
             - The webhook name.
     filter:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationwebhook_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      webhook_name: webhook_name
+      name: webhook_name
 
   - name: List instances of Webhook
     azure_rm_automationwebhook_facts:
@@ -127,7 +127,7 @@ class AzureRMWebhookFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            webhook_name=dict(
+            name=dict(
                 type='str'
             ),
             filter=dict(
@@ -141,7 +141,7 @@ class AzureRMWebhookFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.webhook_name = None
+        self.name = None
         self.filter = None
         super(AzureRMWebhookFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMWebhookFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.webhook_name is not None:
+        if self.name is not None:
             self.results['webhook'] = self.get()
         else:
             self.results['webhook'] = self.list_by_automation_account()
@@ -163,7 +163,7 @@ class AzureRMWebhookFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.webhook.get(resource_group_name=self.resource_group,
                                                     automation_account_name=self.automation_account_name,
-                                                    webhook_name=self.webhook_name)
+                                                    webhook_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Webhook.')

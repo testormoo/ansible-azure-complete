@@ -38,7 +38,7 @@ options:
         description:
             - Name of the custom domain within an endpoint.
         required: True
-    host_name:
+    name:
         description:
             - The host name of the custom domain. Must be a domain name.
         required: True
@@ -66,7 +66,7 @@ EXAMPLES = '''
       profile_name: profile1
       endpoint_name: endpoint1
       custom_domain_name: www-someDomain-net
-      host_name: NOT FOUND
+      name: NOT FOUND
 '''
 
 RETURN = '''
@@ -117,7 +117,7 @@ class AzureRMCustomDomains(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            host_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -132,7 +132,7 @@ class AzureRMCustomDomains(AzureRMModuleBase):
         self.profile_name = None
         self.endpoint_name = None
         self.custom_domain_name = None
-        self.host_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -150,7 +150,6 @@ class AzureRMCustomDomains(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CdnManagementClient,
@@ -171,8 +170,8 @@ class AzureRMCustomDomains(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Custom Domain instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Custom Domain instance")
@@ -183,10 +182,7 @@ class AzureRMCustomDomains(AzureRMModuleBase):
 
             response = self.create_update_customdomain()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Custom Domain instance deleted")
@@ -223,7 +219,7 @@ class AzureRMCustomDomains(AzureRMModuleBase):
                                                                   profile_name=self.profile_name,
                                                                   endpoint_name=self.endpoint_name,
                                                                   custom_domain_name=self.custom_domain_name,
-                                                                  host_name=self.host_name)
+                                                                  host_name=self.name)
             else:
                 response = self.mgmt_client.custom_domains.update()
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -280,6 +276,38 @@ class AzureRMCustomDomains(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

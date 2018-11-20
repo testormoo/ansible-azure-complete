@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -45,16 +45,16 @@ options:
     title:
         description:
             - Filename by which the binary data will be saved.
-        required: True
+            - Required when C(state) is I(present).
     content_format:
         description:
             - "Either 'link' if I(content) is provided via an HTTP link or the MIME type of the Base64-encoded binary data provided in the 'I(content)'
                property."
-        required: True
+            - Required when C(state) is I(present).
     content:
         description:
             - An HTTP link or Base64-encoded binary data.
-        required: True
+            - Required when C(state) is I(present).
     if_match:
         description:
             - "ETag of the Issue Entity. ETag should match the current entity state from the header response of the GET request or it should be * for
@@ -80,10 +80,13 @@ EXAMPLES = '''
   - name: Create (or update) Api Issue Attachment
     azure_rm_apimanagementapiissueattachment:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       api_id: 57d1f7558aa04f15146d9d8a
       issue_id: 57d2ef278aa04f0ad01d6cdc
       attachment_id: 57d2ef278aa04f0888cba3f3
+      title: Issue attachment.
+      content_format: image/jpeg
+      content: IEJhc2U2NA==
       if_match: NOT FOUND
 '''
 
@@ -124,7 +127,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -141,16 +144,13 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
                 required=True
             ),
             title=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             content_format=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             content=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             if_match=dict(
                 type='str'
@@ -163,7 +163,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.issue_id = None
         self.attachment_id = None
@@ -193,7 +193,6 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
                 elif key == "content":
                     self.parameters["content"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -214,8 +213,8 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Issue Attachment instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Issue Attachment instance")
@@ -226,10 +225,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
 
             response = self.create_update_apiissueattachment()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Issue Attachment instance deleted")
@@ -262,7 +258,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.api_issue_attachment.create_or_update(resource_group_name=self.resource_group,
-                                                                              service_name=self.service_name,
+                                                                              service_name=self.name,
                                                                               api_id=self.api_id,
                                                                               issue_id=self.issue_id,
                                                                               attachment_id=self.attachment_id,
@@ -284,7 +280,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
         self.log("Deleting the Api Issue Attachment instance {0}".format(self.attachment_id))
         try:
             response = self.mgmt_client.api_issue_attachment.delete(resource_group_name=self.resource_group,
-                                                                    service_name=self.service_name,
+                                                                    service_name=self.name,
                                                                     api_id=self.api_id,
                                                                     issue_id=self.issue_id,
                                                                     attachment_id=self.attachment_id,
@@ -305,7 +301,7 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_issue_attachment.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  api_id=self.api_id,
                                                                  issue_id=self.issue_id,
                                                                  attachment_id=self.attachment_id)
@@ -324,6 +320,38 @@ class AzureRMApiIssueAttachment(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

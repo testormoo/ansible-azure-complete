@@ -42,7 +42,7 @@ options:
         description:
             - The id of the job execution
         required: True
-    step_name:
+    name:
         description:
             - The name of the step.
     create_time_min:
@@ -86,7 +86,7 @@ EXAMPLES = '''
       job_agent_name: job_agent_name
       job_name: job_name
       job_execution_id: job_execution_id
-      step_name: step_name
+      name: step_name
       create_time_min: create_time_min
       create_time_max: create_time_max
       end_time_min: end_time_min
@@ -117,7 +117,7 @@ EXAMPLES = '''
       job_agent_name: job_agent_name
       job_name: job_name
       job_execution_id: job_execution_id
-      step_name: step_name
+      name: step_name
       target_id: target_id
 '''
 
@@ -197,7 +197,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            step_name=dict(
+            name=dict(
                 type='str'
             ),
             create_time_min=dict(
@@ -235,7 +235,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
         self.job_agent_name = None
         self.job_name = None
         self.job_execution_id = None
-        self.step_name = None
+        self.name = None
         self.create_time_min = None
         self.create_time_max = None
         self.end_time_min = None
@@ -252,11 +252,11 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.step_name is not None:
+        if self.name is not None:
             self.results['job_target_executions'] = self.list_by_step()
         else:
             self.results['job_target_executions'] = self.list_by_job_execution()
-        elif (self.step_name is not None and
+        elif (self.name is not None and
                 self.target_id is not None):
             self.results['job_target_executions'] = self.get()
         return self.results
@@ -270,7 +270,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                                                                            job_agent_name=self.job_agent_name,
                                                                            job_name=self.job_name,
                                                                            job_execution_id=self.job_execution_id,
-                                                                           step_name=self.step_name)
+                                                                           step_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobTargetExecutions.')
@@ -309,7 +309,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                                                                   job_agent_name=self.job_agent_name,
                                                                   job_name=self.job_name,
                                                                   job_execution_id=self.job_execution_id,
-                                                                  step_name=self.step_name,
+                                                                  step_name=self.name,
                                                                   target_id=self.target_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

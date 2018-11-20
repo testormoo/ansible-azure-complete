@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    source_control_name:
+    name:
         description:
             - The source control name.
         required: True
@@ -54,14 +54,14 @@ EXAMPLES = '''
     azure_rm_automationsourcecontrolsyncjob_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      source_control_name: source_control_name
+      name: source_control_name
       source_control_sync_job_id: source_control_sync_job_id
 
   - name: List instances of Source Control Sync Job
     azure_rm_automationsourcecontrolsyncjob_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      source_control_name: source_control_name
+      name: source_control_name
       filter: filter
 '''
 
@@ -109,7 +109,7 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            source_control_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -127,7 +127,7 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.source_control_name = None
+        self.name = None
         self.source_control_sync_job_id = None
         self.filter = None
         super(AzureRMSourceControlSyncJobFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -150,7 +150,7 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.source_control_sync_job.get(resource_group_name=self.resource_group,
                                                                     automation_account_name=self.automation_account_name,
-                                                                    source_control_name=self.source_control_name,
+                                                                    source_control_name=self.name,
                                                                     source_control_sync_job_id=self.source_control_sync_job_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -167,7 +167,7 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.source_control_sync_job.list_by_automation_account(resource_group_name=self.resource_group,
                                                                                            automation_account_name=self.automation_account_name,
-                                                                                           source_control_name=self.source_control_name)
+                                                                                           source_control_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SourceControlSyncJob.')

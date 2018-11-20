@@ -34,7 +34,7 @@ options:
         description:
             - The name of the job agent.
         required: True
-    job_name:
+    name:
         description:
             - The name of the job.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       job_agent_name: job_agent_name
-      job_name: job_name
+      name: job_name
       job_version: job_version
 
   - name: List instances of Job Version
@@ -64,7 +64,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       job_agent_name: job_agent_name
-      job_name: job_name
+      name: job_name
 '''
 
 RETURN = '''
@@ -115,7 +115,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +131,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.job_agent_name = None
-        self.job_name = None
+        self.name = None
         self.job_version = None
         super(AzureRMJobVersionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -154,7 +154,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.job_versions.get(resource_group_name=self.resource_group,
                                                          server_name=self.server_name,
                                                          job_agent_name=self.job_agent_name,
-                                                         job_name=self.job_name,
+                                                         job_name=self.name,
                                                          job_version=self.job_version)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -172,7 +172,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.job_versions.list_by_job(resource_group_name=self.resource_group,
                                                                  server_name=self.server_name,
                                                                  job_agent_name=self.job_agent_name,
-                                                                 job_name=self.job_name)
+                                                                 job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobVersions.')

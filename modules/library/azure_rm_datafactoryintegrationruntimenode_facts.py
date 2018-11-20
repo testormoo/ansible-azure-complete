@@ -34,7 +34,7 @@ options:
         description:
             - The integration runtime name.
         required: True
-    node_name:
+    name:
         description:
             - The integration runtime node name.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       factory_name: factory_name
       integration_runtime_name: integration_runtime_name
-      node_name: node_name
+      name: node_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMIntegrationRuntimeNodesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            node_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -124,7 +124,7 @@ class AzureRMIntegrationRuntimeNodesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.factory_name = None
         self.integration_runtime_name = None
-        self.node_name = None
+        self.name = None
         super(AzureRMIntegrationRuntimeNodesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMIntegrationRuntimeNodesFacts(AzureRMModuleBase):
             response = self.mgmt_client.integration_runtime_nodes.get(resource_group_name=self.resource_group,
                                                                       factory_name=self.factory_name,
                                                                       integration_runtime_name=self.integration_runtime_name,
-                                                                      node_name=self.node_name)
+                                                                      node_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationRuntimeNodes.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the load balancer.
         required: True
-    inbound_nat_rule_name:
+    name:
         description:
             - The name of the inbound nat rule.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_inboundnatrule_facts:
       resource_group: resource_group_name
       load_balancer_name: load_balancer_name
-      inbound_nat_rule_name: inbound_nat_rule_name
+      name: inbound_nat_rule_name
       expand: expand
 '''
 
@@ -104,7 +104,7 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            inbound_nat_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -119,7 +119,7 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.load_balancer_name = None
-        self.inbound_nat_rule_name = None
+        self.name = None
         self.expand = None
         super(AzureRMInboundNatRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -138,7 +138,7 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.inbound_nat_rules.get(resource_group_name=self.resource_group,
                                                               load_balancer_name=self.load_balancer_name,
-                                                              inbound_nat_rule_name=self.inbound_nat_rule_name)
+                                                              inbound_nat_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for InboundNatRules.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    software_update_configuration_name:
+    name:
         description:
             - The name of the software update configuration to be created.
         required: True
@@ -40,12 +40,12 @@ options:
     update_configuration:
         description:
             - update specific properties for the Software update configuration
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             operating_system:
                 description:
                     - operating system of target machines.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'windows'
                     - 'linux'
@@ -142,7 +142,7 @@ options:
     schedule_info:
         description:
             - Schedule information for the Software update configuration
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             start_time:
                 description:
@@ -274,8 +274,64 @@ EXAMPLES = '''
     azure_rm_automationsoftwareupdateconfiguration:
       resource_group: mygroup
       automation_account_name: myaccount
-      software_update_configuration_name: testpatch
+      name: testpatch
       client_request_id: NOT FOUND
+      update_configuration:
+        operating_system: Windows
+        windows:
+          included_update_classifications: Critical
+          excluded_kb_numbers:
+            - [
+  "168934",
+  "168973"
+]
+          reboot_setting: IfRequired
+        duration: PT2H0M
+        azure_virtual_machines:
+          - [
+  "/subscriptions/5ae68d89-69a4-454f-b5ce-e443cc4e0067/resourceGroups/myresources/providers/Microsoft.Compute/virtualMachines/vm-01",
+  "/subscriptions/5ae68d89-69a4-454f-b5ce-e443cc4e0067/resourceGroups/myresources/providers/Microsoft.Compute/virtualMachines/vm-02",
+  "/subscriptions/5ae68d89-69a4-454f-b5ce-e443cc4e0067/resourceGroups/myresources/providers/Microsoft.Compute/virtualMachines/vm-03"
+]
+        non_azure_computer_names:
+          - [
+  "box1.contoso.com",
+  "box2.contoso.com"
+]
+        targets:
+          azure_queries:
+            - scope:
+                - [
+  "/subscriptions/5ae68d89-69a4-454f-b5ce-e443cc4e0067/resourceGroups/myresources",
+  "/subscriptions/5ae68d89-69a4-454f-b5ce-e443cc4e0067"
+]
+              locations:
+                - [
+  "Japan East",
+  "UK South"
+]
+              tag_settings:
+                filter_operator: All
+      schedule_info:
+        start_time: 2017-10-19T12:22:57+00:00
+        expiry_time: 2018-11-09T11:22:57+00:00
+        interval: 1
+        frequency: Hour
+        time_zone: America/Los_Angeles
+        advanced_schedule:
+          week_days:
+            - [
+  "Monday",
+  "Thursday"
+]
+      tasks:
+        pre_task:
+          parameters: {
+  "COMPUTERNAME": "Computer1"
+}
+          source: HelloWorld
+        post_task:
+          source: GetCache
 '''
 
 RETURN = '''
@@ -319,7 +375,7 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            software_update_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -327,12 +383,10 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
                 type='str'
             ),
             update_configuration=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             schedule_info=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             error=dict(
                 type='dict'
@@ -349,7 +403,7 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.software_update_configuration_name = None
+        self.name = None
         self.client_request_id = None
         self.parameters = dict()
 
@@ -396,7 +450,6 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
                 elif key == "tasks":
                     self.parameters["tasks"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -417,8 +470,8 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Software Update Configuration instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Software Update Configuration instance")
@@ -429,10 +482,7 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
 
             response = self.create_update_softwareupdateconfiguration()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Software Update Configuration instance deleted")
@@ -467,7 +517,7 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.software_update_configurations.create(resource_group_name=self.resource_group,
                                                                                   automation_account_name=self.automation_account_name,
-                                                                                  software_update_configuration_name=self.software_update_configuration_name,
+                                                                                  software_update_configuration_name=self.name,
                                                                                   parameters=self.parameters)
             else:
                 response = self.mgmt_client.software_update_configurations.update()
@@ -489,7 +539,7 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
         try:
             response = self.mgmt_client.software_update_configurations.delete(resource_group_name=self.resource_group,
                                                                               automation_account_name=self.automation_account_name,
-                                                                              software_update_configuration_name=self.software_update_configuration_name)
+                                                                              software_update_configuration_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Software Update Configuration instance.')
             self.fail("Error deleting the Software Update Configuration instance: {0}".format(str(e)))
@@ -521,6 +571,38 @@ class AzureRMSoftwareUpdateConfigurations(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

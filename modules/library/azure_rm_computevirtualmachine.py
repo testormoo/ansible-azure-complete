@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    vm_name:
+    name:
         description:
             - The name of the virtual machine.
         required: True
@@ -285,11 +285,11 @@ options:
                                     secret_url:
                                         description:
                                             - The URL referencing a secret in a Key Vault.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     source_vault:
                                         description:
                                             - The relative URL of the Key Vault containing the secret.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             key_encryption_key:
                                 description:
                                     - Specifies the location of the key encryption key in Key Vault.
@@ -297,11 +297,11 @@ options:
                                     key_url:
                                         description:
                                             - The URL referencing a key encryption key in Key Vault.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     source_vault:
                                         description:
                                             - The relative URL of the Key Vault containing the key.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             enabled:
                                 description:
                                     - Specifies whether disk encryption should be enabled on the virtual machine.
@@ -350,7 +350,7 @@ options:
                                used when you are using an I(image) to create the virtual machine. If you are using a platform I(image), you also use the
                                imageReference element described above. If you are using a marketplace I(image), you  also use the plan element previously
                                described."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'from_image'
                             - 'empty'
@@ -387,7 +387,7 @@ options:
                         description:
                             - "Specifies the logical unit number of the data disk. This value is used to identify data disks within the VM and therefore
                                must be unique for each data disk attached to a VM."
-                        required: True
+                            - Required when C(state) is I(present).
                     name:
                         description:
                             - The disk name.
@@ -424,7 +424,7 @@ options:
                                used when you are using an I(image) to create the virtual machine. If you are using a platform I(image), you also use the
                                imageReference element described above. If you are using a marketplace I(image), you  also use the plan element previously
                                described."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'from_image'
                             - 'empty'
@@ -734,8 +734,30 @@ EXAMPLES = '''
   - name: Create (or update) Virtual Machine
     azure_rm_computevirtualmachine:
       resource_group: myResourceGroup
-      vm_name: myVM
+      name: myVM
       location: eastus
+      hardware_profile:
+        vm_size: Standard_D1_v2
+      storage_profile:
+        image_reference:
+          publisher: MicrosoftWindowsServer
+          offer: WindowsServer
+          sku: 2016-Datacenter
+          version: latest
+        os_disk:
+          name: myVMosdisk
+          caching: ReadWrite
+          create_option: FromImage
+          managed_disk:
+            storage_account_type: Standard_LRS
+      os_profile:
+        computer_name: myVM
+        admin_username: {your-username}
+        admin_password: {your-password}
+      network_profile:
+        network_interfaces:
+          - id: /subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/networkInterfaces/{existing-nic-name}
+            primary: True
 '''
 
 RETURN = '''
@@ -774,7 +796,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -822,7 +844,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.vm_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -1210,7 +1232,6 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
                 elif key == "zones":
                     self.parameters["zones"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -1234,8 +1255,8 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Machine instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Machine instance")
@@ -1246,10 +1267,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
 
             response = self.create_update_virtualmachine()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Machine instance deleted")
@@ -1278,11 +1296,11 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine instance state dictionary
         '''
-        self.log("Creating / Updating the Virtual Machine instance {0}".format(self.vm_name))
+        self.log("Creating / Updating the Virtual Machine instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.virtual_machines.create_or_update(resource_group_name=self.resource_group,
-                                                                          vm_name=self.vm_name,
+                                                                          vm_name=self.name,
                                                                           parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -1298,10 +1316,10 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Virtual Machine instance {0}".format(self.vm_name))
+        self.log("Deleting the Virtual Machine instance {0}".format(self.name))
         try:
             response = self.mgmt_client.virtual_machines.delete(resource_group_name=self.resource_group,
-                                                                vm_name=self.vm_name)
+                                                                vm_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Virtual Machine instance.')
             self.fail("Error deleting the Virtual Machine instance: {0}".format(str(e)))
@@ -1314,11 +1332,11 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine instance state dictionary
         '''
-        self.log("Checking if the Virtual Machine instance {0} is present".format(self.vm_name))
+        self.log("Checking if the Virtual Machine instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.virtual_machines.get(resource_group_name=self.resource_group,
-                                                             vm_name=self.vm_name)
+                                                             vm_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Virtual Machine instance : {0} found".format(response.name))
@@ -1334,6 +1352,38 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

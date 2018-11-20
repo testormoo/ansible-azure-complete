@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    server_name:
+    name:
         description:
             - The name of the server.
         required: True
@@ -84,15 +84,15 @@ options:
     create_mode:
         description:
             - Constant filled by server.
-        required: True
+            - Required when C(state) is I(present).
     administrator_login:
         description:
             - "The administrator's login name of a server. Can only be specified when the server is being created (and is required for creation)."
-        required: True
+            - Required when C(state) is I(present).
     administrator_login_password:
         description:
             - The password of the administrator login.
-        required: True
+            - Required when C(state) is I(present).
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
@@ -118,7 +118,7 @@ EXAMPLES = '''
   - name: Create (or update) Server
     azure_rm_mariadbserver:
       resource_group: testrg
-      server_name: mariadbtestsvc4
+      name: mariadbtestsvc4
       sku:
         name: GP_Gen5_2
         tier: GeneralPurpose
@@ -188,7 +188,7 @@ class AzureRMServers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -209,17 +209,14 @@ class AzureRMServers(AzureRMModuleBase):
                 type='dict'
             ),
             create_mode=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             administrator_login=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             administrator_login_password=dict(
                 type='str',
-                no_log=True,
-                required=True
+                no_log=True
             ),
             location=dict(
                 type='str'
@@ -232,7 +229,7 @@ class AzureRMServers(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.server_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -282,7 +279,6 @@ class AzureRMServers(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MariaDBManagementClient,
@@ -306,8 +302,8 @@ class AzureRMServers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server instance")
@@ -318,10 +314,7 @@ class AzureRMServers(AzureRMModuleBase):
 
             response = self.create_update_server()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server instance deleted")
@@ -350,16 +343,16 @@ class AzureRMServers(AzureRMModuleBase):
 
         :return: deserialized Server instance state dictionary
         '''
-        self.log("Creating / Updating the Server instance {0}".format(self.server_name))
+        self.log("Creating / Updating the Server instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.servers.create(resource_group_name=self.resource_group,
-                                                           server_name=self.server_name,
+                                                           server_name=self.name,
                                                            parameters=self.parameters)
             else:
                 response = self.mgmt_client.servers.update(resource_group_name=self.resource_group,
-                                                           server_name=self.server_name,
+                                                           server_name=self.name,
                                                            parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -375,10 +368,10 @@ class AzureRMServers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server instance {0}".format(self.server_name))
+        self.log("Deleting the Server instance {0}".format(self.name))
         try:
             response = self.mgmt_client.servers.delete(resource_group_name=self.resource_group,
-                                                       server_name=self.server_name)
+                                                       server_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Server instance.')
             self.fail("Error deleting the Server instance: {0}".format(str(e)))
@@ -391,11 +384,11 @@ class AzureRMServers(AzureRMModuleBase):
 
         :return: deserialized Server instance state dictionary
         '''
-        self.log("Checking if the Server instance {0} is present".format(self.server_name))
+        self.log("Checking if the Server instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.servers.get(resource_group_name=self.resource_group,
-                                                    server_name=self.server_name)
+                                                    server_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server instance : {0} found".format(response.name))
@@ -414,6 +407,38 @@ class AzureRMServers(AzureRMModuleBase):
             'fully_qualified_domain_name': d.get('fully_qualified_domain_name', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

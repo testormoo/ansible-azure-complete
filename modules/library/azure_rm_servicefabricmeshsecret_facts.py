@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure resource group name
-    secret_resource_name:
+    name:
         description:
             - The name of the secret resource.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Secret
     azure_rm_servicefabricmeshsecret_facts:
       resource_group: resource_group_name
-      secret_resource_name: secret_resource_name
+      name: secret_resource_name
 
   - name: List instances of Secret
     azure_rm_servicefabricmeshsecret_facts:
@@ -130,7 +130,7 @@ class AzureRMSecretFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            secret_resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -143,7 +143,7 @@ class AzureRMSecretFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.secret_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMSecretFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -154,7 +154,7 @@ class AzureRMSecretFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.secret_resource_name is not None):
+                self.name is not None):
             self.results['secret'] = self.get()
         elif self.resource_group is not None:
             self.results['secret'] = self.list_by_resource_group()
@@ -167,7 +167,7 @@ class AzureRMSecretFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.secret.get(resource_group_name=self.resource_group,
-                                                   secret_resource_name=self.secret_resource_name)
+                                                   secret_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Secret.')

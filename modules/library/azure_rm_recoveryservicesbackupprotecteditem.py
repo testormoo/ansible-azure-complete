@@ -38,7 +38,7 @@ options:
         description:
             - Container name associated with the backup item.
         required: True
-    protected_item_name:
+    name:
         description:
             - Item name to be backed up.
         required: True
@@ -104,7 +104,7 @@ options:
     protected_item_type:
         description:
             - Constant filled by server.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Protected Item.
@@ -130,7 +130,7 @@ EXAMPLES = '''
       resource_group: SwaggerTestRg
       fabric_name: Azure
       container_name: IaasVMContainer;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
-      protected_item_name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+      name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
       location: eastus
       source_resource_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg/providers/Microsoft.Compute/virtualMachines/netvmtestv2vm1
       policy_id: /Subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/SwaggerTestRg/providers/Microsoft.RecoveryServices/vaults/NetSDKTestRsVault/backupPolicies/DefaultPolicy
@@ -184,7 +184,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            protected_item_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -245,8 +245,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
                          'recover']
             ),
             protected_item_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -259,7 +258,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
         self.resource_group = None
         self.fabric_name = None
         self.container_name = None
-        self.protected_item_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -319,7 +318,6 @@ class AzureRMProtectedItems(AzureRMModuleBase):
                 elif key == "protected_item_type":
                     self.parameters.setdefault("properties", {})["protected_item_type"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(RecoveryServicesBackupClient,
@@ -343,8 +341,8 @@ class AzureRMProtectedItems(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Protected Item instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Protected Item instance")
@@ -355,10 +353,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
 
             response = self.create_update_protecteditem()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Protected Item instance deleted")
@@ -387,14 +382,14 @@ class AzureRMProtectedItems(AzureRMModuleBase):
 
         :return: deserialized Protected Item instance state dictionary
         '''
-        self.log("Creating / Updating the Protected Item instance {0}".format(self.protected_item_name))
+        self.log("Creating / Updating the Protected Item instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.protected_items.create_or_update(vault_name=self.vault_name,
                                                                          resource_group_name=self.resource_group,
                                                                          fabric_name=self.fabric_name,
                                                                          container_name=self.container_name,
-                                                                         protected_item_name=self.protected_item_name,
+                                                                         protected_item_name=self.name,
                                                                          parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -410,13 +405,13 @@ class AzureRMProtectedItems(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Protected Item instance {0}".format(self.protected_item_name))
+        self.log("Deleting the Protected Item instance {0}".format(self.name))
         try:
             response = self.mgmt_client.protected_items.delete(vault_name=self.vault_name,
                                                                resource_group_name=self.resource_group,
                                                                fabric_name=self.fabric_name,
                                                                container_name=self.container_name,
-                                                               protected_item_name=self.protected_item_name)
+                                                               protected_item_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Protected Item instance.')
             self.fail("Error deleting the Protected Item instance: {0}".format(str(e)))
@@ -429,14 +424,14 @@ class AzureRMProtectedItems(AzureRMModuleBase):
 
         :return: deserialized Protected Item instance state dictionary
         '''
-        self.log("Checking if the Protected Item instance {0} is present".format(self.protected_item_name))
+        self.log("Checking if the Protected Item instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.protected_items.get(vault_name=self.vault_name,
                                                             resource_group_name=self.resource_group,
                                                             fabric_name=self.fabric_name,
                                                             container_name=self.container_name,
-                                                            protected_item_name=self.protected_item_name)
+                                                            protected_item_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Protected Item instance : {0} found".format(response.name))
@@ -452,6 +447,38 @@ class AzureRMProtectedItems(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

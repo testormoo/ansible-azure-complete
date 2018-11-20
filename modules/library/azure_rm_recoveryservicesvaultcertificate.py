@@ -30,7 +30,7 @@ options:
         description:
             - The name of the recovery services vault.
         required: True
-    certificate_name:
+    name:
         description:
             - I(certificate) friendly name.
         required: True
@@ -68,7 +68,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesvaultcertificate:
       resource_group: BCDRIbzRG
       vault_name: BCDRIbzVault
-      certificate_name: BCDRIbzVault77777777-d41f-4550-9f70-7708a3a2283b-12-18-2017-vaultcredentials
+      name: BCDRIbzVault77777777-d41f-4550-9f70-7708a3a2283b-12-18-2017-vaultcredentials
 '''
 
 RETURN = '''
@@ -112,7 +112,7 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -136,7 +136,7 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
 
         self.resource_group = None
         self.vault_name = None
-        self.certificate_name = None
+        self.name = None
         self.properties = dict()
 
         self.results = dict(changed=False)
@@ -165,7 +165,6 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
                 elif key == "certificate":
                     self.properties["certificate"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(RecoveryServicesClient,
@@ -186,8 +185,8 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Vault Certificate instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Vault Certificate instance")
@@ -198,10 +197,7 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
 
             response = self.create_update_vaultcertificate()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Vault Certificate instance deleted")
@@ -236,7 +232,7 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.vault_certificates.create(resource_group_name=self.resource_group,
                                                                       vault_name=self.vault_name,
-                                                                      certificate_name=self.certificate_name)
+                                                                      certificate_name=self.name)
             else:
                 response = self.mgmt_client.vault_certificates.update()
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -287,6 +283,38 @@ class AzureRMVaultCertificates(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

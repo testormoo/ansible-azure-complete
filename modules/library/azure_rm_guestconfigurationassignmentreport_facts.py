@@ -34,7 +34,7 @@ options:
         description:
             - The GUID for the guest configuration assignment report.
         required: True
-    vm_name:
+    name:
         description:
             - The name of the virtual machine.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       guest_configuration_assignment_name: guest_configuration_assignment_name
       report_id: report_id
-      vm_name: vm_name
+      name: vm_name
 '''
 
 RETURN = '''
@@ -170,7 +170,7 @@ class AzureRMGuestConfigurationAssignmentReportsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -183,7 +183,7 @@ class AzureRMGuestConfigurationAssignmentReportsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.guest_configuration_assignment_name = None
         self.report_id = None
-        self.vm_name = None
+        self.name = None
         super(AzureRMGuestConfigurationAssignmentReportsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -202,7 +202,7 @@ class AzureRMGuestConfigurationAssignmentReportsFacts(AzureRMModuleBase):
             response = self.mgmt_client.guest_configuration_assignment_reports.get(resource_group_name=self.resource_group,
                                                                                    guest_configuration_assignment_name=self.guest_configuration_assignment_name,
                                                                                    report_id=self.report_id,
-                                                                                   vm_name=self.vm_name)
+                                                                                   vm_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for GuestConfigurationAssignmentReports.')

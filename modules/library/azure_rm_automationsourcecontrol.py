@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    source_control_name:
+    name:
         description:
             - The source control name.
         required: True
@@ -97,7 +97,17 @@ EXAMPLES = '''
     azure_rm_automationsourcecontrol:
       resource_group: rg
       automation_account_name: sampleAccount9
-      source_control_name: sampleSourceControl
+      name: sampleSourceControl
+      repo_url: https://sampleUser.visualstudio.com/myProject/_git/myRepository
+      branch: master
+      folder_path: /folderOne/folderTwo
+      auto_sync: True
+      publish_runbook: True
+      source_type: VsoGit
+      security_token:
+        access_token: 3a326f7a0dcd343ea58fee21f2fd5fb4c1234567
+        token_type: PersonalAccessToken
+      description: my description
 '''
 
 RETURN = '''
@@ -140,7 +150,7 @@ class AzureRMSourceControl(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            source_control_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -180,7 +190,7 @@ class AzureRMSourceControl(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.source_control_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -222,7 +232,6 @@ class AzureRMSourceControl(AzureRMModuleBase):
                 elif key == "description":
                     self.parameters["description"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -243,8 +252,8 @@ class AzureRMSourceControl(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Source Control instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Source Control instance")
@@ -255,10 +264,7 @@ class AzureRMSourceControl(AzureRMModuleBase):
 
             response = self.create_update_sourcecontrol()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Source Control instance deleted")
@@ -287,12 +293,12 @@ class AzureRMSourceControl(AzureRMModuleBase):
 
         :return: deserialized Source Control instance state dictionary
         '''
-        self.log("Creating / Updating the Source Control instance {0}".format(self.source_control_name))
+        self.log("Creating / Updating the Source Control instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.source_control.create_or_update(resource_group_name=self.resource_group,
                                                                         automation_account_name=self.automation_account_name,
-                                                                        source_control_name=self.source_control_name,
+                                                                        source_control_name=self.name,
                                                                         parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -308,11 +314,11 @@ class AzureRMSourceControl(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Source Control instance {0}".format(self.source_control_name))
+        self.log("Deleting the Source Control instance {0}".format(self.name))
         try:
             response = self.mgmt_client.source_control.delete(resource_group_name=self.resource_group,
                                                               automation_account_name=self.automation_account_name,
-                                                              source_control_name=self.source_control_name)
+                                                              source_control_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Source Control instance.')
             self.fail("Error deleting the Source Control instance: {0}".format(str(e)))
@@ -325,12 +331,12 @@ class AzureRMSourceControl(AzureRMModuleBase):
 
         :return: deserialized Source Control instance state dictionary
         '''
-        self.log("Checking if the Source Control instance {0} is present".format(self.source_control_name))
+        self.log("Checking if the Source Control instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.source_control.get(resource_group_name=self.resource_group,
                                                            automation_account_name=self.automation_account_name,
-                                                           source_control_name=self.source_control_name)
+                                                           source_control_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Source Control instance : {0} found".format(response.name))
@@ -346,6 +352,38 @@ class AzureRMSourceControl(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

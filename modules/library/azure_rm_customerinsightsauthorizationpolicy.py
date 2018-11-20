@@ -30,14 +30,14 @@ options:
         description:
             - The name of the hub.
         required: True
-    authorization_policy_name:
+    name:
         description:
             - The name of the policy.
         required: True
     permissions:
         description:
             - The permissions associated with the policy.
-        required: True
+            - Required when C(state) is I(present).
         type: list
     primary_key:
         description:
@@ -67,7 +67,13 @@ EXAMPLES = '''
     azure_rm_customerinsightsauthorizationpolicy:
       resource_group: TestHubRG
       hub_name: azSdkTestHub
-      authorization_policy_name: testPolicy4222
+      name: testPolicy4222
+      permissions:
+        - [
+  "Read",
+  "Write",
+  "Manage"
+]
 '''
 
 RETURN = '''
@@ -110,13 +116,12 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            authorization_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             permissions=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             primary_key=dict(
                 type='str'
@@ -133,7 +138,7 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.authorization_policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -159,7 +164,6 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
                 elif key == "secondary_key":
                     self.parameters["secondary_key"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -180,8 +184,8 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Authorization Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Authorization Policy instance")
@@ -192,10 +196,7 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
 
             response = self.create_update_authorizationpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Authorization Policy instance deleted")
@@ -224,12 +225,12 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
 
         :return: deserialized Authorization Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Authorization Policy instance {0}".format(self.authorization_policy_name))
+        self.log("Creating / Updating the Authorization Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.authorization_policies.create_or_update(resource_group_name=self.resource_group,
                                                                                 hub_name=self.hub_name,
-                                                                                authorization_policy_name=self.authorization_policy_name,
+                                                                                authorization_policy_name=self.name,
                                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -245,7 +246,7 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Authorization Policy instance {0}".format(self.authorization_policy_name))
+        self.log("Deleting the Authorization Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.authorization_policies.delete()
         except CloudError as e:
@@ -260,12 +261,12 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
 
         :return: deserialized Authorization Policy instance state dictionary
         '''
-        self.log("Checking if the Authorization Policy instance {0} is present".format(self.authorization_policy_name))
+        self.log("Checking if the Authorization Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.authorization_policies.get(resource_group_name=self.resource_group,
                                                                    hub_name=self.hub_name,
-                                                                   authorization_policy_name=self.authorization_policy_name)
+                                                                   authorization_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Authorization Policy instance : {0} found".format(response.name))
@@ -281,6 +282,38 @@ class AzureRMAuthorizationPolicies(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

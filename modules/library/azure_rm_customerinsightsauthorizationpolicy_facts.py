@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    authorization_policy_name:
+    name:
         description:
             - The name of the policy.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsauthorizationpolicy_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      authorization_policy_name: authorization_policy_name
+      name: authorization_policy_name
 
   - name: List instances of Authorization Policy
     azure_rm_customerinsightsauthorizationpolicy_facts:
@@ -105,7 +105,7 @@ class AzureRMAuthorizationPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            authorization_policy_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -116,7 +116,7 @@ class AzureRMAuthorizationPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.authorization_policy_name = None
+        self.name = None
         super(AzureRMAuthorizationPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -125,7 +125,7 @@ class AzureRMAuthorizationPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.authorization_policy_name is not None:
+        if self.name is not None:
             self.results['authorization_policies'] = self.get()
         else:
             self.results['authorization_policies'] = self.list_by_hub()
@@ -137,7 +137,7 @@ class AzureRMAuthorizationPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.authorization_policies.get(resource_group_name=self.resource_group,
                                                                    hub_name=self.hub_name,
-                                                                   authorization_policy_name=self.authorization_policy_name)
+                                                                   authorization_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AuthorizationPolicies.')

@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Location.
 
 options:
-    location_name:
+    name:
         description:
             - The name of the location. For example, West US or westus.
         required: True
@@ -41,7 +41,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Location
     azure_rm_storageimportexportlocation_facts:
-      location_name: location_name
+      name: location_name
       self.config.accept_language: self.config.accept_language
 '''
 
@@ -92,7 +92,7 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            location_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -105,7 +105,7 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.location_name = None
+        self.name = None
         self.self.config.accept_language = None
         super(AzureRMLocationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -122,7 +122,7 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.locations.get(location_name=self.location_name)
+            response = self.mgmt_client.locations.get(location_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Locations.')

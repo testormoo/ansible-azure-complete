@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the Batch account.
         required: True
-    account_name:
+    name:
         description:
             - The name of the Batch account.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Application
     azure_rm_batchapplication_facts:
       resource_group: resource_group_name
-      account_name: account_name
+      name: account_name
       application_id: application_id
 '''
 
@@ -84,7 +84,7 @@ class AzureRMApplicationFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -99,7 +99,7 @@ class AzureRMApplicationFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.application_id = None
         super(AzureRMApplicationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -117,7 +117,7 @@ class AzureRMApplicationFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.application.get(resource_group_name=self.resource_group,
-                                                        account_name=self.account_name,
+                                                        account_name=self.name,
                                                         application_id=self.application_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

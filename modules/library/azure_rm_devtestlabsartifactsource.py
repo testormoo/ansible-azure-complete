@@ -34,50 +34,42 @@ options:
         description:
             - The name of the artifact source.
         required: True
-    artifact_source:
+    location:
         description:
-            - Properties of an artifact source.
-        required: True
-        suboptions:
-            location:
-                description:
-                    - The location of the resource.
-            display_name:
-                description:
-                    - "The artifact source's display name."
-            uri:
-                description:
-                    - "The artifact source's URI."
-            source_type:
-                description:
-                    - "The artifact source's type."
-                choices:
-                    - 'vso_git'
-                    - 'git_hub'
-            folder_path:
-                description:
-                    - The folder containing artifacts.
-            arm_template_folder_path:
-                description:
-                    - The folder containing Azure Resource Manager templates.
-            branch_ref:
-                description:
-                    - "The artifact source's branch reference."
-            security_token:
-                description:
-                    - The security token to authenticate to the artifact source.
-            status:
-                description:
-                    - "Indicates if the artifact source is C(enabled) (values: C(enabled), C(disabled))."
-                choices:
-                    - 'enabled'
-                    - 'disabled'
-            provisioning_state:
-                description:
-                    - The provisioning I(status) of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+            - The location of the resource.
+    display_name:
+        description:
+            - "The artifact source's display name."
+    uri:
+        description:
+            - "The artifact source's URI."
+    source_type:
+        description:
+            - "The artifact source's type."
+        choices:
+            - 'vso_git'
+            - 'git_hub'
+    folder_path:
+        description:
+            - The folder containing artifacts.
+    arm_template_folder_path:
+        description:
+            - The folder containing Azure Resource Manager templates.
+    branch_ref:
+        description:
+            - "The artifact source's branch reference."
+    security_token:
+        description:
+            - The security token to authenticate to the artifact source.
+    status:
+        description:
+            - "Indicates if the artifact source is C(enabled) (values: C(enabled), C(disabled))."
+        choices:
+            - 'enabled'
+            - 'disabled'
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Artifact Source.
@@ -154,9 +146,39 @@ class AzureRMArtifactSources(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            artifact_source=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            display_name=dict(
+                type='str'
+            ),
+            uri=dict(
+                type='str'
+            ),
+            source_type=dict(
+                type='str',
+                choices=['vso_git',
+                         'git_hub']
+            ),
+            folder_path=dict(
+                type='str'
+            ),
+            arm_template_folder_path=dict(
+                type='str'
+            ),
+            branch_ref=dict(
+                type='str'
+            ),
+            security_token=dict(
+                type='str'
+            ),
+            status=dict(
+                type='str',
+                choices=['enabled',
+                         'disabled']
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -204,12 +226,9 @@ class AzureRMArtifactSources(AzureRMModuleBase):
                     self.artifact_source["security_token"] = kwargs[key]
                 elif key == "status":
                     self.artifact_source["status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioning_state":
-                    self.artifact_source["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.artifact_source["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -230,8 +249,8 @@ class AzureRMArtifactSources(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Artifact Source instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.artifact_source, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Artifact Source instance")
@@ -242,10 +261,7 @@ class AzureRMArtifactSources(AzureRMModuleBase):
 
             response = self.create_update_artifactsource()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Artifact Source instance deleted")
@@ -334,6 +350,38 @@ class AzureRMArtifactSources(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

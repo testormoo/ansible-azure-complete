@@ -26,7 +26,7 @@ options:
         description:
             - The name of the service.
         required: True
-    feature_name:
+    name:
         description:
             - The name of the feature.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Adds Services User Preference
     azure_rm_adhybridhealthserviceaddsservicesuserpreference_facts:
       service_name: service_name
-      feature_name: feature_name
+      name: feature_name
 '''
 
 RETURN = '''
@@ -73,7 +73,7 @@ class AzureRMAddsServicesUserPreferenceFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            feature_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -84,7 +84,7 @@ class AzureRMAddsServicesUserPreferenceFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.service_name = None
-        self.feature_name = None
+        self.name = None
         super(AzureRMAddsServicesUserPreferenceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -101,7 +101,7 @@ class AzureRMAddsServicesUserPreferenceFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.adds_services_user_preference.get(service_name=self.service_name,
-                                                                          feature_name=self.feature_name)
+                                                                          feature_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AddsServicesUserPreference.')

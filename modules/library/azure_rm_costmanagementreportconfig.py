@@ -22,7 +22,7 @@ description:
     - Create, update and delete instance of Report Config.
 
 options:
-    report_config_name:
+    name:
         description:
             - Report Config Name.
         required: True
@@ -39,7 +39,7 @@ options:
             recurrence:
                 description:
                     - The schedule recurrence.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'daily'
                     - 'weekly'
@@ -48,12 +48,12 @@ options:
             recurrence_period:
                 description:
                     - Has start and end date of the I(recurrence). The start date must be in future. If present, the end date must be greater than start date.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     from_property:
                         description:
                             - The start date of recurrence.
-                        required: True
+                            - Required when C(state) is I(present).
                     to:
                         description:
                             - The end date of recurrence. If not provided, we default this to 10 years from the start date.
@@ -65,37 +65,37 @@ options:
     delivery_info:
         description:
             - Has delivery information for the report config.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             destination:
                 description:
                     - Has destination for the report being delivered.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     resource_id:
                         description:
                             - The resource id of the storage account where reports will be delivered.
-                        required: True
+                            - Required when C(state) is I(present).
                     container:
                         description:
                             - The name of the container where reports will be uploaded.
-                        required: True
+                            - Required when C(state) is I(present).
                     root_folder_path:
                         description:
                             - The name of the directory where reports will be uploaded.
     definition:
         description:
             - Has definition for the report config.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             type:
                 description:
                     - The type of the report.
-                required: True
+                    - Required when C(state) is I(present).
             timeframe:
                 description:
                     - The time frame for pulling data for the report. If C(custom), then a specific time period must be provided.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'week_to_date'
                     - 'month_to_date'
@@ -108,11 +108,11 @@ options:
                     from_property:
                         description:
                             - The start date I(to) pull data from.
-                        required: True
+                            - Required when C(state) is I(present).
                     to:
                         description:
                             - The end date to pull data to.
-                        required: True
+                            - Required when C(state) is I(present).
             dataset:
                 description:
                     - Has definition for data in this report config.
@@ -144,14 +144,14 @@ options:
                             column_type:
                                 description:
                                     - Has type of the column to group.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'tag'
                                     - 'dimension'
                             name:
                                 description:
                                     - The name of the column to group.
-                                required: True
+                                    - Required when C(state) is I(present).
                     filter:
                         description:
                             - Has filter expression to use in the report.
@@ -228,15 +228,15 @@ options:
                                     name:
                                         description:
                                             - The name of the column to use in comaprison.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     operator:
                                         description:
                                             - The operator to use for comparison.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     values:
                                         description:
                                             - Array of values to use for comparison
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         type: list
                             tag:
                                 description:
@@ -245,15 +245,15 @@ options:
                                     name:
                                         description:
                                             - The name of the column to use in comaprison.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     operator:
                                         description:
                                             - The operator to use for comparison.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     values:
                                         description:
                                             - Array of values to use for comparison
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         type: list
     state:
       description:
@@ -276,7 +276,42 @@ author:
 EXAMPLES = '''
   - name: Create (or update) Report Config
     azure_rm_costmanagementreportconfig:
-      report_config_name: TestReportConfig
+      name: TestReportConfig
+      schedule:
+        status: Active
+        recurrence: Weekly
+        recurrence_period:
+          from_property: 2018-06-01T00:00:00Z
+          to: 2018-10-31T00:00:00Z
+      format: Csv
+      delivery_info:
+        destination:
+          resource_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MYDEVTESTRG/providers/Microsoft.Storage/storageAccounts/ccmeastusdiag182
+          container: reports
+          root_folder_path: ad-hoc
+      definition:
+        type: Usage
+        timeframe: MonthToDate
+        dataset:
+          granularity: Daily
+          configuration:
+            columns:
+              - [
+  "Date",
+  "MeterId",
+  "InstanceId",
+  "ResourceLocation",
+  "PreTaxCost"
+]
+          aggregation: {
+  "costSum": {
+    "name": "PreTaxCost",
+    "function": "Sum"
+  }
+}
+          grouping:
+            - column_type: Dimension
+              name: SubscriptionName
 '''
 
 RETURN = '''
@@ -311,7 +346,7 @@ class AzureRMReportConfig(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
-            report_config_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -323,12 +358,10 @@ class AzureRMReportConfig(AzureRMModuleBase):
                 choices=['csv']
             ),
             delivery_info=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             definition=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -337,7 +370,7 @@ class AzureRMReportConfig(AzureRMModuleBase):
             )
         )
 
-        self.report_config_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -390,7 +423,6 @@ class AzureRMReportConfig(AzureRMModuleBase):
                             ev['timeframe'] = 'Custom'
                     self.parameters["definition"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CostManagementClient,
@@ -409,8 +441,8 @@ class AzureRMReportConfig(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Report Config instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Report Config instance")
@@ -421,10 +453,7 @@ class AzureRMReportConfig(AzureRMModuleBase):
 
             response = self.create_update_reportconfig()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Report Config instance deleted")
@@ -453,10 +482,10 @@ class AzureRMReportConfig(AzureRMModuleBase):
 
         :return: deserialized Report Config instance state dictionary
         '''
-        self.log("Creating / Updating the Report Config instance {0}".format(self.report_config_name))
+        self.log("Creating / Updating the Report Config instance {0}".format(self.name))
 
         try:
-            response = self.mgmt_client.report_config.create_or_update(report_config_name=self.report_config_name,
+            response = self.mgmt_client.report_config.create_or_update(report_config_name=self.name,
                                                                        parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -472,9 +501,9 @@ class AzureRMReportConfig(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Report Config instance {0}".format(self.report_config_name))
+        self.log("Deleting the Report Config instance {0}".format(self.name))
         try:
-            response = self.mgmt_client.report_config.delete(report_config_name=self.report_config_name)
+            response = self.mgmt_client.report_config.delete(report_config_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Report Config instance.')
             self.fail("Error deleting the Report Config instance: {0}".format(str(e)))
@@ -487,10 +516,10 @@ class AzureRMReportConfig(AzureRMModuleBase):
 
         :return: deserialized Report Config instance state dictionary
         '''
-        self.log("Checking if the Report Config instance {0} is present".format(self.report_config_name))
+        self.log("Checking if the Report Config instance {0} is present".format(self.name))
         found = False
         try:
-            response = self.mgmt_client.report_config.get(report_config_name=self.report_config_name)
+            response = self.mgmt_client.report_config.get(report_config_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Report Config instance : {0} found".format(response.name))
@@ -506,6 +535,38 @@ class AzureRMReportConfig(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

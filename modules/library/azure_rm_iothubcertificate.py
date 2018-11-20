@@ -30,7 +30,7 @@ options:
         description:
             - The name of the IoT hub.
         required: True
-    certificate_name:
+    name:
         description:
             - The name of the I(certificate)
         required: True
@@ -62,7 +62,7 @@ EXAMPLES = '''
     azure_rm_iothubcertificate:
       resource_group: myResourceGroup
       resource_name: iothub
-      certificate_name: cert
+      name: cert
       if_match: NOT FOUND
       certificate: NOT FOUND
 '''
@@ -108,7 +108,7 @@ class AzureRMCertificates(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -127,7 +127,7 @@ class AzureRMCertificates(AzureRMModuleBase):
 
         self.resource_group = None
         self.resource_name = None
-        self.certificate_name = None
+        self.name = None
         self.if_match = None
         self.certificate = None
 
@@ -147,7 +147,6 @@ class AzureRMCertificates(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(IotHubClient,
@@ -168,8 +167,8 @@ class AzureRMCertificates(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Certificate instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Certificate instance")
@@ -180,10 +179,7 @@ class AzureRMCertificates(AzureRMModuleBase):
 
             response = self.create_update_certificate()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Certificate instance deleted")
@@ -212,12 +208,12 @@ class AzureRMCertificates(AzureRMModuleBase):
 
         :return: deserialized Certificate instance state dictionary
         '''
-        self.log("Creating / Updating the Certificate instance {0}".format(self.certificate_name))
+        self.log("Creating / Updating the Certificate instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.certificates.create_or_update(resource_group_name=self.resource_group,
                                                                       resource_name=self.resource_name,
-                                                                      certificate_name=self.certificate_name)
+                                                                      certificate_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -232,11 +228,11 @@ class AzureRMCertificates(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Certificate instance {0}".format(self.certificate_name))
+        self.log("Deleting the Certificate instance {0}".format(self.name))
         try:
             response = self.mgmt_client.certificates.delete(resource_group_name=self.resource_group,
                                                             resource_name=self.resource_name,
-                                                            certificate_name=self.certificate_name,
+                                                            certificate_name=self.name,
                                                             if_match=self.if_match)
         except CloudError as e:
             self.log('Error attempting to delete the Certificate instance.')
@@ -250,12 +246,12 @@ class AzureRMCertificates(AzureRMModuleBase):
 
         :return: deserialized Certificate instance state dictionary
         '''
-        self.log("Checking if the Certificate instance {0} is present".format(self.certificate_name))
+        self.log("Checking if the Certificate instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.certificates.get(resource_group_name=self.resource_group,
                                                          resource_name=self.resource_name,
-                                                         certificate_name=self.certificate_name)
+                                                         certificate_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Certificate instance : {0} found".format(response.name))
@@ -271,6 +267,38 @@ class AzureRMCertificates(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

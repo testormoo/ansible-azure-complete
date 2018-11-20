@@ -34,7 +34,7 @@ options:
         description:
             - The name of the machine learning team account workspace.
         required: True
-    project_name:
+    name:
         description:
             - The name of the machine learning project under a team account workspace.
     tags:
@@ -55,7 +55,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       account_name: account_name
       workspace_name: workspace_name
-      project_name: project_name
+      name: project_name
 
   - name: List instances of Project
     azure_rm_machinelearningexperimentationproject_facts:
@@ -130,7 +130,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            project_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -145,7 +145,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.workspace_name = None
-        self.project_name = None
+        self.name = None
         self.tags = None
         super(AzureRMProjectsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -155,7 +155,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(MLTeamAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.project_name is not None:
+        if self.name is not None:
             self.results['projects'] = self.get()
         else:
             self.results['projects'] = self.list_by_workspace()
@@ -168,7 +168,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
             response = self.mgmt_client.projects.get(resource_group_name=self.resource_group,
                                                      account_name=self.account_name,
                                                      workspace_name=self.workspace_name,
-                                                     project_name=self.project_name)
+                                                     project_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Projects.')

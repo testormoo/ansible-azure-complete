@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    server_name:
+    name:
         description:
             - The name of the server.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: List instances of Server Usage
     azure_rm_sqlserverusage_facts:
       resource_group: resource_group_name
-      server_name: server_name
+      name: server_name
 '''
 
 RETURN = '''
@@ -73,7 +73,7 @@ class AzureRMServerUsagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -84,7 +84,7 @@ class AzureRMServerUsagesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.server_name = None
+        self.name = None
         super(AzureRMServerUsagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -101,7 +101,7 @@ class AzureRMServerUsagesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.server_usages.list_by_server(resource_group_name=self.resource_group,
-                                                                     server_name=self.server_name)
+                                                                     server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServerUsages.')

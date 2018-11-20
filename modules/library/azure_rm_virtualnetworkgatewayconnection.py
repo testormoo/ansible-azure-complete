@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    virtual_network_gateway_connection_name:
+    name:
         description:
             - The name of the virtual network gateway connection.
         required: True
@@ -42,7 +42,7 @@ options:
     virtual_network_gateway1:
         description:
             - The reference to virtual network gateway resource.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             id:
                 description:
@@ -81,9 +81,6 @@ options:
                     name:
                         description:
                             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
             gateway_type:
                 description:
                     - "The type of this virtual network gateway. Possible values are: 'C(vpn)' and 'C(express_route)'."
@@ -162,13 +159,10 @@ options:
                             public_cert_data:
                                 description:
                                     - The certificate public data.
-                                required: True
+                                    - Required when C(state) is I(present).
                             name:
                                 description:
                                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     vpn_client_revoked_certificates:
                         description:
                             - VpnClientRevokedCertificate for Virtual network gateway.
@@ -183,9 +177,6 @@ options:
                             name:
                                 description:
                                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     vpn_client_protocols:
                         description:
                             - VpnClientProtocols for Virtual network gateway.
@@ -212,9 +203,6 @@ options:
             resource_guid:
                 description:
                     - The resource GUID property of the VirtualNetworkGateway resource.
-            etag:
-                description:
-                    - Gets a unique read-only string that changes whenever the resource is updated.
     virtual_network_gateway2:
         description:
             - The reference to virtual network gateway resource.
@@ -256,9 +244,6 @@ options:
                     name:
                         description:
                             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
             gateway_type:
                 description:
                     - "The type of this virtual network gateway. Possible values are: 'C(vpn)' and 'C(express_route)'."
@@ -337,13 +322,10 @@ options:
                             public_cert_data:
                                 description:
                                     - The certificate public data.
-                                required: True
+                                    - Required when C(state) is I(present).
                             name:
                                 description:
                                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     vpn_client_revoked_certificates:
                         description:
                             - VpnClientRevokedCertificate for Virtual network gateway.
@@ -358,9 +340,6 @@ options:
                             name:
                                 description:
                                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     vpn_client_protocols:
                         description:
                             - VpnClientProtocols for Virtual network gateway.
@@ -387,9 +366,6 @@ options:
             resource_guid:
                 description:
                     - The resource GUID property of the VirtualNetworkGateway resource.
-            etag:
-                description:
-                    - Gets a unique read-only string that changes whenever the resource is updated.
     local_network_gateway2:
         description:
             - The reference to local network gateway resource.
@@ -427,13 +403,10 @@ options:
             resource_guid:
                 description:
                     - The resource GUID property of the LocalNetworkGateway resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     connection_type:
         description:
             - "Gateway connection type. Possible values are: 'C(ipsec)','C(vnet2_vnet)','C(express_route)', and 'C(vpn_client)."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'ipsec'
             - 'vnet2_vnet'
@@ -466,15 +439,15 @@ options:
             sa_life_time_seconds:
                 description:
                     - The IPSec Security Association (also called Quick Mode or Phase 2 SA) lifetime in seconds for a site to site VPN tunnel.
-                required: True
+                    - Required when C(state) is I(present).
             sa_data_size_kilobytes:
                 description:
                     - The IPSec Security Association (also called Quick Mode or Phase 2 SA) payload size in KB for a site to site VPN tunnel.
-                required: True
+                    - Required when C(state) is I(present).
             ipsec_encryption:
                 description:
                     - The IPSec encryption algorithm (IKE phase 1).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'none'
                     - 'des'
@@ -488,7 +461,7 @@ options:
             ipsec_integrity:
                 description:
                     - The IPSec integrity algorithm (IKE phase 1).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'md5'
                     - 'sha1'
@@ -499,7 +472,7 @@ options:
             ike_encryption:
                 description:
                     - The IKE encryption algorithm (IKE phase 2).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'des'
                     - 'des3'
@@ -509,7 +482,7 @@ options:
             ike_integrity:
                 description:
                     - The IKE integrity algorithm (IKE phase 2).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'md5'
                     - 'sha1'
@@ -518,7 +491,7 @@ options:
             dh_group:
                 description:
                     - The DH Groups used in IKE Phase 1 for initial SA.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'none'
                     - 'dh_group1'
@@ -531,7 +504,7 @@ options:
             pfs_group:
                 description:
                     - The DH Groups used in IKE Phase 2 for new child SA.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'none'
                     - 'pfs1'
@@ -543,9 +516,6 @@ options:
     resource_guid:
         description:
             - The resource GUID property of the VirtualNetworkGatewayConnection resource.
-    etag:
-        description:
-            - Gets a unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Virtual Network Gateway Connection.
@@ -568,7 +538,7 @@ EXAMPLES = '''
   - name: Create (or update) Virtual Network Gateway Connection
     azure_rm_virtualnetworkgatewayconnection:
       resource_group: NOT FOUND
-      virtual_network_gateway_connection_name: NOT FOUND
+      name: NOT FOUND
       location: eastus
 '''
 
@@ -608,7 +578,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network_gateway_connection_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -622,8 +592,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
                 type='str'
             ),
             virtual_network_gateway1=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             virtual_network_gateway2=dict(
                 type='dict'
@@ -636,8 +605,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
                 choices=['ipsec',
                          'vnet2_vnet',
                          'express_route',
-                         'vpn_client'],
-                required=True
+                         'vpn_client']
             ),
             routing_weight=dict(
                 type='int'
@@ -660,9 +628,6 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             resource_guid=dict(
                 type='str'
             ),
-            etag=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -671,7 +636,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.virtual_network_gateway_connection_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -830,10 +795,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
                     self.parameters["ipsec_policies"] = ev
                 elif key == "resource_guid":
                     self.parameters["resource_guid"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -857,8 +819,8 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Network Gateway Connection instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Network Gateway Connection instance")
@@ -869,10 +831,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
 
             response = self.create_update_virtualnetworkgatewayconnection()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Network Gateway Connection instance deleted")
@@ -901,11 +860,11 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
 
         :return: deserialized Virtual Network Gateway Connection instance state dictionary
         '''
-        self.log("Creating / Updating the Virtual Network Gateway Connection instance {0}".format(self.virtual_network_gateway_connection_name))
+        self.log("Creating / Updating the Virtual Network Gateway Connection instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.virtual_network_gateway_connections.create_or_update(resource_group_name=self.resource_group,
-                                                                                             virtual_network_gateway_connection_name=self.virtual_network_gateway_connection_name,
+                                                                                             virtual_network_gateway_connection_name=self.name,
                                                                                              parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -921,10 +880,10 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Virtual Network Gateway Connection instance {0}".format(self.virtual_network_gateway_connection_name))
+        self.log("Deleting the Virtual Network Gateway Connection instance {0}".format(self.name))
         try:
             response = self.mgmt_client.virtual_network_gateway_connections.delete(resource_group_name=self.resource_group,
-                                                                                   virtual_network_gateway_connection_name=self.virtual_network_gateway_connection_name)
+                                                                                   virtual_network_gateway_connection_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Virtual Network Gateway Connection instance.')
             self.fail("Error deleting the Virtual Network Gateway Connection instance: {0}".format(str(e)))
@@ -937,11 +896,11 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
 
         :return: deserialized Virtual Network Gateway Connection instance state dictionary
         '''
-        self.log("Checking if the Virtual Network Gateway Connection instance {0} is present".format(self.virtual_network_gateway_connection_name))
+        self.log("Checking if the Virtual Network Gateway Connection instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.virtual_network_gateway_connections.get(resource_group_name=self.resource_group,
-                                                                                virtual_network_gateway_connection_name=self.virtual_network_gateway_connection_name)
+                                                                                virtual_network_gateway_connection_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Virtual Network Gateway Connection instance : {0} found".format(response.name))
@@ -957,6 +916,38 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

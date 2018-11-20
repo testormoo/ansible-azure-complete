@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure resource group name
-    volume_resource_name:
+    name:
         description:
             - The identity of the volume.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Volume
     azure_rm_servicefabricmeshvolume_facts:
       resource_group: resource_group_name
-      volume_resource_name: volume_resource_name
+      name: volume_resource_name
 
   - name: List instances of Volume
     azure_rm_servicefabricmeshvolume_facts:
@@ -123,7 +123,7 @@ class AzureRMVolumeFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            volume_resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -136,7 +136,7 @@ class AzureRMVolumeFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.volume_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMVolumeFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -147,7 +147,7 @@ class AzureRMVolumeFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.volume_resource_name is not None):
+                self.name is not None):
             self.results['volume'] = self.get()
         elif self.resource_group is not None:
             self.results['volume'] = self.list_by_resource_group()
@@ -160,7 +160,7 @@ class AzureRMVolumeFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.volume.get(resource_group_name=self.resource_group,
-                                                   volume_resource_name=self.volume_resource_name)
+                                                   volume_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Volume.')

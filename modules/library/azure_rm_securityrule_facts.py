@@ -30,7 +30,7 @@ options:
         description:
             - The name of the network security group.
         required: True
-    security_rule_name:
+    name:
         description:
             - The name of the security rule.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_securityrule_facts:
       resource_group: resource_group_name
       network_security_group_name: network_security_group_name
-      security_rule_name: security_rule_name
+      name: security_rule_name
 '''
 
 RETURN = '''
@@ -120,7 +120,7 @@ class AzureRMSecurityRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            security_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -132,7 +132,7 @@ class AzureRMSecurityRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.network_security_group_name = None
-        self.security_rule_name = None
+        self.name = None
         super(AzureRMSecurityRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -150,7 +150,7 @@ class AzureRMSecurityRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.security_rules.get(resource_group_name=self.resource_group,
                                                            network_security_group_name=self.network_security_group_name,
-                                                           security_rule_name=self.security_rule_name)
+                                                           security_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SecurityRules.')

@@ -15,16 +15,20 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: azure_rm_storageaccount_facts
+module: azure_rm_servicebuseventhub_facts
 version_added: "2.8"
-short_description: Get Azure Storage Account facts.
+short_description: Get Azure Event Hub facts.
 description:
-    - Get facts of Azure Storage Account.
+    - Get facts of Azure Event Hub.
 
 options:
     resource_group:
         description:
-            - "The name of the resource group within the user's subscription. The name is case insensitive."
+            - Name of the Resource group within the Azure subscription.
+        required: True
+    name:
+        description:
+            - The namespace name
         required: True
 
 extends_documentation_fragment:
@@ -36,14 +40,15 @@ author:
 '''
 
 EXAMPLES = '''
-  - name: List instances of Storage Account
-    azure_rm_storageaccount_facts:
+  - name: List instances of Event Hub
+    azure_rm_servicebuseventhub_facts:
       resource_group: resource_group_name
+      name: namespace_name
 '''
 
 RETURN = '''
-storage_accounts:
-    description: A list of dictionaries containing facts for Storage Account.
+event_hubs:
+    description: A list of dictionaries containing facts for Event Hub.
     returned: always
     type: complex
     contains:
@@ -53,18 +58,22 @@ from ansible.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
     from msrestazure.azure_exceptions import CloudError
-    from azure.mgmt.storage import StorageManagementClient
+    from azure.mgmt.servicebus import ServiceBusManagementClient
     from msrest.serialization import Model
 except ImportError:
     # This is handled in azure_rm_common
     pass
 
 
-class AzureRMStorageAccountsFacts(AzureRMModuleBase):
+class AzureRMEventHubsFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
             resource_group=dict(
+                type='str',
+                required=True
+            ),
+            name=dict(
                 type='str',
                 required=True
             )
@@ -75,25 +84,27 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        super(AzureRMStorageAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        self.name = None
+        super(AzureRMEventHubsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
             setattr(self, key, kwargs[key])
-        self.mgmt_client = self.get_mgmt_svc_client(StorageManagementClient,
+        self.mgmt_client = self.get_mgmt_svc_client(ServiceBusManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        self.results['storage_accounts'] = self.list_by_resource_group()
+        self.results['event_hubs'] = self.list_by_namespace()
         return self.results
 
-    def list_by_resource_group(self):
+    def list_by_namespace(self):
         response = None
         results = []
         try:
-            response = self.mgmt_client.storage_accounts.list_by_resource_group(resource_group_name=self.resource_group)
+            response = self.mgmt_client.event_hubs.list_by_namespace(resource_group_name=self.resource_group,
+                                                                     namespace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for StorageAccounts.')
+            self.log('Could not get facts for EventHubs.')
 
         if response is not None:
             for item in response:
@@ -110,7 +121,7 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMStorageAccountsFacts()
+    AzureRMEventHubsFacts()
 
 
 if __name__ == '__main__':

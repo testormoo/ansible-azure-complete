@@ -49,7 +49,7 @@ options:
     top:
         description:
             - Page size to use. When not specified, the default page size is 100 records.
-    machine_name:
+    name:
         description:
             - Machine resource name.
 
@@ -76,7 +76,7 @@ EXAMPLES = '''
     azure_rm_armservicemapmachine_facts:
       resource_group: resource_group_name
       workspace_name: workspace_name
-      machine_name: machine_name
+      name: machine_name
       timestamp: timestamp
 '''
 
@@ -151,7 +151,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
             top=dict(
                 type='int'
             ),
-            machine_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -167,7 +167,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         self.end_time = None
         self.timestamp = None
         self.top = None
-        self.machine_name = None
+        self.name = None
         super(AzureRMMachinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -178,7 +178,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
 
         else:
             self.results['machines'] = self.list_by_workspace()
-        elif self.machine_name is not None:
+        elif self.name is not None:
             self.results['machines'] = self.get()
         return self.results
 
@@ -204,7 +204,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.machines.get(resource_group_name=self.resource_group,
                                                      workspace_name=self.workspace_name,
-                                                     machine_name=self.machine_name)
+                                                     machine_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Machines.')

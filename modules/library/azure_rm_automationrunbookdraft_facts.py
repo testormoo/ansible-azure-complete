@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    runbook_name:
+    name:
         description:
             - The runbook name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_automationrunbookdraft_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      runbook_name: runbook_name
+      name: runbook_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMRunbookDraftFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            runbook_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -100,7 +100,7 @@ class AzureRMRunbookDraftFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.runbook_name = None
+        self.name = None
         super(AzureRMRunbookDraftFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMRunbookDraftFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.runbook_draft.get(resource_group_name=self.resource_group,
                                                           automation_account_name=self.automation_account_name,
-                                                          runbook_name=self.runbook_name)
+                                                          runbook_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RunbookDraft.')

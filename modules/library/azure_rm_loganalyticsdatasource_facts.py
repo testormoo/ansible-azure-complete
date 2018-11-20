@@ -36,7 +36,7 @@ options:
     skiptoken:
         description:
             - Starting point of the collection of data source instances.
-    data_source_name:
+    name:
         description:
             - Name of the datasource
     tags:
@@ -63,7 +63,7 @@ EXAMPLES = '''
     azure_rm_loganalyticsdatasource_facts:
       resource_group: resource_group_name
       workspace_name: workspace_name
-      data_source_name: data_source_name
+      name: data_source_name
 '''
 
 RETURN = '''
@@ -136,7 +136,7 @@ class AzureRMDataSourcesFacts(AzureRMModuleBase):
             skiptoken=dict(
                 type='str'
             ),
-            data_source_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -152,7 +152,7 @@ class AzureRMDataSourcesFacts(AzureRMModuleBase):
         self.workspace_name = None
         self.filter = None
         self.skiptoken = None
-        self.data_source_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDataSourcesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -164,7 +164,7 @@ class AzureRMDataSourcesFacts(AzureRMModuleBase):
 
         if self.filter is not None:
             self.results['data_sources'] = self.list_by_workspace()
-        elif self.data_source_name is not None:
+        elif self.name is not None:
             self.results['data_sources'] = self.get()
         return self.results
 
@@ -192,7 +192,7 @@ class AzureRMDataSourcesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.data_sources.get(resource_group_name=self.resource_group,
                                                          workspace_name=self.workspace_name,
-                                                         data_source_name=self.data_source_name)
+                                                         data_source_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DataSources.')

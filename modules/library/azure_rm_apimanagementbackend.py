@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -50,14 +50,14 @@ options:
             client_certificatethumbprint:
                 description:
                     - The client certificate thumbprint for the management endpoint.
-                required: True
+                    - Required when C(state) is I(present).
             max_partition_resolution_retries:
                 description:
                     - Maximum number of retries while attempting resolve the parition.
             management_endpoints:
                 description:
                     - The cluster management endpoint.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
             server_certificate_thumbprints:
                 description:
@@ -95,11 +95,11 @@ options:
                     scheme:
                         description:
                             - Authentication Scheme name.
-                        required: True
+                            - Required when C(state) is I(present).
                     parameter:
                         description:
                             - Authentication Parameter value.
-                        required: True
+                            - Required when C(state) is I(present).
     proxy:
         description:
             - Backend Proxy Contract Properties
@@ -107,7 +107,7 @@ options:
             url:
                 description:
                     - WebProxy Server AbsoluteUri property which includes the entire URI stored in the Uri instance, including all fragments and query strings.
-                required: True
+                    - Required when C(state) is I(present).
             username:
                 description:
                     - Username to connect to the WebProxy server
@@ -127,11 +127,11 @@ options:
     url:
         description:
             - Runtime Url of the Backend.
-        required: True
+            - Required when C(state) is I(present).
     protocol:
         description:
             - Backend communication protocol.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'http'
             - 'soap'
@@ -159,8 +159,21 @@ EXAMPLES = '''
   - name: Create (or update) Backend
     azure_rm_apimanagementbackend:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       backendid: sfbackend
+      description: Service Fabric Test App 1
+      service_fabric_cluster:
+        client_certificatethumbprint: EBA029198AA3E76EF0D70482626E5BCF148594A6
+        max_partition_resolution_retries: 5
+        management_endpoints:
+          - [
+  "https://somecluster.com"
+]
+        server_x509_names:
+          - name: ServerCommonName1
+            issuer_certificate_thumbprint: IssuerCertificateThumbprint1
+      url: fabric:/mytestapp/mytestservice
+      protocol: http
       if_match: NOT FOUND
 '''
 
@@ -194,7 +207,7 @@ class AzureRMBackend(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -224,14 +237,12 @@ class AzureRMBackend(AzureRMModuleBase):
                 type='dict'
             ),
             url=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             protocol=dict(
                 type='str',
                 choices=['http',
-                         'soap'],
-                required=True
+                         'soap']
             ),
             if_match=dict(
                 type='str'
@@ -244,7 +255,7 @@ class AzureRMBackend(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.backendid = None
         self.parameters = dict()
         self.if_match = None
@@ -284,7 +295,6 @@ class AzureRMBackend(AzureRMModuleBase):
                 elif key == "protocol":
                     self.parameters["protocol"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -305,8 +315,8 @@ class AzureRMBackend(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Backend instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Backend instance")
@@ -317,10 +327,7 @@ class AzureRMBackend(AzureRMModuleBase):
 
             response = self.create_update_backend()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Backend instance deleted")
@@ -353,7 +360,7 @@ class AzureRMBackend(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.backend.create_or_update(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  backendid=self.backendid,
                                                                  parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -373,7 +380,7 @@ class AzureRMBackend(AzureRMModuleBase):
         self.log("Deleting the Backend instance {0}".format(self.backendid))
         try:
             response = self.mgmt_client.backend.delete(resource_group_name=self.resource_group,
-                                                       service_name=self.service_name,
+                                                       service_name=self.name,
                                                        backendid=self.backendid,
                                                        if_match=self.if_match)
         except CloudError as e:
@@ -392,7 +399,7 @@ class AzureRMBackend(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.backend.get(resource_group_name=self.resource_group,
-                                                    service_name=self.service_name,
+                                                    service_name=self.name,
                                                     backendid=self.backendid)
             found = True
             self.log("Response : {0}".format(response))
@@ -408,6 +415,38 @@ class AzureRMBackend(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

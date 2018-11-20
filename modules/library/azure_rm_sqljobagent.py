@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    job_agent_name:
+    name:
         description:
             - The name of the job agent to be created or updated.
         required: True
@@ -44,7 +44,7 @@ options:
             name:
                 description:
                     - The name of the SKU. Ex - P3. It is typically a letter+number code
-                required: True
+                    - Required when C(state) is I(present).
             tier:
                 description:
                     - This field is required to be implemented by the Resource Provider if the service has more than one tier, but is not required on a PUT.
@@ -61,7 +61,7 @@ options:
     database_id:
         description:
             - Resource ID of the database to store job metadata in.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Job Agent.
@@ -85,8 +85,9 @@ EXAMPLES = '''
     azure_rm_sqljobagent:
       resource_group: group1
       server_name: server1
-      job_agent_name: agent1
+      name: agent1
       location: eastus
+      database_id: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/databases/db1
 '''
 
 RETURN = '''
@@ -135,7 +136,7 @@ class AzureRMJobAgents(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_agent_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -146,8 +147,7 @@ class AzureRMJobAgents(AzureRMModuleBase):
                 type='dict'
             ),
             database_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -158,7 +158,7 @@ class AzureRMJobAgents(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.job_agent_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -184,7 +184,6 @@ class AzureRMJobAgents(AzureRMModuleBase):
                 elif key == "database_id":
                     self.parameters["database_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -208,8 +207,8 @@ class AzureRMJobAgents(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job Agent instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job Agent instance")
@@ -220,10 +219,7 @@ class AzureRMJobAgents(AzureRMModuleBase):
 
             response = self.create_update_jobagent()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job Agent instance deleted")
@@ -252,12 +248,12 @@ class AzureRMJobAgents(AzureRMModuleBase):
 
         :return: deserialized Job Agent instance state dictionary
         '''
-        self.log("Creating / Updating the Job Agent instance {0}".format(self.job_agent_name))
+        self.log("Creating / Updating the Job Agent instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.job_agents.create_or_update(resource_group_name=self.resource_group,
                                                                     server_name=self.server_name,
-                                                                    job_agent_name=self.job_agent_name,
+                                                                    job_agent_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -273,11 +269,11 @@ class AzureRMJobAgents(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Job Agent instance {0}".format(self.job_agent_name))
+        self.log("Deleting the Job Agent instance {0}".format(self.name))
         try:
             response = self.mgmt_client.job_agents.delete(resource_group_name=self.resource_group,
                                                           server_name=self.server_name,
-                                                          job_agent_name=self.job_agent_name)
+                                                          job_agent_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Job Agent instance.')
             self.fail("Error deleting the Job Agent instance: {0}".format(str(e)))
@@ -290,12 +286,12 @@ class AzureRMJobAgents(AzureRMModuleBase):
 
         :return: deserialized Job Agent instance state dictionary
         '''
-        self.log("Checking if the Job Agent instance {0} is present".format(self.job_agent_name))
+        self.log("Checking if the Job Agent instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.job_agents.get(resource_group_name=self.resource_group,
                                                        server_name=self.server_name,
-                                                       job_agent_name=self.job_agent_name)
+                                                       job_agent_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Job Agent instance : {0} found".format(response.name))
@@ -312,6 +308,38 @@ class AzureRMJobAgents(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Shared Image Gallery in which the Image Definition is to be created.
         required: True
-    gallery_image_name:
+    name:
         description:
             - "The name of the gallery Image Definition to be created or updated. The allowed characters are alphabets and numbers with dots, dashes, and
                periods allowed in the middle. The maximum length is 80 characters."
@@ -43,7 +43,7 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - The description of this gallery Image Definition resource. This property is updateable.
@@ -60,14 +60,14 @@ options:
                 description:
                     - "This property allows you to specify the type of the OS that is included in the disk when creating a VM from a managed image. <br><br>
                        Possible values are: <br><br> **C(windows)** <br><br> **C(linux)**."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'windows'
                     - 'linux'
             os_state:
                 description:
                     - "The allowed values for OS State are 'C(generalized)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'generalized'
                     - 'specialized'
@@ -76,20 +76,20 @@ options:
                     - The end of life date of the gallery Image Definition. This property can be used for decommissioning purposes. This property is updateable.
             identifier:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     publisher:
                         description:
                             - The name of the gallery Image Definition publisher.
-                        required: True
+                            - Required when C(state) is I(present).
                     offer:
                         description:
                             - The name of the gallery Image Definition offer.
-                        required: True
+                            - Required when C(state) is I(present).
                     sku:
                         description:
                             - The name of the gallery Image Definition SKU.
-                        required: True
+                            - Required when C(state) is I(present).
             recommended:
                 description:
                 suboptions:
@@ -153,9 +153,15 @@ EXAMPLES = '''
     azure_rm_computegalleryimage:
       resource_group: myResourceGroup
       gallery_name: myGalleryName
-      gallery_image_name: myGalleryImageName
+      name: myGalleryImageName
       gallery_image:
         location: West US
+        os_type: Windows
+        os_state: Generalized
+        identifier:
+          publisher: myPublisherName
+          offer: myOfferName
+          sku: mySkuName
 '''
 
 RETURN = '''
@@ -198,7 +204,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_image_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -215,7 +221,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
         self.resource_group = None
         self.gallery_name = None
-        self.gallery_image_name = None
+        self.name = None
         self.gallery_image = dict()
 
         self.results = dict(changed=False)
@@ -259,7 +265,6 @@ class AzureRMGalleryImages(AzureRMModuleBase):
                 elif key == "purchase_plan":
                     self.gallery_image["purchase_plan"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -280,8 +285,8 @@ class AzureRMGalleryImages(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Gallery Image instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Gallery Image instance")
@@ -292,10 +297,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
             response = self.create_update_galleryimage()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Gallery Image instance deleted")
@@ -324,12 +326,12 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
         :return: deserialized Gallery Image instance state dictionary
         '''
-        self.log("Creating / Updating the Gallery Image instance {0}".format(self.gallery_image_name))
+        self.log("Creating / Updating the Gallery Image instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.gallery_images.create_or_update(resource_group_name=self.resource_group,
                                                                         gallery_name=self.gallery_name,
-                                                                        gallery_image_name=self.gallery_image_name,
+                                                                        gallery_image_name=self.name,
                                                                         gallery_image=self.gallery_image)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -345,11 +347,11 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Gallery Image instance {0}".format(self.gallery_image_name))
+        self.log("Deleting the Gallery Image instance {0}".format(self.name))
         try:
             response = self.mgmt_client.gallery_images.delete(resource_group_name=self.resource_group,
                                                               gallery_name=self.gallery_name,
-                                                              gallery_image_name=self.gallery_image_name)
+                                                              gallery_image_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Gallery Image instance.')
             self.fail("Error deleting the Gallery Image instance: {0}".format(str(e)))
@@ -362,12 +364,12 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
         :return: deserialized Gallery Image instance state dictionary
         '''
-        self.log("Checking if the Gallery Image instance {0} is present".format(self.gallery_image_name))
+        self.log("Checking if the Gallery Image instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.gallery_images.get(resource_group_name=self.resource_group,
                                                            gallery_name=self.gallery_name,
-                                                           gallery_image_name=self.gallery_image_name)
+                                                           gallery_image_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Gallery Image instance : {0} found".format(response.name))
@@ -383,6 +385,38 @@ class AzureRMGalleryImages(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

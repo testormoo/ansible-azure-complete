@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -47,14 +47,14 @@ options:
             name:
                 description:
                     - Parameter name.
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - Parameter description.
             type:
                 description:
                     - Parameter type.
-                required: True
+                    - Required when C(state) is I(present).
             default_value:
                 description:
                     - Default parameter value.
@@ -83,14 +83,14 @@ options:
                     name:
                         description:
                             - Parameter name.
-                        required: True
+                            - Required when C(state) is I(present).
                     description:
                         description:
                             - Parameter description.
                     type:
                         description:
                             - Parameter type.
-                        required: True
+                            - Required when C(state) is I(present).
                     default_value:
                         description:
                             - Default parameter value.
@@ -109,14 +109,14 @@ options:
                     name:
                         description:
                             - Parameter name.
-                        required: True
+                            - Required when C(state) is I(present).
                     description:
                         description:
                             - Parameter description.
                     type:
                         description:
                             - Parameter type.
-                        required: True
+                            - Required when C(state) is I(present).
                     default_value:
                         description:
                             - Default parameter value.
@@ -135,7 +135,7 @@ options:
                     content_type:
                         description:
                             - Specifies a registered or custom content type for this representation, e.g. application/xml.
-                        required: True
+                            - Required when C(state) is I(present).
                     sample:
                         description:
                             - An example of the representation.
@@ -156,14 +156,14 @@ options:
                             name:
                                 description:
                                     - Parameter name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             description:
                                 description:
                                     - Parameter description.
                             type:
                                 description:
                                     - Parameter type.
-                                required: True
+                                    - Required when C(state) is I(present).
                             default_value:
                                 description:
                                     - Default parameter value.
@@ -182,7 +182,7 @@ options:
             status_code:
                 description:
                     - Operation response HTTP status code.
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - Operation response description.
@@ -194,7 +194,7 @@ options:
                     content_type:
                         description:
                             - Specifies a registered or custom content type for this representation, e.g. application/xml.
-                        required: True
+                            - Required when C(state) is I(present).
                     sample:
                         description:
                             - An example of the representation.
@@ -215,14 +215,14 @@ options:
                             name:
                                 description:
                                     - Parameter name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             description:
                                 description:
                                     - Parameter description.
                             type:
                                 description:
                                     - Parameter type.
-                                required: True
+                                    - Required when C(state) is I(present).
                             default_value:
                                 description:
                                     - Default parameter value.
@@ -241,14 +241,14 @@ options:
                     name:
                         description:
                             - Parameter name.
-                        required: True
+                            - Required when C(state) is I(present).
                     description:
                         description:
                             - Parameter description.
                     type:
                         description:
                             - Parameter type.
-                        required: True
+                            - Required when C(state) is I(present).
                     default_value:
                         description:
                             - Default parameter value.
@@ -265,16 +265,16 @@ options:
     display_name:
         description:
             - Operation Name.
-        required: True
+            - Required when C(state) is I(present).
     method:
         description:
             - A Valid HTTP Operation Method. Typical Http Methods like GET, PUT, POST but not limited by only them.
-        required: True
+            - Required when C(state) is I(present).
     url_template:
         description:
             - "Relative URL template identifying the target resource for this operation. May include parameters. Example:
                /customers/{cid}/orders/{oid}/?date={date}"
-        required: True
+            - Required when C(state) is I(present).
     if_match:
         description:
             - ETag of the Entity. Not required when creating an entity, but required when updating an entity.
@@ -299,9 +299,24 @@ EXAMPLES = '''
   - name: Create (or update) Api Operation
     azure_rm_apimanagementapioperation:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       api_id: PetStoreTemplate2
       operation_id: newoperations
+      description: This can only be done by the logged in user.
+      request:
+        description: Created user object
+        representations:
+          - content_type: application/json
+            schema_id: 592f6c1d0af5840ca8897f0c
+            type_name: User
+      responses:
+        - status_code: 200
+          description: successful operation
+          representations:
+            - content_type: application/xml
+      display_name: createUser2
+      method: POST
+      url_template: /user1
       if_match: NOT FOUND
 '''
 
@@ -335,7 +350,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -363,16 +378,13 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 type='str'
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             method=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             url_template=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             if_match=dict(
                 type='str'
@@ -385,7 +397,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.operation_id = None
         self.parameters = dict()
@@ -424,7 +436,6 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 elif key == "url_template":
                     self.parameters["url_template"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -445,8 +456,8 @@ class AzureRMApiOperation(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Operation instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Operation instance")
@@ -457,10 +468,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
 
             response = self.create_update_apioperation()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Operation instance deleted")
@@ -493,7 +501,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.api_operation.create_or_update(resource_group_name=self.resource_group,
-                                                                       service_name=self.service_name,
+                                                                       service_name=self.name,
                                                                        api_id=self.api_id,
                                                                        operation_id=self.operation_id,
                                                                        parameters=self.parameters)
@@ -514,7 +522,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
         self.log("Deleting the Api Operation instance {0}".format(self.operation_id))
         try:
             response = self.mgmt_client.api_operation.delete(resource_group_name=self.resource_group,
-                                                             service_name=self.service_name,
+                                                             service_name=self.name,
                                                              api_id=self.api_id,
                                                              operation_id=self.operation_id,
                                                              if_match=self.if_match)
@@ -534,7 +542,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_operation.get(resource_group_name=self.resource_group,
-                                                          service_name=self.service_name,
+                                                          service_name=self.name,
                                                           api_id=self.api_id,
                                                           operation_id=self.operation_id)
             found = True
@@ -551,6 +559,38 @@ class AzureRMApiOperation(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

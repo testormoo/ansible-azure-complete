@@ -34,7 +34,7 @@ options:
             storage_account_credential_ids:
                 description:
                     - The storage account credentials.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
             encryption_key:
                 description:
@@ -44,14 +44,14 @@ options:
                         description:
                             - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
                                EncryptionCertThumbprint will be null."
-                        required: True
+                            - Required when C(state) is I(present).
                     encryption_certificate_thumbprint:
                         description:
                             - "Thumbprint certificate that was used to encrypt 'I(value)'"
                     encryption_algorithm:
                         description:
                             - "Algorithm used to encrypt 'I(value)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'aes256'
@@ -59,7 +59,7 @@ options:
             encryption_status:
                 description:
                     - "The encryption status 'C(enabled) | C(disabled)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'enabled'
                     - 'disabled'
@@ -67,7 +67,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -92,8 +92,14 @@ EXAMPLES = '''
   - name: Create (or update) Storage Domain
     azure_rm_storsimplestoragedomain:
       storage_domain_name: sd-fs-HSDK-4XY4FI2IVG
+      storage_domain:
+        storage_account_credential_ids:
+          - [
+  "/subscriptions/9eb689cd-7243-43b4-b6f6-5c65cb296641/resourceGroups/ResourceGroupForSDKTest/providers/Microsoft.StorSimple/managers/hAzureSDKOperations/storageAccountCredentials/sacforsdktest"
+]
+        encryption_status: Disabled
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -141,7 +147,7 @@ class AzureRMStorageDomains(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -155,7 +161,7 @@ class AzureRMStorageDomains(AzureRMModuleBase):
         self.storage_domain_name = None
         self.storage_domain = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -188,7 +194,6 @@ class AzureRMStorageDomains(AzureRMModuleBase):
                 elif key == "encryption_status":
                     self.storage_domain["encryption_status"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -209,8 +214,8 @@ class AzureRMStorageDomains(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Storage Domain instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Storage Domain instance")
@@ -221,10 +226,7 @@ class AzureRMStorageDomains(AzureRMModuleBase):
 
             response = self.create_update_storagedomain()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Storage Domain instance deleted")
@@ -253,13 +255,13 @@ class AzureRMStorageDomains(AzureRMModuleBase):
 
         :return: deserialized Storage Domain instance state dictionary
         '''
-        self.log("Creating / Updating the Storage Domain instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Storage Domain instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.storage_domains.create_or_update(storage_domain_name=self.storage_domain_name,
                                                                          storage_domain=self.storage_domain,
                                                                          resource_group_name=self.resource_group,
-                                                                         manager_name=self.manager_name)
+                                                                         manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -274,11 +276,11 @@ class AzureRMStorageDomains(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Storage Domain instance {0}".format(self.manager_name))
+        self.log("Deleting the Storage Domain instance {0}".format(self.name))
         try:
             response = self.mgmt_client.storage_domains.delete(storage_domain_name=self.storage_domain_name,
                                                                resource_group_name=self.resource_group,
-                                                               manager_name=self.manager_name)
+                                                               manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Storage Domain instance.')
             self.fail("Error deleting the Storage Domain instance: {0}".format(str(e)))
@@ -291,12 +293,12 @@ class AzureRMStorageDomains(AzureRMModuleBase):
 
         :return: deserialized Storage Domain instance state dictionary
         '''
-        self.log("Checking if the Storage Domain instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Storage Domain instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.storage_domains.get(storage_domain_name=self.storage_domain_name,
                                                             resource_group_name=self.resource_group,
-                                                            manager_name=self.manager_name)
+                                                            manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Storage Domain instance : {0} found".format(response.name))
@@ -312,6 +314,38 @@ class AzureRMStorageDomains(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

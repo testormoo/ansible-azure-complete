@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -66,7 +66,7 @@ EXAMPLES = '''
   - name: List instances of Api Issue Comment
     azure_rm_apimanagementapiissuecomment_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       issue_id: issue_id
       filter: filter
@@ -76,7 +76,7 @@ EXAMPLES = '''
   - name: Get instance of Api Issue Comment
     azure_rm_apimanagementapiissuecomment_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       issue_id: issue_id
       comment_id: comment_id
@@ -128,7 +128,7 @@ class AzureRMApiIssueCommentFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -159,7 +159,7 @@ class AzureRMApiIssueCommentFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.issue_id = None
         self.filter = None
@@ -185,7 +185,7 @@ class AzureRMApiIssueCommentFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_issue_comment.list_by_service(resource_group_name=self.resource_group,
-                                                                          service_name=self.service_name,
+                                                                          service_name=self.name,
                                                                           api_id=self.api_id,
                                                                           issue_id=self.issue_id)
             self.log("Response : {0}".format(response))
@@ -203,7 +203,7 @@ class AzureRMApiIssueCommentFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_issue_comment.get(resource_group_name=self.resource_group,
-                                                              service_name=self.service_name,
+                                                              service_name=self.name,
                                                               api_id=self.api_id,
                                                               issue_id=self.issue_id,
                                                               comment_id=self.comment_id)

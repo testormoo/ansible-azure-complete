@@ -30,7 +30,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    job_name:
+    name:
         description:
             - Name of the job whose details are to be fetched.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesbackupjobdetail_facts:
       vault_name: vault_name
       resource_group: resource_group_name
-      job_name: job_name
+      name: job_name
 '''
 
 RETURN = '''
@@ -123,7 +123,7 @@ class AzureRMJobDetailsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -138,7 +138,7 @@ class AzureRMJobDetailsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.tags = None
         super(AzureRMJobDetailsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -157,7 +157,7 @@ class AzureRMJobDetailsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.job_details.get(vault_name=self.vault_name,
                                                         resource_group_name=self.resource_group,
-                                                        job_name=self.job_name)
+                                                        job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobDetails.')

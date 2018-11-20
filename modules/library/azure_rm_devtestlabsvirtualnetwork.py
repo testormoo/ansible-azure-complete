@@ -34,101 +34,93 @@ options:
         description:
             - The name of the virtual network.
         required: True
-    virtual_network:
+    location:
         description:
-            - A virtual network.
-        required: True
+            - The location of the resource.
+    allowed_subnets:
+        description:
+            - The allowed subnets of the virtual network.
+        type: list
         suboptions:
-            location:
+            resource_id:
                 description:
-                    - The location of the resource.
-            allowed_subnets:
+                    - The resource ID of the subnet.
+            lab_subnet_name:
                 description:
-                    - The allowed subnets of the virtual network.
-                type: list
+                    - The name of the subnet as seen in the lab.
+            allow_public_ip:
+                description:
+                    - The permission policy of the subnet for allowing public IP addresses (i.e. C(allow), C(deny))).
+                choices:
+                    - 'default'
+                    - 'deny'
+                    - 'allow'
+    description:
+        description:
+            - The description of the virtual network.
+    external_provider_resource_id:
+        description:
+            - The Microsoft.Network resource identifier of the virtual network.
+    external_subnets:
+        description:
+            - The external subnet properties.
+        type: list
+        suboptions:
+            id:
+                description:
+                    - Gets or sets the identifier.
+            name:
+                description:
+                    - Gets or sets the name.
+    subnet_overrides:
+        description:
+            - The subnet overrides of the virtual network.
+        type: list
+        suboptions:
+            resource_id:
+                description:
+                    - The resource ID of the subnet.
+            lab_subnet_name:
+                description:
+                    - The name given to the subnet within the lab.
+            use_in_vm_creation_permission:
+                description:
+                    - Indicates whether this subnet can be used during virtual machine creation (i.e. C(C(allow)), C(C(deny))).
+                choices:
+                    - 'default'
+                    - 'deny'
+                    - 'allow'
+            use_public_ip_address_permission:
+                description:
+                    - Indicates whether public IP addresses can be assigned to virtual machines on this subnet (i.e. C(C(allow)), C(C(deny))).
+                choices:
+                    - 'default'
+                    - 'deny'
+                    - 'allow'
+            shared_public_ip_address_configuration:
+                description:
+                    - Properties that virtual machines on this subnet will share.
                 suboptions:
-                    resource_id:
+                    allowed_ports:
                         description:
-                            - The resource ID of the subnet.
-                    lab_subnet_name:
-                        description:
-                            - The name of the subnet as seen in the lab.
-                    allow_public_ip:
-                        description:
-                            - The permission policy of the subnet for allowing public IP addresses (i.e. C(allow), C(deny))).
-                        choices:
-                            - 'default'
-                            - 'deny'
-                            - 'allow'
-            description:
-                description:
-                    - The description of the virtual network.
-            external_provider_resource_id:
-                description:
-                    - The Microsoft.Network resource identifier of the virtual network.
-            external_subnets:
-                description:
-                    - The external subnet properties.
-                type: list
-                suboptions:
-                    id:
-                        description:
-                            - Gets or sets the identifier.
-                    name:
-                        description:
-                            - Gets or sets the name.
-            subnet_overrides:
-                description:
-                    - The subnet overrides of the virtual network.
-                type: list
-                suboptions:
-                    resource_id:
-                        description:
-                            - The resource ID of the subnet.
-                    lab_subnet_name:
-                        description:
-                            - The name given to the subnet within the lab.
-                    use_in_vm_creation_permission:
-                        description:
-                            - Indicates whether this subnet can be used during virtual machine creation (i.e. C(C(allow)), C(C(deny))).
-                        choices:
-                            - 'default'
-                            - 'deny'
-                            - 'allow'
-                    use_public_ip_address_permission:
-                        description:
-                            - Indicates whether public IP addresses can be assigned to virtual machines on this subnet (i.e. C(C(allow)), C(C(deny))).
-                        choices:
-                            - 'default'
-                            - 'deny'
-                            - 'allow'
-                    shared_public_ip_address_configuration:
-                        description:
-                            - Properties that virtual machines on this subnet will share.
+                            - Backend ports that virtual machines on this subnet are allowed to expose
+                        type: list
                         suboptions:
-                            allowed_ports:
+                            transport_protocol:
                                 description:
-                                    - Backend ports that virtual machines on this subnet are allowed to expose
-                                type: list
-                                suboptions:
-                                    transport_protocol:
-                                        description:
-                                            - Protocol type of the port.
-                                        choices:
-                                            - 'tcp'
-                                            - 'udp'
-                                    backend_port:
-                                        description:
-                                            - Backend port of the target virtual machine.
-                    virtual_network_pool_name:
-                        description:
-                            - The virtual network pool associated with this subnet.
-            provisioning_state:
+                                    - Protocol type of the port.
+                                choices:
+                                    - 'tcp'
+                                    - 'udp'
+                            backend_port:
+                                description:
+                                    - Backend port of the target virtual machine.
+            virtual_network_pool_name:
                 description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+                    - The virtual network pool associated with this subnet.
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Virtual Network.
@@ -199,9 +191,26 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            allowed_subnets=dict(
+                type='list'
+            ),
+            description=dict(
+                type='str'
+            ),
+            external_provider_resource_id=dict(
+                type='str'
+            ),
+            external_subnets=dict(
+                type='list'
+            ),
+            subnet_overrides=dict(
+                type='list'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -266,12 +275,9 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
                         elif ev['use_public_ip_address_permission'] == 'allow':
                             ev['use_public_ip_address_permission'] = 'Allow'
                     self.virtual_network["subnet_overrides"] = ev
-                elif key == "provisioning_state":
-                    self.virtual_network["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.virtual_network["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -292,8 +298,8 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Network instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Network instance")
@@ -304,10 +310,7 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
 
             response = self.create_update_virtualnetwork()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Network instance deleted")
@@ -395,6 +398,38 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

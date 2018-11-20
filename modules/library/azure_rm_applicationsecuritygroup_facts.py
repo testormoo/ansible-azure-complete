@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    application_security_group_name:
+    name:
         description:
             - The name of the application security group.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Application Security Group
     azure_rm_applicationsecuritygroup_facts:
       resource_group: resource_group_name
-      application_security_group_name: application_security_group_name
+      name: application_security_group_name
 '''
 
 RETURN = '''
@@ -100,7 +100,7 @@ class AzureRMApplicationSecurityGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            application_security_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -114,7 +114,7 @@ class AzureRMApplicationSecurityGroupsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.application_security_group_name = None
+        self.name = None
         self.tags = None
         super(AzureRMApplicationSecurityGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMApplicationSecurityGroupsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.application_security_groups.get(resource_group_name=self.resource_group,
-                                                                        application_security_group_name=self.application_security_group_name)
+                                                                        application_security_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ApplicationSecurityGroups.')

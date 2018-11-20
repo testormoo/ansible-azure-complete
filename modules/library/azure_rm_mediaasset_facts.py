@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    asset_name:
+    name:
         description:
             - The Asset name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_mediaasset_facts:
       resource_group: resource_group_name
       account_name: account_name
-      asset_name: asset_name
+      name: asset_name
 '''
 
 RETURN = '''
@@ -113,7 +113,7 @@ class AzureRMAssetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            asset_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -125,7 +125,7 @@ class AzureRMAssetsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.asset_name = None
+        self.name = None
         super(AzureRMAssetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMAssetsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.assets.get(resource_group_name=self.resource_group,
                                                    account_name=self.account_name,
-                                                   asset_name=self.asset_name)
+                                                   asset_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Assets.')

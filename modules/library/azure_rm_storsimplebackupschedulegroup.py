@@ -38,21 +38,21 @@ options:
             start_time:
                 description:
                     - The start time. When this field is specified we will generate Default GrandFather Father Son Backup Schedules.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     hour:
                         description:
                             - The hour.
-                        required: True
+                            - Required when C(state) is I(present).
                     minute:
                         description:
                             - The minute.
-                        required: True
+                            - Required when C(state) is I(present).
     resource_group:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -78,8 +78,12 @@ EXAMPLES = '''
     azure_rm_storsimplebackupschedulegroup:
       device_name: HSDK-4XY4FI2IVG
       schedule_group_name: BackupSchGroupForSDKTest
+      schedule_group:
+        start_time:
+          hour: 17
+          minute: 38
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -131,7 +135,7 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -146,7 +150,7 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
         self.schedule_group_name = None
         self.schedule_group = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -167,7 +171,6 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
                 if key == "start_time":
                     self.schedule_group["start_time"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -188,8 +191,8 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Backup Schedule Group instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Backup Schedule Group instance")
@@ -200,10 +203,7 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
 
             response = self.create_update_backupschedulegroup()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Backup Schedule Group instance deleted")
@@ -232,14 +232,14 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
 
         :return: deserialized Backup Schedule Group instance state dictionary
         '''
-        self.log("Creating / Updating the Backup Schedule Group instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Backup Schedule Group instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.backup_schedule_groups.create_or_update(device_name=self.device_name,
                                                                                 schedule_group_name=self.schedule_group_name,
                                                                                 schedule_group=self.schedule_group,
                                                                                 resource_group_name=self.resource_group,
-                                                                                manager_name=self.manager_name)
+                                                                                manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -254,12 +254,12 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Backup Schedule Group instance {0}".format(self.manager_name))
+        self.log("Deleting the Backup Schedule Group instance {0}".format(self.name))
         try:
             response = self.mgmt_client.backup_schedule_groups.delete(device_name=self.device_name,
                                                                       schedule_group_name=self.schedule_group_name,
                                                                       resource_group_name=self.resource_group,
-                                                                      manager_name=self.manager_name)
+                                                                      manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Backup Schedule Group instance.')
             self.fail("Error deleting the Backup Schedule Group instance: {0}".format(str(e)))
@@ -272,13 +272,13 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
 
         :return: deserialized Backup Schedule Group instance state dictionary
         '''
-        self.log("Checking if the Backup Schedule Group instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Backup Schedule Group instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.backup_schedule_groups.get(device_name=self.device_name,
                                                                    schedule_group_name=self.schedule_group_name,
                                                                    resource_group_name=self.resource_group,
-                                                                   manager_name=self.manager_name)
+                                                                   manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Backup Schedule Group instance : {0} found".format(response.name))
@@ -294,6 +294,38 @@ class AzureRMBackupScheduleGroups(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    vm_scale_set_name:
+    name:
         description:
             - The name of the VM scale set.
         required: True
@@ -50,7 +50,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Machine Scale Set V M
     azure_rm_computevirtualmachinescalesetvm_facts:
       resource_group: resource_group_name
-      vm_scale_set_name: vm_scale_set_name
+      name: vm_scale_set_name
       instance_id: instance_id
 '''
 
@@ -93,7 +93,7 @@ class AzureRMVirtualMachineScaleSetVMsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_scale_set_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -111,7 +111,7 @@ class AzureRMVirtualMachineScaleSetVMsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.vm_scale_set_name = None
+        self.name = None
         self.instance_id = None
         self.tags = None
         super(AzureRMVirtualMachineScaleSetVMsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -130,7 +130,7 @@ class AzureRMVirtualMachineScaleSetVMsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_machine_scale_set_vms.get(resource_group_name=self.resource_group,
-                                                                          vm_scale_set_name=self.vm_scale_set_name,
+                                                                          vm_scale_set_name=self.name,
                                                                           instance_id=self.instance_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

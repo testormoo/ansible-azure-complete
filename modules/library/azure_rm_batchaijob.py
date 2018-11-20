@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    job_name:
+    name:
         description:
             - "The name of the job within the specified resource group. Job names can only contain a combination of alphanumeric characters along with dash
                (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -43,16 +43,16 @@ options:
                highest priority. The default value is 0."
     cluster:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             id:
                 description:
                     - The ID of the resource
-                required: True
+                    - Required when C(state) is I(present).
     node_count:
         description:
             - The job will be gang scheduled on that many compute nodes
-        required: True
+            - Required when C(state) is I(present).
     container_settings:
         description:
             - "If the container was downloaded as part of I(cluster) setup then the same container image will be used. If not provided, the job will run on
@@ -60,19 +60,19 @@ options:
         suboptions:
             image_source_registry:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     server_url:
                         description:
                     image:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     credentials:
                         description:
                         suboptions:
                             username:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             password:
                                 description:
                                     - One of password or I(password_secret_reference) must be specified.
@@ -83,10 +83,10 @@ options:
                                 suboptions:
                                     source_vault:
                                         description:
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     secret_url:
                                         description:
-                                        required: True
+                                            - Required when C(state) is I(present).
     cntk_settings:
         description:
         suboptions:
@@ -112,12 +112,12 @@ options:
         suboptions:
             python_script_file_path:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             python_interpreter_path:
                 description:
             master_command_line_args:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             worker_command_line_args:
                 description:
                     - This property is optional for single machine training.
@@ -155,7 +155,7 @@ options:
         suboptions:
             python_script_file_path:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             python_interpreter_path:
                 description:
             command_line_args:
@@ -165,7 +165,7 @@ options:
         suboptions:
             python_script_file_path:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             python_interpreter_path:
                 description:
             command_line_args:
@@ -186,11 +186,11 @@ options:
                 description:
                     - "If containerSettings is specified on the job, this commandLine will be executed in the same container as job. Otherwise it will be
                        executed on the node."
-                required: True
+                    - Required when C(state) is I(present).
     std_out_err_path_prefix:
         description:
             - The path where the Batch AI service will upload stdout and stderror of the job.
-        required: True
+            - Required when C(state) is I(present).
     input_directories:
         description:
         type: list
@@ -200,10 +200,10 @@ options:
                     - "It will be available for the job as an environment variable under AZ_BATCHAI_INPUT_id. The service will also provide the following
                        environment variable: AZ_BATCHAI_PREV_OUTPUT_Name. The value of the variable will be populated if the job is being retried after a
                        previous failure, otherwise it will be set to nothing."
-                required: True
+                    - Required when C(state) is I(present).
             path:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
     output_directories:
         description:
         type: list
@@ -211,11 +211,11 @@ options:
             id:
                 description:
                     - It will be available for the job as an environment variable under AZ_BATCHAI_OUTPUT_id.
-                required: True
+                    - Required when C(state) is I(present).
             path_prefix:
                 description:
                     - "NOTE: This is an absolute path to prefix. E.g. $AZ_BATCHAI_MOUNT_ROOT/MyNFS/MyLogs."
-                required: True
+                    - Required when C(state) is I(present).
             path_suffix:
                 description:
                     - The suffix path where the output directory will be created.
@@ -240,7 +240,7 @@ options:
         suboptions:
             name:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             value:
                 description:
     constraints:
@@ -272,8 +272,27 @@ EXAMPLES = '''
   - name: Create (or update) Job
     azure_rm_batchaijob:
       resource_group: demo_resource_group
-      job_name: demo_job
+      name: demo_job
       location: eastus
+      priority: 0
+      cluster:
+        id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/demo_resource_group/providers/Microsoft.BatchAI/clusters/demo_cluster
+      node_count: 1
+      container_settings:
+        image_source_registry:
+          image: ubuntu
+      custom_toolkit_settings:
+        command_line: echo hi | tee $AZ_BATCHAI_OUTPUT_OUTPUTS/hi.txt
+      std_out_err_path_prefix: $AZ_BATCHAI_MOUNT_ROOT/azfiles
+      input_directories:
+        - id: INPUT
+          path: $AZ_BATCHAI_MOUNT_ROOT/azfiles/input
+      output_directories:
+        - id: OUTPUTS
+          path_prefix: $AZ_BATCHAI_MOUNT_ROOT/azfiles/
+          path_suffix: files
+          type: custom
+          create_new: True
 '''
 
 RETURN = '''
@@ -312,7 +331,7 @@ class AzureRMJobs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -326,12 +345,10 @@ class AzureRMJobs(AzureRMModuleBase):
                 type='int'
             ),
             cluster=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             node_count=dict(
-                type='int',
-                required=True
+                type='int'
             ),
             container_settings=dict(
                 type='dict'
@@ -358,8 +375,7 @@ class AzureRMJobs(AzureRMModuleBase):
                 type='dict'
             ),
             std_out_err_path_prefix=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             input_directories=dict(
                 type='list'
@@ -381,7 +397,7 @@ class AzureRMJobs(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -437,7 +453,6 @@ class AzureRMJobs(AzureRMModuleBase):
                 elif key == "constraints":
                     self.parameters["constraints"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
@@ -461,8 +476,8 @@ class AzureRMJobs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job instance")
@@ -473,10 +488,7 @@ class AzureRMJobs(AzureRMModuleBase):
 
             response = self.create_update_job()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job instance deleted")
@@ -505,12 +517,12 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: deserialized Job instance state dictionary
         '''
-        self.log("Creating / Updating the Job instance {0}".format(self.job_name))
+        self.log("Creating / Updating the Job instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.jobs.create(resource_group_name=self.resource_group,
-                                                        job_name=self.job_name,
+                                                        job_name=self.name,
                                                         parameters=self.parameters)
             else:
                 response = self.mgmt_client.jobs.update()
@@ -528,10 +540,10 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Job instance {0}".format(self.job_name))
+        self.log("Deleting the Job instance {0}".format(self.name))
         try:
             response = self.mgmt_client.jobs.delete(resource_group_name=self.resource_group,
-                                                    job_name=self.job_name)
+                                                    job_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Job instance.')
             self.fail("Error deleting the Job instance: {0}".format(str(e)))
@@ -544,11 +556,11 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: deserialized Job instance state dictionary
         '''
-        self.log("Checking if the Job instance {0} is present".format(self.job_name))
+        self.log("Checking if the Job instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.jobs.get(resource_group_name=self.resource_group,
-                                                 job_name=self.job_name)
+                                                 job_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Job instance : {0} found".format(response.name))
@@ -564,6 +576,38 @@ class AzureRMJobs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

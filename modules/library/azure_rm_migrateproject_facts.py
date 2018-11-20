@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Name of the Azure Resource Group that project is part of.
-    project_name:
+    name:
         description:
             - Name of the Azure Migrate project.
     self.config.accept_language:
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Project
     azure_rm_migrateproject_facts:
       resource_group: resource_group_name
-      project_name: project_name
+      name: project_name
       self.config.accept_language: self.config.accept_language
 
   - name: List instances of Project
@@ -111,7 +111,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            project_name=dict(
+            name=dict(
                 type='str'
             ),
             self.config.accept_language=dict(
@@ -127,7 +127,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.project_name = None
+        self.name = None
         self.self.config.accept_language = None
         self.tags = None
         super(AzureRMProjectsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -139,7 +139,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.project_name is not None):
+                self.name is not None):
             self.results['projects'] = self.get()
         elif self.resource_group is not None:
             self.results['projects'] = self.list_by_resource_group()
@@ -152,7 +152,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.projects.get(resource_group_name=self.resource_group,
-                                                     project_name=self.project_name)
+                                                     project_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Projects.')

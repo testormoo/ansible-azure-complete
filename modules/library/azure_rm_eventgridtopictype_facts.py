@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Topic Type.
 
 options:
-    topic_type_name:
+    name:
         description:
             - Name of the topic type
         required: True
@@ -38,7 +38,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Topic Type
     azure_rm_eventgridtopictype_facts:
-      topic_type_name: topic_type_name
+      name: topic_type_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMTopicTypesFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            topic_type_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -98,7 +98,7 @@ class AzureRMTopicTypesFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.topic_type_name = None
+        self.name = None
         super(AzureRMTopicTypesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -114,7 +114,7 @@ class AzureRMTopicTypesFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.topic_types.get(topic_type_name=self.topic_type_name)
+            response = self.mgmt_client.topic_types.get(topic_type_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for TopicTypes.')

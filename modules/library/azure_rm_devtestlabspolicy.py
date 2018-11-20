@@ -32,59 +32,51 @@ options:
         required: True
     policy_set_name:
         description:
-            - The name of the I(policy) set.
+            - The name of the policy set.
         required: True
     name:
         description:
-            - The name of the I(policy).
+            - The name of the policy.
         required: True
-    policy:
+    location:
         description:
-            - A Policy.
-        required: True
-        suboptions:
-            location:
-                description:
-                    - The location of the resource.
-            description:
-                description:
-                    - The description of the policy.
-            status:
-                description:
-                    - The status of the policy.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
-            fact_name:
-                description:
-                    - The fact name of the policy (e.g. C(lab_vm_count), C(lab_vm_size), MaxVmsAllowedPerLab, etc.
-                choices:
-                    - 'user_owned_lab_vm_count'
-                    - 'user_owned_lab_premium_vm_count'
-                    - 'lab_vm_count'
-                    - 'lab_premium_vm_count'
-                    - 'lab_vm_size'
-                    - 'gallery_image'
-                    - 'user_owned_lab_vm_count_in_subnet'
-                    - 'lab_target_cost'
-            fact_data:
-                description:
-                    - The fact data of the policy.
-            threshold:
-                description:
-                    - The threshold of the policy (i.e. a number for C(max_value_policy), and a JSON array of values for C(allowed_values_policy)).
-            evaluator_type:
-                description:
-                    - The evaluator type of the policy (i.e. C(allowed_values_policy), C(max_value_policy)).
-                choices:
-                    - 'allowed_values_policy'
-                    - 'max_value_policy'
-            provisioning_state:
-                description:
-                    - The provisioning I(status) of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+            - The location of the resource.
+    description:
+        description:
+            - The description of the policy.
+    status:
+        description:
+            - The status of the policy.
+        choices:
+            - 'enabled'
+            - 'disabled'
+    fact_name:
+        description:
+            - The fact name of the policy (e.g. C(lab_vm_count), C(lab_vm_size), MaxVmsAllowedPerLab, etc.
+        choices:
+            - 'user_owned_lab_vm_count'
+            - 'user_owned_lab_premium_vm_count'
+            - 'lab_vm_count'
+            - 'lab_premium_vm_count'
+            - 'lab_vm_size'
+            - 'gallery_image'
+            - 'user_owned_lab_vm_count_in_subnet'
+            - 'lab_target_cost'
+    fact_data:
+        description:
+            - The fact data of the policy.
+    threshold:
+        description:
+            - The threshold of the policy (i.e. a number for C(max_value_policy), and a JSON array of values for C(allowed_values_policy)).
+    evaluator_type:
+        description:
+            - The evaluator type of the policy (i.e. C(allowed_values_policy), C(max_value_policy)).
+        choices:
+            - 'allowed_values_policy'
+            - 'max_value_policy'
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Policy.
@@ -166,9 +158,41 @@ class AzureRMPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            policy=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            status=dict(
+                type='str',
+                choices=['enabled',
+                         'disabled']
+            ),
+            fact_name=dict(
+                type='str',
+                choices=['user_owned_lab_vm_count',
+                         'user_owned_lab_premium_vm_count',
+                         'lab_vm_count',
+                         'lab_premium_vm_count',
+                         'lab_vm_size',
+                         'gallery_image',
+                         'user_owned_lab_vm_count_in_subnet',
+                         'lab_target_cost']
+            ),
+            fact_data=dict(
+                type='str'
+            ),
+            threshold=dict(
+                type='str'
+            ),
+            evaluator_type=dict(
+                type='str',
+                choices=['allowed_values_policy',
+                         'max_value_policy']
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -213,12 +237,9 @@ class AzureRMPolicies(AzureRMModuleBase):
                     self.policy["threshold"] = kwargs[key]
                 elif key == "evaluator_type":
                     self.policy["evaluator_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioning_state":
-                    self.policy["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.policy["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -239,8 +260,8 @@ class AzureRMPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Policy instance")
@@ -251,10 +272,7 @@ class AzureRMPolicies(AzureRMModuleBase):
 
             response = self.create_update_policy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Policy instance deleted")
@@ -346,6 +364,38 @@ class AzureRMPolicies(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

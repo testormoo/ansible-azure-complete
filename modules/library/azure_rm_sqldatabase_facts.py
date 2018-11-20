@@ -30,10 +30,10 @@ options:
         description:
             - The name of the server.
         required: True
-    name:
+    database_name:
         description:
             - The name of the database.
-    elastic_pool_name:
+    name:
         description:
             - The name of the elastic pool.
     tags:
@@ -53,13 +53,13 @@ EXAMPLES = '''
     azure_rm_sqldatabase_facts:
       resource_group: resource_group_name
       server_name: server_name
-      name: database_name
+      database_name: database_name
 
   - name: List instances of SQL Database
     azure_rm_sqldatabase_facts:
       resource_group: resource_group_name
       server_name: server_name
-      elastic_pool_name: elastic_pool_name
+      name: elastic_pool_name
 
   - name: List instances of SQL Database
     azure_rm_sqldatabase_facts:
@@ -175,10 +175,10 @@ class AzureRMDatabasesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            database_name=dict(
                 type='str'
             ),
-            elastic_pool_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -192,8 +192,8 @@ class AzureRMDatabasesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
+        self.database_name = None
         self.name = None
-        self.elastic_pool_name = None
         self.tags = None
         super(AzureRMDatabasesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -203,9 +203,9 @@ class AzureRMDatabasesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.name is not None:
+        if self.database_name is not None:
             self.results['databases'] = self.get()
-        elif self.elastic_pool_name is not None:
+        elif self.name is not None:
             self.results['databases'] = self.list_by_elastic_pool()
         else:
             self.results['databases'] = self.list_by_server()
@@ -217,7 +217,7 @@ class AzureRMDatabasesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.databases.get(resource_group_name=self.resource_group,
                                                       server_name=self.server_name,
-                                                      database_name=self.name)
+                                                      database_name=self.database_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Databases.')
@@ -233,7 +233,7 @@ class AzureRMDatabasesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.databases.list_by_elastic_pool(resource_group_name=self.resource_group,
                                                                        server_name=self.server_name,
-                                                                       elastic_pool_name=self.elastic_pool_name)
+                                                                       elastic_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Databases.')

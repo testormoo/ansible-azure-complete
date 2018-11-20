@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure resource group.
         required: True
-    account_name:
+    name:
         description:
             - Cosmos DB database account name.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Database Account
     azure_rm_cosmosdbaccount_facts:
       resource_group: resource_group_name
-      account_name: account_name
+      name: account_name
 
   - name: List instances of Database Account
     azure_rm_cosmosdbaccount_facts:
@@ -110,7 +110,7 @@ class AzureRMDatabaseAccountsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -123,7 +123,7 @@ class AzureRMDatabaseAccountsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDatabaseAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -133,7 +133,7 @@ class AzureRMDatabaseAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CosmosDB,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.account_name is not None:
+        if self.name is not None:
             self.results['database_accounts'] = self.get()
         else:
             self.results['database_accounts'] = self.list_by_resource_group()
@@ -144,7 +144,7 @@ class AzureRMDatabaseAccountsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.database_accounts.get(resource_group_name=self.resource_group,
-                                                              account_name=self.account_name)
+                                                              account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DatabaseAccounts.')

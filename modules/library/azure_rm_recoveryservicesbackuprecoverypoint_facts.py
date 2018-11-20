@@ -38,7 +38,7 @@ options:
         description:
             - Container name associated with backed up item.
         required: True
-    protected_item_name:
+    name:
         description:
             - Backed up item name whose backup data needs to be fetched.
         required: True
@@ -65,7 +65,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       fabric_name: fabric_name
       container_name: container_name
-      protected_item_name: protected_item_name
+      name: protected_item_name
       recovery_point_id: recovery_point_id
 '''
 
@@ -135,7 +135,7 @@ class AzureRMRecoveryPointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            protected_item_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -156,7 +156,7 @@ class AzureRMRecoveryPointsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.fabric_name = None
         self.container_name = None
-        self.protected_item_name = None
+        self.name = None
         self.recovery_point_id = None
         self.tags = None
         super(AzureRMRecoveryPointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -178,7 +178,7 @@ class AzureRMRecoveryPointsFacts(AzureRMModuleBase):
                                                             resource_group_name=self.resource_group,
                                                             fabric_name=self.fabric_name,
                                                             container_name=self.container_name,
-                                                            protected_item_name=self.protected_item_name,
+                                                            protected_item_name=self.name,
                                                             recovery_point_id=self.recovery_point_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

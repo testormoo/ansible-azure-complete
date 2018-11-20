@@ -26,7 +26,7 @@ options:
         description:
             - The name of a supported Azure region.
         required: True
-    publisher_name:
+    name:
         description:
         required: True
     type:
@@ -51,7 +51,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Machine Extension Image
     azure_rm_computevirtualmachineextensionimage_facts:
       location: location
-      publisher_name: publisher_name
+      name: publisher_name
       type: type
       version: version
 '''
@@ -95,7 +95,7 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            publisher_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -117,7 +117,7 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.location = None
-        self.publisher_name = None
+        self.name = None
         self.type = None
         self.version = None
         self.tags = None
@@ -137,7 +137,7 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_machine_extension_images.get(location=self.location,
-                                                                             publisher_name=self.publisher_name,
+                                                                             publisher_name=self.name,
                                                                              type=self.type,
                                                                              version=self.version)
             self.log("Response : {0}".format(response))

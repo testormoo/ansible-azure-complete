@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    storage_sync_service_name:
+    name:
         description:
             - Name of Storage Sync Service resource.
         required: True
@@ -82,8 +82,13 @@ EXAMPLES = '''
   - name: Create (or update) Registered Server
     azure_rm_storagesyncregisteredserver:
       resource_group: SampleResourceGroup_1
-      storage_sync_service_name: SampleStorageSyncService_1
+      name: SampleStorageSyncService_1
       server_id: "080d4133-bdb5-40a0-96a0-71a6057bfe9a"
+      server_certificate: "MIIDFjCCAf6gAwIBAgIQQS+DS8uhc4VNzUkTw7wbRjANBgkqhkiG9w0BAQ0FADAzMTEwLwYDVQQDEyhhbmt1c2hiLXByb2QzLnJlZG1vbmQuY29ycC5taWNyb3NvZnQuY29tMB4XDTE3MDgwMzE3MDQyNFoXDTE4MDgwNDE3MDQyNFowMzExMC8GA1UEAxMoYW5rdXNoYi1wcm9kMy5yZWRtb25kLmNvcnAubWljcm9zb2Z0LmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALDRvV4gmsIy6jGDPiHsXmvgVP749NNP7DopdlbHaNhjFmYINHl0uWylyaZmgJrROt2mnxN/zEyJtGnqYHlzUr4xvGq/qV5pqgdB9tag/sw9i22gfe9PRZ0FmSOZnXMbLYgLiDFqLtut5gHcOuWMj03YnkfoBEKlFBxWbagvW2yxz/Sxi9OVSJOKCaXra0RpcIHrO/KFl6ho2eE1/7Ykmfa8hZvSdoPd5gHdLiQcMB/pxq+mWp1fI6c8vFZoDu7Atn+NXTzYPKUxKzaisF12TsaKpohUsJpbB3Wocb0F5frn614D2pg14ERB5otjAMWw1m65csQWPI6dP8KIYe0+QPkCAwEAAaMmMCQwIgYDVR0lAQH/BBgwFgYIKwYBBQUHAwIGCisGAQQBgjcKAwwwDQYJKoZIhvcNAQENBQADggEBAA4RhVIBkw34M1RwakJgHvtjsOFxF1tVQA941NtLokx1l2Z8+GFQkcG4xpZSt+UN6wLerdCbnNhtkCErWUDeaT0jxk4g71Ofex7iM04crT4iHJr8mi96/XnhnkTUs+GDk12VgdeeNEczMZz+8Mxw9dJ5NCnYgTwO0SzGlclRsDvjzkLo8rh2ZG6n/jKrEyNXXo+hOqhupij0QbRP2Tvexdfw201kgN1jdZify8XzJ8Oi0bTS0KpJf2pNPOlooK2bjMUei9ANtEdXwwfVZGWvVh6tJjdv6k14wWWJ1L7zhA1IIVb1J+sQUzJji5iX0DrezjTz1Fg+gAzITaA/WsuujlM="
+      agent_version: 1.0.277.0
+      server_os_version: 10.0.14393.0
+      last_heart_beat: "2017-08-08T18:29:06.470652Z"
+      server_role: Standalone
 '''
 
 RETURN = '''
@@ -124,7 +129,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            storage_sync_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -167,7 +172,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.storage_sync_service_name = None
+        self.name = None
         self.server_id = None
         self.parameters = dict()
 
@@ -206,7 +211,6 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
                 elif key == "friendly_name":
                     self.parameters["friendly_name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorageSyncManagementClient,
@@ -227,8 +231,8 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Registered Server instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Registered Server instance")
@@ -239,10 +243,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
 
             response = self.create_update_registeredserver()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Registered Server instance deleted")
@@ -276,7 +277,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.registered_servers.create(resource_group_name=self.resource_group,
-                                                                      storage_sync_service_name=self.storage_sync_service_name,
+                                                                      storage_sync_service_name=self.name,
                                                                       server_id=self.server_id,
                                                                       parameters=self.parameters)
             else:
@@ -298,7 +299,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
         self.log("Deleting the Registered Server instance {0}".format(self.server_id))
         try:
             response = self.mgmt_client.registered_servers.delete(resource_group_name=self.resource_group,
-                                                                  storage_sync_service_name=self.storage_sync_service_name,
+                                                                  storage_sync_service_name=self.name,
                                                                   server_id=self.server_id)
         except CloudError as e:
             self.log('Error attempting to delete the Registered Server instance.')
@@ -316,7 +317,7 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.registered_servers.get(resource_group_name=self.resource_group,
-                                                               storage_sync_service_name=self.storage_sync_service_name,
+                                                               storage_sync_service_name=self.name,
                                                                server_id=self.server_id)
             found = True
             self.log("Response : {0}".format(response))
@@ -333,6 +334,38 @@ class AzureRMRegisteredServers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    circuit_name:
+    name:
         description:
             - The name of the circuit.
         required: True
@@ -87,9 +87,6 @@ options:
                 choices:
                     - 'available'
                     - 'in_use'
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - Gets name of the resource that is unique within a resource group. This name can be used to access the resource.
@@ -184,9 +181,6 @@ options:
                     secondarybytes_out:
                         description:
                             - Gets BytesOut of the peering.
-            provisioning_state:
-                description:
-                    - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             gateway_manager_etag:
                 description:
                     - The GatewayManager Etag.
@@ -214,18 +208,18 @@ options:
                             access:
                                 description:
                                     - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'allow'
                                     - 'deny'
                             route_filter_rule_type:
                                 description:
                                     - "The rule type of the rule. Valid value is: 'Community'"
-                                required: True
+                                    - Required when C(state) is I(present).
                             communities:
                                 description:
                                     - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             name:
                                 description:
@@ -325,9 +319,6 @@ options:
                                     secondarybytes_out:
                                         description:
                                             - Gets BytesOut of the peering.
-                            provisioning_state:
-                                description:
-                                    - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                             gateway_manager_etag:
                                 description:
                                     - The GatewayManager Etag.
@@ -438,18 +429,18 @@ options:
                                     access:
                                         description:
                                             - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
                                     route_filter_rule_type:
                                         description:
                                             - "The rule type of the rule. Valid value is: 'Community'"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     communities:
                                         description:
                                             - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         type: list
                                     name:
                                         description:
@@ -509,10 +500,6 @@ options:
                                     stats:
                                         description:
                                             - Gets peering stats.
-                                    provisioning_state:
-                                        description:
-                                            - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and
-                                               'Failed'."
                                     gateway_manager_etag:
                                         description:
                                             - The GatewayManager Etag.
@@ -556,9 +543,6 @@ options:
             bandwidth_in_mbps:
                 description:
                     - The BandwidthInMbps.
-    provisioning_state:
-        description:
-            - "Gets the C(provisioning) state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
     gateway_manager_etag:
         description:
             - The GatewayManager Etag.
@@ -584,7 +568,7 @@ EXAMPLES = '''
   - name: Create (or update) Express Route Circuit
     azure_rm_expressroutecircuit:
       resource_group: NOT FOUND
-      circuit_name: NOT FOUND
+      name: NOT FOUND
       location: eastus
 '''
 
@@ -624,7 +608,7 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            circuit_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -665,9 +649,6 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
             service_provider_properties=dict(
                 type='dict'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
             gateway_manager_etag=dict(
                 type='str'
             ),
@@ -679,7 +660,7 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.circuit_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -750,12 +731,9 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
                     self.parameters["service_provider_notes"] = kwargs[key]
                 elif key == "service_provider_properties":
                     self.parameters["service_provider_properties"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
                 elif key == "gateway_manager_etag":
                     self.parameters["gateway_manager_etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -779,8 +757,8 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Express Route Circuit instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Express Route Circuit instance")
@@ -791,10 +769,7 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
 
             response = self.create_update_expressroutecircuit()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Express Route Circuit instance deleted")
@@ -823,11 +798,11 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
 
         :return: deserialized Express Route Circuit instance state dictionary
         '''
-        self.log("Creating / Updating the Express Route Circuit instance {0}".format(self.circuit_name))
+        self.log("Creating / Updating the Express Route Circuit instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.express_route_circuits.create_or_update(resource_group_name=self.resource_group,
-                                                                                circuit_name=self.circuit_name,
+                                                                                circuit_name=self.name,
                                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -843,10 +818,10 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Express Route Circuit instance {0}".format(self.circuit_name))
+        self.log("Deleting the Express Route Circuit instance {0}".format(self.name))
         try:
             response = self.mgmt_client.express_route_circuits.delete(resource_group_name=self.resource_group,
-                                                                      circuit_name=self.circuit_name)
+                                                                      circuit_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Express Route Circuit instance.')
             self.fail("Error deleting the Express Route Circuit instance: {0}".format(str(e)))
@@ -859,11 +834,11 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
 
         :return: deserialized Express Route Circuit instance state dictionary
         '''
-        self.log("Checking if the Express Route Circuit instance {0} is present".format(self.circuit_name))
+        self.log("Checking if the Express Route Circuit instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.express_route_circuits.get(resource_group_name=self.resource_group,
-                                                                   circuit_name=self.circuit_name)
+                                                                   circuit_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Express Route Circuit instance : {0} found".format(response.name))
@@ -879,6 +854,38 @@ class AzureRMExpressRouteCircuits(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

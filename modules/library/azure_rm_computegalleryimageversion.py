@@ -34,7 +34,7 @@ options:
         description:
             - The name of the gallery Image Definition in which the Image Version is to be created.
         required: True
-    gallery_image_version_name:
+    name:
         description:
             - "The name of the gallery Image Version to be created. Needs to follow semantic version name pattern: The allowed characters are digit and
                period. Digits must be within the range of a 32-bit integer. Format: <MajorVersion>.<MinorVersion>.<Patch>"
@@ -47,10 +47,10 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             publishing_profile:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     target_regions:
                         description:
@@ -60,22 +60,22 @@ options:
                             name:
                                 description:
                                     - The name of the region.
-                                required: True
+                                    - Required when C(state) is I(present).
                             regional_replica_count:
                                 description:
                                     - The number of replicas of the Image Version to be created per region. This property is updateable.
                     source:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             managed_image:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     id:
                                         description:
                                             - The managed artifact id.
-                                        required: True
+                                            - Required when C(state) is I(present).
                     replica_count:
                         description:
                             - "The number of replicas of the Image Version to be created per region. This property would take effect for a region when
@@ -111,9 +111,16 @@ EXAMPLES = '''
       resource_group: myResourceGroup
       gallery_name: myGalleryName
       gallery_image_name: myGalleryImageName
-      gallery_image_version_name: 1.0.0
+      name: 1.0.0
       gallery_image_version:
         location: West US
+        publishing_profile:
+          target_regions:
+            - name: West US
+              regional_replica_count: 1
+          source:
+            managed_image:
+              id: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Compute/images/{imageName}
 '''
 
 RETURN = '''
@@ -160,7 +167,7 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_image_version_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -178,7 +185,7 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
         self.resource_group = None
         self.gallery_name = None
         self.gallery_image_name = None
-        self.gallery_image_version_name = None
+        self.name = None
         self.gallery_image_version = dict()
 
         self.results = dict(changed=False)
@@ -202,7 +209,6 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
                 elif key == "publishing_profile":
                     self.gallery_image_version["publishing_profile"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -223,8 +229,8 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Gallery Image Version instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Gallery Image Version instance")
@@ -235,10 +241,7 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
 
             response = self.create_update_galleryimageversion()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Gallery Image Version instance deleted")
@@ -267,13 +270,13 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
 
         :return: deserialized Gallery Image Version instance state dictionary
         '''
-        self.log("Creating / Updating the Gallery Image Version instance {0}".format(self.gallery_image_version_name))
+        self.log("Creating / Updating the Gallery Image Version instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.gallery_image_versions.create_or_update(resource_group_name=self.resource_group,
                                                                                 gallery_name=self.gallery_name,
                                                                                 gallery_image_name=self.gallery_image_name,
-                                                                                gallery_image_version_name=self.gallery_image_version_name,
+                                                                                gallery_image_version_name=self.name,
                                                                                 gallery_image_version=self.gallery_image_version)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -289,12 +292,12 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Gallery Image Version instance {0}".format(self.gallery_image_version_name))
+        self.log("Deleting the Gallery Image Version instance {0}".format(self.name))
         try:
             response = self.mgmt_client.gallery_image_versions.delete(resource_group_name=self.resource_group,
                                                                       gallery_name=self.gallery_name,
                                                                       gallery_image_name=self.gallery_image_name,
-                                                                      gallery_image_version_name=self.gallery_image_version_name)
+                                                                      gallery_image_version_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Gallery Image Version instance.')
             self.fail("Error deleting the Gallery Image Version instance: {0}".format(str(e)))
@@ -307,13 +310,13 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
 
         :return: deserialized Gallery Image Version instance state dictionary
         '''
-        self.log("Checking if the Gallery Image Version instance {0} is present".format(self.gallery_image_version_name))
+        self.log("Checking if the Gallery Image Version instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.gallery_image_versions.get(resource_group_name=self.resource_group,
                                                                    gallery_name=self.gallery_name,
                                                                    gallery_image_name=self.gallery_image_name,
-                                                                   gallery_image_version_name=self.gallery_image_version_name)
+                                                                   gallery_image_version_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Gallery Image Version instance : {0} found".format(response.name))
@@ -329,6 +332,38 @@ class AzureRMGalleryImageVersions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

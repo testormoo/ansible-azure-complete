@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group within the azure subscription.
         required: True
-    namespace_name:
+    name:
         description:
             - The Namespace name
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Disaster Recovery Config
     azure_rm_eventhubdisasterrecoveryconfig_facts:
       resource_group: resource_group_name
-      namespace_name: namespace_name
+      name: namespace_name
       alias: alias
 '''
 
@@ -98,7 +98,7 @@ class AzureRMDisasterRecoveryConfigsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            namespace_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMDisasterRecoveryConfigsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.namespace_name = None
+        self.name = None
         self.alias = None
         super(AzureRMDisasterRecoveryConfigsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -131,7 +131,7 @@ class AzureRMDisasterRecoveryConfigsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.disaster_recovery_configs.get(resource_group_name=self.resource_group,
-                                                                      namespace_name=self.namespace_name,
+                                                                      namespace_name=self.name,
                                                                       alias=self.alias)
             self.log("Response : {0}".format(response))
         except CloudError as e:

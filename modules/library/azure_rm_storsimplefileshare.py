@@ -45,14 +45,14 @@ options:
             share_status:
                 description:
                     - The Share Status.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'online'
                     - 'offline'
             data_policy:
                 description:
                     - The data policy.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'invalid'
                     - 'local'
@@ -61,15 +61,15 @@ options:
             admin_user:
                 description:
                     - "The user/group who will have full permission in this share. Active directory email address. Example: xyz@contoso.com or Contoso\xyz."
-                required: True
+                    - Required when C(state) is I(present).
             provisioned_capacity_in_bytes:
                 description:
                     - The total provisioned capacity in Bytes
-                required: True
+                    - Required when C(state) is I(present).
             monitoring_status:
                 description:
                     - The monitoring status.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'enabled'
                     - 'disabled'
@@ -77,7 +77,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -104,8 +104,15 @@ EXAMPLES = '''
       device_name: HSDK-4XY4FI2IVG
       file_server_name: HSDK-4XY4FI2IVG
       share_name: Auto-TestFileShare1
+      file_share:
+        description: Demo FileShare for SDK Test Tiered
+        share_status: Online
+        data_policy: Tiered
+        admin_user: fareast\idcdlslb
+        provisioned_capacity_in_bytes: 536870912000
+        monitoring_status: Enabled
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -161,7 +168,7 @@ class AzureRMFileShares(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -177,7 +184,7 @@ class AzureRMFileShares(AzureRMModuleBase):
         self.share_name = None
         self.file_share = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -208,7 +215,6 @@ class AzureRMFileShares(AzureRMModuleBase):
                 elif key == "monitoring_status":
                     self.file_share["monitoring_status"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -229,8 +235,8 @@ class AzureRMFileShares(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if File Share instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the File Share instance")
@@ -241,10 +247,7 @@ class AzureRMFileShares(AzureRMModuleBase):
 
             response = self.create_update_fileshare()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("File Share instance deleted")
@@ -273,7 +276,7 @@ class AzureRMFileShares(AzureRMModuleBase):
 
         :return: deserialized File Share instance state dictionary
         '''
-        self.log("Creating / Updating the File Share instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the File Share instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.file_shares.create_or_update(device_name=self.device_name,
@@ -281,7 +284,7 @@ class AzureRMFileShares(AzureRMModuleBase):
                                                                      share_name=self.share_name,
                                                                      file_share=self.file_share,
                                                                      resource_group_name=self.resource_group,
-                                                                     manager_name=self.manager_name)
+                                                                     manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -296,13 +299,13 @@ class AzureRMFileShares(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the File Share instance {0}".format(self.manager_name))
+        self.log("Deleting the File Share instance {0}".format(self.name))
         try:
             response = self.mgmt_client.file_shares.delete(device_name=self.device_name,
                                                            file_server_name=self.file_server_name,
                                                            share_name=self.share_name,
                                                            resource_group_name=self.resource_group,
-                                                           manager_name=self.manager_name)
+                                                           manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the File Share instance.')
             self.fail("Error deleting the File Share instance: {0}".format(str(e)))
@@ -315,14 +318,14 @@ class AzureRMFileShares(AzureRMModuleBase):
 
         :return: deserialized File Share instance state dictionary
         '''
-        self.log("Checking if the File Share instance {0} is present".format(self.manager_name))
+        self.log("Checking if the File Share instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.file_shares.get(device_name=self.device_name,
                                                         file_server_name=self.file_server_name,
                                                         share_name=self.share_name,
                                                         resource_group_name=self.resource_group,
-                                                        manager_name=self.manager_name)
+                                                        manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("File Share instance : {0} found".format(response.name))
@@ -338,6 +341,38 @@ class AzureRMFileShares(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

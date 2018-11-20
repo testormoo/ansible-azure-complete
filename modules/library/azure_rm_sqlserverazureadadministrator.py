@@ -30,26 +30,26 @@ options:
         description:
             - The name of the server.
         required: True
-    administrator_name:
+    name:
         description:
             - Name of the server administrator resource.
         required: True
     administrator_type:
         description:
             - The type of administrator.
-        required: True
+            - Required when C(state) is I(present).
     login:
         description:
             - The server administrator login value.
-        required: True
+            - Required when C(state) is I(present).
     sid:
         description:
             - The server administrator Sid (Secure ID).
-        required: True
+            - Required when C(state) is I(present).
     tenant_id:
         description:
             - The server Active Directory Administrator tenant id.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Server Azure A D Administrator.
@@ -72,7 +72,11 @@ EXAMPLES = '''
     azure_rm_sqlserverazureadadministrator:
       resource_group: sqlcrudtest-4799
       server_name: sqlcrudtest-6440
-      administrator_name: activeDirectory
+      name: activeDirectory
+      administrator_type: ActiveDirectory
+      login: bob@contoso.com
+      sid: c6b82b90-a647-49cb-8a62-0d2d3cb7ac7c
+      tenant_id: c6b82b90-a647-49cb-8a62-0d2d3cb7ac7c
 '''
 
 RETURN = '''
@@ -116,25 +120,21 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            administrator_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             administrator_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             login=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             sid=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             tenant_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -145,7 +145,7 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.administrator_name = None
+        self.name = None
         self.properties = dict()
 
         self.results = dict(changed=False)
@@ -173,7 +173,6 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
                 elif key == "tenant_id":
                     self.properties["tenant_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -194,8 +193,8 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Azure A D Administrator instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Azure A D Administrator instance")
@@ -206,10 +205,7 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
 
             response = self.create_update_serverazureadadministrator()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Azure A D Administrator instance deleted")
@@ -238,12 +234,12 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
 
         :return: deserialized Server Azure A D Administrator instance state dictionary
         '''
-        self.log("Creating / Updating the Server Azure A D Administrator instance {0}".format(self.administrator_name))
+        self.log("Creating / Updating the Server Azure A D Administrator instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.server_azure_ad_administrators.create_or_update(resource_group_name=self.resource_group,
                                                                                         server_name=self.server_name,
-                                                                                        administrator_name=self.administrator_name,
+                                                                                        administrator_name=self.name,
                                                                                         properties=self.properties)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -259,11 +255,11 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Azure A D Administrator instance {0}".format(self.administrator_name))
+        self.log("Deleting the Server Azure A D Administrator instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_azure_ad_administrators.delete(resource_group_name=self.resource_group,
                                                                               server_name=self.server_name,
-                                                                              administrator_name=self.administrator_name)
+                                                                              administrator_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Server Azure A D Administrator instance.')
             self.fail("Error deleting the Server Azure A D Administrator instance: {0}".format(str(e)))
@@ -276,12 +272,12 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
 
         :return: deserialized Server Azure A D Administrator instance state dictionary
         '''
-        self.log("Checking if the Server Azure A D Administrator instance {0} is present".format(self.administrator_name))
+        self.log("Checking if the Server Azure A D Administrator instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_azure_ad_administrators.get(resource_group_name=self.resource_group,
                                                                            server_name=self.server_name,
-                                                                           administrator_name=self.administrator_name)
+                                                                           administrator_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Azure A D Administrator instance : {0} found".format(response.name))
@@ -297,6 +293,38 @@ class AzureRMServerAzureADAdministrators(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

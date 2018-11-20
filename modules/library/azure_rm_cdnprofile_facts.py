@@ -26,7 +26,7 @@ options:
         description:
             - Name of the Resource group within the Azure subscription.
         required: True
-    profile_name:
+    name:
         description:
             - Name of the CDN profile which is unique within the resource group.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Profile
     azure_rm_cdnprofile_facts:
       resource_group: resource_group_name
-      profile_name: profile_name
+      name: profile_name
 
   - name: List instances of Profile
     azure_rm_cdnprofile_facts:
@@ -91,7 +91,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            profile_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -104,7 +104,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.profile_name = None
+        self.name = None
         self.tags = None
         super(AzureRMProfilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -114,7 +114,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CdnManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.profile_name is not None:
+        if self.name is not None:
             self.results['profiles'] = self.get()
         else:
             self.results['profiles'] = self.list_by_resource_group()
@@ -125,7 +125,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.profiles.get(resource_group_name=self.resource_group,
-                                                     profile_name=self.profile_name)
+                                                     profile_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Profiles.')

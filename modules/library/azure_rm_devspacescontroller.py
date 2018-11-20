@@ -41,23 +41,23 @@ options:
             host_suffix:
                 description:
                     - DNS suffix for public endpoints running in the Azure Dev Spaces Controller.
-                required: True
+                    - Required when C(state) is I(present).
             target_container_host_resource_id:
                 description:
                     - Resource ID of the target container host
-                required: True
+                    - Required when C(state) is I(present).
             target_container_host_credentials_base64:
                 description:
                     - Credentials of the target container host (base64).
-                required: True
+                    - Required when C(state) is I(present).
             sku:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
                             - The name of the SKU for Azure Dev Spaces Controller.
-                        required: True
+                            - Required when C(state) is I(present).
                     tier:
                         description:
                             - The tier of the SKU for Azure Dev Spaces Controller.
@@ -88,6 +88,9 @@ EXAMPLES = '''
       name: myControllerResource
       controller:
         location: eastus
+        host_suffix: suffix
+        target_container_host_resource_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.ContainerService/managedCluster/myCluster
+        target_container_host_credentials_base64: QmFzZTY0IEVuY29kZWQgVmFsdWUK
         sku:
           name: S1
           tier: Standard
@@ -179,7 +182,6 @@ class AzureRMControllers(AzureRMModuleBase):
                             ev['tier'] = 'Standard'
                     self.controller["sku"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevSpacesManagementClient,
@@ -200,8 +202,8 @@ class AzureRMControllers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Controller instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Controller instance")
@@ -212,10 +214,7 @@ class AzureRMControllers(AzureRMModuleBase):
 
             response = self.create_update_controller()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Controller instance deleted")
@@ -304,6 +303,38 @@ class AzureRMControllers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

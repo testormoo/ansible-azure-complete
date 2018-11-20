@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    trigger_name:
+    name:
         description:
             - The trigger name.
     if_none_match:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datafactorytrigger_facts:
       resource_group: resource_group_name
       factory_name: factory_name
-      trigger_name: trigger_name
+      name: trigger_name
       if_none_match: if_none_match
 
   - name: List instances of Trigger
@@ -129,7 +129,7 @@ class AzureRMTriggersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            trigger_name=dict(
+            name=dict(
                 type='str'
             ),
             if_none_match=dict(
@@ -143,7 +143,7 @@ class AzureRMTriggersFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.factory_name = None
-        self.trigger_name = None
+        self.name = None
         self.if_none_match = None
         super(AzureRMTriggersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMTriggersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.trigger_name is not None:
+        if self.name is not None:
             self.results['triggers'] = self.get()
         else:
             self.results['triggers'] = self.list_by_factory()
@@ -165,7 +165,7 @@ class AzureRMTriggersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.triggers.get(resource_group_name=self.resource_group,
                                                      factory_name=self.factory_name,
-                                                     trigger_name=self.trigger_name)
+                                                     trigger_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Triggers.')

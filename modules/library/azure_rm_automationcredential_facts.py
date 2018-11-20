@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    credential_name:
+    name:
         description:
             - The name of credential.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_automationcredential_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      credential_name: credential_name
+      name: credential_name
 
   - name: List instances of Credential
     azure_rm_automationcredential_facts:
@@ -104,7 +104,7 @@ class AzureRMCredentialFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            credential_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -115,7 +115,7 @@ class AzureRMCredentialFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.credential_name = None
+        self.name = None
         super(AzureRMCredentialFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,7 +124,7 @@ class AzureRMCredentialFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.credential_name is not None:
+        if self.name is not None:
             self.results['credential'] = self.get()
         else:
             self.results['credential'] = self.list_by_automation_account()
@@ -136,7 +136,7 @@ class AzureRMCredentialFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.credential.get(resource_group_name=self.resource_group,
                                                        automation_account_name=self.automation_account_name,
-                                                       credential_name=self.credential_name)
+                                                       credential_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Credential.')

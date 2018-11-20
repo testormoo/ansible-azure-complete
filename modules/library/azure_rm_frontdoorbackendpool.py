@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Front Door which is globally unique.
         required: True
-    backend_pool_name:
+    name:
         description:
             - Name of the Backend Pool which is unique within the Front Door.
         required: True
@@ -115,7 +115,17 @@ EXAMPLES = '''
     azure_rm_frontdoorbackendpool:
       resource_group: rg1
       front_door_name: frontDoor1
-      backend_pool_name: backendPool1
+      name: backendPool1
+      backends:
+        - address: w3.contoso.com
+          http_port: 80
+          https_port: 443
+          priority: 2
+          weight: 1
+      load_balancing_settings:
+        id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoors/frontDoor1/loadBalancingSettings/loadBalancingSettings1
+      health_probe_settings:
+        id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoors/frontDoor1/healthProbeSettings/healthProbeSettings1
       name: backendPool1
 '''
 
@@ -159,7 +169,7 @@ class AzureRMBackendPools(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            backend_pool_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -196,7 +206,7 @@ class AzureRMBackendPools(AzureRMModuleBase):
 
         self.resource_group = None
         self.front_door_name = None
-        self.backend_pool_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -234,7 +244,6 @@ class AzureRMBackendPools(AzureRMModuleBase):
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
@@ -255,8 +264,8 @@ class AzureRMBackendPools(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Backend Pool instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Backend Pool instance")
@@ -267,10 +276,7 @@ class AzureRMBackendPools(AzureRMModuleBase):
 
             response = self.create_update_backendpool()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Backend Pool instance deleted")
@@ -299,12 +305,12 @@ class AzureRMBackendPools(AzureRMModuleBase):
 
         :return: deserialized Backend Pool instance state dictionary
         '''
-        self.log("Creating / Updating the Backend Pool instance {0}".format(self.backend_pool_name))
+        self.log("Creating / Updating the Backend Pool instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.backend_pools.create_or_update(resource_group_name=self.resource_group,
                                                                        front_door_name=self.front_door_name,
-                                                                       backend_pool_name=self.backend_pool_name,
+                                                                       backend_pool_name=self.name,
                                                                        backend_pool_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -320,11 +326,11 @@ class AzureRMBackendPools(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Backend Pool instance {0}".format(self.backend_pool_name))
+        self.log("Deleting the Backend Pool instance {0}".format(self.name))
         try:
             response = self.mgmt_client.backend_pools.delete(resource_group_name=self.resource_group,
                                                              front_door_name=self.front_door_name,
-                                                             backend_pool_name=self.backend_pool_name)
+                                                             backend_pool_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Backend Pool instance.')
             self.fail("Error deleting the Backend Pool instance: {0}".format(str(e)))
@@ -337,12 +343,12 @@ class AzureRMBackendPools(AzureRMModuleBase):
 
         :return: deserialized Backend Pool instance state dictionary
         '''
-        self.log("Checking if the Backend Pool instance {0} is present".format(self.backend_pool_name))
+        self.log("Checking if the Backend Pool instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.backend_pools.get(resource_group_name=self.resource_group,
                                                           front_door_name=self.front_door_name,
-                                                          backend_pool_name=self.backend_pool_name)
+                                                          backend_pool_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Backend Pool instance : {0} found".format(response.name))
@@ -358,6 +364,38 @@ class AzureRMBackendPools(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

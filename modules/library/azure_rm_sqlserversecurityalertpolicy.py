@@ -30,14 +30,14 @@ options:
         description:
             - The name of the server.
         required: True
-    security_alert_policy_name:
+    name:
         description:
             - The name of the threat detection policy.
         required: True
     state:
         description:
             - Specifies the state of the policy, whether it is C(enabled) or C(disabled).
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'new'
             - 'enabled'
@@ -86,7 +86,21 @@ EXAMPLES = '''
     azure_rm_sqlserversecurityalertpolicy:
       resource_group: securityalert-4799
       server_name: securityalert-6440
-      security_alert_policy_name: Default
+      name: Default
+      state: Enabled
+      disabled_alerts:
+        - [
+  "Access_Anomaly",
+  "Usage_Anomaly"
+]
+      email_addresses:
+        - [
+  "testSecurityAlert@microsoft.com"
+]
+      email_account_admins: True
+      storage_endpoint: https://mystorage.blob.core.windows.net
+      storage_account_access_key: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+      retention_days: 5
 '''
 
 RETURN = '''
@@ -136,7 +150,7 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            security_alert_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -144,8 +158,7 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
                 type='str',
                 choices=['new',
                          'enabled',
-                         'disabled'],
-                required=True
+                         'disabled']
             ),
             disabled_alerts=dict(
                 type='list'
@@ -174,7 +187,7 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.security_alert_policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -208,7 +221,6 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
                 elif key == "retention_days":
                     self.parameters["retention_days"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -229,8 +241,8 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Security Alert Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Security Alert Policy instance")
@@ -241,10 +253,7 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
 
             response = self.create_update_serversecurityalertpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Security Alert Policy instance deleted")
@@ -273,12 +282,12 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
 
         :return: deserialized Server Security Alert Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Server Security Alert Policy instance {0}".format(self.security_alert_policy_name))
+        self.log("Creating / Updating the Server Security Alert Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.server_security_alert_policies.create_or_update(resource_group_name=self.resource_group,
                                                                                         server_name=self.server_name,
-                                                                                        security_alert_policy_name=self.security_alert_policy_name,
+                                                                                        security_alert_policy_name=self.name,
                                                                                         parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -294,7 +303,7 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Security Alert Policy instance {0}".format(self.security_alert_policy_name))
+        self.log("Deleting the Server Security Alert Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_security_alert_policies.delete()
         except CloudError as e:
@@ -309,12 +318,12 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
 
         :return: deserialized Server Security Alert Policy instance state dictionary
         '''
-        self.log("Checking if the Server Security Alert Policy instance {0} is present".format(self.security_alert_policy_name))
+        self.log("Checking if the Server Security Alert Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_security_alert_policies.get(resource_group_name=self.resource_group,
                                                                            server_name=self.server_name,
-                                                                           security_alert_policy_name=self.security_alert_policy_name)
+                                                                           security_alert_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Security Alert Policy instance : {0} found".format(response.name))
@@ -331,6 +340,38 @@ class AzureRMServerSecurityAlertPolicies(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

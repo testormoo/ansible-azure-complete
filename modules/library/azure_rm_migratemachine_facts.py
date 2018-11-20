@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Azure Migrate project.
         required: True
-    machine_name:
+    name:
         description:
             - Unique name of a machine in private datacenter.
     self.config.accept_language:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_migratemachine_facts:
       resource_group: resource_group_name
       project_name: project_name
-      machine_name: machine_name
+      name: machine_name
       self.config.accept_language: self.config.accept_language
 
   - name: List instances of Machine
@@ -129,7 +129,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            machine_name=dict(
+            name=dict(
                 type='str'
             ),
             self.config.accept_language=dict(
@@ -143,7 +143,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.project_name = None
-        self.machine_name = None
+        self.name = None
         self.self.config.accept_language = None
         super(AzureRMMachinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AzureMigrate,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.machine_name is not None:
+        if self.name is not None:
             self.results['machines'] = self.get()
         else:
             self.results['machines'] = self.list_by_project()
@@ -165,7 +165,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.machines.get(resource_group_name=self.resource_group,
                                                      project_name=self.project_name,
-                                                     machine_name=self.machine_name)
+                                                     machine_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Machines.')

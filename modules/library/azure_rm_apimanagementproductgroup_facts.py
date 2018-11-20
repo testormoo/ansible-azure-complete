@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
   - name: List instances of Product Group
     azure_rm_apimanagementproductgroup_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       product_id: product_id
       filter: filter
       top: top
@@ -95,7 +95,7 @@ class AzureRMProductGroupFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -119,7 +119,7 @@ class AzureRMProductGroupFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.product_id = None
         self.filter = None
         self.top = None
@@ -140,7 +140,7 @@ class AzureRMProductGroupFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.product_group.list_by_product(resource_group_name=self.resource_group,
-                                                                      service_name=self.service_name,
+                                                                      service_name=self.name,
                                                                       product_id=self.product_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

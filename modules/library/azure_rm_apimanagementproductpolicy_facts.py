@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -50,14 +50,14 @@ EXAMPLES = '''
   - name: Get instance of Product Policy
     azure_rm_apimanagementproductpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       product_id: product_id
       policy_id: policy_id
 
   - name: List instances of Product Policy
     azure_rm_apimanagementproductpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       product_id: product_id
 '''
 
@@ -101,7 +101,7 @@ class AzureRMProductPolicyFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -119,7 +119,7 @@ class AzureRMProductPolicyFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.product_id = None
         self.policy_id = None
         super(AzureRMProductPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -141,7 +141,7 @@ class AzureRMProductPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.product_policy.get(resource_group_name=self.resource_group,
-                                                           service_name=self.service_name,
+                                                           service_name=self.name,
                                                            product_id=self.product_id,
                                                            policy_id=self.policy_id)
             self.log("Response : {0}".format(response))
@@ -158,7 +158,7 @@ class AzureRMProductPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.product_policy.list_by_product(resource_group_name=self.resource_group,
-                                                                       service_name=self.service_name,
+                                                                       service_name=self.name,
                                                                        product_id=self.product_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

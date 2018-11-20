@@ -30,7 +30,7 @@ options:
         description:
             - The name of the VM scale set containing the extension.
         required: True
-    vmss_extension_name:
+    name:
         description:
             - The name of the VM scale set extension.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_computevirtualmachinescalesetextension_facts:
       resource_group: resource_group_name
       vm_scale_set_name: vm_scale_set_name
-      vmss_extension_name: vmss_extension_name
+      name: vmss_extension_name
       expand: expand
 '''
 
@@ -92,7 +92,7 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vmss_extension_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -107,7 +107,7 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.vm_scale_set_name = None
-        self.vmss_extension_name = None
+        self.name = None
         self.expand = None
         super(AzureRMVirtualMachineScaleSetExtensionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -126,7 +126,7 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.virtual_machine_scale_set_extensions.get(resource_group_name=self.resource_group,
                                                                                  vm_scale_set_name=self.vm_scale_set_name,
-                                                                                 vmss_extension_name=self.vmss_extension_name)
+                                                                                 vmss_extension_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualMachineScaleSetExtensions.')

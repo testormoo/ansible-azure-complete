@@ -34,7 +34,7 @@ options:
         description:
             - Name of Sync Group resource.
         required: True
-    server_endpoint_name:
+    name:
         description:
             - Name of Server Endpoint object.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       storage_sync_service_name: storage_sync_service_name
       sync_group_name: sync_group_name
-      server_endpoint_name: server_endpoint_name
+      name: server_endpoint_name
 
   - name: List instances of Server Endpoint
     azure_rm_storagesyncserverendpoint_facts:
@@ -110,7 +110,7 @@ class AzureRMServerEndpointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_endpoint_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -122,7 +122,7 @@ class AzureRMServerEndpointsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.storage_sync_service_name = None
         self.sync_group_name = None
-        self.server_endpoint_name = None
+        self.name = None
         super(AzureRMServerEndpointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMServerEndpointsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(StorageSyncManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.server_endpoint_name is not None:
+        if self.name is not None:
             self.results['server_endpoints'] = self.get()
         else:
             self.results['server_endpoints'] = self.list_by_sync_group()
@@ -144,7 +144,7 @@ class AzureRMServerEndpointsFacts(AzureRMModuleBase):
             response = self.mgmt_client.server_endpoints.get(resource_group_name=self.resource_group,
                                                              storage_sync_service_name=self.storage_sync_service_name,
                                                              sync_group_name=self.sync_group_name,
-                                                             server_endpoint_name=self.server_endpoint_name)
+                                                             server_endpoint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServerEndpoints.')

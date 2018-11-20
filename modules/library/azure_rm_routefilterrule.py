@@ -30,7 +30,7 @@ options:
         description:
             - The name of the route filter.
         required: True
-    rule_name:
+    name:
         description:
             - The name of the route filter rule.
         required: True
@@ -40,18 +40,18 @@ options:
     access:
         description:
             - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'allow'
             - 'deny'
     route_filter_rule_type:
         description:
             - "The rule type of the rule. Valid value is: 'Community'"
-        required: True
+            - Required when C(state) is I(present).
     communities:
         description:
             - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-        required: True
+            - Required when C(state) is I(present).
         type: list
     name:
         description:
@@ -82,7 +82,14 @@ EXAMPLES = '''
     azure_rm_routefilterrule:
       resource_group: rg1
       route_filter_name: filterName
-      rule_name: ruleName
+      name: ruleName
+      access: Allow
+      route_filter_rule_type: Community
+      communities:
+        - [
+  "12076:5030",
+  "12076:5040"
+]
 '''
 
 RETURN = '''
@@ -125,7 +132,7 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -135,16 +142,13 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
             access=dict(
                 type='str',
                 choices=['allow',
-                         'deny'],
-                required=True
+                         'deny']
             ),
             route_filter_rule_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             communities=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             name=dict(
                 type='str'
@@ -161,7 +165,7 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
 
         self.resource_group = None
         self.route_filter_name = None
-        self.rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -193,7 +197,6 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -217,8 +220,8 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Route Filter Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Route Filter Rule instance")
@@ -229,10 +232,7 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
 
             response = self.create_update_routefilterrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Route Filter Rule instance deleted")
@@ -261,12 +261,12 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
 
         :return: deserialized Route Filter Rule instance state dictionary
         '''
-        self.log("Creating / Updating the Route Filter Rule instance {0}".format(self.rule_name))
+        self.log("Creating / Updating the Route Filter Rule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.route_filter_rules.create_or_update(resource_group_name=self.resource_group,
                                                                             route_filter_name=self.route_filter_name,
-                                                                            rule_name=self.rule_name,
+                                                                            rule_name=self.name,
                                                                             route_filter_rule_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -282,11 +282,11 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Route Filter Rule instance {0}".format(self.rule_name))
+        self.log("Deleting the Route Filter Rule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.route_filter_rules.delete(resource_group_name=self.resource_group,
                                                                   route_filter_name=self.route_filter_name,
-                                                                  rule_name=self.rule_name)
+                                                                  rule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Route Filter Rule instance.')
             self.fail("Error deleting the Route Filter Rule instance: {0}".format(str(e)))
@@ -299,12 +299,12 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
 
         :return: deserialized Route Filter Rule instance state dictionary
         '''
-        self.log("Checking if the Route Filter Rule instance {0} is present".format(self.rule_name))
+        self.log("Checking if the Route Filter Rule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.route_filter_rules.get(resource_group_name=self.resource_group,
                                                                route_filter_name=self.route_filter_name,
-                                                               rule_name=self.rule_name)
+                                                               rule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Route Filter Rule instance : {0} found".format(response.name))
@@ -320,6 +320,38 @@ class AzureRMRouteFilterRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

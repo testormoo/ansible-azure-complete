@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -37,7 +37,7 @@ options:
     logger_type:
         description:
             - Logger type.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'azure_event_hub'
             - 'application_insights'
@@ -48,7 +48,7 @@ options:
         description:
             - The name and SendRule connection string of the event hub for C(azure_event_hub) logger.
             - Instrumentation key for C(application_insights) logger.
-        required: True
+            - Required when C(state) is I(present).
     is_buffered:
         description:
             - Whether records are buffered in the logger before publishing. Default is assumed to be true.
@@ -76,8 +76,14 @@ EXAMPLES = '''
   - name: Create (or update) Logger
     azure_rm_apimanagementlogger:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       loggerid: loggerId
+      logger_type: azureEventHub
+      description: adding a new logger
+      credentials: {
+  "name": "hydraeventhub",
+  "connectionString": "Endpoint=sb://hydraeventhub-ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=********="
+}
       if_match: NOT FOUND
 '''
 
@@ -111,7 +117,7 @@ class AzureRMLogger(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -122,15 +128,13 @@ class AzureRMLogger(AzureRMModuleBase):
             logger_type=dict(
                 type='str',
                 choices=['azure_event_hub',
-                         'application_insights'],
-                required=True
+                         'application_insights']
             ),
             description=dict(
                 type='str'
             ),
             credentials=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             is_buffered=dict(
                 type='str'
@@ -146,7 +150,7 @@ class AzureRMLogger(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.loggerid = None
         self.parameters = dict()
         self.if_match = None
@@ -181,7 +185,6 @@ class AzureRMLogger(AzureRMModuleBase):
                 elif key == "is_buffered":
                     self.parameters["is_buffered"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -202,8 +205,8 @@ class AzureRMLogger(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Logger instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Logger instance")
@@ -214,10 +217,7 @@ class AzureRMLogger(AzureRMModuleBase):
 
             response = self.create_update_logger()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Logger instance deleted")
@@ -250,7 +250,7 @@ class AzureRMLogger(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.logger.create_or_update(resource_group_name=self.resource_group,
-                                                                service_name=self.service_name,
+                                                                service_name=self.name,
                                                                 loggerid=self.loggerid,
                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -270,7 +270,7 @@ class AzureRMLogger(AzureRMModuleBase):
         self.log("Deleting the Logger instance {0}".format(self.loggerid))
         try:
             response = self.mgmt_client.logger.delete(resource_group_name=self.resource_group,
-                                                      service_name=self.service_name,
+                                                      service_name=self.name,
                                                       loggerid=self.loggerid,
                                                       if_match=self.if_match)
         except CloudError as e:
@@ -289,7 +289,7 @@ class AzureRMLogger(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.logger.get(resource_group_name=self.resource_group,
-                                                   service_name=self.service_name,
+                                                   service_name=self.name,
                                                    loggerid=self.loggerid)
             found = True
             self.log("Response : {0}".format(response))
@@ -305,6 +305,38 @@ class AzureRMLogger(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

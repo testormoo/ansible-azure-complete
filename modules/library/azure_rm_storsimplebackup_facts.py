@@ -32,7 +32,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -54,13 +54,13 @@ EXAMPLES = '''
       device_name: device_name
       for_failover: for_failover
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
       filter: filter
 
   - name: List instances of Backup
     azure_rm_storsimplebackup_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
       filter: filter
 '''
 
@@ -97,7 +97,7 @@ class AzureRMBackupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMBackupsFacts(AzureRMModuleBase):
         self.device_name = None
         self.for_failover = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         self.filter = None
         super(AzureRMBackupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -135,7 +135,7 @@ class AzureRMBackupsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.backups.list_by_device(device_name=self.device_name,
                                                                resource_group_name=self.resource_group,
-                                                               manager_name=self.manager_name)
+                                                               manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Backups.')
@@ -151,7 +151,7 @@ class AzureRMBackupsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.backups.list_by_manager(resource_group_name=self.resource_group,
-                                                                manager_name=self.manager_name)
+                                                                manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Backups.')

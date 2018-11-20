@@ -30,7 +30,7 @@ options:
         description:
             - The workflow name.
         required: True
-    run_name:
+    name:
         description:
             - The workflow run name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_logicworkflowrun_facts:
       resource_group: resource_group_name
       workflow_name: workflow_name
-      run_name: run_name
+      name: run_name
 '''
 
 RETURN = '''
@@ -95,7 +95,7 @@ class AzureRMWorkflowRunsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            run_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -107,7 +107,7 @@ class AzureRMWorkflowRunsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workflow_name = None
-        self.run_name = None
+        self.name = None
         super(AzureRMWorkflowRunsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -125,7 +125,7 @@ class AzureRMWorkflowRunsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.workflow_runs.get(resource_group_name=self.resource_group,
                                                           workflow_name=self.workflow_name,
-                                                          run_name=self.run_name)
+                                                          run_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for WorkflowRuns.')

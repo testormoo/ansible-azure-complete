@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -47,30 +47,30 @@ options:
             workbook_name:
                 description:
                     - The C(C(user))-defined name of the workbook.
-                required: True
+                    - Required when C(state) is I(present).
             serialized_data:
                 description:
                     - Configuration of this particular workbook. Configuration data is a string containing valid JSON
-                required: True
+                    - Required when C(state) is I(present).
             version:
                 description:
                     - "This instance's version of the data model. This can change as new features are added that can be marked workbook."
             workbook_id:
                 description:
                     - Internally assigned unique id of the workbook definition.
-                required: True
+                    - Required when C(state) is I(present).
             shared_type_kind:
                 description:
                     - "Enum indicating if this workbook definition is owned by a specific C(C(user)) or is C(C(shared)) between all users with access to the
                        Application Insights component."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'user'
                     - 'shared'
             category:
                 description:
                     - Workbook category, as defined by the C(C(user)) at creation time.
-                required: True
+                    - Required when C(state) is I(present).
             workbook_tags:
                 description:
                     - A list of 0 or more tags that are associated with this workbook definition
@@ -78,7 +78,7 @@ options:
             user_id:
                 description:
                     - Unique C(C(user)) id of the specific C(C(user)) that owns this workbook.
-                required: True
+                    - Required when C(state) is I(present).
             source_resource_id:
                 description:
                     - Optional resourceId for a source resource.
@@ -104,15 +104,22 @@ EXAMPLES = '''
   - name: Create (or update) Workbook
     azure_rm_applicationinsightsworkbook:
       resource_group: my-resource-group
-      resource_name: deadb33f-8bee-4d3b-a059-9be8dac93960
+      name: deadb33f-8bee-4d3b-a059-9be8dac93960
       workbook_properties:
         location: west us
-        workbook_name: deadb33f-8bee-4d3b-a059-9be8dac93960
+        kind: shared
+        workbook_name: Blah Blah Blah
+        serialized_data: {"version":"Notebook/1.0","items":[{"type":1,"content":"{"json":"## New workbook\r\n---\r\n\r\nWelcome to your new workbook.  This area will display text formatted as markdown.\r\n\r\n\r\nWe've included a basic analytics query to get you started. Use the `Edit` button below each section to configure it or add more sections."}","halfWidth":null,"conditionalVisibility":null},{"type":3,"content":"{"version":"KqlItem/1.0","query":"union withsource=TableName *\n| summarize Count=count() by TableName\n| render barchart","showQuery":false,"size":1,"aggregation":0,"showAnnotations":false}","halfWidth":null,"conditionalVisibility":null}],"isLocked":false}
+        workbook_id: deadb33f-8bee-4d3b-a059-9be8dac93960
+        shared_type_kind: shared
+        category: workbook
         workbook_tags:
           - [
   "TagSample01",
   "TagSample02"
 ]
+        user_id: userId
+        source_resource_id: /subscriptions/00000000-0000-0000-0000-00000000/resourceGroups/MyGroup/providers/Microsoft.Web/sites/MyTestApp-CodeLens
 '''
 
 RETURN = '''
@@ -157,7 +164,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -173,7 +180,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.workbook_properties = dict()
 
         self.results = dict(changed=False)
@@ -215,7 +222,6 @@ class AzureRMWorkbooks(AzureRMModuleBase):
                 elif key == "source_resource_id":
                     self.workbook_properties["source_resource_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApplicationInsightsManagementClient,
@@ -236,8 +242,8 @@ class AzureRMWorkbooks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Workbook instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Workbook instance")
@@ -248,10 +254,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
 
             response = self.create_update_workbook()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Workbook instance deleted")
@@ -280,11 +283,11 @@ class AzureRMWorkbooks(AzureRMModuleBase):
 
         :return: deserialized Workbook instance state dictionary
         '''
-        self.log("Creating / Updating the Workbook instance {0}".format(self.resource_name))
+        self.log("Creating / Updating the Workbook instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.workbooks.create_or_update(resource_group_name=self.resource_group,
-                                                                   resource_name=self.resource_name,
+                                                                   resource_name=self.name,
                                                                    workbook_properties=self.workbook_properties)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -300,10 +303,10 @@ class AzureRMWorkbooks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Workbook instance {0}".format(self.resource_name))
+        self.log("Deleting the Workbook instance {0}".format(self.name))
         try:
             response = self.mgmt_client.workbooks.delete(resource_group_name=self.resource_group,
-                                                         resource_name=self.resource_name)
+                                                         resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Workbook instance.')
             self.fail("Error deleting the Workbook instance: {0}".format(str(e)))
@@ -316,11 +319,11 @@ class AzureRMWorkbooks(AzureRMModuleBase):
 
         :return: deserialized Workbook instance state dictionary
         '''
-        self.log("Checking if the Workbook instance {0} is present".format(self.resource_name))
+        self.log("Checking if the Workbook instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.workbooks.get(resource_group_name=self.resource_group,
-                                                      resource_name=self.resource_name)
+                                                      resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Workbook instance : {0} found".format(response.name))
@@ -337,6 +340,38 @@ class AzureRMWorkbooks(AzureRMModuleBase):
             'version': d.get('version', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    certificate_name:
+    name:
         description:
             - The integration account I(certificate) name.
         required: True
@@ -52,7 +52,7 @@ options:
                     key_vault:
                         description:
                             - The key vault reference.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             id:
                                 description:
@@ -60,7 +60,7 @@ options:
                     key_name:
                         description:
                             - The private key name in key vault.
-                        required: True
+                            - Required when C(state) is I(present).
                     key_version:
                         description:
                             - The private key version in key vault.
@@ -90,9 +90,15 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountcertificate:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      certificate_name: testCertificate
+      name: testCertificate
       certificate:
         location: brazilsouth
+        key:
+          key_vault:
+            id: /subscriptions/34adfa4f-cedf-4dc0-ba29-b6d1a69ab345/resourcegroups/testResourceGroup/providers/microsoft.keyvault/vaults/<keyVaultName>
+          key_name: <keyName>
+          key_version: 87d9764197604449b9b8eb7bd8710868
+        public_certificate: <publicCertificateValue>
 '''
 
 RETURN = '''
@@ -136,7 +142,7 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -153,7 +159,7 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.certificate_name = None
+        self.name = None
         self.certificate = dict()
 
         self.results = dict(changed=False)
@@ -181,7 +187,6 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
                 elif key == "public_certificate":
                     self.certificate["public_certificate"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -202,8 +207,8 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Certificate instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Certificate instance")
@@ -214,10 +219,7 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountcertificate()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Certificate instance deleted")
@@ -246,12 +248,12 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
 
         :return: deserialized Integration Account Certificate instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Certificate instance {0}".format(self.certificate_name))
+        self.log("Creating / Updating the Integration Account Certificate instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_certificates.create_or_update(resource_group_name=self.resource_group,
                                                                                           integration_account_name=self.integration_account_name,
-                                                                                          certificate_name=self.certificate_name,
+                                                                                          certificate_name=self.name,
                                                                                           certificate=self.certificate)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -267,11 +269,11 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Certificate instance {0}".format(self.certificate_name))
+        self.log("Deleting the Integration Account Certificate instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_certificates.delete(resource_group_name=self.resource_group,
                                                                                 integration_account_name=self.integration_account_name,
-                                                                                certificate_name=self.certificate_name)
+                                                                                certificate_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Certificate instance.')
             self.fail("Error deleting the Integration Account Certificate instance: {0}".format(str(e)))
@@ -284,12 +286,12 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
 
         :return: deserialized Integration Account Certificate instance state dictionary
         '''
-        self.log("Checking if the Integration Account Certificate instance {0} is present".format(self.certificate_name))
+        self.log("Checking if the Integration Account Certificate instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_certificates.get(resource_group_name=self.resource_group,
                                                                              integration_account_name=self.integration_account_name,
-                                                                             certificate_name=self.certificate_name)
+                                                                             certificate_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Certificate instance : {0} found".format(response.name))
@@ -305,6 +307,38 @@ class AzureRMIntegrationAccountCertificates(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

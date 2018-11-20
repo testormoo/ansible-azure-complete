@@ -45,19 +45,19 @@ options:
             disk_status:
                 description:
                     - The disk status.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'online'
                     - 'offline'
             access_control_records:
                 description:
                     - The access control records.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
             data_policy:
                 description:
                     - The data policy.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'invalid'
                     - 'local'
@@ -66,11 +66,11 @@ options:
             provisioned_capacity_in_bytes:
                 description:
                     - The provisioned capacity in bytes.
-                required: True
+                    - Required when C(state) is I(present).
             monitoring_status:
                 description:
                     - The monitoring.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'enabled'
                     - 'disabled'
@@ -78,7 +78,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -105,8 +105,16 @@ EXAMPLES = '''
       device_name: HSDK-0NZI14MDTF
       iscsi_server_name: HSDK-0NZI14MDTF
       disk_name: Auto-TestIscsiDisk1
+      iscsi_disk:
+        description: Demo IscsiDisk for SDK Test Tiered
+        disk_status: Online
+        access_control_records:
+          - []
+        data_policy: Tiered
+        provisioned_capacity_in_bytes: 536870912000
+        monitoring_status: Enabled
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -162,7 +170,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -178,7 +186,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
         self.disk_name = None
         self.iscsi_disk = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -209,7 +217,6 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
                 elif key == "monitoring_status":
                     self.iscsi_disk["monitoring_status"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -230,8 +237,8 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Iscsi Disk instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Iscsi Disk instance")
@@ -242,10 +249,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
 
             response = self.create_update_iscsidisk()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Iscsi Disk instance deleted")
@@ -274,7 +278,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
 
         :return: deserialized Iscsi Disk instance state dictionary
         '''
-        self.log("Creating / Updating the Iscsi Disk instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Iscsi Disk instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.iscsi_disks.create_or_update(device_name=self.device_name,
@@ -282,7 +286,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
                                                                      disk_name=self.disk_name,
                                                                      iscsi_disk=self.iscsi_disk,
                                                                      resource_group_name=self.resource_group,
-                                                                     manager_name=self.manager_name)
+                                                                     manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -297,13 +301,13 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Iscsi Disk instance {0}".format(self.manager_name))
+        self.log("Deleting the Iscsi Disk instance {0}".format(self.name))
         try:
             response = self.mgmt_client.iscsi_disks.delete(device_name=self.device_name,
                                                            iscsi_server_name=self.iscsi_server_name,
                                                            disk_name=self.disk_name,
                                                            resource_group_name=self.resource_group,
-                                                           manager_name=self.manager_name)
+                                                           manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Iscsi Disk instance.')
             self.fail("Error deleting the Iscsi Disk instance: {0}".format(str(e)))
@@ -316,14 +320,14 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
 
         :return: deserialized Iscsi Disk instance state dictionary
         '''
-        self.log("Checking if the Iscsi Disk instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Iscsi Disk instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.iscsi_disks.get(device_name=self.device_name,
                                                         iscsi_server_name=self.iscsi_server_name,
                                                         disk_name=self.disk_name,
                                                         resource_group_name=self.resource_group,
-                                                        manager_name=self.manager_name)
+                                                        manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Iscsi Disk instance : {0} found".format(response.name))
@@ -339,6 +343,38 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

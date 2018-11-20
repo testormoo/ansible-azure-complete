@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: List instances of Alert
     azure_rm_storsimplealert_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
       filter: filter
 '''
 
@@ -77,7 +77,7 @@ class AzureRMAlertsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -91,7 +91,7 @@ class AzureRMAlertsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         self.filter = None
         super(AzureRMAlertsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -109,7 +109,7 @@ class AzureRMAlertsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.alerts.list_by_manager(resource_group_name=self.resource_group,
-                                                               manager_name=self.manager_name)
+                                                               manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Alerts.')

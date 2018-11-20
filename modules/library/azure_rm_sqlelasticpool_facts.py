@@ -33,7 +33,7 @@ options:
     skip:
         description:
             - The number of elements in the collection to skip.
-    elastic_pool_name:
+    name:
         description:
             - The name of the elastic pool.
     tags:
@@ -59,7 +59,7 @@ EXAMPLES = '''
     azure_rm_sqlelasticpool_facts:
       resource_group: resource_group_name
       server_name: server_name
-      elastic_pool_name: elastic_pool_name
+      name: elastic_pool_name
 '''
 
 RETURN = '''
@@ -159,7 +159,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
             skip=dict(
                 type='int'
             ),
-            elastic_pool_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -174,7 +174,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.skip = None
-        self.elastic_pool_name = None
+        self.name = None
         self.tags = None
         super(AzureRMElasticPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -186,7 +186,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
 
         else:
             self.results['elastic_pools'] = self.list_by_server()
-        elif self.elastic_pool_name is not None:
+        elif self.name is not None:
             self.results['elastic_pools'] = self.get()
         return self.results
 
@@ -213,7 +213,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.elastic_pools.get(resource_group_name=self.resource_group,
                                                           server_name=self.server_name,
-                                                          elastic_pool_name=self.elastic_pool_name)
+                                                          elastic_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ElasticPools.')

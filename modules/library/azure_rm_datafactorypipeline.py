@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    pipeline_name:
+    name:
         description:
             - The I(pipeline) name.
         required: True
@@ -60,7 +60,7 @@ options:
                     name:
                         description:
                             - Activity name.
-                        required: True
+                            - Required when C(state) is I(present).
                     description:
                         description:
                             - Activity description.
@@ -75,11 +75,11 @@ options:
                             activity:
                                 description:
                                     - Activity name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             dependency_conditions:
                                 description:
                                     - Match-Condition for the dependency.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                     user_properties:
                         description:
@@ -89,15 +89,15 @@ options:
                             name:
                                 description:
                                     - User proprety name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             value:
                                 description:
                                     - "User proprety value. Type: string (or Expression with resultType string)."
-                                required: True
+                                    - Required when C(state) is I(present).
                     type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
             parameters:
                 description:
                     - List of parameters for pipeline.
@@ -140,8 +140,22 @@ EXAMPLES = '''
     azure_rm_datafactorypipeline:
       resource_group: exampleResourceGroup
       factory_name: exampleFactoryName
-      pipeline_name: examplePipeline
+      name: examplePipeline
       if_match: NOT FOUND
+      pipeline:
+        activities:
+          - name: ExampleForeachActivity
+            type: ForEach
+        parameters: {
+  "OutputBlobNameList": {
+    "type": "Array"
+  }
+}
+        variables: {
+  "TestVariableArray": {
+    "type": "Array"
+  }
+}
 '''
 
 RETURN = '''
@@ -185,7 +199,7 @@ class AzureRMPipelines(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            pipeline_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -205,7 +219,7 @@ class AzureRMPipelines(AzureRMModuleBase):
 
         self.resource_group = None
         self.factory_name = None
-        self.pipeline_name = None
+        self.name = None
         self.if_match = None
         self.pipeline = dict()
 
@@ -242,7 +256,6 @@ class AzureRMPipelines(AzureRMModuleBase):
                 elif key == "folder":
                     self.pipeline["folder"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
@@ -263,8 +276,8 @@ class AzureRMPipelines(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Pipeline instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Pipeline instance")
@@ -275,10 +288,7 @@ class AzureRMPipelines(AzureRMModuleBase):
 
             response = self.create_update_pipeline()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Pipeline instance deleted")
@@ -307,12 +317,12 @@ class AzureRMPipelines(AzureRMModuleBase):
 
         :return: deserialized Pipeline instance state dictionary
         '''
-        self.log("Creating / Updating the Pipeline instance {0}".format(self.pipeline_name))
+        self.log("Creating / Updating the Pipeline instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.pipelines.create_or_update(resource_group_name=self.resource_group,
                                                                    factory_name=self.factory_name,
-                                                                   pipeline_name=self.pipeline_name,
+                                                                   pipeline_name=self.name,
                                                                    pipeline=self.pipeline)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -328,11 +338,11 @@ class AzureRMPipelines(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Pipeline instance {0}".format(self.pipeline_name))
+        self.log("Deleting the Pipeline instance {0}".format(self.name))
         try:
             response = self.mgmt_client.pipelines.delete(resource_group_name=self.resource_group,
                                                          factory_name=self.factory_name,
-                                                         pipeline_name=self.pipeline_name)
+                                                         pipeline_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Pipeline instance.')
             self.fail("Error deleting the Pipeline instance: {0}".format(str(e)))
@@ -345,12 +355,12 @@ class AzureRMPipelines(AzureRMModuleBase):
 
         :return: deserialized Pipeline instance state dictionary
         '''
-        self.log("Checking if the Pipeline instance {0} is present".format(self.pipeline_name))
+        self.log("Checking if the Pipeline instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.pipelines.get(resource_group_name=self.resource_group,
                                                       factory_name=self.factory_name,
-                                                      pipeline_name=self.pipeline_name)
+                                                      pipeline_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Pipeline instance : {0} found".format(response.name))
@@ -366,6 +376,38 @@ class AzureRMPipelines(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

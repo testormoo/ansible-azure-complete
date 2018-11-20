@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    job_name:
+    name:
         description:
             - The job name.
         required: True
@@ -57,7 +57,7 @@ EXAMPLES = '''
     azure_rm_automationjobstream_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      job_name: job_name
+      name: job_name
       job_stream_id: job_stream_id
       client_request_id: client_request_id
 
@@ -65,7 +65,7 @@ EXAMPLES = '''
     azure_rm_automationjobstream_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      job_name: job_name
+      name: job_name
       filter: filter
       client_request_id: client_request_id
 '''
@@ -126,7 +126,7 @@ class AzureRMJobStreamFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -147,7 +147,7 @@ class AzureRMJobStreamFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.job_name = None
+        self.name = None
         self.job_stream_id = None
         self.client_request_id = None
         self.filter = None
@@ -171,7 +171,7 @@ class AzureRMJobStreamFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.job_stream.get(resource_group_name=self.resource_group,
                                                        automation_account_name=self.automation_account_name,
-                                                       job_name=self.job_name,
+                                                       job_name=self.name,
                                                        job_stream_id=self.job_stream_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -188,7 +188,7 @@ class AzureRMJobStreamFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.job_stream.list_by_job(resource_group_name=self.resource_group,
                                                                automation_account_name=self.automation_account_name,
-                                                               job_name=self.job_name)
+                                                               job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobStream.')

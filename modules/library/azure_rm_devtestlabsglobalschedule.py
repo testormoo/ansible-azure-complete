@@ -28,78 +28,70 @@ options:
         required: True
     name:
         description:
-            - The name of the I(schedule).
+            - The name of the schedule.
         required: True
-    schedule:
+    location:
         description:
-            - A schedule.
-        required: True
+            - The location of the resource.
+    status:
+        description:
+            - The status of the schedule (i.e. C(enabled), C(disabled)).
+        choices:
+            - 'enabled'
+            - 'disabled'
+    task_type:
+        description:
+            - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
+    weekly_recurrence:
+        description:
+            - If the schedule will occur only some days of the week, specify the weekly recurrence.
         suboptions:
-            location:
+            weekdays:
                 description:
-                    - The location of the resource.
+                    - The days of the week for which the schedule is set (e.g. Sunday, Monday, Tuesday, etc.).
+                type: list
+            time:
+                description:
+                    - The time of the day the schedule will occur.
+    daily_recurrence:
+        description:
+            - If the schedule will occur once each day of the week, specify the daily recurrence.
+        suboptions:
+            time:
+                description:
+                    - The time of day the schedule will occur.
+    hourly_recurrence:
+        description:
+            - If the schedule will occur multiple times a day, specify the hourly recurrence.
+        suboptions:
+            minute:
+                description:
+                    - Minutes of the hour the schedule will run.
+    time_zone_id:
+        description:
+            - The time zone ID (e.g. Pacific Standard time).
+    notification_settings:
+        description:
+            - Notification settings.
+        suboptions:
             status:
                 description:
-                    - The status of the schedule (i.e. C(enabled), C(disabled)).
+                    - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
                 choices:
-                    - 'enabled'
                     - 'disabled'
-            task_type:
+                    - 'enabled'
+            time_in_minutes:
                 description:
-                    - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
-            weekly_recurrence:
+                    - Time in minutes before event at which notification will be sent.
+            webhook_url:
                 description:
-                    - If the schedule will occur only some days of the week, specify the weekly recurrence.
-                suboptions:
-                    weekdays:
-                        description:
-                            - The days of the week for which the schedule is set (e.g. Sunday, Monday, Tuesday, etc.).
-                        type: list
-                    time:
-                        description:
-                            - The time of the day the schedule will occur.
-            daily_recurrence:
-                description:
-                    - If the schedule will occur once each day of the week, specify the daily recurrence.
-                suboptions:
-                    time:
-                        description:
-                            - The time of day the schedule will occur.
-            hourly_recurrence:
-                description:
-                    - If the schedule will occur multiple times a day, specify the hourly recurrence.
-                suboptions:
-                    minute:
-                        description:
-                            - Minutes of the hour the schedule will run.
-            time_zone_id:
-                description:
-                    - The time zone ID (e.g. Pacific Standard time).
-            notification_settings:
-                description:
-                    - Notification settings.
-                suboptions:
-                    status:
-                        description:
-                            - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                        choices:
-                            - 'disabled'
-                            - 'enabled'
-                    time_in_minutes:
-                        description:
-                            - Time in minutes before event at which notification will be sent.
-                    webhook_url:
-                        description:
-                            - The webhook URL to which the notification will be sent.
-            target_resource_id:
-                description:
-                    - The resource ID to which the schedule belongs
-            provisioning_state:
-                description:
-                    - The provisioning I(status) of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+                    - The webhook URL to which the notification will be sent.
+    target_resource_id:
+        description:
+            - The resource ID to which the schedule belongs
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Global Schedule.
@@ -171,9 +163,37 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            schedule=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            status=dict(
+                type='str',
+                choices=['enabled',
+                         'disabled']
+            ),
+            task_type=dict(
+                type='str'
+            ),
+            weekly_recurrence=dict(
+                type='dict'
+            ),
+            daily_recurrence=dict(
+                type='dict'
+            ),
+            hourly_recurrence=dict(
+                type='dict'
+            ),
+            time_zone_id=dict(
+                type='str'
+            ),
+            notification_settings=dict(
+                type='dict'
+            ),
+            target_resource_id=dict(
+                type='str'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -226,12 +246,9 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
                     self.schedule["notification_settings"] = ev
                 elif key == "target_resource_id":
                     self.schedule["target_resource_id"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.schedule["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.schedule["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -252,8 +269,8 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Global Schedule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Global Schedule instance")
@@ -264,10 +281,7 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
 
             response = self.create_update_globalschedule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Global Schedule instance deleted")
@@ -353,6 +367,38 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

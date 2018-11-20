@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group within the azure subscription.
         required: True
-    namespace_name:
+    name:
         description:
             - The Namespace name
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Namespace
     azure_rm_eventhubnamespace_facts:
       resource_group: resource_group_name
-      namespace_name: namespace_name
+      name: namespace_name
 
   - name: List instances of Namespace
     azure_rm_eventhubnamespace_facts:
@@ -128,7 +128,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            namespace_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -141,7 +141,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.namespace_name = None
+        self.name = None
         self.tags = None
         super(AzureRMNamespacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(EventHubManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.namespace_name is not None:
+        if self.name is not None:
             self.results['namespaces'] = self.get()
         else:
             self.results['namespaces'] = self.list_by_resource_group()
@@ -162,7 +162,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.namespaces.get(resource_group_name=self.resource_group,
-                                                       namespace_name=self.namespace_name)
+                                                       namespace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Namespaces.')

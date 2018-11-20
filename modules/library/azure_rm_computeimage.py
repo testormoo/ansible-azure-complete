@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    image_name:
+    name:
         description:
             - The name of the image.
         required: True
@@ -55,14 +55,14 @@ options:
                         description:
                             - "This property allows you to specify the type of the OS that is included in the disk if creating a VM from a custom image.
                                <br><br> Possible values are: <br><br> **C(windows)** <br><br> **C(linux)**."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'windows'
                             - 'linux'
                     os_state:
                         description:
                             - The OS State.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'generalized'
                             - 'specialized'
@@ -115,7 +115,7 @@ options:
                         description:
                             - "Specifies the logical unit number of the data disk. This value is used to identify data disks within the VM and therefore
                                must be unique for each data disk attached to a VM."
-                        required: True
+                            - Required when C(state) is I(present).
                     snapshot:
                         description:
                             - The snapshot.
@@ -180,8 +180,13 @@ EXAMPLES = '''
   - name: Create (or update) Image
     azure_rm_computeimage:
       resource_group: myResourceGroup
-      image_name: myImage
+      name: myImage
       location: eastus
+      storage_profile:
+        os_disk:
+          os_type: Linux
+          os_state: Generalized
+          blob_uri: https://mystorageaccount.blob.core.windows.net/osimages/osimage.vhd
 '''
 
 RETURN = '''
@@ -220,7 +225,7 @@ class AzureRMImages(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            image_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -241,7 +246,7 @@ class AzureRMImages(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.image_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -267,7 +272,6 @@ class AzureRMImages(AzureRMModuleBase):
                 elif key == "storage_profile":
                     self.parameters["storage_profile"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -291,8 +295,8 @@ class AzureRMImages(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Image instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Image instance")
@@ -303,10 +307,7 @@ class AzureRMImages(AzureRMModuleBase):
 
             response = self.create_update_image()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Image instance deleted")
@@ -335,11 +336,11 @@ class AzureRMImages(AzureRMModuleBase):
 
         :return: deserialized Image instance state dictionary
         '''
-        self.log("Creating / Updating the Image instance {0}".format(self.image_name))
+        self.log("Creating / Updating the Image instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.images.create_or_update(resource_group_name=self.resource_group,
-                                                                image_name=self.image_name,
+                                                                image_name=self.name,
                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -355,10 +356,10 @@ class AzureRMImages(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Image instance {0}".format(self.image_name))
+        self.log("Deleting the Image instance {0}".format(self.name))
         try:
             response = self.mgmt_client.images.delete(resource_group_name=self.resource_group,
-                                                      image_name=self.image_name)
+                                                      image_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Image instance.')
             self.fail("Error deleting the Image instance: {0}".format(str(e)))
@@ -371,11 +372,11 @@ class AzureRMImages(AzureRMModuleBase):
 
         :return: deserialized Image instance state dictionary
         '''
-        self.log("Checking if the Image instance {0} is present".format(self.image_name))
+        self.log("Checking if the Image instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.images.get(resource_group_name=self.resource_group,
-                                                   image_name=self.image_name)
+                                                   image_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Image instance : {0} found".format(response.name))
@@ -391,6 +392,38 @@ class AzureRMImages(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

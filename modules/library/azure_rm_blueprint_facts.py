@@ -26,7 +26,7 @@ options:
         description:
             - ManagementGroup where blueprint stores.
         required: True
-    blueprint_name:
+    name:
         description:
             - name of the blueprint.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Blueprint
     azure_rm_blueprint_facts:
       management_group_name: management_group_name
-      blueprint_name: blueprint_name
+      name: blueprint_name
 '''
 
 RETURN = '''
@@ -107,7 +107,7 @@ class AzureRMBlueprintsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            blueprint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -118,7 +118,7 @@ class AzureRMBlueprintsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.management_group_name = None
-        self.blueprint_name = None
+        self.name = None
         super(AzureRMBlueprintsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -135,7 +135,7 @@ class AzureRMBlueprintsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.blueprints.get(management_group_name=self.management_group_name,
-                                                       blueprint_name=self.blueprint_name)
+                                                       blueprint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Blueprints.')

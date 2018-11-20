@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the Batch account.
         required: True
-    account_name:
+    name:
         description:
             - The name of the Batch account.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
   - name: Get instance of Application Package
     azure_rm_batchapplicationpackage_facts:
       resource_group: resource_group_name
-      account_name: account_name
+      name: account_name
       application_id: application_id
       version: version
 '''
@@ -101,7 +101,7 @@ class AzureRMApplicationPackageFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -120,7 +120,7 @@ class AzureRMApplicationPackageFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.application_id = None
         self.version = None
         super(AzureRMApplicationPackageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -139,7 +139,7 @@ class AzureRMApplicationPackageFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.application_package.get(resource_group_name=self.resource_group,
-                                                                account_name=self.account_name,
+                                                                account_name=self.name,
                                                                 application_id=self.application_id,
                                                                 version=self.version)
             self.log("Response : {0}".format(response))

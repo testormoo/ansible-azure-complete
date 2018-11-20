@@ -26,7 +26,7 @@ options:
         description:
             - Azure resource group name
         required: True
-    gateway_resource_name:
+    name:
         description:
             - The identity of the gateway.
         required: True
@@ -38,14 +38,14 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - User readable description of the gateway.
             source_network:
                 description:
                     - Network the gateway should listen on for requests.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
@@ -61,7 +61,7 @@ options:
             destination_network:
                 description:
                     - Network that the Application is using.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
@@ -82,28 +82,28 @@ options:
                     name:
                         description:
                             - tcp gateway config name.
-                        required: True
+                            - Required when C(state) is I(present).
                     port:
                         description:
                             - Specifies the port at which the service endpoint below needs to be exposed.
-                        required: True
+                            - Required when C(state) is I(present).
                     destination:
                         description:
                             - Describes destination endpoint for routing traffic.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             application_name:
                                 description:
                                     - Name of the service fabric Mesh application.
-                                required: True
+                                    - Required when C(state) is I(present).
                             service_name:
                                 description:
                                     - service that contains the endpoint.
-                                required: True
+                                    - Required when C(state) is I(present).
                             endpoint_name:
                                 description:
                                     - name of the endpoint in the service.
-                                required: True
+                                    - Required when C(state) is I(present).
             http:
                 description:
                     - Configuration for http connectivity for this gateway.
@@ -112,41 +112,41 @@ options:
                     name:
                         description:
                             - http gateway config name.
-                        required: True
+                            - Required when C(state) is I(present).
                     port:
                         description:
                             - Specifies the port at which the service endpoint below needs to be exposed.
-                        required: True
+                            - Required when C(state) is I(present).
                     hosts:
                         description:
                             - description for routing.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             name:
                                 description:
                                     - http hostname config name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             routes:
                                 description:
                                     - "Route information to use for routing. Routes are processed in the order they are specified. Specify routes that are
                                        more specific before routes that can hamdle general cases."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                                 suboptions:
                                     name:
                                         description:
                                             - http route name.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     match:
                                         description:
                                             - Describes a rule for http route matching.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             path:
                                                 description:
                                                     - Path to match for routing.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             headers:
                                                 description:
                                                     - headers and their values to match in request.
@@ -154,20 +154,20 @@ options:
                                     destination:
                                         description:
                                             - Describes destination endpoint for routing traffic.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             application_name:
                                                 description:
                                                     - Name of the service fabric Mesh application.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             service_name:
                                                 description:
                                                     - service that contains the endpoint.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             endpoint_name:
                                                 description:
                                                     - name of the endpoint in the service.
-                                                required: True
+                                                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Gateway.
@@ -190,9 +190,38 @@ EXAMPLES = '''
   - name: Create (or update) Gateway
     azure_rm_servicefabricmeshgateway:
       resource_group: sbz_demo
-      gateway_resource_name: sampleGateway
+      name: sampleGateway
       gateway_resource_description:
         location: EastUS
+        description: Service Fabric Mesh sample gateway.
+        source_network:
+          name: Open
+        destination_network:
+          name: helloWorldNetwork
+        tcp:
+          - name: web
+            port: 80
+            destination:
+              application_name: helloWorldApp
+              service_name: helloWorldService
+              endpoint_name: helloWorldListener
+        http:
+          - name: contosoWebsite
+            port: 8081
+            hosts:
+              - name: contoso.com
+                routes:
+                  - name: index
+                    match:
+                      path: {
+  "value": "/index",
+  "rewrite": "/",
+  "type": "prefix"
+}
+                    destination:
+                      application_name: httpHelloWorldApp
+                      service_name: indexService
+                      endpoint_name: indexHttpEndpoint
 '''
 
 RETURN = '''
@@ -238,7 +267,7 @@ class AzureRMGateway(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gateway_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -254,7 +283,7 @@ class AzureRMGateway(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.gateway_resource_name = None
+        self.name = None
         self.gateway_resource_description = dict()
 
         self.results = dict(changed=False)
@@ -286,7 +315,6 @@ class AzureRMGateway(AzureRMModuleBase):
                 elif key == "http":
                     self.gateway_resource_description["http"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ServiceFabricMeshManagementClient,
@@ -307,8 +335,8 @@ class AzureRMGateway(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Gateway instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Gateway instance")
@@ -319,10 +347,7 @@ class AzureRMGateway(AzureRMModuleBase):
 
             response = self.create_update_gateway()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Gateway instance deleted")
@@ -351,12 +376,12 @@ class AzureRMGateway(AzureRMModuleBase):
 
         :return: deserialized Gateway instance state dictionary
         '''
-        self.log("Creating / Updating the Gateway instance {0}".format(self.gateway_resource_name))
+        self.log("Creating / Updating the Gateway instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.gateway.create(resource_group_name=self.resource_group,
-                                                           gateway_resource_name=self.gateway_resource_name,
+                                                           gateway_resource_name=self.name,
                                                            gateway_resource_description=self.gateway_resource_description)
             else:
                 response = self.mgmt_client.gateway.update()
@@ -374,10 +399,10 @@ class AzureRMGateway(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Gateway instance {0}".format(self.gateway_resource_name))
+        self.log("Deleting the Gateway instance {0}".format(self.name))
         try:
             response = self.mgmt_client.gateway.delete(resource_group_name=self.resource_group,
-                                                       gateway_resource_name=self.gateway_resource_name)
+                                                       gateway_resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Gateway instance.')
             self.fail("Error deleting the Gateway instance: {0}".format(str(e)))
@@ -390,11 +415,11 @@ class AzureRMGateway(AzureRMModuleBase):
 
         :return: deserialized Gateway instance state dictionary
         '''
-        self.log("Checking if the Gateway instance {0} is present".format(self.gateway_resource_name))
+        self.log("Checking if the Gateway instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.gateway.get(resource_group_name=self.resource_group,
-                                                    gateway_resource_name=self.gateway_resource_name)
+                                                    gateway_resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Gateway instance : {0} found".format(response.name))
@@ -411,6 +436,38 @@ class AzureRMGateway(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    file_server_name:
+    name:
         description:
             - "The name of the file server within the specified resource group. File server names can only contain a combination of alphanumeric characters
                along with dash (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -37,10 +37,10 @@ options:
     vm_size:
         description:
             - For information about available VM sizes for fileservers from the Virtual Machines Marketplace, see Sizes for Virtual Machines (Linux).
-        required: True
+            - Required when C(state) is I(present).
     ssh_configuration:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             public_ips_to_allow:
                 description:
@@ -48,29 +48,29 @@ options:
                 type: list
             user_account_settings:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     admin_user_name:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     admin_user_ssh_public_key:
                         description:
                     admin_user_password:
                         description:
     data_disks:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             disk_size_in_gb:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             disk_count:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             storage_account_type:
                 description:
                     - "Possible values include: 'C(standard_lrs)', 'C(premium_lrs)'"
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'standard_lrs'
                     - 'premium_lrs'
@@ -80,7 +80,7 @@ options:
             id:
                 description:
                     - The ID of the resource
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the File Server.
@@ -103,8 +103,17 @@ EXAMPLES = '''
   - name: Create (or update) File Server
     azure_rm_batchaifileserver:
       resource_group: demo_resource_group
-      file_server_name: demo_nfs
+      name: demo_nfs
       location: eastus
+      vm_size: STANDARD_NC6
+      ssh_configuration:
+        user_account_settings:
+          admin_user_name: admin_user_name
+          admin_user_password: admin_user_password
+      data_disks:
+        disk_size_in_gb: 10
+        disk_count: 2
+        storage_account_type: Standard_LRS
 '''
 
 RETURN = '''
@@ -143,7 +152,7 @@ class AzureRMFileServers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            file_server_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -151,16 +160,13 @@ class AzureRMFileServers(AzureRMModuleBase):
                 type='str'
             ),
             vm_size=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             ssh_configuration=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             data_disks=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             subnet=dict(
                 type='dict'
@@ -173,7 +179,7 @@ class AzureRMFileServers(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.file_server_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -209,7 +215,6 @@ class AzureRMFileServers(AzureRMModuleBase):
                 elif key == "subnet":
                     self.parameters["subnet"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
@@ -233,8 +238,8 @@ class AzureRMFileServers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if File Server instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the File Server instance")
@@ -245,10 +250,7 @@ class AzureRMFileServers(AzureRMModuleBase):
 
             response = self.create_update_fileserver()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("File Server instance deleted")
@@ -277,12 +279,12 @@ class AzureRMFileServers(AzureRMModuleBase):
 
         :return: deserialized File Server instance state dictionary
         '''
-        self.log("Creating / Updating the File Server instance {0}".format(self.file_server_name))
+        self.log("Creating / Updating the File Server instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.file_servers.create(resource_group_name=self.resource_group,
-                                                                file_server_name=self.file_server_name,
+                                                                file_server_name=self.name,
                                                                 parameters=self.parameters)
             else:
                 response = self.mgmt_client.file_servers.update()
@@ -300,10 +302,10 @@ class AzureRMFileServers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the File Server instance {0}".format(self.file_server_name))
+        self.log("Deleting the File Server instance {0}".format(self.name))
         try:
             response = self.mgmt_client.file_servers.delete(resource_group_name=self.resource_group,
-                                                            file_server_name=self.file_server_name)
+                                                            file_server_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the File Server instance.')
             self.fail("Error deleting the File Server instance: {0}".format(str(e)))
@@ -316,11 +318,11 @@ class AzureRMFileServers(AzureRMModuleBase):
 
         :return: deserialized File Server instance state dictionary
         '''
-        self.log("Checking if the File Server instance {0} is present".format(self.file_server_name))
+        self.log("Checking if the File Server instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.file_servers.get(resource_group_name=self.resource_group,
-                                                         file_server_name=self.file_server_name)
+                                                         file_server_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("File Server instance : {0} found".format(response.name))
@@ -336,6 +338,38 @@ class AzureRMFileServers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

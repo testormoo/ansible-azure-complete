@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    activity_log_alert_name:
+    name:
         description:
             - The name of the activity log alert.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Activity Log Alert
     azure_rm_monitoractivitylogalert_facts:
       resource_group: resource_group_name
-      activity_log_alert_name: activity_log_alert_name
+      name: activity_log_alert_name
 
   - name: List instances of Activity Log Alert
     azure_rm_monitoractivitylogalert_facts:
@@ -138,7 +138,7 @@ class AzureRMActivityLogAlertsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            activity_log_alert_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -151,7 +151,7 @@ class AzureRMActivityLogAlertsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.activity_log_alert_name = None
+        self.name = None
         self.tags = None
         super(AzureRMActivityLogAlertsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -162,7 +162,7 @@ class AzureRMActivityLogAlertsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.activity_log_alert_name is not None):
+                self.name is not None):
             self.results['activity_log_alerts'] = self.get()
         elif self.resource_group is not None:
             self.results['activity_log_alerts'] = self.list_by_resource_group()
@@ -175,7 +175,7 @@ class AzureRMActivityLogAlertsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.activity_log_alerts.get(resource_group_name=self.resource_group,
-                                                                activity_log_alert_name=self.activity_log_alert_name)
+                                                                activity_log_alert_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ActivityLogAlerts.')

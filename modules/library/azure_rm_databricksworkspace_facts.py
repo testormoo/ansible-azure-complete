@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group. The name is case insensitive.
-    workspace_name:
+    name:
         description:
             - The name of the workspace.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Workspace
     azure_rm_databricksworkspace_facts:
       resource_group: resource_group_name
-      workspace_name: workspace_name
+      name: workspace_name
 
   - name: List instances of Workspace
     azure_rm_databricksworkspace_facts:
@@ -111,7 +111,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            workspace_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -124,7 +124,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.workspace_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkspacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -135,7 +135,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.workspace_name is not None):
+                self.name is not None):
             self.results['workspaces'] = self.get()
         elif self.resource_group is not None:
             self.results['workspaces'] = self.list_by_resource_group()
@@ -148,7 +148,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workspaces.get(resource_group_name=self.resource_group,
-                                                       workspace_name=self.workspace_name)
+                                                       workspace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workspaces.')

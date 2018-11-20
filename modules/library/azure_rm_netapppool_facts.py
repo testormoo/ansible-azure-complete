@@ -30,7 +30,7 @@ options:
         description:
             - The name of the NetApp account
         required: True
-    pool_name:
+    name:
         description:
             - The name of the capacity pool
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_netapppool_facts:
       resource_group: resource_group
       account_name: account_name
-      pool_name: pool_name
+      name: pool_name
 '''
 
 RETURN = '''
@@ -109,7 +109,7 @@ class AzureRMPoolsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            pool_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -124,7 +124,7 @@ class AzureRMPoolsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.pool_name = None
+        self.name = None
         self.tags = None
         super(AzureRMPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -143,7 +143,7 @@ class AzureRMPoolsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.pools.get(resource_group=self.resource_group,
                                                   account_name=self.account_name,
-                                                  pool_name=self.pool_name)
+                                                  pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Pools.')

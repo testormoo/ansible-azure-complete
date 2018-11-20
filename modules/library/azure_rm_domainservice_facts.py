@@ -26,7 +26,7 @@ options:
         description:
             - "The name of the resource group within the user's subscription. The name is case insensitive."
         required: True
-    domain_service_name:
+    name:
         description:
             - The name of the domain service in the specified subscription and resource group.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Domain Service
     azure_rm_domainservice_facts:
       resource_group: resource_group_name
-      domain_service_name: domain_service_name
+      name: domain_service_name
 
   - name: List instances of Domain Service
     azure_rm_domainservice_facts:
@@ -109,7 +109,7 @@ class AzureRMDomainServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            domain_service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -122,7 +122,7 @@ class AzureRMDomainServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.domain_service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDomainServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMDomainServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DomainServicesResourceProvider,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.domain_service_name is not None:
+        if self.name is not None:
             self.results['domain_services'] = self.get()
         else:
             self.results['domain_services'] = self.list_by_resource_group()
@@ -143,7 +143,7 @@ class AzureRMDomainServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.domain_services.get(resource_group_name=self.resource_group,
-                                                            domain_service_name=self.domain_service_name)
+                                                            domain_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DomainServices.')

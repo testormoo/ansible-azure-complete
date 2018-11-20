@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -54,7 +54,7 @@ EXAMPLES = '''
   - name: Get instance of Analytics Item
     azure_rm_applicationinsightsanalyticsitem_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
       scope_path: scope_path
       id: id
       name: name
@@ -99,7 +99,7 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -120,7 +120,7 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.scope_path = None
         self.id = None
         self.name = None
@@ -140,7 +140,7 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.analytics_items.get(resource_group_name=self.resource_group,
-                                                            resource_name=self.resource_name,
+                                                            resource_name=self.name,
                                                             scope_path=self.scope_path)
             self.log("Response : {0}".format(response))
         except CloudError as e:

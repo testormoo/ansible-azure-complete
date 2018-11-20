@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    interaction_name:
+    name:
         description:
             - The name of the C(interaction).
         required: True
@@ -88,11 +88,11 @@ options:
             field_name:
                 description:
                     - Name of the property.
-                required: True
+                    - Required when C(state) is I(present).
             field_type:
                 description:
                     - Type of the property.
-                required: True
+                    - Required when C(state) is I(present).
             is_array:
                 description:
                     - Indicates if the property is actually an array of the I(field_type) above on the data api.
@@ -151,25 +151,25 @@ options:
             profile_type_name:
                 description:
                     - Profile type name.
-                required: True
+                    - Required when C(state) is I(present).
             participant_property_references:
                 description:
                     - The property references.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     source_property_name:
                         description:
                             - The source property that maps to the target property.
-                        required: True
+                            - Required when C(state) is I(present).
                     target_property_name:
                         description:
                             - The target property that maps to the source property.
-                        required: True
+                            - Required when C(state) is I(present).
             participant_name:
                 description:
                     - Participant name.
-                required: True
+                    - Required when C(state) is I(present).
             display_name:
                 description:
                     - Localized display name.
@@ -209,7 +209,21 @@ EXAMPLES = '''
     azure_rm_customerinsightsinteraction:
       resource_group: TestHubRG
       hub_name: sdkTestHub
-      interaction_name: TestProfileType396
+      name: TestProfileType396
+      small_image: \\Images\\smallImage
+      medium_image: \\Images\\MediumImage
+      large_image: \\Images\\LargeImage
+      api_entity_set_name: TestInteractionType6358
+      fields:
+        - field_name: TestInteractionType6358
+          field_type: Edm.String
+          is_array: False
+          is_required: True
+      id_property_names:
+        - [
+  "TestInteractionType6358"
+]
+      primary_participant_profile_property_name: profile1
 '''
 
 RETURN = '''
@@ -259,7 +273,7 @@ class AzureRMInteractions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            interaction_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -330,7 +344,7 @@ class AzureRMInteractions(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.interaction_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -386,7 +400,6 @@ class AzureRMInteractions(AzureRMModuleBase):
                 elif key == "is_activity":
                     self.parameters["is_activity"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -407,8 +420,8 @@ class AzureRMInteractions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Interaction instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Interaction instance")
@@ -419,10 +432,7 @@ class AzureRMInteractions(AzureRMModuleBase):
 
             response = self.create_update_interaction()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Interaction instance deleted")
@@ -456,7 +466,7 @@ class AzureRMInteractions(AzureRMModuleBase):
         try:
             response = self.mgmt_client.interactions.create_or_update(resource_group_name=self.resource_group,
                                                                       hub_name=self.hub_name,
-                                                                      interaction_name=self.interaction_name,
+                                                                      interaction_name=self.name,
                                                                       parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -492,7 +502,7 @@ class AzureRMInteractions(AzureRMModuleBase):
         try:
             response = self.mgmt_client.interactions.get(resource_group_name=self.resource_group,
                                                          hub_name=self.hub_name,
-                                                         interaction_name=self.interaction_name)
+                                                         interaction_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Interaction instance : {0} found".format(response.name))
@@ -509,6 +519,38 @@ class AzureRMInteractions(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

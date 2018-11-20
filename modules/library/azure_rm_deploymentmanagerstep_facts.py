@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    step_name:
+    name:
         description:
             - The name of the deployment step.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Step
     azure_rm_deploymentmanagerstep_facts:
       resource_group: resource_group_name
-      step_name: step_name
+      name: step_name
 '''
 
 RETURN = '''
@@ -108,7 +108,7 @@ class AzureRMStepsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            step_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -122,7 +122,7 @@ class AzureRMStepsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.step_name = None
+        self.name = None
         self.tags = None
         super(AzureRMStepsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -140,7 +140,7 @@ class AzureRMStepsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.steps.get(resource_group_name=self.resource_group,
-                                                  step_name=self.step_name)
+                                                  step_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Steps.')

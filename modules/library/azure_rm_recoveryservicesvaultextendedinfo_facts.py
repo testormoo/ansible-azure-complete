@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    vault_name:
+    name:
         description:
             - The name of the recovery services vault.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Vault Extended Info
     azure_rm_recoveryservicesvaultextendedinfo_facts:
       resource_group: resource_group_name
-      vault_name: vault_name
+      name: vault_name
 '''
 
 RETURN = '''
@@ -92,7 +92,7 @@ class AzureRMVaultExtendedInfoFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vault_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -103,7 +103,7 @@ class AzureRMVaultExtendedInfoFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.vault_name = None
+        self.name = None
         super(AzureRMVaultExtendedInfoFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -120,7 +120,7 @@ class AzureRMVaultExtendedInfoFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.vault_extended_info.get(resource_group_name=self.resource_group,
-                                                                vault_name=self.vault_name)
+                                                                vault_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VaultExtendedInfo.')

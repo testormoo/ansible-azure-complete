@@ -30,7 +30,7 @@ options:
         description:
             - The name of the cluster.
         required: True
-    application_name:
+    name:
         description:
             - The constant value for the application name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_hdinsightapplication_facts:
       resource_group: resource_group_name
       cluster_name: cluster_name
-      application_name: application_name
+      name: application_name
 '''
 
 RETURN = '''
@@ -116,7 +116,7 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            application_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +131,7 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.cluster_name = None
-        self.application_name = None
+        self.name = None
         self.tags = None
         super(AzureRMApplicationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -150,7 +150,7 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.applications.get(resource_group_name=self.resource_group,
                                                          cluster_name=self.cluster_name,
-                                                         application_name=self.application_name)
+                                                         application_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Applications.')

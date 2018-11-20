@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
   - name: List instances of Authorization Server
     azure_rm_apimanagementauthorizationserver_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -66,7 +66,7 @@ EXAMPLES = '''
   - name: Get instance of Authorization Server
     azure_rm_apimanagementauthorizationserver_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       authsid: authsid
 '''
 
@@ -115,7 +115,7 @@ class AzureRMAuthorizationServerFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -138,7 +138,7 @@ class AzureRMAuthorizationServerFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.filter = None
         self.top = None
         self.skip = None
@@ -162,7 +162,7 @@ class AzureRMAuthorizationServerFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.authorization_server.list_by_service(resource_group_name=self.resource_group,
-                                                                             service_name=self.service_name)
+                                                                             service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AuthorizationServer.')
@@ -178,7 +178,7 @@ class AzureRMAuthorizationServerFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.authorization_server.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  authsid=self.authsid)
             self.log("Response : {0}".format(response))
         except CloudError as e:

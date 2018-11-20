@@ -30,7 +30,7 @@ options:
         description:
             - The name of the API Management service.
         required: True
-    notification_name:
+    name:
         description:
             - Notification Name Identifier.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_apimanagementnotificationrecipientemail_facts:
       resource_group: resource_group_name
       service_name: service_name
-      notification_name: notification_name
+      name: notification_name
 '''
 
 RETURN = '''
@@ -82,7 +82,7 @@ class AzureRMNotificationRecipientEmailFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            notification_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -94,7 +94,7 @@ class AzureRMNotificationRecipientEmailFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.service_name = None
-        self.notification_name = None
+        self.name = None
         super(AzureRMNotificationRecipientEmailFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -112,7 +112,7 @@ class AzureRMNotificationRecipientEmailFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.notification_recipient_email.list_by_notification(resource_group_name=self.resource_group,
                                                                                           service_name=self.service_name,
-                                                                                          notification_name=self.notification_name)
+                                                                                          notification_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NotificationRecipientEmail.')

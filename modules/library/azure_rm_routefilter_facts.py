@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    route_filter_name:
+    name:
         description:
             - The name of the route filter.
     expand:
@@ -48,7 +48,7 @@ EXAMPLES = '''
   - name: Get instance of Route Filter
     azure_rm_routefilter_facts:
       resource_group: resource_group_name
-      route_filter_name: route_filter_name
+      name: route_filter_name
       expand: expand
 
   - name: List instances of Route Filter
@@ -127,7 +127,7 @@ class AzureRMRouteFiltersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            route_filter_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -143,7 +143,7 @@ class AzureRMRouteFiltersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.route_filter_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMRouteFiltersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -154,7 +154,7 @@ class AzureRMRouteFiltersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.route_filter_name is not None:
+        if self.name is not None:
             self.results['route_filters'] = self.get()
         else:
             self.results['route_filters'] = self.list_by_resource_group()
@@ -165,7 +165,7 @@ class AzureRMRouteFiltersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.route_filters.get(resource_group_name=self.resource_group,
-                                                          route_filter_name=self.route_filter_name)
+                                                          route_filter_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RouteFilters.')

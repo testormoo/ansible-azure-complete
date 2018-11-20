@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure Resource Group Name.
-    budget_name:
+    name:
         description:
             - Budget Name.
 
@@ -44,7 +44,7 @@ EXAMPLES = '''
 
   - name: Get instance of Budget
     azure_rm_consumptionbudget_facts:
-      budget_name: budget_name
+      name: budget_name
 '''
 
 RETURN = '''
@@ -128,7 +128,7 @@ class AzureRMBudgetsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            budget_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -138,7 +138,7 @@ class AzureRMBudgetsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.budget_name = None
+        self.name = None
         super(AzureRMBudgetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -149,7 +149,7 @@ class AzureRMBudgetsFacts(AzureRMModuleBase):
 
         if self.resource_group is not None:
             self.results['budgets'] = self.list_by_resource_group_name()
-        elif self.budget_name is not None:
+        elif self.name is not None:
             self.results['budgets'] = self.get()
         return self.results
 
@@ -172,7 +172,7 @@ class AzureRMBudgetsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.budgets.get(budget_name=self.budget_name)
+            response = self.mgmt_client.budgets.get(budget_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Budgets.')

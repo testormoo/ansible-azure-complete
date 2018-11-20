@@ -34,7 +34,7 @@ options:
         description:
             - Fabric name associated with the backed up item.
         required: True
-    intent_object_name:
+    name:
         description:
             - Backed up item name whose details are to be fetched.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
       vault_name: vault_name
       resource_group: resource_group_name
       fabric_name: fabric_name
-      intent_object_name: intent_object_name
+      name: intent_object_name
 '''
 
 RETURN = '''
@@ -120,7 +120,7 @@ class AzureRMProtectionIntentFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            intent_object_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -136,7 +136,7 @@ class AzureRMProtectionIntentFacts(AzureRMModuleBase):
         self.vault_name = None
         self.resource_group = None
         self.fabric_name = None
-        self.intent_object_name = None
+        self.name = None
         self.tags = None
         super(AzureRMProtectionIntentFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -156,7 +156,7 @@ class AzureRMProtectionIntentFacts(AzureRMModuleBase):
             response = self.mgmt_client.protection_intent.get(vault_name=self.vault_name,
                                                               resource_group_name=self.resource_group,
                                                               fabric_name=self.fabric_name,
-                                                              intent_object_name=self.intent_object_name)
+                                                              intent_object_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ProtectionIntent.')

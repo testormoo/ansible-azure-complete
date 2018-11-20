@@ -30,7 +30,7 @@ options:
         description:
             - Name of the domain
         required: True
-    topic_name:
+    name:
         description:
             - Name of the topic
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_eventgriddomaintopic_facts:
       resource_group: resource_group_name
       domain_name: domain_name
-      topic_name: topic_name
+      name: topic_name
 
   - name: List instances of Domain Topic
     azure_rm_eventgriddomaintopic_facts:
@@ -99,7 +99,7 @@ class AzureRMDomainTopicsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            topic_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -110,7 +110,7 @@ class AzureRMDomainTopicsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.domain_name = None
-        self.topic_name = None
+        self.name = None
         super(AzureRMDomainTopicsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -119,7 +119,7 @@ class AzureRMDomainTopicsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(EventGridManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.topic_name is not None:
+        if self.name is not None:
             self.results['domain_topics'] = self.get()
         else:
             self.results['domain_topics'] = self.list_by_domain()
@@ -131,7 +131,7 @@ class AzureRMDomainTopicsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.domain_topics.get(resource_group_name=self.resource_group,
                                                           domain_name=self.domain_name,
-                                                          topic_name=self.topic_name)
+                                                          topic_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DomainTopics.')

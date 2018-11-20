@@ -30,7 +30,7 @@ options:
         description:
             - The name of the service topology .
         required: True
-    service_name:
+    name:
         description:
             - The name of the service resource.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_deploymentmanagerservice_facts:
       resource_group: resource_group_name
       service_topology_name: service_topology_name
-      service_name: service_name
+      name: service_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -125,7 +125,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.service_topology_name = None
-        self.service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -144,7 +144,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.services.get(resource_group_name=self.resource_group,
                                                      service_topology_name=self.service_topology_name,
-                                                     service_name=self.service_name)
+                                                     service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Services.')

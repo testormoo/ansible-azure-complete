@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    hub_name:
+    name:
         description:
             - The name of the hub.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: List instances of Role
     azure_rm_customerinsightsrole_facts:
       resource_group: resource_group_name
-      hub_name: hub_name
+      name: hub_name
 '''
 
 RETURN = '''
@@ -73,7 +73,7 @@ class AzureRMRolesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            hub_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -84,7 +84,7 @@ class AzureRMRolesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.hub_name = None
+        self.name = None
         super(AzureRMRolesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -101,7 +101,7 @@ class AzureRMRolesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.roles.list_by_hub(resource_group_name=self.resource_group,
-                                                          hub_name=self.hub_name)
+                                                          hub_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Roles.')

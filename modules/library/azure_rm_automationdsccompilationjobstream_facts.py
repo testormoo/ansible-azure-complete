@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: List instances of Dsc Compilation Job Stream
     azure_rm_automationdsccompilationjobstream_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       job_id: job_id
 '''
 
@@ -78,7 +78,7 @@ class AzureRMDscCompilationJobStreamFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -93,7 +93,7 @@ class AzureRMDscCompilationJobStreamFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.job_id = None
         super(AzureRMDscCompilationJobStreamFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -111,7 +111,7 @@ class AzureRMDscCompilationJobStreamFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.dsc_compilation_job_stream.list_by_job(resource_group_name=self.resource_group,
-                                                                               automation_account_name=self.automation_account_name,
+                                                                               automation_account_name=self.name,
                                                                                job_id=self.job_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

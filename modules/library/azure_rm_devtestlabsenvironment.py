@@ -38,41 +38,33 @@ options:
         description:
             - The name of the environment.
         required: True
-    dtl_environment:
+    location:
         description:
-            - An environment, which is essentially an ARM template deployment.
-        required: True
+            - The location of the resource.
+    deployment_properties:
+        description:
+            - The deployment properties of the environment.
         suboptions:
-            location:
+            arm_template_id:
                 description:
-                    - The location of the resource.
-            deployment_properties:
+                    - "The Azure Resource Manager template's identifier."
+            parameters:
                 description:
-                    - The deployment properties of the environment.
+                    - The parameters of the Azure Resource Manager template.
+                type: list
                 suboptions:
-                    arm_template_id:
+                    name:
                         description:
-                            - "The Azure Resource Manager template's identifier."
-                    parameters:
+                            - The name of the template parameter.
+                    value:
                         description:
-                            - The parameters of the Azure Resource Manager template.
-                        type: list
-                        suboptions:
-                            name:
-                                description:
-                                    - The name of the template parameter.
-                            value:
-                                description:
-                                    - The value of the template parameter.
-            arm_template_display_name:
-                description:
-                    - The display name of the Azure Resource Manager template that produced the environment.
-            provisioning_state:
-                description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+                            - The value of the template parameter.
+    arm_template_display_name:
+        description:
+            - The display name of the Azure Resource Manager template that produced the environment.
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Environment.
@@ -148,9 +140,17 @@ class AzureRMEnvironments(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            dtl_environment=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            deployment_properties=dict(
+                type='dict'
+            ),
+            arm_template_display_name=dict(
+                type='str'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -187,12 +187,9 @@ class AzureRMEnvironments(AzureRMModuleBase):
                     self.dtl_environment["deployment_properties"] = kwargs[key]
                 elif key == "arm_template_display_name":
                     self.dtl_environment["arm_template_display_name"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.dtl_environment["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.dtl_environment["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -213,8 +210,8 @@ class AzureRMEnvironments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Environment instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Environment instance")
@@ -225,10 +222,7 @@ class AzureRMEnvironments(AzureRMModuleBase):
 
             response = self.create_update_environment()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Environment instance deleted")
@@ -319,6 +313,38 @@ class AzureRMEnvironments(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

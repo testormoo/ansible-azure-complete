@@ -37,7 +37,7 @@ options:
     top:
         description:
             - May be used to limit the number of results to the most recent N usageDetails.
-    event_hub_name:
+    name:
         description:
             - The Event Hub name
 
@@ -61,7 +61,7 @@ EXAMPLES = '''
     azure_rm_eventhub_facts:
       resource_group: resource_group_name
       namespace_name: namespace_name
-      event_hub_name: event_hub_name
+      name: event_hub_name
 '''
 
 RETURN = '''
@@ -121,7 +121,7 @@ class AzureRMEventHubsFacts(AzureRMModuleBase):
             top=dict(
                 type='int'
             ),
-            event_hub_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -134,7 +134,7 @@ class AzureRMEventHubsFacts(AzureRMModuleBase):
         self.namespace_name = None
         self.skip = None
         self.top = None
-        self.event_hub_name = None
+        self.name = None
         super(AzureRMEventHubsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -145,7 +145,7 @@ class AzureRMEventHubsFacts(AzureRMModuleBase):
 
         else:
             self.results['event_hubs'] = self.list_by_namespace()
-        elif self.event_hub_name is not None:
+        elif self.name is not None:
             self.results['event_hubs'] = self.get()
         return self.results
 
@@ -171,7 +171,7 @@ class AzureRMEventHubsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.event_hubs.get(resource_group_name=self.resource_group,
                                                        namespace_name=self.namespace_name,
-                                                       event_hub_name=self.event_hub_name)
+                                                       event_hub_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for EventHubs.')

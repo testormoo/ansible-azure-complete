@@ -26,7 +26,7 @@ options:
         description:
             - The name of the Azure resource group.
         required: True
-    account_name:
+    name:
         description:
             - The name of the Data Lake Store account.
         required: True
@@ -40,7 +40,7 @@ options:
             type:
                 description:
                     - "The type of encryption being used. Currently the only supported type is 'SystemAssigned'."
-                required: True
+                    - Required when C(state) is I(present).
     default_group:
         description:
             - The default owner group for all new folders and files created in the Data Lake Store account.
@@ -51,7 +51,7 @@ options:
             type:
                 description:
                     - "The type of encryption configuration being used. Currently the only supported types are 'C(user_managed)' and 'C(service_managed)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'user_managed'
                     - 'service_managed'
@@ -62,15 +62,15 @@ options:
                     key_vault_resource_id:
                         description:
                             - The resource identifier for the user managed Key Vault being used to encrypt.
-                        required: True
+                            - Required when C(state) is I(present).
                     encryption_key_name:
                         description:
                             - The name of the user managed encryption key.
-                        required: True
+                            - Required when C(state) is I(present).
                     encryption_key_version:
                         description:
                             - The version of the user managed encryption key.
-                        required: True
+                            - Required when C(state) is I(present).
     encryption_state:
         description:
             - The current state of encryption for this Data Lake Store account.
@@ -85,15 +85,15 @@ options:
             name:
                 description:
                     - The unique name of the firewall rule to create.
-                required: True
+                    - Required when C(state) is I(present).
             start_ip_address:
                 description:
                     - The start IP address for the firewall rule. This can be either ipv4 or ipv6. Start and End should be in the same protocol.
-                required: True
+                    - Required when C(state) is I(present).
             end_ip_address:
                 description:
                     - The end IP address for the firewall rule. This can be either ipv4 or ipv6. Start and End should be in the same protocol.
-                required: True
+                    - Required when C(state) is I(present).
     virtual_network_rules:
         description:
             - The list of virtual network rules associated with this Data Lake Store account.
@@ -102,11 +102,11 @@ options:
             name:
                 description:
                     - The unique name of the virtual network rule to create.
-                required: True
+                    - Required when C(state) is I(present).
             subnet_id:
                 description:
                     - The resource identifier for the subnet.
-                required: True
+                    - Required when C(state) is I(present).
     firewall_state:
         description:
             - The current state of the IP address firewall for this Data Lake Store account.
@@ -128,11 +128,11 @@ options:
             name:
                 description:
                     - The unique name of the trusted identity provider to create.
-                required: True
+                    - Required when C(state) is I(present).
             id_provider:
                 description:
                     - The URL of this trusted identity provider.
-                required: True
+                    - Required when C(state) is I(present).
     trusted_id_provider_state:
         description:
             - The current state of the trusted I(identity) provider feature for this Data Lake Store account.
@@ -172,10 +172,29 @@ EXAMPLES = '''
   - name: Create (or update) Account
     azure_rm_storeaccount:
       resource_group: contosorg
-      account_name: contosoadla
+      name: contosoadla
       location: eastus
       identity:
         type: SystemAssigned
+      default_group: test_default_group
+      encryption_config:
+        type: UserManaged
+        key_vault_meta_info:
+          key_vault_resource_id: 34adfa4f-cedf-4dc0-ba29-b6d1a69ab345
+          encryption_key_name: test_encryption_key_name
+          encryption_key_version: encryption_key_version
+      encryption_state: Enabled
+      firewall_rules:
+        - name: test_rule
+          start_ip_address: 1.1.1.1
+          end_ip_address: 2.2.2.2
+      firewall_state: Enabled
+      firewall_allow_azure_ips: Enabled
+      trusted_id_providers:
+        - name: test_trusted_id_provider_name
+          id_provider: https://sts.windows.net/ea9ec534-a3e3-4e45-ad36-3afc5bb291c1
+      trusted_id_provider_state: Enabled
+      new_tier: Consumption
 '''
 
 RETURN = '''
@@ -220,7 +239,7 @@ class AzureRMAccounts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -283,7 +302,7 @@ class AzureRMAccounts(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -346,7 +365,6 @@ class AzureRMAccounts(AzureRMModuleBase):
                         ev = 'Commitment_5PB'
                     self.parameters["new_tier"] = _snake_to_camel(ev, True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeStoreAccountManagementClient,
@@ -370,8 +388,8 @@ class AzureRMAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Account instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Account instance")
@@ -382,10 +400,7 @@ class AzureRMAccounts(AzureRMModuleBase):
 
             response = self.create_update_account()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Account instance deleted")
@@ -414,16 +429,16 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: deserialized Account instance state dictionary
         '''
-        self.log("Creating / Updating the Account instance {0}".format(self.account_name))
+        self.log("Creating / Updating the Account instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.accounts.create(resource_group_name=self.resource_group,
-                                                            account_name=self.account_name,
+                                                            account_name=self.name,
                                                             parameters=self.parameters)
             else:
                 response = self.mgmt_client.accounts.update(resource_group_name=self.resource_group,
-                                                            account_name=self.account_name,
+                                                            account_name=self.name,
                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -439,10 +454,10 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Account instance {0}".format(self.account_name))
+        self.log("Deleting the Account instance {0}".format(self.name))
         try:
             response = self.mgmt_client.accounts.delete(resource_group_name=self.resource_group,
-                                                        account_name=self.account_name)
+                                                        account_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Account instance.')
             self.fail("Error deleting the Account instance: {0}".format(str(e)))
@@ -455,11 +470,11 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: deserialized Account instance state dictionary
         '''
-        self.log("Checking if the Account instance {0} is present".format(self.account_name))
+        self.log("Checking if the Account instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.accounts.get(resource_group_name=self.resource_group,
-                                                     account_name=self.account_name)
+                                                     account_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Account instance : {0} found".format(response.name))
@@ -476,6 +491,38 @@ class AzureRMAccounts(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

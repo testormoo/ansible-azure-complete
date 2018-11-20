@@ -30,7 +30,7 @@ options:
         description:
             - The name of the express route circuit.
         required: True
-    peering_name:
+    name:
         description:
             - The name of the peering.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_expressroutecircuitpeering_facts:
       resource_group: resource_group_name
       circuit_name: circuit_name
-      peering_name: peering_name
+      name: peering_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            peering_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -106,7 +106,7 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.circuit_name = None
-        self.peering_name = None
+        self.name = None
         super(AzureRMExpressRouteCircuitPeeringsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,7 +124,7 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.express_route_circuit_peerings.get(resource_group_name=self.resource_group,
                                                                            circuit_name=self.circuit_name,
-                                                                           peering_name=self.peering_name)
+                                                                           peering_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ExpressRouteCircuitPeerings.')

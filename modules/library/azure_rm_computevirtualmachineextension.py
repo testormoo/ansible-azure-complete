@@ -30,14 +30,14 @@ options:
         description:
             - The name of the virtual machine where the extension should be created or updated.
         required: True
-    vm_extension_name:
+    name:
         description:
             - The name of the virtual machine extension.
         required: True
     location:
         description:
             - Resource location
-        required: True
+            - Required when C(state) is I(present).
     force_update_tag:
         description:
             - How the extension handler should be forced to update even if the extension configuration has not changed.
@@ -144,7 +144,7 @@ EXAMPLES = '''
     azure_rm_computevirtualmachineextension:
       resource_group: NOT FOUND
       vm_name: NOT FOUND
-      vm_extension_name: NOT FOUND
+      name: NOT FOUND
 '''
 
 RETURN = '''
@@ -187,13 +187,12 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_extension_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             location=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             force_update_tag=dict(
                 type='str'
@@ -228,7 +227,7 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
 
         self.resource_group = None
         self.vm_name = None
-        self.vm_extension_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -266,7 +265,6 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
                 elif key == "instance_view":
                     self.parameters["instance_view"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -290,8 +288,8 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Machine Extension instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Machine Extension instance")
@@ -302,10 +300,7 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
 
             response = self.create_update_virtualmachineextension()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Machine Extension instance deleted")
@@ -334,12 +329,12 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine Extension instance state dictionary
         '''
-        self.log("Creating / Updating the Virtual Machine Extension instance {0}".format(self.vm_extension_name))
+        self.log("Creating / Updating the Virtual Machine Extension instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.virtual_machine_extensions.create_or_update(resource_group_name=self.resource_group,
                                                                                     vm_name=self.vm_name,
-                                                                                    vm_extension_name=self.vm_extension_name,
+                                                                                    vm_extension_name=self.name,
                                                                                     extension_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -355,11 +350,11 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Virtual Machine Extension instance {0}".format(self.vm_extension_name))
+        self.log("Deleting the Virtual Machine Extension instance {0}".format(self.name))
         try:
             response = self.mgmt_client.virtual_machine_extensions.delete(resource_group_name=self.resource_group,
                                                                           vm_name=self.vm_name,
-                                                                          vm_extension_name=self.vm_extension_name)
+                                                                          vm_extension_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Virtual Machine Extension instance.')
             self.fail("Error deleting the Virtual Machine Extension instance: {0}".format(str(e)))
@@ -372,12 +367,12 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine Extension instance state dictionary
         '''
-        self.log("Checking if the Virtual Machine Extension instance {0} is present".format(self.vm_extension_name))
+        self.log("Checking if the Virtual Machine Extension instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.virtual_machine_extensions.get(resource_group_name=self.resource_group,
                                                                        vm_name=self.vm_name,
-                                                                       vm_extension_name=self.vm_extension_name)
+                                                                       vm_extension_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Virtual Machine Extension instance : {0} found".format(response.name))
@@ -393,6 +388,38 @@ class AzureRMVirtualMachineExtensions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

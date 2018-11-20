@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    cluster_name:
+    name:
         description:
             - "The name of the cluster within the specified resource group. Cluster names can only contain a combination of alphanumeric characters along
                with dash (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Cluster
     azure_rm_batchaicluster_facts:
       resource_group: resource_group_name
-      cluster_name: cluster_name
+      name: cluster_name
 
   - name: List instances of Cluster
     azure_rm_batchaicluster_facts:
@@ -122,7 +122,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str'
             ),
             clusters_list_by_resource_group_options=dict(
@@ -138,7 +138,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.clusters_list_by_resource_group_options = None
         self.tags = None
         super(AzureRMClustersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -149,7 +149,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.cluster_name is not None:
+        if self.name is not None:
             self.results['clusters'] = self.get()
         else:
             self.results['clusters'] = self.list_by_resource_group()
@@ -160,7 +160,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.clusters.get(resource_group_name=self.resource_group,
-                                                     cluster_name=self.cluster_name)
+                                                     cluster_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Clusters.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the IoT hub.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the IoT hub.
         required: True
@@ -38,11 +38,7 @@ options:
             location:
                 description:
                     - The resource location.
-                required: True
-            etag:
-                description:
-                    - "The Etag field is *not* required. If it is provided in the response body, it must also be provided as a header per the normal ETag
-                       convention."
+                    - Required when C(state) is I(present).
             authorization_policies:
                 description:
                     - The shared access policies you can use to secure a connection to the IoT hub.
@@ -51,7 +47,7 @@ options:
                     key_name:
                         description:
                             - The name of the shared access policy.
-                        required: True
+                            - Required when C(state) is I(present).
                     primary_key:
                         description:
                             - The primary key.
@@ -61,7 +57,7 @@ options:
                     rights:
                         description:
                             - The permissions assigned to the shared access policy.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'registry_read'
                             - 'registry_write'
@@ -86,18 +82,18 @@ options:
                     filter_name:
                         description:
                             - The name of the IP filter rule.
-                        required: True
+                            - Required when C(state) is I(present).
                     action:
                         description:
                             - The desired action for requests captured by this rule.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'accept'
                             - 'reject'
                     ip_mask:
                         description:
                             - A string that contains the IP address range in CIDR notation for the rule.
-                        required: True
+                            - Required when C(state) is I(present).
             event_hub_endpoints:
                 description:
                     - "The Event Hub-compatible endpoint properties. The possible keys to this dictionary are events and operationsMonitoringEvents. Both of
@@ -116,14 +112,14 @@ options:
                                     connection_string:
                                         description:
                                             - The connection string of the service bus queue endpoint.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     name:
                                         description:
                                             - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
                                                underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
                                                operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
                                                types. The name need not be the same as the actual queue name."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     subscription_id:
                                         description:
                                             - The subscription identifier of the service bus queue endpoint.
@@ -138,14 +134,14 @@ options:
                                     connection_string:
                                         description:
                                             - The connection string of the service bus topic endpoint.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     name:
                                         description:
                                             - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
                                                underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
                                                operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
                                                types.  The name need not be the same as the actual topic name."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     subscription_id:
                                         description:
                                             - The subscription identifier of the service bus topic endpoint.
@@ -161,14 +157,14 @@ options:
                                     connection_string:
                                         description:
                                             - The connection string of the event hub endpoint.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     name:
                                         description:
                                             - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
                                                underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
                                                operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
                                                types."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     subscription_id:
                                         description:
                                             - The subscription identifier of the event hub endpoint.
@@ -183,14 +179,14 @@ options:
                                     connection_string:
                                         description:
                                             - The connection string of the storage account.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     name:
                                         description:
                                             - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
                                                underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
                                                operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
                                                types."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     subscription_id:
                                         description:
                                             - The subscription identifier of the storage account.
@@ -200,7 +196,7 @@ options:
                                     container_name:
                                         description:
                                             - The name of storage container in the storage account.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     file_name_format:
                                         description:
                                             - "File name format for the blob. Default format is {iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}. All
@@ -227,11 +223,11 @@ options:
                                 description:
                                     - "The name of the route. The name can only include alphanumeric characters, periods, underscores, hyphens, has a
                                        maximum length of 64 characters, and must be unique."
-                                required: True
+                                    - Required when C(state) is I(present).
                             source:
                                 description:
                                     - The source that the routing rule is to be applied to, such as C(device_messages).
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'invalid'
                                     - 'device_messages'
@@ -245,12 +241,12 @@ options:
                             endpoint_names:
                                 description:
                                     - The list of endpoints to which messages that satisfy the I(condition) are routed. Currently only one endpoint is allowed.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             is_enabled:
                                 description:
                                     - Used to specify whether a route is enabled.
-                                required: True
+                                    - Required when C(state) is I(present).
                     fallback_route:
                         description:
                             - "The properties of the route that is used as a fall-back route when none of the conditions specified in the 'I(routes)'
@@ -264,7 +260,7 @@ options:
                             source:
                                 description:
                                     - The source to which the routing rule is to be applied to. For example, DeviceMessages
-                                required: True
+                                    - Required when C(state) is I(present).
                             condition:
                                 description:
                                     - "The condition which is evaluated in order to apply the fallback route. If the condition is not provided it will
@@ -274,12 +270,12 @@ options:
                                 description:
                                     - "The list of endpoints to which the messages that satisfy the I(condition) are routed to. Currently only 1 endpoint is
                                        allowed."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             is_enabled:
                                 description:
                                     - Used to specify whether the fallback route is enabled.
-                                required: True
+                                    - Required when C(state) is I(present).
             storage_endpoints:
                 description:
                     - "The list of Azure Storage endpoints where you can upload files. Currently you can configure only one Azure Storage account and that
@@ -334,12 +330,12 @@ options:
             sku:
                 description:
                     - IotHub SKU info
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
                             - The name of the SKU.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'f1'
                             - 's1'
@@ -377,10 +373,9 @@ EXAMPLES = '''
   - name: Create (or update) Iot Hub Resource
     azure_rm_iothubresource:
       resource_group: myResourceGroup
-      resource_name: testHub
+      name: testHub
       iot_hub_description:
         location: centraluseuap
-        etag: AAAAAAFD6M4=
         event_hub_endpoints: {
   "events": {
     "retentionTimeInDays": "1",
@@ -488,7 +483,7 @@ class AzureRMIotHubResource(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -507,7 +502,7 @@ class AzureRMIotHubResource(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.iot_hub_description = dict()
         self.if_match = None
 
@@ -529,8 +524,6 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 if key == "location":
                     self.iot_hub_description["location"] = kwargs[key]
-                elif key == "etag":
-                    self.iot_hub_description["etag"] = kwargs[key]
                 elif key == "authorization_policies":
                     ev = kwargs[key]
                     if 'rights' in ev:
@@ -610,7 +603,6 @@ class AzureRMIotHubResource(AzureRMModuleBase):
                             ev['name'] = 'B3'
                     self.iot_hub_description["sku"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(IotHubClient,
@@ -631,8 +623,8 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Iot Hub Resource instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Iot Hub Resource instance")
@@ -643,10 +635,7 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
             response = self.create_update_iothubresource()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Iot Hub Resource instance deleted")
@@ -675,11 +664,11 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
         :return: deserialized Iot Hub Resource instance state dictionary
         '''
-        self.log("Creating / Updating the Iot Hub Resource instance {0}".format(self.resource_name))
+        self.log("Creating / Updating the Iot Hub Resource instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.iot_hub_resource.create_or_update(resource_group_name=self.resource_group,
-                                                                          resource_name=self.resource_name,
+                                                                          resource_name=self.name,
                                                                           iot_hub_description=self.iot_hub_description)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -695,10 +684,10 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Iot Hub Resource instance {0}".format(self.resource_name))
+        self.log("Deleting the Iot Hub Resource instance {0}".format(self.name))
         try:
             response = self.mgmt_client.iot_hub_resource.delete(resource_group_name=self.resource_group,
-                                                                resource_name=self.resource_name)
+                                                                resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Iot Hub Resource instance.')
             self.fail("Error deleting the Iot Hub Resource instance: {0}".format(str(e)))
@@ -711,11 +700,11 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
         :return: deserialized Iot Hub Resource instance state dictionary
         '''
-        self.log("Checking if the Iot Hub Resource instance {0} is present".format(self.resource_name))
+        self.log("Checking if the Iot Hub Resource instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.iot_hub_resource.get(resource_group_name=self.resource_group,
-                                                             resource_name=self.resource_name)
+                                                             resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Iot Hub Resource instance : {0} found".format(response.name))
@@ -731,6 +720,38 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -34,7 +34,7 @@ options:
         description:
             - The name of the connector.
         required: True
-    mapping_name:
+    name:
         description:
             - The name of the connector mapping.
         required: True
@@ -51,7 +51,7 @@ options:
     entity_type:
         description:
             - Defines which entity type the file should map to.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'none'
             - 'profile'
@@ -60,7 +60,7 @@ options:
     entity_type_name:
         description:
             - The mapping entity name.
-        required: True
+            - Required when C(state) is I(present).
     display_name:
         description:
             - Display name for the connector mapping.
@@ -70,7 +70,7 @@ options:
     mapping_properties:
         description:
             - The properties of the mapping.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             folder_path:
                 description:
@@ -84,12 +84,12 @@ options:
             error_management:
                 description:
                     - The error management setting for the mapping.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     error_management_type:
                         description:
                             - The type of error management to use for the mapping.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'reject_and_continue'
                             - 'stop_import'
@@ -100,12 +100,12 @@ options:
             format:
                 description:
                     - The format of mapping property.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     format_type:
                         description:
                             - The type mapping format.
-                        required: True
+                            - Required when C(state) is I(present).
                     column_delimiter:
                         description:
                             - The character that signifies a break between columns.
@@ -124,7 +124,7 @@ options:
             availability:
                 description:
                     - The availability of mapping property.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     frequency:
                         description:
@@ -138,21 +138,21 @@ options:
                     interval:
                         description:
                             - The interval of the given I(frequency) to use.
-                        required: True
+                            - Required when C(state) is I(present).
             structure:
                 description:
                     - Ingestion mapping information at property level.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     property_name:
                         description:
                             - The property name of the mapping entity.
-                        required: True
+                            - Required when C(state) is I(present).
                     column_name:
                         description:
                             - The column name of the import file.
-                        required: True
+                            - Required when C(state) is I(present).
                     custom_format_specifier:
                         description:
                             - Custom format specifier for input parsing.
@@ -162,7 +162,7 @@ options:
             complete_operation:
                 description:
                     - The operation after import is done.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     completion_operation_type:
                         description:
@@ -197,7 +197,31 @@ EXAMPLES = '''
       resource_group: TestHubRG
       hub_name: sdkTestHub
       connector_name: testConnector8858
-      mapping_name: testMapping12491
+      name: testMapping12491
+      entity_type: Interaction
+      entity_type_name: TestInteractionType2967
+      display_name: testMapping12491
+      description: Test mapping
+      mapping_properties:
+        folder_path: http://sample.dne/file
+        file_filter: unknown
+        has_header: False
+        error_management:
+          error_management_type: StopImport
+          error_limit: 10
+        format:
+          format_type: TextFormat
+          column_delimiter: |
+        availability:
+          frequency: Hour
+          interval: 5
+        structure:
+          - property_name: unknwon1
+            column_name: unknown1
+            is_encrypted: False
+        complete_operation:
+          completion_operation_type: DeleteFile
+          destination_folder: fakePath
 '''
 
 RETURN = '''
@@ -251,7 +275,7 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            mapping_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -269,12 +293,10 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
                 choices=['none',
                          'profile',
                          'interaction',
-                         'relationship'],
-                required=True
+                         'relationship']
             ),
             entity_type_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             display_name=dict(
                 type='str'
@@ -283,8 +305,7 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
                 type='str'
             ),
             mapping_properties=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -296,7 +317,7 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
         self.resource_group = None
         self.hub_name = None
         self.connector_name = None
-        self.mapping_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -331,7 +352,6 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
                 elif key == "mapping_properties":
                     self.parameters["mapping_properties"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -352,8 +372,8 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Connector Mapping instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Connector Mapping instance")
@@ -364,10 +384,7 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
 
             response = self.create_update_connectormapping()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Connector Mapping instance deleted")
@@ -396,13 +413,13 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
 
         :return: deserialized Connector Mapping instance state dictionary
         '''
-        self.log("Creating / Updating the Connector Mapping instance {0}".format(self.mapping_name))
+        self.log("Creating / Updating the Connector Mapping instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.connector_mappings.create_or_update(resource_group_name=self.resource_group,
                                                                             hub_name=self.hub_name,
                                                                             connector_name=self.connector_name,
-                                                                            mapping_name=self.mapping_name,
+                                                                            mapping_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -418,12 +435,12 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Connector Mapping instance {0}".format(self.mapping_name))
+        self.log("Deleting the Connector Mapping instance {0}".format(self.name))
         try:
             response = self.mgmt_client.connector_mappings.delete(resource_group_name=self.resource_group,
                                                                   hub_name=self.hub_name,
                                                                   connector_name=self.connector_name,
-                                                                  mapping_name=self.mapping_name)
+                                                                  mapping_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Connector Mapping instance.')
             self.fail("Error deleting the Connector Mapping instance: {0}".format(str(e)))
@@ -436,13 +453,13 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
 
         :return: deserialized Connector Mapping instance state dictionary
         '''
-        self.log("Checking if the Connector Mapping instance {0} is present".format(self.mapping_name))
+        self.log("Checking if the Connector Mapping instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.connector_mappings.get(resource_group_name=self.resource_group,
                                                                hub_name=self.hub_name,
                                                                connector_name=self.connector_name,
-                                                               mapping_name=self.mapping_name)
+                                                               mapping_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Connector Mapping instance : {0} found".format(response.name))
@@ -459,6 +476,38 @@ class AzureRMConnectorMappings(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

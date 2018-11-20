@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -57,7 +57,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -66,7 +66,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -74,7 +74,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -82,7 +82,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -90,7 +90,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -98,7 +98,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -106,7 +106,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -114,7 +114,7 @@ EXAMPLES = '''
   - name: List instances of Report
     azure_rm_apimanagementreport_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -147,7 +147,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -170,7 +170,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.filter = None
         self.top = None
         self.skip = None
@@ -206,7 +206,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_time(resource_group_name=self.resource_group,
-                                                             service_name=self.service_name,
+                                                             service_name=self.name,
                                                              interval=self.interval)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -223,7 +223,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_api(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -240,7 +240,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_user(resource_group_name=self.resource_group,
-                                                             service_name=self.service_name,
+                                                             service_name=self.name,
                                                              filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -257,7 +257,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_operation(resource_group_name=self.resource_group,
-                                                                  service_name=self.service_name,
+                                                                  service_name=self.name,
                                                                   filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -274,7 +274,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_product(resource_group_name=self.resource_group,
-                                                                service_name=self.service_name,
+                                                                service_name=self.name,
                                                                 filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -291,7 +291,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_geo(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name)
+                                                            service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Reports.')
@@ -307,7 +307,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_subscription(resource_group_name=self.resource_group,
-                                                                     service_name=self.service_name)
+                                                                     service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Reports.')
@@ -323,7 +323,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.reports.list_by_request(resource_group_name=self.resource_group,
-                                                                service_name=self.service_name,
+                                                                service_name=self.name,
                                                                 filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:

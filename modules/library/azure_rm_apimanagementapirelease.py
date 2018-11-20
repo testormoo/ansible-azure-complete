@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -65,7 +65,7 @@ EXAMPLES = '''
   - name: Create (or update) Api Release
     azure_rm_apimanagementapirelease:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       api_id: a1
       release_id: testrev
       api_id1: NOT FOUND
@@ -102,7 +102,7 @@ class AzureRMApiRelease(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMApiRelease(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.release_id = None
         self.api_id1 = None
@@ -150,7 +150,6 @@ class AzureRMApiRelease(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -171,8 +170,8 @@ class AzureRMApiRelease(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Release instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Release instance")
@@ -183,10 +182,7 @@ class AzureRMApiRelease(AzureRMModuleBase):
 
             response = self.create_update_apirelease()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Release instance deleted")
@@ -220,12 +216,12 @@ class AzureRMApiRelease(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.api_release.create(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                api_id=self.api_id,
                                                                release_id=self.release_id)
             else:
                 response = self.mgmt_client.api_release.update(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                api_id=self.api_id,
                                                                release_id=self.release_id,
                                                                if_match=self.if_match)
@@ -246,7 +242,7 @@ class AzureRMApiRelease(AzureRMModuleBase):
         self.log("Deleting the Api Release instance {0}".format(self.release_id))
         try:
             response = self.mgmt_client.api_release.delete(resource_group_name=self.resource_group,
-                                                           service_name=self.service_name,
+                                                           service_name=self.name,
                                                            api_id=self.api_id,
                                                            release_id=self.release_id,
                                                            if_match=self.if_match)
@@ -266,7 +262,7 @@ class AzureRMApiRelease(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_release.get(resource_group_name=self.resource_group,
-                                                        service_name=self.service_name,
+                                                        service_name=self.name,
                                                         api_id=self.api_id,
                                                         release_id=self.release_id)
             found = True
@@ -283,6 +279,38 @@ class AzureRMApiRelease(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

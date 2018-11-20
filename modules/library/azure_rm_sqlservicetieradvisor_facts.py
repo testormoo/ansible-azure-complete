@@ -30,11 +30,11 @@ options:
         description:
             - The name of the server.
         required: True
-    name:
+    database_name:
         description:
             - The name of database.
         required: True
-    service_tier_advisor_name:
+    name:
         description:
             - The name of service tier advisor.
 
@@ -51,14 +51,14 @@ EXAMPLES = '''
     azure_rm_sqlservicetieradvisor_facts:
       resource_group: resource_group_name
       server_name: server_name
-      name: database_name
-      service_tier_advisor_name: service_tier_advisor_name
+      database_name: database_name
+      name: service_tier_advisor_name
 
   - name: List instances of Service Tier Advisor
     azure_rm_sqlservicetieradvisor_facts:
       resource_group: resource_group_name
       server_name: server_name
-      name: database_name
+      database_name: database_name
 '''
 
 RETURN = '''
@@ -111,11 +111,11 @@ class AzureRMServiceTierAdvisorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            database_name=dict(
                 type='str',
                 required=True
             ),
-            service_tier_advisor_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -126,8 +126,8 @@ class AzureRMServiceTierAdvisorsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
+        self.database_name = None
         self.name = None
-        self.service_tier_advisor_name = None
         super(AzureRMServiceTierAdvisorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -136,7 +136,7 @@ class AzureRMServiceTierAdvisorsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.service_tier_advisor_name is not None:
+        if self.name is not None:
             self.results['service_tier_advisors'] = self.get()
         else:
             self.results['service_tier_advisors'] = self.list_by_database()
@@ -148,8 +148,8 @@ class AzureRMServiceTierAdvisorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.service_tier_advisors.get(resource_group_name=self.resource_group,
                                                                   server_name=self.server_name,
-                                                                  database_name=self.name,
-                                                                  service_tier_advisor_name=self.service_tier_advisor_name)
+                                                                  database_name=self.database_name,
+                                                                  service_tier_advisor_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceTierAdvisors.')
@@ -165,7 +165,7 @@ class AzureRMServiceTierAdvisorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.service_tier_advisors.list_by_database(resource_group_name=self.resource_group,
                                                                                server_name=self.server_name,
-                                                                               database_name=self.name)
+                                                                               database_name=self.database_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceTierAdvisors.')

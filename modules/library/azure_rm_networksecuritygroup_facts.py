@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    network_security_group_name:
+    name:
         description:
             - The name of the network security group.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Network Security Group
     azure_rm_networksecuritygroup_facts:
       resource_group: resource_group_name
-      network_security_group_name: network_security_group_name
+      name: network_security_group_name
       expand: expand
 '''
 
@@ -104,7 +104,7 @@ class AzureRMNetworkSecurityGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            network_security_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -121,7 +121,7 @@ class AzureRMNetworkSecurityGroupsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.network_security_group_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMNetworkSecurityGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -140,7 +140,7 @@ class AzureRMNetworkSecurityGroupsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.network_security_groups.get(resource_group_name=self.resource_group,
-                                                                    network_security_group_name=self.network_security_group_name)
+                                                                    network_security_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NetworkSecurityGroups.')

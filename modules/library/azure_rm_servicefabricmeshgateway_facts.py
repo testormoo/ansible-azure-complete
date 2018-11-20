@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure resource group name
-    gateway_resource_name:
+    name:
         description:
             - The identity of the gateway.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Gateway
     azure_rm_servicefabricmeshgateway_facts:
       resource_group: resource_group_name
-      gateway_resource_name: gateway_resource_name
+      name: gateway_resource_name
 
   - name: List instances of Gateway
     azure_rm_servicefabricmeshgateway_facts:
@@ -131,7 +131,7 @@ class AzureRMGatewayFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            gateway_resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -144,7 +144,7 @@ class AzureRMGatewayFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.gateway_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMGatewayFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -155,7 +155,7 @@ class AzureRMGatewayFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.gateway_resource_name is not None):
+                self.name is not None):
             self.results['gateway'] = self.get()
         elif self.resource_group is not None:
             self.results['gateway'] = self.list_by_resource_group()
@@ -168,7 +168,7 @@ class AzureRMGatewayFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.gateway.get(resource_group_name=self.resource_group,
-                                                    gateway_resource_name=self.gateway_resource_name)
+                                                    gateway_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Gateway.')

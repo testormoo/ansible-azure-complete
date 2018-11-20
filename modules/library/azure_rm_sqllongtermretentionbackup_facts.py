@@ -36,7 +36,7 @@ options:
     database_state:
         description:
             - Whether to query against just live databases, just deleted databases, or all databases.
-    backup_name:
+    name:
         description:
             - The backup name.
 
@@ -62,7 +62,7 @@ EXAMPLES = '''
       location_name: location_name
       long_term_retention_server_name: long_term_retention_server_name
       long_term_retention_database_name: long_term_retention_database_name
-      backup_name: backup_name
+      name: backup_name
 
   - name: List instances of Long Term Retention Backup
     azure_rm_sqllongtermretentionbackup_facts:
@@ -131,7 +131,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
             database_state=dict(
                 type='str'
             ),
-            backup_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -145,7 +145,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
         self.long_term_retention_database_name = None
         self.only_latest_per_database = None
         self.database_state = None
-        self.backup_name = None
+        self.name = None
         super(AzureRMLongTermRetentionBackupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -159,7 +159,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
             self.results['long_term_retention_backups'] = self.list_by_database()
         elif (self.long_term_retention_server_name is not None and
                 self.long_term_retention_database_name is not None and
-                self.backup_name is not None):
+                self.name is not None):
             self.results['long_term_retention_backups'] = self.get()
         elif self.long_term_retention_server_name is not None:
             self.results['long_term_retention_backups'] = self.list_by_server()
@@ -191,7 +191,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
             response = self.mgmt_client.long_term_retention_backups.get(location_name=self.location_name,
                                                                         long_term_retention_server_name=self.long_term_retention_server_name,
                                                                         long_term_retention_database_name=self.long_term_retention_database_name,
-                                                                        backup_name=self.backup_name)
+                                                                        backup_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LongTermRetentionBackups.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    runbook_name:
+    name:
         description:
             - The runbook name.
         required: True
@@ -54,14 +54,14 @@ EXAMPLES = '''
     azure_rm_automationtestjobstream_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      runbook_name: runbook_name
+      name: runbook_name
       job_stream_id: job_stream_id
 
   - name: List instances of Test Job Stream
     azure_rm_automationtestjobstream_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      runbook_name: runbook_name
+      name: runbook_name
       filter: filter
 '''
 
@@ -121,7 +121,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            runbook_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -139,7 +139,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.runbook_name = None
+        self.name = None
         self.job_stream_id = None
         self.filter = None
         super(AzureRMTestJobStreamsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -162,7 +162,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.test_job_streams.get(resource_group_name=self.resource_group,
                                                              automation_account_name=self.automation_account_name,
-                                                             runbook_name=self.runbook_name,
+                                                             runbook_name=self.name,
                                                              job_stream_id=self.job_stream_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -179,7 +179,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.test_job_streams.list_by_test_job(resource_group_name=self.resource_group,
                                                                           automation_account_name=self.automation_account_name,
-                                                                          runbook_name=self.runbook_name)
+                                                                          runbook_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for TestJobStreams.')

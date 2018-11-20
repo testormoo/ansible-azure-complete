@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    local_network_gateway_name:
+    name:
         description:
             - The name of the local network gateway.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Local Network Gateway
     azure_rm_localnetworkgateway_facts:
       resource_group: resource_group_name
-      local_network_gateway_name: local_network_gateway_name
+      name: local_network_gateway_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMLocalNetworkGatewaysFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            local_network_gateway_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -102,7 +102,7 @@ class AzureRMLocalNetworkGatewaysFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.local_network_gateway_name = None
+        self.name = None
         self.tags = None
         super(AzureRMLocalNetworkGatewaysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMLocalNetworkGatewaysFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.local_network_gateways.get(resource_group_name=self.resource_group,
-                                                                   local_network_gateway_name=self.local_network_gateway_name)
+                                                                   local_network_gateway_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LocalNetworkGateways.')

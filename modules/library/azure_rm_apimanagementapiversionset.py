@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -46,11 +46,11 @@ options:
     display_name:
         description:
             - Name of API Version Set
-        required: True
+            - Required when C(state) is I(present).
     versioning_scheme:
         description:
             - An value that determines where the API Version identifer will be located in a HTTP request.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'segment'
             - 'query'
@@ -79,8 +79,11 @@ EXAMPLES = '''
   - name: Create (or update) Api Version Set
     azure_rm_apimanagementapiversionset:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       version_set_id: api1
+      description: Version configuration
+      display_name: api set 1
+      versioning_scheme: Segment
       if_match: NOT FOUND
 '''
 
@@ -114,7 +117,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -132,15 +135,13 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
                 type='str'
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             versioning_scheme=dict(
                 type='str',
                 choices=['segment',
                          'query',
-                         'header'],
-                required=True
+                         'header']
             ),
             if_match=dict(
                 type='str'
@@ -153,7 +154,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.version_set_id = None
         self.parameters = dict()
         self.if_match = None
@@ -185,7 +186,6 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
                 elif key == "versioning_scheme":
                     self.parameters["versioning_scheme"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -206,8 +206,8 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Version Set instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Version Set instance")
@@ -218,10 +218,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
 
             response = self.create_update_apiversionset()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Version Set instance deleted")
@@ -254,7 +251,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.api_version_set.create_or_update(resource_group_name=self.resource_group,
-                                                                         service_name=self.service_name,
+                                                                         service_name=self.name,
                                                                          version_set_id=self.version_set_id,
                                                                          parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -274,7 +271,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
         self.log("Deleting the Api Version Set instance {0}".format(self.version_set_id))
         try:
             response = self.mgmt_client.api_version_set.delete(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                version_set_id=self.version_set_id,
                                                                if_match=self.if_match)
         except CloudError as e:
@@ -293,7 +290,7 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_version_set.get(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             version_set_id=self.version_set_id)
             found = True
             self.log("Response : {0}".format(response))
@@ -309,6 +306,38 @@ class AzureRMApiVersionSet(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

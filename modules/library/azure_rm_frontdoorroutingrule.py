@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Front Door which is globally unique.
         required: True
-    routing_rule_name:
+    name:
         description:
             - Name of the Routing Rule which is unique within the Front Door.
         required: True
@@ -127,7 +127,20 @@ EXAMPLES = '''
     azure_rm_frontdoorroutingrule:
       resource_group: rg1
       front_door_name: frontDoor1
-      routing_rule_name: routingRule1
+      name: routingRule1
+      frontend_endpoints:
+        - id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoors/frontDoor1/frontendEndpoints/frontendEndpoint1
+      accepted_protocols:
+        - [
+  "Http"
+]
+      patterns_to_match:
+        - [
+  "/*"
+]
+      backend_pool:
+        id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoors/frontDoor1/backendPools/backendPool1
+      enabled_state: Enabled
       name: routingRule1
 '''
 
@@ -171,7 +184,7 @@ class AzureRMRoutingRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            routing_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -228,7 +241,7 @@ class AzureRMRoutingRules(AzureRMModuleBase):
 
         self.resource_group = None
         self.front_door_name = None
-        self.routing_rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -281,7 +294,6 @@ class AzureRMRoutingRules(AzureRMModuleBase):
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
@@ -302,8 +314,8 @@ class AzureRMRoutingRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Routing Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Routing Rule instance")
@@ -314,10 +326,7 @@ class AzureRMRoutingRules(AzureRMModuleBase):
 
             response = self.create_update_routingrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Routing Rule instance deleted")
@@ -346,12 +355,12 @@ class AzureRMRoutingRules(AzureRMModuleBase):
 
         :return: deserialized Routing Rule instance state dictionary
         '''
-        self.log("Creating / Updating the Routing Rule instance {0}".format(self.routing_rule_name))
+        self.log("Creating / Updating the Routing Rule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.routing_rules.create_or_update(resource_group_name=self.resource_group,
                                                                        front_door_name=self.front_door_name,
-                                                                       routing_rule_name=self.routing_rule_name,
+                                                                       routing_rule_name=self.name,
                                                                        routing_rule_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -367,11 +376,11 @@ class AzureRMRoutingRules(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Routing Rule instance {0}".format(self.routing_rule_name))
+        self.log("Deleting the Routing Rule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.routing_rules.delete(resource_group_name=self.resource_group,
                                                              front_door_name=self.front_door_name,
-                                                             routing_rule_name=self.routing_rule_name)
+                                                             routing_rule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Routing Rule instance.')
             self.fail("Error deleting the Routing Rule instance: {0}".format(str(e)))
@@ -384,12 +393,12 @@ class AzureRMRoutingRules(AzureRMModuleBase):
 
         :return: deserialized Routing Rule instance state dictionary
         '''
-        self.log("Checking if the Routing Rule instance {0} is present".format(self.routing_rule_name))
+        self.log("Checking if the Routing Rule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.routing_rules.get(resource_group_name=self.resource_group,
                                                           front_door_name=self.front_door_name,
-                                                          routing_rule_name=self.routing_rule_name)
+                                                          routing_rule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Routing Rule instance : {0} found".format(response.name))
@@ -405,6 +414,38 @@ class AzureRMRoutingRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

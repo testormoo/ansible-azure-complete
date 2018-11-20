@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    job_agent_name:
+    name:
         description:
             - The name of the job agent to be retrieved.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_sqljobagent_facts:
       resource_group: resource_group_name
       server_name: server_name
-      job_agent_name: job_agent_name
+      name: job_agent_name
 
   - name: List instances of Job Agent
     azure_rm_sqljobagent_facts:
@@ -139,7 +139,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_agent_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -153,7 +153,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.job_agent_name = None
+        self.name = None
         self.tags = None
         super(AzureRMJobAgentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -163,7 +163,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.job_agent_name is not None:
+        if self.name is not None:
             self.results['job_agents'] = self.get()
         else:
             self.results['job_agents'] = self.list_by_server()
@@ -175,7 +175,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.job_agents.get(resource_group_name=self.resource_group,
                                                        server_name=self.server_name,
-                                                       job_agent_name=self.job_agent_name)
+                                                       job_agent_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobAgents.')

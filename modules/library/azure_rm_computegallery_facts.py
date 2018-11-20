@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    gallery_name:
+    name:
         description:
             - The name of the Shared Image Gallery.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Gallery
     azure_rm_computegallery_facts:
       resource_group: resource_group_name
-      gallery_name: gallery_name
+      name: gallery_name
 
   - name: List instances of Gallery
     azure_rm_computegallery_facts:
@@ -116,7 +116,7 @@ class AzureRMGalleriesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -129,7 +129,7 @@ class AzureRMGalleriesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.gallery_name = None
+        self.name = None
         self.tags = None
         super(AzureRMGalleriesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -139,7 +139,7 @@ class AzureRMGalleriesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.gallery_name is not None:
+        if self.name is not None:
             self.results['galleries'] = self.get()
         else:
             self.results['galleries'] = self.list_by_resource_group()
@@ -150,7 +150,7 @@ class AzureRMGalleriesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.galleries.get(resource_group_name=self.resource_group,
-                                                      gallery_name=self.gallery_name)
+                                                      gallery_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Galleries.')

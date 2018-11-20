@@ -34,7 +34,7 @@ options:
         description:
             - Fabric name associated with the container.
         required: True
-    container_name:
+    name:
         description:
             - Container name whose information should be fetched.
         required: True
@@ -60,7 +60,7 @@ EXAMPLES = '''
       vault_name: vault_name
       resource_group: resource_group_name
       fabric_name: fabric_name
-      container_name: container_name
+      name: container_name
       operation_id: operation_id
 '''
 
@@ -111,7 +111,7 @@ class AzureRMProtectionContainerOperationResultsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +131,7 @@ class AzureRMProtectionContainerOperationResultsFacts(AzureRMModuleBase):
         self.vault_name = None
         self.resource_group = None
         self.fabric_name = None
-        self.container_name = None
+        self.name = None
         self.operation_id = None
         self.tags = None
         super(AzureRMProtectionContainerOperationResultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -152,7 +152,7 @@ class AzureRMProtectionContainerOperationResultsFacts(AzureRMModuleBase):
             response = self.mgmt_client.protection_container_operation_results.get(vault_name=self.vault_name,
                                                                                    resource_group_name=self.resource_group,
                                                                                    fabric_name=self.fabric_name,
-                                                                                   container_name=self.container_name,
+                                                                                   container_name=self.name,
                                                                                    operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

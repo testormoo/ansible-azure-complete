@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    vm_scale_set_name:
+    name:
         description:
             - The name of the VM scale set to create or update.
         required: True
@@ -322,7 +322,7 @@ options:
                                        **C(from_image)** \u2013 This value is used when you are using an I(image) to create the virtual machine. If you are
                                        using a platform I(image), you also use the imageReference element described above. If you are using a marketplace
                                        I(image), you  also use the plan element previously described."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'from_image'
                                     - 'empty'
@@ -386,7 +386,7 @@ options:
                                 description:
                                     - "Specifies the logical unit number of the data disk. This value is used to identify data disks within the VM and
                                        therefore must be unique for each data disk attached to a VM."
-                                required: True
+                                    - Required when C(state) is I(present).
                             caching:
                                 description:
                                     - "Specifies the caching requirements. <br><br> Possible values are: <br><br> **C(none)** <br><br> **C(read_only)**
@@ -401,7 +401,7 @@ options:
                             create_option:
                                 description:
                                     - The create option.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'from_image'
                                     - 'empty'
@@ -458,7 +458,7 @@ options:
                             name:
                                 description:
                                     - The network configuration name.
-                                required: True
+                                    - Required when C(state) is I(present).
                             primary:
                                 description:
                                     - Specifies the primary network interface in case the virtual machine has more than 1 network interface.
@@ -483,7 +483,7 @@ options:
                             ip_configurations:
                                 description:
                                     - Specifies the IP configurations of the network interface.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                                 suboptions:
                                     id:
@@ -492,7 +492,7 @@ options:
                                     name:
                                         description:
                                             - The IP configuration name.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     subnet:
                                         description:
                                             - Specifies the identifier of the subnet.
@@ -665,12 +665,41 @@ EXAMPLES = '''
   - name: Create (or update) Virtual Machine Scale Set
     azure_rm_computevirtualmachinescaleset:
       resource_group: myResourceGroup
-      vm_scale_set_name: {vmss-name}
+      name: {vmss-name}
       location: eastus
       sku:
         name: Standard_D1_v2
         tier: Standard
         capacity: 3
+      upgrade_policy:
+        mode: Manual
+      virtual_machine_profile:
+        os_profile:
+          computer_name_prefix: {vmss-name}
+          admin_username: {your-username}
+          admin_password: {your-password}
+        storage_profile:
+          image_reference:
+            publisher: MicrosoftWindowsServer
+            offer: WindowsServer
+            sku: 2016-Datacenter
+            version: latest
+          os_disk:
+            caching: ReadWrite
+            create_option: FromImage
+            managed_disk:
+              storage_account_type: Standard_LRS
+        network_profile:
+          network_interface_configurations:
+            - name: {vmss-name}
+              primary: True
+              ip_configurations:
+                - name: {vmss-name}
+                  subnet: {
+  "id": "/subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/virtualNetworks/{existing-virtual-network-name}/subnets/{existing-subnet-name}"
+}
+              enable_ip_forwarding: True
+      overprovision: True
 '''
 
 RETURN = '''
@@ -709,7 +738,7 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_scale_set_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -754,7 +783,7 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.vm_scale_set_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -825,7 +854,6 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
                 elif key == "zones":
                     self.parameters["zones"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -849,8 +877,8 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Machine Scale Set instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Machine Scale Set instance")
@@ -861,10 +889,7 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
 
             response = self.create_update_virtualmachinescaleset()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Machine Scale Set instance deleted")
@@ -893,11 +918,11 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine Scale Set instance state dictionary
         '''
-        self.log("Creating / Updating the Virtual Machine Scale Set instance {0}".format(self.vm_scale_set_name))
+        self.log("Creating / Updating the Virtual Machine Scale Set instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.virtual_machine_scale_sets.create_or_update(resource_group_name=self.resource_group,
-                                                                                    vm_scale_set_name=self.vm_scale_set_name,
+                                                                                    vm_scale_set_name=self.name,
                                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -913,10 +938,10 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Virtual Machine Scale Set instance {0}".format(self.vm_scale_set_name))
+        self.log("Deleting the Virtual Machine Scale Set instance {0}".format(self.name))
         try:
             response = self.mgmt_client.virtual_machine_scale_sets.delete(resource_group_name=self.resource_group,
-                                                                          vm_scale_set_name=self.vm_scale_set_name)
+                                                                          vm_scale_set_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Virtual Machine Scale Set instance.')
             self.fail("Error deleting the Virtual Machine Scale Set instance: {0}".format(str(e)))
@@ -929,11 +954,11 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
 
         :return: deserialized Virtual Machine Scale Set instance state dictionary
         '''
-        self.log("Checking if the Virtual Machine Scale Set instance {0} is present".format(self.vm_scale_set_name))
+        self.log("Checking if the Virtual Machine Scale Set instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.virtual_machine_scale_sets.get(resource_group_name=self.resource_group,
-                                                                       vm_scale_set_name=self.vm_scale_set_name)
+                                                                       vm_scale_set_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Virtual Machine Scale Set instance : {0} found".format(response.name))
@@ -949,6 +974,38 @@ class AzureRMVirtualMachineScaleSets(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -34,7 +34,7 @@ options:
         description:
             - The type of the resource.
         required: True
-    resource_name:
+    name:
         description:
             - Name of the resource.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       resource_namespace: resource_namespace
       resource_type: resource_type
-      resource_name: resource_name
+      name: resource_name
       skiptoken: skiptoken
 '''
 
@@ -95,7 +95,7 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -111,7 +111,7 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.resource_namespace = None
         self.resource_type = None
-        self.resource_name = None
+        self.name = None
         self.skiptoken = None
         super(AzureRMNotificationSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -131,7 +131,7 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
             response = self.mgmt_client.notification_settings.list_by_resource(resource_group_name=self.resource_group,
                                                                                resource_namespace=self.resource_namespace,
                                                                                resource_type=self.resource_type,
-                                                                               resource_name=self.resource_name)
+                                                                               resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NotificationSettings.')

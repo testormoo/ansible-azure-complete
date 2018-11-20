@@ -34,7 +34,7 @@ options:
         description:
             - Machine resource name.
         required: True
-    port_name:
+    name:
         description:
             - Port resource name.
         required: True
@@ -59,7 +59,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       workspace_name: workspace_name
       machine_name: machine_name
-      port_name: port_name
+      name: port_name
       start_time: start_time
       end_time: end_time
 '''
@@ -105,7 +105,7 @@ class AzureRMPortsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            port_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -124,7 +124,7 @@ class AzureRMPortsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.workspace_name = None
         self.machine_name = None
-        self.port_name = None
+        self.name = None
         self.start_time = None
         self.end_time = None
         super(AzureRMPortsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -145,7 +145,7 @@ class AzureRMPortsFacts(AzureRMModuleBase):
             response = self.mgmt_client.ports.get(resource_group_name=self.resource_group,
                                                   workspace_name=self.workspace_name,
                                                   machine_name=self.machine_name,
-                                                  port_name=self.port_name)
+                                                  port_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Ports.')

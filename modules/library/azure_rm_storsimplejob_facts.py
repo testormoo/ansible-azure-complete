@@ -36,7 +36,7 @@ options:
     filter:
         description:
             - OData Filter options
-    job_name:
+    name:
         description:
             - The job name.
 
@@ -59,7 +59,7 @@ EXAMPLES = '''
   - name: Get instance of Job
     azure_rm_storsimplejob_facts:
       device_name: device_name
-      job_name: job_name
+      name: job_name
       resource_group: resource_group_name
       manager_name: manager_name
 
@@ -133,7 +133,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
             filter=dict(
                 type='str'
             ),
-            job_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -146,7 +146,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.manager_name = None
         self.filter = None
-        self.job_name = None
+        self.name = None
         super(AzureRMJobsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -158,7 +158,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         if self.device_name is not None:
             self.results['jobs'] = self.list_by_device()
         elif (self.device_name is not None and
-                self.job_name is not None):
+                self.name is not None):
             self.results['jobs'] = self.get()
         else:
             self.results['jobs'] = self.list_by_manager()
@@ -186,7 +186,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.jobs.get(device_name=self.device_name,
-                                                 job_name=self.job_name,
+                                                 job_name=self.name,
                                                  resource_group_name=self.resource_group,
                                                  manager_name=self.manager_name)
             self.log("Response : {0}".format(response))

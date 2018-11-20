@@ -30,7 +30,7 @@ options:
         description:
             - The name of the managed instance.
         required: True
-    key_name:
+    name:
         description:
             - The name of the managed instance key to be operated on (updated or created).
         required: True
@@ -66,7 +66,7 @@ EXAMPLES = '''
     azure_rm_sqlmanagedinstancekey:
       resource_group: sqlcrudtest-7398
       managed_instance_name: sqlcrudtest-4645
-      key_name: someVault_someKey_01234567890123456789012345678901
+      name: someVault_someKey_01234567890123456789012345678901
       server_key_type: NOT FOUND
       uri: NOT FOUND
 '''
@@ -112,7 +112,7 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            key_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -134,7 +134,7 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
 
         self.resource_group = None
         self.managed_instance_name = None
-        self.key_name = None
+        self.name = None
         self.server_key_type = None
         self.uri = None
 
@@ -154,7 +154,6 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -175,8 +174,8 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Managed Instance Key instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Managed Instance Key instance")
@@ -187,10 +186,7 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
 
             response = self.create_update_managedinstancekey()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Managed Instance Key instance deleted")
@@ -219,12 +215,12 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
 
         :return: deserialized Managed Instance Key instance state dictionary
         '''
-        self.log("Creating / Updating the Managed Instance Key instance {0}".format(self.key_name))
+        self.log("Creating / Updating the Managed Instance Key instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.managed_instance_keys.create_or_update(resource_group_name=self.resource_group,
                                                                                managed_instance_name=self.managed_instance_name,
-                                                                               key_name=self.key_name,
+                                                                               key_name=self.name,
                                                                                server_key_type=self.server_key_type)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -240,11 +236,11 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Managed Instance Key instance {0}".format(self.key_name))
+        self.log("Deleting the Managed Instance Key instance {0}".format(self.name))
         try:
             response = self.mgmt_client.managed_instance_keys.delete(resource_group_name=self.resource_group,
                                                                      managed_instance_name=self.managed_instance_name,
-                                                                     key_name=self.key_name)
+                                                                     key_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Managed Instance Key instance.')
             self.fail("Error deleting the Managed Instance Key instance: {0}".format(str(e)))
@@ -257,12 +253,12 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
 
         :return: deserialized Managed Instance Key instance state dictionary
         '''
-        self.log("Checking if the Managed Instance Key instance {0} is present".format(self.key_name))
+        self.log("Checking if the Managed Instance Key instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.managed_instance_keys.get(resource_group_name=self.resource_group,
                                                                   managed_instance_name=self.managed_instance_name,
-                                                                  key_name=self.key_name)
+                                                                  key_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Managed Instance Key instance : {0} found".format(response.name))
@@ -278,6 +274,38 @@ class AzureRMManagedInstanceKeys(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

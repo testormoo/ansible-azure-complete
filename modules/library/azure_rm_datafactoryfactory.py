@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name.
         required: True
-    factory_name:
+    name:
         description:
             - The I(factory) name.
         required: True
@@ -48,7 +48,7 @@ options:
                     type:
                         description:
                             - "The identity type. Currently the only supported type is 'SystemAssigned'."
-                        required: True
+                            - Required when C(state) is I(present).
             repo_configuration:
                 description:
                     - Git repo information of the factory.
@@ -56,26 +56,26 @@ options:
                     account_name:
                         description:
                             - Account name.
-                        required: True
+                            - Required when C(state) is I(present).
                     repository_name:
                         description:
                             - Rrepository name.
-                        required: True
+                            - Required when C(state) is I(present).
                     collaboration_branch:
                         description:
                             - Collaboration branch.
-                        required: True
+                            - Required when C(state) is I(present).
                     root_folder:
                         description:
                             - Root folder.
-                        required: True
+                            - Required when C(state) is I(present).
                     last_commit_id:
                         description:
                             - Last commit id.
                     type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
     if_match:
         description:
             - "ETag of the I(factory) entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional
@@ -102,7 +102,7 @@ EXAMPLES = '''
   - name: Create (or update) Factory
     azure_rm_datafactoryfactory:
       resource_group: exampleResourceGroup
-      factory_name: exampleFactoryName
+      name: exampleFactoryName
       factory:
         location: East US
       if_match: NOT FOUND
@@ -150,7 +150,7 @@ class AzureRMFactories(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            factory_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -169,7 +169,7 @@ class AzureRMFactories(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.factory_name = None
+        self.name = None
         self.factory = dict()
         self.if_match = None
 
@@ -198,7 +198,6 @@ class AzureRMFactories(AzureRMModuleBase):
                 elif key == "repo_configuration":
                     self.factory["repo_configuration"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
@@ -219,8 +218,8 @@ class AzureRMFactories(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Factory instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Factory instance")
@@ -231,10 +230,7 @@ class AzureRMFactories(AzureRMModuleBase):
 
             response = self.create_update_factory()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Factory instance deleted")
@@ -263,11 +259,11 @@ class AzureRMFactories(AzureRMModuleBase):
 
         :return: deserialized Factory instance state dictionary
         '''
-        self.log("Creating / Updating the Factory instance {0}".format(self.factory_name))
+        self.log("Creating / Updating the Factory instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.factories.create_or_update(resource_group_name=self.resource_group,
-                                                                   factory_name=self.factory_name,
+                                                                   factory_name=self.name,
                                                                    factory=self.factory)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -283,10 +279,10 @@ class AzureRMFactories(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Factory instance {0}".format(self.factory_name))
+        self.log("Deleting the Factory instance {0}".format(self.name))
         try:
             response = self.mgmt_client.factories.delete(resource_group_name=self.resource_group,
-                                                         factory_name=self.factory_name)
+                                                         factory_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Factory instance.')
             self.fail("Error deleting the Factory instance: {0}".format(str(e)))
@@ -299,11 +295,11 @@ class AzureRMFactories(AzureRMModuleBase):
 
         :return: deserialized Factory instance state dictionary
         '''
-        self.log("Checking if the Factory instance {0} is present".format(self.factory_name))
+        self.log("Checking if the Factory instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.factories.get(resource_group_name=self.resource_group,
-                                                      factory_name=self.factory_name)
+                                                      factory_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Factory instance : {0} found".format(response.name))
@@ -320,6 +316,38 @@ class AzureRMFactories(AzureRMModuleBase):
             'version': d.get('version', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

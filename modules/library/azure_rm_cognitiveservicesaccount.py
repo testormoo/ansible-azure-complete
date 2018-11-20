@@ -26,19 +26,19 @@ options:
         description:
             - "The name of the resource group within the user's subscription."
         required: True
-    account_name:
+    name:
         description:
             - The name of Cognitive Services account.
         required: True
     sku:
         description:
             - Required. Gets or sets the SKU of the resource.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
                     - Gets or sets the sku name. Required for account creation, optional for update.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'f0'
                     - 'p0'
@@ -54,7 +54,7 @@ options:
     kind:
         description:
             - Required. Gets or sets the Kind of the resource.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'bing._autosuggest.v7'
             - 'bing._custom_search'
@@ -99,11 +99,11 @@ author:
 EXAMPLES = '''
   - name: Create (or update) Account
     azure_rm_cognitiveservicesaccount:
-      resource_group: felixwa-01
-      account_name: testCreate1
+      resource_group: contosorg
+      name: testAccount
       sku:
         name: S0
-      kind: Emotion
+      kind: Face
       location: eastus
 '''
 
@@ -113,7 +113,7 @@ id:
         - The id of the created account
     returned: always
     type: str
-    sample: /subscriptions/f9b96b36-1f5e-4021-8959-51527e26e6d3/resourceGroups/bvttest/providers/Microsoft.CognitiveServices/accounts/bingSearch
+    sample: /subscriptions/f9b96b36-1f5e-4021-8959-51527e26e6d3/resourceGroups/contosorg/providers/Microsoft.CognitiveServices/accounts/testAccount
 '''
 
 import time
@@ -143,13 +143,12 @@ class AzureRMAccounts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             sku=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             kind=dict(
                 type='str',
@@ -171,8 +170,7 @@ class AzureRMAccounts(AzureRMModuleBase):
                          'speech_translation',
                          'text_analytics',
                          'text_translation',
-                         'web_lm'],
-                required=True
+                         'web_lm']
             ),
             location=dict(
                 type='str'
@@ -185,7 +183,7 @@ class AzureRMAccounts(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -242,7 +240,6 @@ class AzureRMAccounts(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CognitiveServicesManagementClient,
@@ -266,8 +263,8 @@ class AzureRMAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Account instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Account instance")
@@ -278,10 +275,7 @@ class AzureRMAccounts(AzureRMModuleBase):
 
             response = self.create_update_account()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Account instance deleted")
@@ -310,16 +304,16 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: deserialized Account instance state dictionary
         '''
-        self.log("Creating / Updating the Account instance {0}".format(self.account_name))
+        self.log("Creating / Updating the Account instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.accounts.create(resource_group_name=self.resource_group,
-                                                            account_name=self.account_name,
+                                                            account_name=self.name,
                                                             parameters=self.parameters)
             else:
                 response = self.mgmt_client.accounts.update(resource_group_name=self.resource_group,
-                                                            account_name=self.account_name)
+                                                            account_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -334,10 +328,10 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Account instance {0}".format(self.account_name))
+        self.log("Deleting the Account instance {0}".format(self.name))
         try:
             response = self.mgmt_client.accounts.delete(resource_group_name=self.resource_group,
-                                                        account_name=self.account_name)
+                                                        account_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Account instance.')
             self.fail("Error deleting the Account instance: {0}".format(str(e)))
@@ -350,7 +344,7 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         :return: deserialized Account instance state dictionary
         '''
-        self.log("Checking if the Account instance {0} is present".format(self.account_name))
+        self.log("Checking if the Account instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.accounts.get()
@@ -369,6 +363,38 @@ class AzureRMAccounts(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

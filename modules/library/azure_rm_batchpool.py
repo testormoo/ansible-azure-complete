@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Batch account.
         required: True
-    pool_name:
+    name:
         description:
             - The pool name. This must be unique within the account.
         required: True
@@ -62,7 +62,7 @@ options:
                                2012. 4 - OS Family 4, equivalent to Windows Server 2012 R2. 5 - OS Family 5, equivalent to Windows Server 2016. For more
                                information, see Azure Guest OS Releases
                                (https://azure.microsoft.com/documentation/articles/cloud-services-guestos-update-matrix/#releases)."
-                        required: True
+                            - Required when C(state) is I(present).
                     target_os_version:
                         description:
                             - The default value is * which specifies the latest operating system version for the specified OS family.
@@ -77,7 +77,7 @@ options:
                 suboptions:
                     image_reference:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             publisher:
                                 description:
@@ -114,7 +114,7 @@ options:
                                operating systems. You must specify a node agent SKU which matches the selected image reference. To get the list of
                                supported node agent SKUs along with their list of verified image references, see the 'List supported node agent SKUs'
                                operation."
-                        required: True
+                            - Required when C(state) is I(present).
                     windows_configuration:
                         description:
                             - This property must not be specified if the I(image_reference) specifies a Linux OS image.
@@ -130,7 +130,7 @@ options:
                             lun:
                                 description:
                                     - The lun is used to uniquely identify each data disk. If attaching multiple disks, each should have a distinct lun.
-                                required: True
+                                    - Required when C(state) is I(present).
                             caching:
                                 description:
                                     - "Values are:"
@@ -145,7 +145,7 @@ options:
                                     - 'read_write'
                             disk_size_gb:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             storage_account_type:
                                 description:
                                     - "If omitted, the default is 'C(standard_lrs)'. Values are:"
@@ -193,7 +193,7 @@ options:
                 suboptions:
                     formula:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     evaluation_interval:
                         description:
                             - If omitted, the default value is 15 minutes (PT15M).
@@ -230,7 +230,7 @@ options:
                         description:
                             - "The maximum number of inbound NAT pools per Batch pool is 5. If the maximum number of inbound NAT pools is exceeded the
                                request fails with HTTP status code 400."
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             name:
@@ -238,11 +238,11 @@ options:
                                     - "The name must be unique within a Batch pool, can contain letters, numbers, underscores, periods, and hyphens. Names
                                        must start with a letter or number, must end with a letter, number, or underscore, and cannot exceed 77 characters.
                                        If any invalid values are provided the request fails with HTTP status code 400."
-                                required: True
+                                    - Required when C(state) is I(present).
                             protocol:
                                 description:
                                     - "Possible values include: 'C(tcp)', 'C(udp)'"
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'tcp'
                                     - 'udp'
@@ -250,19 +250,19 @@ options:
                                 description:
                                     - "This must be unique within a Batch pool. Acceptable values are between 1 and 65535 except for 22, 3389, 29876 and
                                        29877 as these are reserved. If any reserved values are provided the request fails with HTTP status code 400."
-                                required: True
+                                    - Required when C(state) is I(present).
                             frontend_port_range_start:
                                 description:
                                     - "Acceptable values range between 1 and 65534 except ports from 50000 to 55000 which are reserved. All ranges within a
                                        pool must be distinct and cannot overlap. If any reserved or overlapping values are provided the request fails with
                                        HTTP status code 400."
-                                required: True
+                                    - Required when C(state) is I(present).
                             frontend_port_range_end:
                                 description:
                                     - "Acceptable values range between 1 and 65534 except ports from 50000 to 55000 which are reserved by the Batch service.
                                        All ranges within a pool must be distinct and cannot overlap. If any reserved or overlapping values are provided the
                                        request fails with HTTP status code 400."
-                                required: True
+                                    - Required when C(state) is I(present).
                             network_security_group_rules:
                                 description:
                                     - "The maximum number of rules that can be specified across all the endpoints on a Batch pool is 25. If no network
@@ -277,11 +277,11 @@ options:
                                                higher the priority. For example, rules could be specified with order numbers of 150, 250, and 350. The rule
                                                with the order number of 150 takes precedence over the rule that has an order of 250. Allowed priorities are
                                                150 to 3500. If any reserved or duplicate values are provided the request fails with HTTP status code 400."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     access:
                                         description:
                                             - "Possible values include: 'C(allow)', 'C(deny)'"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
@@ -289,7 +289,7 @@ options:
                                         description:
                                             - "Valid values are a single IP address (i.e. 10.10.10.10), IP subnet (i.e. 192.168.1.0/24), default tag, or *
                                                (for all addresses).  If any other values are provided the request fails with HTTP status code 400."
-                                        required: True
+                                            - Required when C(state) is I(present).
     max_tasks_per_node:
         description:
     task_scheduling_policy:
@@ -298,7 +298,7 @@ options:
             node_fill_type:
                 description:
                     - "Possible values include: 'C(spread)', 'C(pack)'"
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'spread'
                     - 'pack'
@@ -308,10 +308,10 @@ options:
         suboptions:
             name:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             password:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             elevation_level:
                 description:
                     - "C(non_admin) - The auto user is a standard user without elevated access. C(admin) - The auto user is a user with elevated access and
@@ -344,10 +344,10 @@ options:
         suboptions:
             name:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             value:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
     start_task:
         description:
             - In an PATCH (update) operation, this property can be set to an empty object to remove the start task from the pool.
@@ -366,10 +366,10 @@ options:
                             - "This URL must be readable using anonymous access; that is, the Batch service does not present any credentials when
                                downloading the blob. There are two ways to get such a URL for a blob in Azure storage: include a Shared Access Signature
                                (SAS) granting read permissions on the blob, or set the ACL for the blob or its container to allow public access."
-                        required: True
+                            - Required when C(state) is I(present).
                     file_path:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     file_mode:
                         description:
                             - "This property applies only to files being downloaded to Linux compute nodes. It will be ignored if it is specified for a
@@ -381,7 +381,7 @@ options:
                 suboptions:
                     name:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     value:
                         description:
             user_identity:
@@ -434,7 +434,7 @@ options:
         suboptions:
             id:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             store_location:
                 description:
                     - "The default value is C(current_user). This property is applicable only for pools configured with Windows nodes (that is, created with
@@ -466,7 +466,7 @@ options:
         suboptions:
             id:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             version:
                 description:
                     - "If this is omitted, and no default version is specified for this application, the request fails with the error code
@@ -505,7 +505,14 @@ EXAMPLES = '''
     azure_rm_batchpool:
       resource_group: default-azurebatch-japaneast
       account_name: sampleacct
-      pool_name: testpool
+      name: testpool
+      vm_size: STANDARD_D4
+      deployment_configuration:
+        cloud_service_configuration:
+          os_family: 5
+      scale_settings:
+        fixed_scale:
+          target_dedicated_nodes: 3
       if_match: NOT FOUND
       if_none_match: NOT FOUND
 '''
@@ -550,7 +557,7 @@ class AzureRMPool(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            pool_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -613,7 +620,7 @@ class AzureRMPool(AzureRMModuleBase):
 
         self.resource_group = None
         self.account_name = None
-        self.pool_name = None
+        self.name = None
         self.parameters = dict()
         self.if_match = None
         self.if_none_match = None
@@ -681,7 +688,6 @@ class AzureRMPool(AzureRMModuleBase):
                 elif key == "application_licenses":
                     self.parameters["application_licenses"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchManagementClient,
@@ -702,8 +708,8 @@ class AzureRMPool(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Pool instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Pool instance")
@@ -714,10 +720,7 @@ class AzureRMPool(AzureRMModuleBase):
 
             response = self.create_update_pool()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Pool instance deleted")
@@ -746,18 +749,18 @@ class AzureRMPool(AzureRMModuleBase):
 
         :return: deserialized Pool instance state dictionary
         '''
-        self.log("Creating / Updating the Pool instance {0}".format(self.pool_name))
+        self.log("Creating / Updating the Pool instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.pool.create(resource_group_name=self.resource_group,
                                                         account_name=self.account_name,
-                                                        pool_name=self.pool_name,
+                                                        pool_name=self.name,
                                                         parameters=self.parameters)
             else:
                 response = self.mgmt_client.pool.update(resource_group_name=self.resource_group,
                                                         account_name=self.account_name,
-                                                        pool_name=self.pool_name,
+                                                        pool_name=self.name,
                                                         parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -773,11 +776,11 @@ class AzureRMPool(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Pool instance {0}".format(self.pool_name))
+        self.log("Deleting the Pool instance {0}".format(self.name))
         try:
             response = self.mgmt_client.pool.delete(resource_group_name=self.resource_group,
                                                     account_name=self.account_name,
-                                                    pool_name=self.pool_name)
+                                                    pool_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Pool instance.')
             self.fail("Error deleting the Pool instance: {0}".format(str(e)))
@@ -790,12 +793,12 @@ class AzureRMPool(AzureRMModuleBase):
 
         :return: deserialized Pool instance state dictionary
         '''
-        self.log("Checking if the Pool instance {0} is present".format(self.pool_name))
+        self.log("Checking if the Pool instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.pool.get(resource_group_name=self.resource_group,
                                                  account_name=self.account_name,
-                                                 pool_name=self.pool_name)
+                                                 pool_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Pool instance : {0} found".format(response.name))
@@ -811,6 +814,38 @@ class AzureRMPool(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

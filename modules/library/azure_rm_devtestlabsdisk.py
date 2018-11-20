@@ -36,46 +36,38 @@ options:
         required: True
     name:
         description:
-            - The name of the I(disk).
+            - The name of the disk.
         required: True
-    disk:
+    location:
         description:
-            - A Disk.
-        required: True
-        suboptions:
-            location:
-                description:
-                    - The location of the resource.
-            disk_type:
-                description:
-                    - The storage type for the disk (i.e. C(standard), C(premium)).
-                choices:
-                    - 'standard'
-                    - 'premium'
-            disk_size_gi_b:
-                description:
-                    - The size of the disk in GibiBytes.
-            leased_by_lab_vm_id:
-                description:
-                    - The resource ID of the VM to which this disk is leased.
-            disk_blob_name:
-                description:
-                    - When backed by a blob, the name of the VHD blob without extension.
-            disk_uri:
-                description:
-                    - When backed by a blob, the URI of underlying blob.
-            host_caching:
-                description:
-                    - The host caching policy of the disk (i.e. None, ReadOnly, ReadWrite).
-            managed_disk_id:
-                description:
-                    - When backed by managed disk, this is the ID of the compute disk resource.
-            provisioning_state:
-                description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+            - The location of the resource.
+    disk_type:
+        description:
+            - The storage type for the disk (i.e. C(standard), C(premium)).
+        choices:
+            - 'standard'
+            - 'premium'
+    disk_size_gi_b:
+        description:
+            - The size of the disk in GibiBytes.
+    leased_by_lab_vm_id:
+        description:
+            - The resource ID of the VM to which this disk is leased.
+    disk_blob_name:
+        description:
+            - When backed by a blob, the name of the VHD blob without extension.
+    disk_uri:
+        description:
+            - When backed by a blob, the URI of underlying blob.
+    host_caching:
+        description:
+            - The host caching policy of the disk (i.e. None, ReadOnly, ReadWrite).
+    managed_disk_id:
+        description:
+            - When backed by managed disk, this is the ID of the compute disk resource.
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Disk.
@@ -151,9 +143,34 @@ class AzureRMDisks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            disk=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            disk_type=dict(
+                type='str',
+                choices=['standard',
+                         'premium']
+            ),
+            disk_size_gi_b=dict(
+                type='int'
+            ),
+            leased_by_lab_vm_id=dict(
+                type='str'
+            ),
+            disk_blob_name=dict(
+                type='str'
+            ),
+            disk_uri=dict(
+                type='str'
+            ),
+            host_caching=dict(
+                type='str'
+            ),
+            managed_disk_id=dict(
+                type='str'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -200,12 +217,9 @@ class AzureRMDisks(AzureRMModuleBase):
                     self.disk["host_caching"] = kwargs[key]
                 elif key == "managed_disk_id":
                     self.disk["managed_disk_id"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.disk["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.disk["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -226,8 +240,8 @@ class AzureRMDisks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Disk instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.disk, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Disk instance")
@@ -238,10 +252,7 @@ class AzureRMDisks(AzureRMModuleBase):
 
             response = self.create_update_disk()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Disk instance deleted")
@@ -332,6 +343,38 @@ class AzureRMDisks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

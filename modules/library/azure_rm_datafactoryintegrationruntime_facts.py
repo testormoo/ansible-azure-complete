@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    integration_runtime_name:
+    name:
         description:
             - The integration runtime name.
     if_none_match:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datafactoryintegrationruntime_facts:
       resource_group: resource_group_name
       factory_name: factory_name
-      integration_runtime_name: integration_runtime_name
+      name: integration_runtime_name
       if_none_match: if_none_match
 
   - name: List instances of Integration Runtime
@@ -129,7 +129,7 @@ class AzureRMIntegrationRuntimesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            integration_runtime_name=dict(
+            name=dict(
                 type='str'
             ),
             if_none_match=dict(
@@ -143,7 +143,7 @@ class AzureRMIntegrationRuntimesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.factory_name = None
-        self.integration_runtime_name = None
+        self.name = None
         self.if_none_match = None
         super(AzureRMIntegrationRuntimesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMIntegrationRuntimesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.integration_runtime_name is not None:
+        if self.name is not None:
             self.results['integration_runtimes'] = self.get()
         else:
             self.results['integration_runtimes'] = self.list_by_factory()
@@ -165,7 +165,7 @@ class AzureRMIntegrationRuntimesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_runtimes.get(resource_group_name=self.resource_group,
                                                                  factory_name=self.factory_name,
-                                                                 integration_runtime_name=self.integration_runtime_name)
+                                                                 integration_runtime_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationRuntimes.')

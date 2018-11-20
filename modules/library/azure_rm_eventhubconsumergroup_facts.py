@@ -41,7 +41,7 @@ options:
     top:
         description:
             - May be used to limit the number of results to the most recent N usageDetails.
-    consumer_group_name:
+    name:
         description:
             - The consumer group name
 
@@ -67,7 +67,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       namespace_name: namespace_name
       event_hub_name: event_hub_name
-      consumer_group_name: consumer_group_name
+      name: consumer_group_name
 '''
 
 RETURN = '''
@@ -124,7 +124,7 @@ class AzureRMConsumerGroupsFacts(AzureRMModuleBase):
             top=dict(
                 type='int'
             ),
-            consumer_group_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -138,7 +138,7 @@ class AzureRMConsumerGroupsFacts(AzureRMModuleBase):
         self.event_hub_name = None
         self.skip = None
         self.top = None
-        self.consumer_group_name = None
+        self.name = None
         super(AzureRMConsumerGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -149,7 +149,7 @@ class AzureRMConsumerGroupsFacts(AzureRMModuleBase):
 
         else:
             self.results['consumer_groups'] = self.list_by_event_hub()
-        elif self.consumer_group_name is not None:
+        elif self.name is not None:
             self.results['consumer_groups'] = self.get()
         return self.results
 
@@ -177,7 +177,7 @@ class AzureRMConsumerGroupsFacts(AzureRMModuleBase):
             response = self.mgmt_client.consumer_groups.get(resource_group_name=self.resource_group,
                                                             namespace_name=self.namespace_name,
                                                             event_hub_name=self.event_hub_name,
-                                                            consumer_group_name=self.consumer_group_name)
+                                                            consumer_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ConsumerGroups.')

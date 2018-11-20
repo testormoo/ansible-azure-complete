@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of A P I Key
     azure_rm_applicationinsightsapikey_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
       key_id: key_id
 '''
 
@@ -91,7 +91,7 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -106,7 +106,7 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.key_id = None
         super(AzureRMAPIKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -124,7 +124,7 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_keys.get(resource_group_name=self.resource_group,
-                                                     resource_name=self.resource_name,
+                                                     resource_name=self.name,
                                                      key_id=self.key_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

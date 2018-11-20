@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
         required: True
-    access_policy_name:
+    name:
         description:
             - Name of the access policy.
         required: True
@@ -66,7 +66,13 @@ EXAMPLES = '''
     azure_rm_timeseriesinsightsaccesspolicy:
       resource_group: rg1
       environment_name: env1
-      access_policy_name: ap1
+      name: ap1
+      principal_object_id: aGuid
+      description: some description
+      roles:
+        - [
+  "Reader"
+]
 '''
 
 RETURN = '''
@@ -109,7 +115,7 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            access_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +137,7 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.environment_name = None
-        self.access_policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -157,7 +163,6 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
                 elif key == "roles":
                     self.parameters["roles"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
@@ -178,8 +183,8 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Access Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Access Policy instance")
@@ -190,10 +195,7 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
 
             response = self.create_update_accesspolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Access Policy instance deleted")
@@ -222,12 +224,12 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
 
         :return: deserialized Access Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Access Policy instance {0}".format(self.access_policy_name))
+        self.log("Creating / Updating the Access Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.access_policies.create_or_update(resource_group_name=self.resource_group,
                                                                          environment_name=self.environment_name,
-                                                                         access_policy_name=self.access_policy_name,
+                                                                         access_policy_name=self.name,
                                                                          parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -243,11 +245,11 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Access Policy instance {0}".format(self.access_policy_name))
+        self.log("Deleting the Access Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.access_policies.delete(resource_group_name=self.resource_group,
                                                                environment_name=self.environment_name,
-                                                               access_policy_name=self.access_policy_name)
+                                                               access_policy_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Access Policy instance.')
             self.fail("Error deleting the Access Policy instance: {0}".format(str(e)))
@@ -260,12 +262,12 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
 
         :return: deserialized Access Policy instance state dictionary
         '''
-        self.log("Checking if the Access Policy instance {0} is present".format(self.access_policy_name))
+        self.log("Checking if the Access Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.access_policies.get(resource_group_name=self.resource_group,
                                                             environment_name=self.environment_name,
-                                                            access_policy_name=self.access_policy_name)
+                                                            access_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Access Policy instance : {0} found".format(response.name))
@@ -281,6 +283,38 @@ class AzureRMAccessPolicies(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

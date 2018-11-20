@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - "The name of the resource group within the user's subscription."
-    domain_name:
+    name:
         description:
             - Name of the domain
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Domain
     azure_rm_eventgriddomain_facts:
       resource_group: resource_group_name
-      domain_name: domain_name
+      name: domain_name
 
   - name: List instances of Domain
     azure_rm_eventgriddomain_facts:
@@ -110,7 +110,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            domain_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -123,7 +123,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.domain_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDomainsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -134,7 +134,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.domain_name is not None):
+                self.name is not None):
             self.results['domains'] = self.get()
         elif self.resource_group is not None:
             self.results['domains'] = self.list_by_resource_group()
@@ -147,7 +147,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.domains.get(resource_group_name=self.resource_group,
-                                                    domain_name=self.domain_name)
+                                                    domain_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Domains.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    elastic_pool_name:
+    name:
         description:
             - The name of the elastic pool.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_sqlelasticpooldatabaseactivity_facts:
       resource_group: resource_group_name
       server_name: server_name
-      elastic_pool_name: elastic_pool_name
+      name: elastic_pool_name
 '''
 
 RETURN = '''
@@ -82,7 +82,7 @@ class AzureRMElasticPoolDatabaseActivitiesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            elastic_pool_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -94,7 +94,7 @@ class AzureRMElasticPoolDatabaseActivitiesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.elastic_pool_name = None
+        self.name = None
         super(AzureRMElasticPoolDatabaseActivitiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -112,7 +112,7 @@ class AzureRMElasticPoolDatabaseActivitiesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.elastic_pool_database_activities.list_by_elastic_pool(resource_group_name=self.resource_group,
                                                                                               server_name=self.server_name,
-                                                                                              elastic_pool_name=self.elastic_pool_name)
+                                                                                              elastic_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ElasticPoolDatabaseActivities.')

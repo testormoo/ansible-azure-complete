@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    cluster_name:
+    name:
         description:
             - "The name of the cluster within the specified resource group. Cluster names can only contain a combination of alphanumeric characters along
                with dash (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -39,7 +39,7 @@ options:
             - "All virtual machines in a cluster are the same size. For information about available VM sizes for clusters using images from the Virtual
                Machines Marketplace (see Sizes for Virtual Machines (Linux) or Sizes for Virtual Machines (Windows). Batch AI service supports all Azure VM
                sizes except STANDARD_A0 and those with premium storage (STANDARD_GS, STANDARD_DS, and STANDARD_DSV2 series)."
-        required: True
+            - Required when C(state) is I(present).
     vm_priority:
         description:
             - Default is C(dedicated).
@@ -55,7 +55,7 @@ options:
                     target_node_count:
                         description:
                             - Default is 0. If autoScaleSettings are not specified, then the Cluster starts with this target.
-                        required: True
+                            - Required when C(state) is I(present).
                     node_deallocation_option:
                         description:
                             - The default value is C(requeue).
@@ -69,10 +69,10 @@ options:
                 suboptions:
                     minimum_node_count:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     maximum_node_count:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     initial_node_count:
                         description:
     virtual_machine_configuration:
@@ -83,13 +83,13 @@ options:
                 suboptions:
                     publisher:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     offer:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     sku:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     version:
                         description:
     node_setup:
@@ -100,14 +100,14 @@ options:
                 suboptions:
                     command_line:
                         description:
-                        required: True
+                            - Required when C(state) is I(present).
                     environment_variables:
                         description:
                         type: list
                         suboptions:
                             name:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             value:
                                 description:
                     run_elevated:
@@ -115,7 +115,7 @@ options:
                     std_out_err_path_prefix:
                         description:
                             - The path where the Batch AI service will upload the stdout and stderror of setup task.
-                        required: True
+                            - Required when C(state) is I(present).
             mount_volumes:
                 description:
                 suboptions:
@@ -126,13 +126,13 @@ options:
                         suboptions:
                             account_name:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             azure_file_url:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             credentials:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     account_key:
                                         description:
@@ -144,7 +144,7 @@ options:
                             relative_mount_path:
                                 description:
                                     - Note that all file shares will be mounted under $AZ_BATCHAI_MOUNT_ROOT location.
-                                required: True
+                                    - Required when C(state) is I(present).
                             file_mode:
                                 description:
                                     - Default value is 0777. Valid only if OS is linux.
@@ -158,13 +158,13 @@ options:
                         suboptions:
                             account_name:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             container_name:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             credentials:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     account_key:
                                         description:
@@ -176,7 +176,7 @@ options:
                             relative_mount_path:
                                 description:
                                     - Note that all blob file systems will be mounted under $AZ_BATCHAI_MOUNT_ROOT location.
-                                required: True
+                                    - Required when C(state) is I(present).
                             mount_options:
                                 description:
                     file_servers:
@@ -185,19 +185,19 @@ options:
                         suboptions:
                             file_server:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     id:
                                         description:
                                             - The ID of the resource
-                                        required: True
+                                            - Required when C(state) is I(present).
                             source_directory:
                                 description:
                                     - If this property is not specified, the entire File Server will be mounted.
                             relative_mount_path:
                                 description:
                                     - Note that all file shares will be mounted under $AZ_BATCHAI_MOUNT_ROOT location.
-                                required: True
+                                    - Required when C(state) is I(present).
                             mount_options:
                                 description:
                     unmanaged_file_systems:
@@ -206,18 +206,18 @@ options:
                         suboptions:
                             mount_command:
                                 description:
-                                required: True
+                                    - Required when C(state) is I(present).
                             relative_mount_path:
                                 description:
                                     - Note that all file shares will be mounted under $AZ_BATCHAI_MOUNT_ROOT location.
-                                required: True
+                                    - Required when C(state) is I(present).
     user_account_settings:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             admin_user_name:
                 description:
-                required: True
+                    - Required when C(state) is I(present).
             admin_user_ssh_public_key:
                 description:
             admin_user_password:
@@ -228,7 +228,7 @@ options:
             id:
                 description:
                     - The ID of the resource
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Cluster.
@@ -251,8 +251,33 @@ EXAMPLES = '''
   - name: Create (or update) Cluster
     azure_rm_batchaicluster:
       resource_group: demo_resource_group
-      cluster_name: demo_cluster
+      name: demo_cluster
       location: eastus
+      vm_size: STANDARD_NC6
+      vm_priority: dedicated
+      scale_settings:
+        manual:
+          target_node_count: 1
+          node_deallocation_option: requeue
+      node_setup:
+        mount_volumes:
+          azure_file_shares:
+            - account_name: storage_account_name
+              azure_file_url: https://storage_account_name.file.core.windows.net/azure_file_share_name
+              credentials:
+                account_key: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==
+              relative_mount_path: azfiles
+              file_mode: 0777
+              directory_mode: 0777
+          file_servers:
+            - file_server:
+                id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/demo_resource_group/providers/Microsoft.BatchAI/fileservers/fileservercedd134b
+              relative_mount_path: nfs
+              mount_options: rw
+      user_account_settings:
+        admin_user_name: admin_user_name
+        admin_user_ssh_public_key: ssh-rsa AAAAB3NzaC1yc...
+        admin_user_password: admin_user_password
 '''
 
 RETURN = '''
@@ -291,7 +316,7 @@ class AzureRMClusters(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -299,8 +324,7 @@ class AzureRMClusters(AzureRMModuleBase):
                 type='str'
             ),
             vm_size=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             vm_priority=dict(
                 type='str',
@@ -317,8 +341,7 @@ class AzureRMClusters(AzureRMModuleBase):
                 type='dict'
             ),
             user_account_settings=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             subnet=dict(
                 type='dict'
@@ -331,7 +354,7 @@ class AzureRMClusters(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -367,7 +390,6 @@ class AzureRMClusters(AzureRMModuleBase):
                 elif key == "subnet":
                     self.parameters["subnet"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
@@ -391,8 +413,8 @@ class AzureRMClusters(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Cluster instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Cluster instance")
@@ -403,10 +425,7 @@ class AzureRMClusters(AzureRMModuleBase):
 
             response = self.create_update_cluster()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Cluster instance deleted")
@@ -435,16 +454,16 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: deserialized Cluster instance state dictionary
         '''
-        self.log("Creating / Updating the Cluster instance {0}".format(self.cluster_name))
+        self.log("Creating / Updating the Cluster instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.clusters.create(resource_group_name=self.resource_group,
-                                                            cluster_name=self.cluster_name,
+                                                            cluster_name=self.name,
                                                             parameters=self.parameters)
             else:
                 response = self.mgmt_client.clusters.update(resource_group_name=self.resource_group,
-                                                            cluster_name=self.cluster_name)
+                                                            cluster_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -459,10 +478,10 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Cluster instance {0}".format(self.cluster_name))
+        self.log("Deleting the Cluster instance {0}".format(self.name))
         try:
             response = self.mgmt_client.clusters.delete(resource_group_name=self.resource_group,
-                                                        cluster_name=self.cluster_name)
+                                                        cluster_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Cluster instance.')
             self.fail("Error deleting the Cluster instance: {0}".format(str(e)))
@@ -475,11 +494,11 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: deserialized Cluster instance state dictionary
         '''
-        self.log("Checking if the Cluster instance {0} is present".format(self.cluster_name))
+        self.log("Checking if the Cluster instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.clusters.get(resource_group_name=self.resource_group,
-                                                     cluster_name=self.cluster_name)
+                                                     cluster_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cluster instance : {0} found".format(response.name))
@@ -495,6 +514,38 @@ class AzureRMClusters(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

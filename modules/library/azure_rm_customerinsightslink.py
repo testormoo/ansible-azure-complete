@@ -30,14 +30,14 @@ options:
         description:
             - The name of the hub.
         required: True
-    link_name:
+    name:
         description:
             - The name of the link.
         required: True
     source_entity_type:
         description:
             - Type of source entity.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'none'
             - 'profile'
@@ -46,7 +46,7 @@ options:
     target_entity_type:
         description:
             - Type of target entity.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'none'
             - 'profile'
@@ -55,11 +55,11 @@ options:
     source_entity_type_name:
         description:
             - Name of the source Entity Type.
-        required: True
+            - Required when C(state) is I(present).
     target_entity_type_name:
         description:
             - Name of the target Entity Type.
-        required: True
+            - Required when C(state) is I(present).
     display_name:
         description:
             - Localized display name for the Link.
@@ -74,11 +74,11 @@ options:
             source_property_name:
                 description:
                     -  Property name on the source Entity Type.
-                required: True
+                    - Required when C(state) is I(present).
             target_property_name:
                 description:
                     - Property name on the target Entity Type.
-                required: True
+                    - Required when C(state) is I(present).
             link_type:
                 description:
                     - Link type.
@@ -88,17 +88,17 @@ options:
     participant_property_references:
         description:
             - The properties that represent the participating C(C(profile)).
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             source_property_name:
                 description:
                     - The source property that maps to the target property.
-                required: True
+                    - Required when C(state) is I(present).
             target_property_name:
                 description:
                     - The target property that maps to the source property.
-                required: True
+                    - Required when C(state) is I(present).
     reference_only:
         description:
             - "Indicating whether the link is reference only link. This flag is ingored if the I(mappings) are defined. If the I(mappings) are not defined
@@ -131,7 +131,24 @@ EXAMPLES = '''
     azure_rm_customerinsightslink:
       resource_group: TestHubRG
       hub_name: sdkTestHub
-      link_name: linkTest4806
+      name: linkTest4806
+      source_entity_type: Interaction
+      target_entity_type: Profile
+      source_entity_type_name: testInteraction1949
+      target_entity_type_name: testProfile1446
+      display_name: {
+  "en-us": "Link DisplayName"
+}
+      description: {
+  "en-us": "Link Description"
+}
+      mappings:
+        - source_property_name: testInteraction1949
+          target_property_name: testProfile1446
+          link_type: UpdateAlways
+      participant_property_references:
+        - source_property_name: testInteraction1949
+          target_property_name: ProfileId
 '''
 
 RETURN = '''
@@ -175,7 +192,7 @@ class AzureRMLinks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            link_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -184,24 +201,20 @@ class AzureRMLinks(AzureRMModuleBase):
                 choices=['none',
                          'profile',
                          'interaction',
-                         'relationship'],
-                required=True
+                         'relationship']
             ),
             target_entity_type=dict(
                 type='str',
                 choices=['none',
                          'profile',
                          'interaction',
-                         'relationship'],
-                required=True
+                         'relationship']
             ),
             source_entity_type_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             target_entity_type_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             display_name=dict(
                 type='dict'
@@ -213,8 +226,7 @@ class AzureRMLinks(AzureRMModuleBase):
                 type='list'
             ),
             participant_property_references=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             reference_only=dict(
                 type='str'
@@ -233,7 +245,7 @@ class AzureRMLinks(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.link_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -279,7 +291,6 @@ class AzureRMLinks(AzureRMModuleBase):
                 elif key == "operation_type":
                     self.parameters["operation_type"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -300,8 +311,8 @@ class AzureRMLinks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Link instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Link instance")
@@ -312,10 +323,7 @@ class AzureRMLinks(AzureRMModuleBase):
 
             response = self.create_update_link()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Link instance deleted")
@@ -344,12 +352,12 @@ class AzureRMLinks(AzureRMModuleBase):
 
         :return: deserialized Link instance state dictionary
         '''
-        self.log("Creating / Updating the Link instance {0}".format(self.link_name))
+        self.log("Creating / Updating the Link instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.links.create_or_update(resource_group_name=self.resource_group,
                                                                hub_name=self.hub_name,
-                                                               link_name=self.link_name,
+                                                               link_name=self.name,
                                                                parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -365,11 +373,11 @@ class AzureRMLinks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Link instance {0}".format(self.link_name))
+        self.log("Deleting the Link instance {0}".format(self.name))
         try:
             response = self.mgmt_client.links.delete(resource_group_name=self.resource_group,
                                                      hub_name=self.hub_name,
-                                                     link_name=self.link_name)
+                                                     link_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Link instance.')
             self.fail("Error deleting the Link instance: {0}".format(str(e)))
@@ -382,12 +390,12 @@ class AzureRMLinks(AzureRMModuleBase):
 
         :return: deserialized Link instance state dictionary
         '''
-        self.log("Checking if the Link instance {0} is present".format(self.link_name))
+        self.log("Checking if the Link instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.links.get(resource_group_name=self.resource_group,
                                                   hub_name=self.hub_name,
-                                                  link_name=self.link_name)
+                                                  link_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Link instance : {0} found".format(response.name))
@@ -403,6 +411,38 @@ class AzureRMLinks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

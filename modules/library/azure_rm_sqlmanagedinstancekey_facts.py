@@ -33,7 +33,7 @@ options:
     filter:
         description:
             - An OData filter expression that filters elements in the collection.
-    key_name:
+    name:
         description:
             - The name of the managed instance key to be retrieved.
 
@@ -56,7 +56,7 @@ EXAMPLES = '''
     azure_rm_sqlmanagedinstancekey_facts:
       resource_group: resource_group_name
       managed_instance_name: managed_instance_name
-      key_name: key_name
+      name: key_name
 '''
 
 RETURN = '''
@@ -124,7 +124,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
             filter=dict(
                 type='str'
             ),
-            key_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -136,7 +136,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.managed_instance_name = None
         self.filter = None
-        self.key_name = None
+        self.name = None
         super(AzureRMManagedInstanceKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -147,7 +147,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
 
         else:
             self.results['managed_instance_keys'] = self.list_by_instance()
-        elif self.key_name is not None:
+        elif self.name is not None:
             self.results['managed_instance_keys'] = self.get()
         return self.results
 
@@ -173,7 +173,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.managed_instance_keys.get(resource_group_name=self.resource_group,
                                                                   managed_instance_name=self.managed_instance_name,
-                                                                  key_name=self.key_name)
+                                                                  key_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagedInstanceKeys.')

@@ -34,7 +34,7 @@ options:
         description:
             - "Skiptoken is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of
                the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls."
-    billing_period_name:
+    name:
         description:
             - Billing Period Name.
     billing_account_id:
@@ -46,9 +46,6 @@ options:
     enrollment_account_id:
         description:
             - EnrollmentAccount ID
-    management_group_id:
-        description:
-            - Azure Management Group ID.
 
 extends_documentation_fragment:
     - azure
@@ -64,7 +61,7 @@ EXAMPLES = '''
       filter: filter
       top: top
       skiptoken: skiptoken
-      billing_period_name: billing_period_name
+      name: billing_period_name
 
   - name: List instances of Marketplace
     azure_rm_consumptionmarketplace_facts:
@@ -86,13 +83,6 @@ EXAMPLES = '''
       top: top
       skiptoken: skiptoken
       enrollment_account_id: enrollment_account_id
-
-  - name: List instances of Marketplace
-    azure_rm_consumptionmarketplace_facts:
-      filter: filter
-      top: top
-      skiptoken: skiptoken
-      management_group_id: management_group_id
 '''
 
 RETURN = '''
@@ -127,7 +117,7 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             skiptoken=dict(
                 type='str'
             ),
-            billing_period_name=dict(
+            name=dict(
                 type='str'
             ),
             billing_account_id=dict(
@@ -137,9 +127,6 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
                 type='str'
             ),
             enrollment_account_id=dict(
-                type='str'
-            ),
-            management_group_id=dict(
                 type='str'
             )
         )
@@ -151,11 +138,10 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
         self.filter = None
         self.top = None
         self.skiptoken = None
-        self.billing_period_name = None
+        self.name = None
         self.billing_account_id = None
         self.department_id = None
         self.enrollment_account_id = None
-        self.management_group_id = None
         super(AzureRMMarketplacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -164,7 +150,7 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ConsumptionManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.billing_period_name is not None:
+        if self.name is not None:
             self.results['marketplaces'] = self.list_by_billing_period()
         elif self.billing_account_id is not None:
             self.results['marketplaces'] = self.list_by_billing_account()
@@ -172,15 +158,13 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             self.results['marketplaces'] = self.list_by_department()
         elif self.enrollment_account_id is not None:
             self.results['marketplaces'] = self.list_by_enrollment_account()
-        elif self.management_group_id is not None:
-            self.results['marketplaces'] = self.list_by_management_group()
         return self.results
 
     def list_by_billing_period(self):
         response = None
         results = []
         try:
-            response = self.mgmt_client.marketplaces.list_by_billing_period(billing_period_name=self.billing_period_name)
+            response = self.mgmt_client.marketplaces.list_by_billing_period(billing_period_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Marketplaces.')
@@ -226,21 +210,6 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.marketplaces.list_by_enrollment_account(enrollment_account_id=self.enrollment_account_id)
-            self.log("Response : {0}".format(response))
-        except CloudError as e:
-            self.log('Could not get facts for Marketplaces.')
-
-        if response is not None:
-            for item in response:
-                results.append(self.format_item(item))
-
-        return results
-
-    def list_by_management_group(self):
-        response = None
-        results = []
-        try:
-            response = self.mgmt_client.marketplaces.list_by_management_group(management_group_id=self.management_group_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Marketplaces.')

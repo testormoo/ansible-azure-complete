@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
         required: True
-    reference_data_set_name:
+    name:
         description:
             - The name of the Time Series Insights reference data set associated with the specified environment.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_timeseriesinsightsreferencedataset_facts:
       resource_group: resource_group_name
       environment_name: environment_name
-      reference_data_set_name: reference_data_set_name
+      name: reference_data_set_name
 
   - name: List instances of Reference Data Set
     azure_rm_timeseriesinsightsreferencedataset_facts:
@@ -113,7 +113,7 @@ class AzureRMReferenceDataSetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            reference_data_set_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -127,7 +127,7 @@ class AzureRMReferenceDataSetsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.environment_name = None
-        self.reference_data_set_name = None
+        self.name = None
         self.tags = None
         super(AzureRMReferenceDataSetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -137,7 +137,7 @@ class AzureRMReferenceDataSetsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.reference_data_set_name is not None:
+        if self.name is not None:
             self.results['reference_data_sets'] = self.get()
         else:
             self.results['reference_data_sets'] = self.list_by_environment()
@@ -149,7 +149,7 @@ class AzureRMReferenceDataSetsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.reference_data_sets.get(resource_group_name=self.resource_group,
                                                                 environment_name=self.environment_name,
-                                                                reference_data_set_name=self.reference_data_set_name)
+                                                                reference_data_set_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ReferenceDataSets.')

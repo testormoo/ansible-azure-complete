@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Bot resource.
         required: True
-    connection_name:
+    name:
         description:
             - The name of the Bot Service Connection Setting resource
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_botservicebotconnection_facts:
       resource_group: resource_group_name
       resource_name: resource_name
-      connection_name: connection_name
+      name: connection_name
 
   - name: List instances of Bot Connection
     azure_rm_botservicebotconnection_facts:
@@ -139,7 +139,7 @@ class AzureRMBotConnectionFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -153,7 +153,7 @@ class AzureRMBotConnectionFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.resource_name = None
-        self.connection_name = None
+        self.name = None
         self.tags = None
         super(AzureRMBotConnectionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -163,7 +163,7 @@ class AzureRMBotConnectionFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AzureBotService,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.connection_name is not None:
+        if self.name is not None:
             self.results['bot_connection'] = self.get()
         else:
             self.results['bot_connection'] = self.list_by_bot_service()
@@ -175,7 +175,7 @@ class AzureRMBotConnectionFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.bot_connection.get(resource_group_name=self.resource_group,
                                                            resource_name=self.resource_name,
-                                                           connection_name=self.connection_name)
+                                                           connection_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for BotConnection.')

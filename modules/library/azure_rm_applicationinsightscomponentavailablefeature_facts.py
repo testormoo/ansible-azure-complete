@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Component Available Feature
     azure_rm_applicationinsightscomponentavailablefeature_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
 '''
 
 RETURN = '''
@@ -73,7 +73,7 @@ class AzureRMComponentAvailableFeaturesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -84,7 +84,7 @@ class AzureRMComponentAvailableFeaturesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         super(AzureRMComponentAvailableFeaturesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -101,7 +101,7 @@ class AzureRMComponentAvailableFeaturesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.component_available_features.get(resource_group_name=self.resource_group,
-                                                                         resource_name=self.resource_name)
+                                                                         resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ComponentAvailableFeatures.')

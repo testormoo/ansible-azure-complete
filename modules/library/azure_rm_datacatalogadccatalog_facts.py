@@ -26,7 +26,7 @@ options:
         description:
             - "The name of the resource group within the user's subscription. The name is case insensitive."
         required: True
-    self.config.catalog_name:
+    name:
         description:
             - The name of the data catlog in the specified subscription and resource group.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of A D C Catalog
     azure_rm_datacatalogadccatalog_facts:
       resource_group: resource_group_name
-      self.config.catalog_name: self.config.catalog_name
+      name: self.config.catalog_name
 '''
 
 RETURN = '''
@@ -126,7 +126,7 @@ class AzureRMADCCatalogsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            self.config.catalog_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -140,7 +140,7 @@ class AzureRMADCCatalogsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.self.config.catalog_name = None
+        self.name = None
         self.tags = None
         super(AzureRMADCCatalogsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -158,7 +158,7 @@ class AzureRMADCCatalogsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.adc_catalogs.get(resource_group_name=self.resource_group,
-                                                         self.config.catalog_name=self.self.config.catalog_name)
+                                                         self.config.catalog_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ADCCatalogs.')

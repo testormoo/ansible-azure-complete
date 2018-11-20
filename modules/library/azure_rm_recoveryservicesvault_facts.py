@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group where the recovery services vault is present.
-    vault_name:
+    name:
         description:
             - The name of the recovery services vault.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Vault
     azure_rm_recoveryservicesvault_facts:
       resource_group: resource_group_name
-      vault_name: vault_name
+      name: vault_name
 
   - name: List instances of Vault
     azure_rm_recoveryservicesvault_facts:
@@ -125,7 +125,7 @@ class AzureRMVaultsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            vault_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -138,7 +138,7 @@ class AzureRMVaultsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.vault_name = None
+        self.name = None
         self.tags = None
         super(AzureRMVaultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -149,7 +149,7 @@ class AzureRMVaultsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.vault_name is not None):
+                self.name is not None):
             self.results['vaults'] = self.get()
         elif self.resource_group is not None:
             self.results['vaults'] = self.list_by_resource_group()
@@ -162,7 +162,7 @@ class AzureRMVaultsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.vaults.get(resource_group_name=self.resource_group,
-                                                   vault_name=self.vault_name)
+                                                   vault_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Vaults.')

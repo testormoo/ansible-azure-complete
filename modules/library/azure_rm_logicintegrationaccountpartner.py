@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    partner_name:
+    name:
         description:
             - The integration account I(partner) name.
         required: True
@@ -45,7 +45,7 @@ options:
             partner_type:
                 description:
                     - The partner type.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'not_specified'
                     - 'b2_b'
@@ -55,7 +55,7 @@ options:
             content:
                 description:
                     - The partner content.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     b2b:
                         description:
@@ -69,11 +69,11 @@ options:
                                     qualifier:
                                         description:
                                             - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     value:
                                         description:
                                             - The user defined business identity value.
-                                        required: True
+                                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Integration Account Partner.
@@ -97,9 +97,16 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountpartner:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      partner_name: testPartner
+      name: testPartner
       partner:
         location: westus
+        partner_type: B2B
+        metadata: {}
+        content:
+          b2b:
+            business_identities:
+              - qualifier: AA
+                value: ZZ
 '''
 
 RETURN = '''
@@ -143,7 +150,7 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            partner_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -160,7 +167,7 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.partner_name = None
+        self.name = None
         self.partner = dict()
 
         self.results = dict(changed=False)
@@ -188,7 +195,6 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
                 elif key == "content":
                     self.partner["content"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -209,8 +215,8 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Partner instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Partner instance")
@@ -221,10 +227,7 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountpartner()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Partner instance deleted")
@@ -253,12 +256,12 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
 
         :return: deserialized Integration Account Partner instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Partner instance {0}".format(self.partner_name))
+        self.log("Creating / Updating the Integration Account Partner instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_partners.create_or_update(resource_group_name=self.resource_group,
                                                                                       integration_account_name=self.integration_account_name,
-                                                                                      partner_name=self.partner_name,
+                                                                                      partner_name=self.name,
                                                                                       partner=self.partner)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -274,11 +277,11 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Partner instance {0}".format(self.partner_name))
+        self.log("Deleting the Integration Account Partner instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_partners.delete(resource_group_name=self.resource_group,
                                                                             integration_account_name=self.integration_account_name,
-                                                                            partner_name=self.partner_name)
+                                                                            partner_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Partner instance.')
             self.fail("Error deleting the Integration Account Partner instance: {0}".format(str(e)))
@@ -291,12 +294,12 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
 
         :return: deserialized Integration Account Partner instance state dictionary
         '''
-        self.log("Checking if the Integration Account Partner instance {0} is present".format(self.partner_name))
+        self.log("Checking if the Integration Account Partner instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_partners.get(resource_group_name=self.resource_group,
                                                                          integration_account_name=self.integration_account_name,
-                                                                         partner_name=self.partner_name)
+                                                                         partner_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Partner instance : {0} found".format(response.name))
@@ -312,6 +315,38 @@ class AzureRMIntegrationAccountPartners(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

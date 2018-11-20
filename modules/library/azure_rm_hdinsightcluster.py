@@ -99,97 +99,85 @@ options:
             msi_resource_id:
                 description:
                     - "User assigned identity that has permissions to read and create cluster-related artifacts in the user's AADDS."
-    compute_profile:
+    compute_profile_roles:
         description:
-            - The compute profile.
+            - The list of roles in the cluster.
+        type: list
         suboptions:
-            roles:
+            name:
                 description:
-                    - The list of roles in the cluster.
+                    - The name of the role.
+            min_instance_count:
+                description:
+                    - The minimum instance count of the cluster.
+            target_instance_count:
+                description:
+                    - The instance count of the cluster.
+            vm_size:
+                description:
+                    - The size of the VM
+            os_profile:
+                description:
+                    - The operating system profile.
+                suboptions:
+                    linux_operating_system_profile:
+                        description:
+                            - The Linux OS profile.
+            virtual_network_profile:
+                description:
+                    - The virtual network profile.
+                suboptions:
+                    id:
+                        description:
+                            - The ID of the virtual network.
+                    subnet:
+                        description:
+                            - The name of the subnet.
+            data_disks_groups:
+                description:
+                    - The data disks groups for the role.
+                type: list
+                suboptions:
+                    disks_per_node:
+                        description:
+                            - The number of disks per node.
+            script_actions:
+                description:
+                    - The list of script actions on the role.
                 type: list
                 suboptions:
                     name:
                         description:
-                            - The name of the role.
-                    min_instance_count:
+                            - The name of the script action.
+                            - Required when C(state) is I(present).
+                    uri:
                         description:
-                            - The minimum instance count of the cluster.
-                    target_instance_count:
+                            - The URI to the script.
+                            - Required when C(state) is I(present).
+                    parameters:
                         description:
-                            - The instance count of the cluster.
-                    hardware_profile:
-                        description:
-                            - The hardware profile.
-                        suboptions:
-                            vm_size:
-                                description:
-                                    - The size of the VM
-                    os_profile:
-                        description:
-                            - The operating system profile.
-                        suboptions:
-                            linux_operating_system_profile:
-                                description:
-                                    - The Linux OS profile.
-                    virtual_network_profile:
-                        description:
-                            - The virtual network profile.
-                        suboptions:
-                            id:
-                                description:
-                                    - The ID of the virtual network.
-                            subnet:
-                                description:
-                                    - The name of the subnet.
-                    data_disks_groups:
-                        description:
-                            - The data disks groups for the role.
-                        type: list
-                        suboptions:
-                            disks_per_node:
-                                description:
-                                    - The number of disks per node.
-                    script_actions:
-                        description:
-                            - The list of script actions on the role.
-                        type: list
-                        suboptions:
-                            name:
-                                description:
-                                    - The name of the script action.
-                                required: True
-                            uri:
-                                description:
-                                    - The URI to the script.
-                                required: True
-                            parameters:
-                                description:
-                                    - The parameters for the script provided.
-                                required: True
-    storage_profile:
+                            - The parameters for the script provided.
+                            - Required when C(state) is I(present).
+    storageaccounts:
         description:
-            - The storage profile.
+            - The list of storage accounts in the cluster.
+        type: list
         suboptions:
-            storageaccounts:
+            name:
                 description:
-                    - The list of storage accounts in the cluster.
-                type: list
-                suboptions:
-                    name:
-                        description:
-                            - The name of the storage account.
-                    is_default:
-                        description:
-                            - Whether or not the storage account is the default storage account.
-                    container:
-                        description:
-                            - The container in the storage account, only to be specified for WASB storage accounts.
-                    file_system:
-                        description:
-                            - The filesystem, only to be specified for Azure Data Lake Storage Gen 2.
-                    key:
-                        description:
-                            - The storage account access key.
+                    - The name of the storage account.
+            is_default:
+                description:
+                    - Whether or not the storage account is the default storage account.
+            container:
+                description:
+                    - The container in the storage account, only to be specified for WASB storage accounts.
+            file_system:
+                description:
+                    - The filesystem, only to be specified for Azure Data Lake Storage Gen 2.
+            key:
+                description:
+                    - The storage account access key.
     identity:
         description:
             - The identity of the cluster, if configured.
@@ -245,6 +233,21 @@ EXAMPLES = '''
     "restAuthCredential.password": "**********"
   }
 }
+      compute_profile_roles:
+        - name: headnode
+          min_instance_count: 1
+          target_instance_count: 2
+          vm_size: Standard_D3_V2
+          os_profile:
+            linux_operating_system_profile: {
+  "username": "sshuser",
+  "password": "**********"
+}
+      storageaccounts:
+        - name: mystorage
+          is_default: True
+          container: containername
+          key: storagekey
 '''
 
 RETURN = '''
@@ -309,11 +312,11 @@ class AzureRMClusters(AzureRMModuleBase):
             security_profile=dict(
                 type='dict'
             ),
-            compute_profile=dict(
-                type='dict'
+            compute_profile_roles=dict(
+                type='list'
             ),
-            storage_profile=dict(
-                type='dict'
+            storageaccounts=dict(
+                type='list'
             ),
             identity=dict(
                 type='dict'
@@ -345,40 +348,22 @@ class AzureRMClusters(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "cluster_version":
-                    self.parameters.setdefault("properties", {})["cluster_version"] = kwargs[key]
-                elif key == "os_type":
-                    self.parameters.setdefault("properties", {})["os_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "tier":
-                    self.parameters.setdefault("properties", {})["tier"] = _snake_to_camel(kwargs[key], True)
-                elif key == "cluster_definition":
-                    self.parameters.setdefault("properties", {})["cluster_definition"] = kwargs[key]
-                elif key == "security_profile":
-                    ev = kwargs[key]
-                    if 'directory_type' in ev:
-                        if ev['directory_type'] == 'active_directory':
-                            ev['directory_type'] = 'ActiveDirectory'
-                    self.parameters.setdefault("properties", {})["security_profile"] = ev
-                elif key == "compute_profile":
-                    self.parameters.setdefault("properties", {})["compute_profile"] = kwargs[key]
-                elif key == "storage_profile":
-                    self.parameters.setdefault("properties", {})["storage_profile"] = kwargs[key]
-                elif key == "identity":
-                    ev = kwargs[key]
-                    if 'type' in ev:
-                        if ev['type'] == 'system_assigned':
-                            ev['type'] = 'SystemAssigned'
-                        elif ev['type'] == 'user_assigned':
-                            ev['type'] = 'UserAssigned'
-                        elif ev['type'] == 'system_assigned, _user_assigned':
-                            ev['type'] = 'SystemAssigned, UserAssigned'
-                        elif ev['type'] == 'none':
-                            ev['type'] = 'None'
-                    self.parameters["identity"] = ev
+                self.parameters[key] = kwargs[key]
 
-        old_response = None
+        expand_and_rename(self.parameters, ['cluster_version'], expand='properties')
+        expand_and_rename(self.parameters, ['os_type'], expand='properties')
+        expand_and_rename(self.parameters, ['tier'], expand='properties')
+        expand_and_rename(self.parameters, ['cluster_definition'], expand='properties')
+        expand_and_rename(self.parameters, ['security_profile'], expand='properties')
+        expand_and_rename(self.parameters, ['roles', 'vm_size'], expand='hardware_profile')
+        expand_and_rename(self.parameters, ['compute_profile_roles'], rename='roles', expand='compute_profile')
+        expand_and_rename(self.parameters, ['compute_profile'], expand='properties')
+        expand_and_rename(self.parameters, ['storageaccounts'], expand='storage_profile')
+        expand_and_rename(self.parameters, ['storage_profile'], expand='properties')
+
+        #self.results["expanded"] = self.parameters
+        #return self.results
+
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(HDInsightManagementClient,
@@ -402,8 +387,8 @@ class AzureRMClusters(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Cluster instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Cluster instance")
@@ -414,10 +399,7 @@ class AzureRMClusters(AzureRMModuleBase):
 
             response = self.create_update_cluster()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Cluster instance deleted")
@@ -494,7 +476,7 @@ class AzureRMClusters(AzureRMModuleBase):
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cluster instance : {0} found".format(response.name))
-        except CloudError as e:
+        except:
             self.log('Did not find the Cluster instance.')
         if found is True:
             return response.as_dict()
@@ -508,11 +490,65 @@ class AzureRMClusters(AzureRMModuleBase):
         return d
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
     else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+        return new == old
+
+
+def expand_and_rename(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand_and_rename(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            if expand is None:
+                # just rename
+                old_value = d.get(old_name, None)
+                if old_value is not None:
+                    d.pop(old_name, None)
+                    d[rename] = old_value
+            else:
+                # expand and rename
+                old_value = d.get(old_name, None)
+                if old_value is not None:
+                    d[expand] = d.get(expand, {})
+                    d.get(expand, {})[rename if (rename is not None) else old_name] = old_value
+                    d.pop(old_name, None)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand_and_rename(sd, path[1:], **kwargs)
 
 
 def main():

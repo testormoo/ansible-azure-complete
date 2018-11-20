@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    managed_instance_name:
+    name:
         description:
             - The name of the managed instance.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
   - name: Create (or update) Managed Instance Tde Certificate
     azure_rm_sqlmanagedinstancetdecertificate:
       resource_group: testtdecert
-      managed_instance_name: testtdecert
+      name: testtdecert
       private_blob: NOT FOUND
       cert_password: NOT FOUND
 '''
@@ -93,7 +93,7 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            managed_instance_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.managed_instance_name = None
+        self.name = None
         self.private_blob = None
         self.cert_password = None
 
@@ -133,7 +133,6 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -154,8 +153,8 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Managed Instance Tde Certificate instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Managed Instance Tde Certificate instance")
@@ -166,10 +165,7 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
 
             response = self.create_update_managedinstancetdecertificate()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Managed Instance Tde Certificate instance deleted")
@@ -203,7 +199,7 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.managed_instance_tde_certificates.create(resource_group_name=self.resource_group,
-                                                                                     managed_instance_name=self.managed_instance_name,
+                                                                                     managed_instance_name=self.name,
                                                                                      private_blob=self.private_blob)
             else:
                 response = self.mgmt_client.managed_instance_tde_certificates.update()
@@ -254,6 +250,38 @@ class AzureRMManagedInstanceTdeCertificates(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

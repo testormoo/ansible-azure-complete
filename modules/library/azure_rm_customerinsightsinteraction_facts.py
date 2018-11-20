@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    interaction_name:
+    name:
         description:
             - The name of the interaction.
     locale_code:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsinteraction_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      interaction_name: interaction_name
+      name: interaction_name
       locale_code: locale_code
 
   - name: List instances of Interaction
@@ -117,7 +117,7 @@ class AzureRMInteractionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            interaction_name=dict(
+            name=dict(
                 type='str'
             ),
             locale_code=dict(
@@ -131,7 +131,7 @@ class AzureRMInteractionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.interaction_name = None
+        self.name = None
         self.locale_code = None
         super(AzureRMInteractionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -141,7 +141,7 @@ class AzureRMInteractionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.interaction_name is not None:
+        if self.name is not None:
             self.results['interactions'] = self.get()
         else:
             self.results['interactions'] = self.list_by_hub()
@@ -153,7 +153,7 @@ class AzureRMInteractionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.interactions.get(resource_group_name=self.resource_group,
                                                          hub_name=self.hub_name,
-                                                         interaction_name=self.interaction_name)
+                                                         interaction_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Interactions.')

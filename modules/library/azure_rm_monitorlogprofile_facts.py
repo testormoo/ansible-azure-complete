@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Log Profile.
 
 options:
-    log_profile_name:
+    name:
         description:
             - The name of the log profile.
         required: True
@@ -41,7 +41,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Log Profile
     azure_rm_monitorlogprofile_facts:
-      log_profile_name: log_profile_name
+      name: log_profile_name
 '''
 
 RETURN = '''
@@ -105,7 +105,7 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            log_profile_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -118,7 +118,7 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.log_profile_name = None
+        self.name = None
         self.tags = None
         super(AzureRMLogProfilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -135,7 +135,7 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.log_profiles.get(log_profile_name=self.log_profile_name)
+            response = self.mgmt_client.log_profiles.get(log_profile_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LogProfiles.')

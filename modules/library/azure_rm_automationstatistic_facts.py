@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: List instances of Statistic
     azure_rm_automationstatistic_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       filter: filter
 '''
 
@@ -77,7 +77,7 @@ class AzureRMStatisticsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -91,7 +91,7 @@ class AzureRMStatisticsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.filter = None
         super(AzureRMStatisticsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -109,7 +109,7 @@ class AzureRMStatisticsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.statistics.list_by_automation_account(resource_group_name=self.resource_group,
-                                                                              automation_account_name=self.automation_account_name)
+                                                                              automation_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Statistics.')

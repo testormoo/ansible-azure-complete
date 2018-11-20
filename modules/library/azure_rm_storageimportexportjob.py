@@ -57,37 +57,37 @@ options:
                     recipient_name:
                         description:
                             - The name of the recipient who will receive the hard drives when they are returned.
-                        required: True
+                            - Required when C(state) is I(present).
                     street_address1:
                         description:
                             - The first line of the street address to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     street_address2:
                         description:
                             - The second line of the street address to use when returning the drives.
                     city:
                         description:
                             - The city name to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     state_or_province:
                         description:
                             - The state or province to use when returning the drives.
                     postal_code:
                         description:
                             - The postal code to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     country_or_region:
                         description:
                             - The country or region to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     phone:
                         description:
                             - Phone number of the recipient of the returned drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     email:
                         description:
                             - Email address of the recipient of the returned drives.
-                        required: True
+                            - Required when C(state) is I(present).
             return_shipping:
                 description:
                     - "Specifies the return carrier and customer's account with the carrier. "
@@ -95,11 +95,11 @@ options:
                     carrier_name:
                         description:
                             - "The carrier's name."
-                        required: True
+                            - Required when C(state) is I(present).
                     carrier_account_number:
                         description:
                             - "The customer's account number with the carrier."
-                        required: True
+                            - Required when C(state) is I(present).
             shipping_information:
                 description:
                     - Contains information about the Microsoft datacenter to which the drives should be shipped.
@@ -107,30 +107,30 @@ options:
                     recipient_name:
                         description:
                             - The name of the recipient who will receive the hard drives when they are returned.
-                        required: True
+                            - Required when C(state) is I(present).
                     street_address1:
                         description:
                             - The first line of the street address to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     street_address2:
                         description:
                             - The second line of the street address to use when returning the drives.
                     city:
                         description:
                             - The city name to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     state_or_province:
                         description:
                             - The state or province to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     postal_code:
                         description:
                             - The postal code to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     country_or_region:
                         description:
                             - The country or region to use when returning the drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     phone:
                         description:
                             - Phone number of the recipient of the returned drives.
@@ -141,19 +141,19 @@ options:
                     carrier_name:
                         description:
                             - The name of the carrier that is used to ship the import or export drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     tracking_number:
                         description:
                             - The tracking number of the package.
-                        required: True
+                            - Required when C(state) is I(present).
                     drive_count:
                         description:
                             - The number of drives included in the package.
-                        required: True
+                            - Required when C(state) is I(present).
                     ship_date:
                         description:
                             - The date when the package is shipped.
-                        required: True
+                            - Required when C(state) is I(present).
             return_package:
                 description:
                     - "Contains information about the package being shipped from the Microsoft data center to the customer to return the drives. The format
@@ -162,19 +162,19 @@ options:
                     carrier_name:
                         description:
                             - The name of the carrier that is used to ship the import or export drives.
-                        required: True
+                            - Required when C(state) is I(present).
                     tracking_number:
                         description:
                             - The tracking number of the package.
-                        required: True
+                            - Required when C(state) is I(present).
                     drive_count:
                         description:
                             - The number of drives included in the package.
-                        required: True
+                            - Required when C(state) is I(present).
                     ship_date:
                         description:
                             - The date when the package is shipped.
-                        required: True
+                            - Required when C(state) is I(present).
             diagnostics_path:
                 description:
                     - The virtual blob directory to which the copy logs and backups of drive manifest files (if enabled) will be stored.
@@ -264,9 +264,6 @@ options:
                         description:
                             - "The relative URI to the block blob that contains the list of blob paths or blob path prefixes as defined above, beginning
                                with the container name. If the blob is in root container, the URI must begin with $root. "
-            provisioning_state:
-                description:
-                    - Specifies the provisioning I(state) of the job.
     state:
       description:
         - Assert the state of the Job.
@@ -309,6 +306,11 @@ EXAMPLES = '''
         diagnostics_path: waimportexport
         log_level: Verbose
         backup_drive_manifest: True
+        drive_list:
+          - drive_id: 9CA995BB
+            bit_locker_key: 238810-662376-448998-450120-652806-203390-606320-483076
+            manifest_file: \DriveManifest.xml
+            manifest_hash: 109B21108597EF36D5785F08303F3638
 '''
 
 RETURN = '''
@@ -440,10 +442,7 @@ class AzureRMJobs(AzureRMModuleBase):
                     self.body.setdefault("properties", {})["drive_list"] = ev
                 elif key == "export":
                     self.body.setdefault("properties", {})["export"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.body.setdefault("properties", {})["provisioning_state"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorageImportExport,
@@ -464,8 +463,8 @@ class AzureRMJobs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job instance")
@@ -476,10 +475,7 @@ class AzureRMJobs(AzureRMModuleBase):
 
             response = self.create_update_job()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job instance deleted")
@@ -569,6 +565,38 @@ class AzureRMJobs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

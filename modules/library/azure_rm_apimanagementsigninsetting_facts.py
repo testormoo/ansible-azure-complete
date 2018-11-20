@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Sign In Setting
     azure_rm_apimanagementsigninsetting_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
 '''
 
 RETURN = '''
@@ -91,7 +91,7 @@ class AzureRMSignInSettingsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -102,7 +102,7 @@ class AzureRMSignInSettingsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         super(AzureRMSignInSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -119,7 +119,7 @@ class AzureRMSignInSettingsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.sign_in_settings.get(resource_group_name=self.resource_group,
-                                                             service_name=self.service_name)
+                                                             service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SignInSettings.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the network interface.
         required: True
-    ip_configuration_name:
+    name:
         description:
             - The name of the ip configuration name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_networkinterfaceipconfiguration_facts:
       resource_group: resource_group_name
       network_interface_name: network_interface_name
-      ip_configuration_name: ip_configuration_name
+      name: ip_configuration_name
 '''
 
 RETURN = '''
@@ -113,7 +113,7 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            ip_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -125,7 +125,7 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.network_interface_name = None
-        self.ip_configuration_name = None
+        self.name = None
         super(AzureRMNetworkInterfaceIPConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.network_interface_ip_configurations.get(resource_group_name=self.resource_group,
                                                                                 network_interface_name=self.network_interface_name,
-                                                                                ip_configuration_name=self.ip_configuration_name)
+                                                                                ip_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NetworkInterfaceIPConfigurations.')

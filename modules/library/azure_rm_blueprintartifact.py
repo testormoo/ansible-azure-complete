@@ -30,7 +30,7 @@ options:
         description:
             - name of the blueprint.
         required: True
-    artifact_name:
+    name:
         description:
             - name of the I(artifact).
         required: True
@@ -42,7 +42,7 @@ options:
             kind:
                 description:
                     - Constant filled by server.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Artifact.
@@ -65,7 +65,7 @@ EXAMPLES = '''
     azure_rm_blueprintartifact:
       management_group_name: ContosoOnlineGroup
       blueprint_name: simpleBlueprint
-      artifact_name: storageTemplate
+      name: storageTemplate
       artifact:
         kind: template
 '''
@@ -110,7 +110,7 @@ class AzureRMArtifacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            artifact_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -127,7 +127,7 @@ class AzureRMArtifacts(AzureRMModuleBase):
 
         self.management_group_name = None
         self.blueprint_name = None
-        self.artifact_name = None
+        self.name = None
         self.artifact = dict()
 
         self.results = dict(changed=False)
@@ -149,7 +149,6 @@ class AzureRMArtifacts(AzureRMModuleBase):
                 if key == "kind":
                     self.artifact["kind"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BlueprintManagementClient,
@@ -168,8 +167,8 @@ class AzureRMArtifacts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Artifact instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Artifact instance")
@@ -180,10 +179,7 @@ class AzureRMArtifacts(AzureRMModuleBase):
 
             response = self.create_update_artifact()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Artifact instance deleted")
@@ -212,12 +208,12 @@ class AzureRMArtifacts(AzureRMModuleBase):
 
         :return: deserialized Artifact instance state dictionary
         '''
-        self.log("Creating / Updating the Artifact instance {0}".format(self.artifact_name))
+        self.log("Creating / Updating the Artifact instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.artifacts.create_or_update(management_group_name=self.management_group_name,
                                                                    blueprint_name=self.blueprint_name,
-                                                                   artifact_name=self.artifact_name,
+                                                                   artifact_name=self.name,
                                                                    artifact=self.artifact)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -233,11 +229,11 @@ class AzureRMArtifacts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Artifact instance {0}".format(self.artifact_name))
+        self.log("Deleting the Artifact instance {0}".format(self.name))
         try:
             response = self.mgmt_client.artifacts.delete(management_group_name=self.management_group_name,
                                                          blueprint_name=self.blueprint_name,
-                                                         artifact_name=self.artifact_name)
+                                                         artifact_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Artifact instance.')
             self.fail("Error deleting the Artifact instance: {0}".format(str(e)))
@@ -250,12 +246,12 @@ class AzureRMArtifacts(AzureRMModuleBase):
 
         :return: deserialized Artifact instance state dictionary
         '''
-        self.log("Checking if the Artifact instance {0} is present".format(self.artifact_name))
+        self.log("Checking if the Artifact instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.artifacts.get(management_group_name=self.management_group_name,
                                                       blueprint_name=self.blueprint_name,
-                                                      artifact_name=self.artifact_name)
+                                                      artifact_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Artifact instance : {0} found".format(response.name))
@@ -271,6 +267,38 @@ class AzureRMArtifacts(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

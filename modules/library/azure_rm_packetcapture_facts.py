@@ -30,7 +30,7 @@ options:
         description:
             - The name of the network watcher.
         required: True
-    packet_capture_name:
+    name:
         description:
             - The name of the packet capture session.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_packetcapture_facts:
       resource_group: resource_group_name
       network_watcher_name: network_watcher_name
-      packet_capture_name: packet_capture_name
+      name: packet_capture_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMPacketCapturesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            packet_capture_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -100,7 +100,7 @@ class AzureRMPacketCapturesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.network_watcher_name = None
-        self.packet_capture_name = None
+        self.name = None
         super(AzureRMPacketCapturesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMPacketCapturesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.packet_captures.get(resource_group_name=self.resource_group,
                                                             network_watcher_name=self.network_watcher_name,
-                                                            packet_capture_name=self.packet_capture_name)
+                                                            packet_capture_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for PacketCaptures.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -67,7 +67,7 @@ EXAMPLES = '''
   - name: Create (or update) A P I Key
     azure_rm_applicationinsightsapikey:
       resource_group: my-resource-group
-      resource_name: my-component
+      name: my-component
       api_key_properties:
         name: test2
         linked_read_properties:
@@ -118,7 +118,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -134,7 +134,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.api_key_properties = dict()
 
         self.results = dict(changed=False)
@@ -160,7 +160,6 @@ class AzureRMAPIKeys(AzureRMModuleBase):
                 elif key == "linked_write_properties":
                     self.api_key_properties["linked_write_properties"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApplicationInsightsManagementClient,
@@ -181,8 +180,8 @@ class AzureRMAPIKeys(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if A P I Key instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the A P I Key instance")
@@ -193,10 +192,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
 
             response = self.create_update_apikey()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("A P I Key instance deleted")
@@ -230,7 +226,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.api_keys.create(resource_group_name=self.resource_group,
-                                                            resource_name=self.resource_name,
+                                                            resource_name=self.name,
                                                             api_key_properties=self.api_key_properties)
             else:
                 response = self.mgmt_client.api_keys.update()
@@ -251,7 +247,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
         self.log("Deleting the A P I Key instance {0}".format(self.key_id))
         try:
             response = self.mgmt_client.api_keys.delete(resource_group_name=self.resource_group,
-                                                        resource_name=self.resource_name,
+                                                        resource_name=self.name,
                                                         key_id=self.key_id)
         except CloudError as e:
             self.log('Error attempting to delete the A P I Key instance.')
@@ -269,7 +265,7 @@ class AzureRMAPIKeys(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_keys.get(resource_group_name=self.resource_group,
-                                                     resource_name=self.resource_name,
+                                                     resource_name=self.name,
                                                      key_id=self.key_id)
             found = True
             self.log("Response : {0}".format(response))
@@ -286,6 +282,38 @@ class AzureRMAPIKeys(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

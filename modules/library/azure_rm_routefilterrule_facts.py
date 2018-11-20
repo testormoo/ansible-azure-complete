@@ -30,7 +30,7 @@ options:
         description:
             - The name of the route filter.
         required: True
-    rule_name:
+    name:
         description:
             - The name of the rule.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_routefilterrule_facts:
       resource_group: resource_group_name
       route_filter_name: route_filter_name
-      rule_name: rule_name
+      name: rule_name
 
   - name: List instances of Route Filter Rule
     azure_rm_routefilterrule_facts:
@@ -125,7 +125,7 @@ class AzureRMRouteFilterRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rule_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -139,7 +139,7 @@ class AzureRMRouteFilterRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.route_filter_name = None
-        self.rule_name = None
+        self.name = None
         self.tags = None
         super(AzureRMRouteFilterRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -149,7 +149,7 @@ class AzureRMRouteFilterRulesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.rule_name is not None:
+        if self.name is not None:
             self.results['route_filter_rules'] = self.get()
         else:
             self.results['route_filter_rules'] = self.list_by_route_filter()
@@ -161,7 +161,7 @@ class AzureRMRouteFilterRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.route_filter_rules.get(resource_group_name=self.resource_group,
                                                                route_filter_name=self.route_filter_name,
-                                                               rule_name=self.rule_name)
+                                                               rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RouteFilterRules.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the region where the resource is located.
         required: True
-    failover_group_name:
+    name:
         description:
             - The name of the failover group.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_sqlinstancefailovergroup_facts:
       resource_group: resource_group_name
       location_name: location_name
-      failover_group_name: failover_group_name
+      name: failover_group_name
 
   - name: List instances of Instance Failover Group
     azure_rm_sqlinstancefailovergroup_facts:
@@ -99,7 +99,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            failover_group_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -110,7 +110,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.location_name = None
-        self.failover_group_name = None
+        self.name = None
         super(AzureRMInstanceFailoverGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -119,7 +119,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.failover_group_name is not None:
+        if self.name is not None:
             self.results['instance_failover_groups'] = self.get()
         else:
             self.results['instance_failover_groups'] = self.list_by_location()
@@ -131,7 +131,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.instance_failover_groups.get(resource_group_name=self.resource_group,
                                                                      location_name=self.location_name,
-                                                                     failover_group_name=self.failover_group_name)
+                                                                     failover_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for InstanceFailoverGroups.')

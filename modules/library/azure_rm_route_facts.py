@@ -30,7 +30,7 @@ options:
         description:
             - The name of the route table.
         required: True
-    route_name:
+    name:
         description:
             - The name of the route.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_route_facts:
       resource_group: resource_group_name
       route_table_name: route_table_name
-      route_name: route_name
+      name: route_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMRoutesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            route_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -106,7 +106,7 @@ class AzureRMRoutesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.route_table_name = None
-        self.route_name = None
+        self.name = None
         super(AzureRMRoutesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,7 +124,7 @@ class AzureRMRoutesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.routes.get(resource_group_name=self.resource_group,
                                                    route_table_name=self.route_table_name,
-                                                   route_name=self.route_name)
+                                                   route_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Routes.')

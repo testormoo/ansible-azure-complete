@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    batch_configuration_name:
+    name:
         description:
             - The batch configuration name.
         required: True
@@ -53,11 +53,11 @@ options:
             batch_group_name:
                 description:
                     - The name of the batch group.
-                required: True
+                    - Required when C(state) is I(present).
             release_criteria:
                 description:
                     - The batch release criteria.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     message_count:
                         description:
@@ -140,9 +140,18 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountbatchconfiguration:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      batch_configuration_name: testBatchConfiguration
+      name: testBatchConfiguration
       batch_configuration:
         location: westus
+        batch_group_name: DEFAULT
+        release_criteria:
+          message_count: 10
+          batch_size: 234567
+          recurrence:
+            frequency: Minute
+            interval: 1
+            start_time: 2017-03-24T11:43:00
+            time_zone: India Standard Time
 '''
 
 RETURN = '''
@@ -186,7 +195,7 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            batch_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -203,7 +212,7 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.batch_configuration_name = None
+        self.name = None
         self.batch_configuration = dict()
 
         self.results = dict(changed=False)
@@ -235,7 +244,6 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
                 elif key == "release_criteria":
                     self.batch_configuration.setdefault("properties", {})["release_criteria"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -256,8 +264,8 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Batch Configuration instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Batch Configuration instance")
@@ -268,10 +276,7 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountbatchconfiguration()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Batch Configuration instance deleted")
@@ -300,12 +305,12 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
 
         :return: deserialized Integration Account Batch Configuration instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Batch Configuration instance {0}".format(self.batch_configuration_name))
+        self.log("Creating / Updating the Integration Account Batch Configuration instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_batch_configurations.create_or_update(resource_group_name=self.resource_group,
                                                                                                   integration_account_name=self.integration_account_name,
-                                                                                                  batch_configuration_name=self.batch_configuration_name,
+                                                                                                  batch_configuration_name=self.name,
                                                                                                   batch_configuration=self.batch_configuration)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -321,11 +326,11 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Batch Configuration instance {0}".format(self.batch_configuration_name))
+        self.log("Deleting the Integration Account Batch Configuration instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_batch_configurations.delete(resource_group_name=self.resource_group,
                                                                                         integration_account_name=self.integration_account_name,
-                                                                                        batch_configuration_name=self.batch_configuration_name)
+                                                                                        batch_configuration_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Batch Configuration instance.')
             self.fail("Error deleting the Integration Account Batch Configuration instance: {0}".format(str(e)))
@@ -338,12 +343,12 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
 
         :return: deserialized Integration Account Batch Configuration instance state dictionary
         '''
-        self.log("Checking if the Integration Account Batch Configuration instance {0} is present".format(self.batch_configuration_name))
+        self.log("Checking if the Integration Account Batch Configuration instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_batch_configurations.get(resource_group_name=self.resource_group,
                                                                                      integration_account_name=self.integration_account_name,
-                                                                                     batch_configuration_name=self.batch_configuration_name)
+                                                                                     batch_configuration_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Batch Configuration instance : {0} found".format(response.name))
@@ -359,6 +364,38 @@ class AzureRMIntegrationAccountBatchConfigurations(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

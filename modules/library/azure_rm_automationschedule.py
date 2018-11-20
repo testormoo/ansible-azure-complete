@@ -30,21 +30,21 @@ options:
         description:
             - The name of the automation account.
         required: True
-    schedule_name:
+    name:
         description:
             - The schedule name.
         required: True
     name:
         description:
             - Gets or sets the name of the Schedule.
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - Gets or sets the description of the schedule.
     start_time:
         description:
             - Gets or sets the start time of the schedule.
-        required: True
+            - Required when C(state) is I(present).
     expiry_time:
         description:
             - Gets or sets the end time of the schedule.
@@ -54,7 +54,7 @@ options:
     frequency:
         description:
             - "Possible values include: 'C(one_time)', 'C(day)', 'C(hour)', 'C(week)', 'C(month)'"
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'one_time'
             - 'day'
@@ -117,8 +117,13 @@ EXAMPLES = '''
     azure_rm_automationschedule:
       resource_group: rg
       automation_account_name: myAutomationAccount33
-      schedule_name: mySchedule
       name: mySchedule
+      name: mySchedule
+      description: my description of schedule goes here
+      start_time: 2017-03-27T17:28:57.2494819Z
+      expiry_time: 2017-04-01T17:28:57.2494819Z
+      interval: 1
+      frequency: Hour
 '''
 
 RETURN = '''
@@ -161,20 +166,18 @@ class AzureRMSchedule(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            schedule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
             ),
             start_time=dict(
-                type='datetime',
-                required=True
+                type='datetime'
             ),
             expiry_time=dict(
                 type='datetime'
@@ -188,8 +191,7 @@ class AzureRMSchedule(AzureRMModuleBase):
                          'day',
                          'hour',
                          'week',
-                         'month'],
-                required=True
+                         'month']
             ),
             time_zone=dict(
                 type='str'
@@ -206,7 +208,7 @@ class AzureRMSchedule(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.schedule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -242,7 +244,6 @@ class AzureRMSchedule(AzureRMModuleBase):
                 elif key == "advanced_schedule":
                     self.parameters["advanced_schedule"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -263,8 +264,8 @@ class AzureRMSchedule(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Schedule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Schedule instance")
@@ -275,10 +276,7 @@ class AzureRMSchedule(AzureRMModuleBase):
 
             response = self.create_update_schedule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Schedule instance deleted")
@@ -307,12 +305,12 @@ class AzureRMSchedule(AzureRMModuleBase):
 
         :return: deserialized Schedule instance state dictionary
         '''
-        self.log("Creating / Updating the Schedule instance {0}".format(self.schedule_name))
+        self.log("Creating / Updating the Schedule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.schedule.create_or_update(resource_group_name=self.resource_group,
                                                                   automation_account_name=self.automation_account_name,
-                                                                  schedule_name=self.schedule_name,
+                                                                  schedule_name=self.name,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -328,11 +326,11 @@ class AzureRMSchedule(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Schedule instance {0}".format(self.schedule_name))
+        self.log("Deleting the Schedule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.schedule.delete(resource_group_name=self.resource_group,
                                                         automation_account_name=self.automation_account_name,
-                                                        schedule_name=self.schedule_name)
+                                                        schedule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Schedule instance.')
             self.fail("Error deleting the Schedule instance: {0}".format(str(e)))
@@ -345,12 +343,12 @@ class AzureRMSchedule(AzureRMModuleBase):
 
         :return: deserialized Schedule instance state dictionary
         '''
-        self.log("Checking if the Schedule instance {0} is present".format(self.schedule_name))
+        self.log("Checking if the Schedule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.schedule.get(resource_group_name=self.resource_group,
                                                      automation_account_name=self.automation_account_name,
-                                                     schedule_name=self.schedule_name)
+                                                     schedule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Schedule instance : {0} found".format(response.name))
@@ -366,6 +364,38 @@ class AzureRMSchedule(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

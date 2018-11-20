@@ -30,7 +30,7 @@ options:
         description:
             - The name of the API Management service.
         required: True
-    identity_provider_name:
+    name:
         description:
             - Identity Provider Type identifier.
         required: True
@@ -71,12 +71,12 @@ options:
         description:
             - "Client Id of the Application in the external Identity Provider. It is App ID for C(C(facebook)) login, Client ID for C(C(google)) login, App
                ID for C(C(microsoft))."
-        required: True
+            - Required when C(state) is I(present).
     client_secret:
         description:
             - "Client secret of the Application in external Identity Provider, used to authenticate login request. For example, it is App Secret for
                C(C(facebook)) login, API Key for C(C(google)) login, Public Key for C(C(microsoft))."
-        required: True
+            - Required when C(state) is I(present).
     if_match:
         description:
             - ETag of the Entity. Not required when creating an entity, but required when updating an entity.
@@ -102,7 +102,9 @@ EXAMPLES = '''
     azure_rm_apimanagementidentityprovider:
       resource_group: rg1
       service_name: apimService1
-      identity_provider_name: facebook
+      name: facebook
+      client_id: facebookid
+      client_secret: facebookapplicationsecret
       if_match: NOT FOUND
 '''
 
@@ -140,7 +142,7 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            identity_provider_name=dict(
+            name=dict(
                 type='str',
                 choices=['facebook',
                          'google',
@@ -176,12 +178,10 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
                 no_log=True
             ),
             client_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             client_secret=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             if_match=dict(
                 type='str'
@@ -195,7 +195,7 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
 
         self.resource_group = None
         self.service_name = None
-        self.identity_provider_name = None
+        self.name = None
         self.parameters = dict()
         self.if_match = None
 
@@ -235,7 +235,6 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
                 elif key == "client_secret":
                     self.parameters["client_secret"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -256,8 +255,8 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Identity Provider instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Identity Provider instance")
@@ -268,10 +267,7 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
 
             response = self.create_update_identityprovider()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Identity Provider instance deleted")
@@ -300,12 +296,12 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
 
         :return: deserialized Identity Provider instance state dictionary
         '''
-        self.log("Creating / Updating the Identity Provider instance {0}".format(self.identity_provider_name))
+        self.log("Creating / Updating the Identity Provider instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.identity_provider.create_or_update(resource_group_name=self.resource_group,
                                                                            service_name=self.service_name,
-                                                                           identity_provider_name=self.identity_provider_name,
+                                                                           identity_provider_name=self.name,
                                                                            parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -321,11 +317,11 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Identity Provider instance {0}".format(self.identity_provider_name))
+        self.log("Deleting the Identity Provider instance {0}".format(self.name))
         try:
             response = self.mgmt_client.identity_provider.delete(resource_group_name=self.resource_group,
                                                                  service_name=self.service_name,
-                                                                 identity_provider_name=self.identity_provider_name,
+                                                                 identity_provider_name=self.name,
                                                                  if_match=self.if_match)
         except CloudError as e:
             self.log('Error attempting to delete the Identity Provider instance.')
@@ -339,12 +335,12 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
 
         :return: deserialized Identity Provider instance state dictionary
         '''
-        self.log("Checking if the Identity Provider instance {0} is present".format(self.identity_provider_name))
+        self.log("Checking if the Identity Provider instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.identity_provider.get(resource_group_name=self.resource_group,
                                                               service_name=self.service_name,
-                                                              identity_provider_name=self.identity_provider_name)
+                                                              identity_provider_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Identity Provider instance : {0} found".format(response.name))
@@ -359,6 +355,38 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

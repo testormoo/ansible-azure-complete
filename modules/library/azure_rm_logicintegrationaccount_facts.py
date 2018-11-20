@@ -28,7 +28,7 @@ options:
     top:
         description:
             - The number of items to be included in the result.
-    integration_account_name:
+    name:
         description:
             - The integration account name.
     tags:
@@ -52,7 +52,7 @@ EXAMPLES = '''
   - name: Get instance of Integration Account
     azure_rm_logicintegrationaccount_facts:
       resource_group: resource_group_name
-      integration_account_name: integration_account_name
+      name: integration_account_name
 
   - name: List instances of Integration Account
     azure_rm_logicintegrationaccount_facts:
@@ -132,7 +132,7 @@ class AzureRMIntegrationAccountsFacts(AzureRMModuleBase):
             top=dict(
                 type='int'
             ),
-            integration_account_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -146,7 +146,7 @@ class AzureRMIntegrationAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.top = None
-        self.integration_account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -159,7 +159,7 @@ class AzureRMIntegrationAccountsFacts(AzureRMModuleBase):
         if self.resource_group is not None:
             self.results['integration_accounts'] = self.list_by_resource_group()
         elif (self.resource_group is not None and
-                self.integration_account_name is not None):
+                self.name is not None):
             self.results['integration_accounts'] = self.get()
         else:
             self.results['integration_accounts'] = self.list_by_subscription()
@@ -186,7 +186,7 @@ class AzureRMIntegrationAccountsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.integration_accounts.get(resource_group_name=self.resource_group,
-                                                                 integration_account_name=self.integration_account_name)
+                                                                 integration_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccounts.')

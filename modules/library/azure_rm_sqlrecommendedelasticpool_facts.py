@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    recommended_elastic_pool_name:
+    name:
         description:
             - The name of the recommended elastic pool to be retrieved.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_sqlrecommendedelasticpool_facts:
       resource_group: resource_group_name
       server_name: server_name
-      recommended_elastic_pool_name: recommended_elastic_pool_name
+      name: recommended_elastic_pool_name
 
   - name: List instances of Recommended Elastic Pool
     azure_rm_sqlrecommendedelasticpool_facts:
@@ -119,7 +119,7 @@ class AzureRMRecommendedElasticPoolsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            recommended_elastic_pool_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -130,7 +130,7 @@ class AzureRMRecommendedElasticPoolsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.recommended_elastic_pool_name = None
+        self.name = None
         super(AzureRMRecommendedElasticPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -139,7 +139,7 @@ class AzureRMRecommendedElasticPoolsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.recommended_elastic_pool_name is not None:
+        if self.name is not None:
             self.results['recommended_elastic_pools'] = self.get()
         else:
             self.results['recommended_elastic_pools'] = self.list_by_server()
@@ -151,7 +151,7 @@ class AzureRMRecommendedElasticPoolsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.recommended_elastic_pools.get(resource_group_name=self.resource_group,
                                                                       server_name=self.server_name,
-                                                                      recommended_elastic_pool_name=self.recommended_elastic_pool_name)
+                                                                      recommended_elastic_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RecommendedElasticPools.')

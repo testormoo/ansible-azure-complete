@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the Windows IoT Device Service.
         required: True
-    device_name:
+    name:
         description:
             - The name of the Windows IoT Device Service.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Service
     azure_rm_windowsiotservicesservice_facts:
       resource_group: resource_group_name
-      device_name: device_name
+      name: device_name
 
   - name: List instances of Service
     azure_rm_windowsiotservicesservice_facts:
@@ -115,7 +115,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            device_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -128,7 +128,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.device_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -138,7 +138,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DeviceServices,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.device_name is not None:
+        if self.name is not None:
             self.results['services'] = self.get()
         else:
             self.results['services'] = self.list_by_resource_group()
@@ -149,7 +149,7 @@ class AzureRMServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.services.get(resource_group_name=self.resource_group,
-                                                     device_name=self.device_name)
+                                                     device_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Services.')

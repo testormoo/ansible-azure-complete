@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -79,7 +79,7 @@ EXAMPLES = '''
   - name: Create (or update) Api Operation Policy
     azure_rm_apimanagementapioperationpolicy:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       api_id: 5600b57e7e8880006a040001
       operation_id: 5600b57e7e8880006a080001
       policy_id: policy
@@ -125,7 +125,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -163,7 +163,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.operation_id = None
         self.policy_id = None
@@ -187,7 +187,6 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -208,8 +207,8 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Operation Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Operation Policy instance")
@@ -220,10 +219,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
 
             response = self.create_update_apioperationpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Operation Policy instance deleted")
@@ -256,7 +252,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.api_operation_policy.create_or_update(resource_group_name=self.resource_group,
-                                                                              service_name=self.service_name,
+                                                                              service_name=self.name,
                                                                               api_id=self.api_id,
                                                                               operation_id=self.operation_id,
                                                                               policy_id=self.policy_id,
@@ -278,7 +274,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
         self.log("Deleting the Api Operation Policy instance {0}".format(self.policy_id))
         try:
             response = self.mgmt_client.api_operation_policy.delete(resource_group_name=self.resource_group,
-                                                                    service_name=self.service_name,
+                                                                    service_name=self.name,
                                                                     api_id=self.api_id,
                                                                     operation_id=self.operation_id,
                                                                     if_match=self.if_match,
@@ -299,7 +295,7 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.api_operation_policy.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  api_id=self.api_id,
                                                                  operation_id=self.operation_id,
                                                                  policy_id=self.policy_id)
@@ -318,6 +314,38 @@ class AzureRMApiOperationPolicy(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

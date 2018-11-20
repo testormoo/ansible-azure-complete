@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the Batch account.
         required: True
-    account_name:
+    name:
         description:
             - "A name for the Batch account which must be unique within the region. Batch account names must be between 3 and 24 characters in length and
                must use only numbers and lowercase letters. This name is used as part of the DNS name that is used to access the Batch service in the
@@ -42,7 +42,7 @@ options:
             storage_account_id:
                 description:
                     - The resource ID of the storage account to be used for auto-storage account.
-                required: True
+                    - Required when C(state) is I(present).
     pool_allocation_mode:
         description:
             - "The pool allocation mode also affects how clients may authenticate to the Batch Service API. If the mode is C(batch_service), clients may
@@ -58,11 +58,11 @@ options:
             id:
                 description:
                     - The resource ID of the Azure key vault associated with the Batch account.
-                required: True
+                    - Required when C(state) is I(present).
             url:
                 description:
                     - The URL of the Azure key vault associated with the Batch account.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Batch Account.
@@ -85,8 +85,10 @@ EXAMPLES = '''
   - name: Create (or update) Batch Account
     azure_rm_batchaccount:
       resource_group: default-azurebatch-japaneast
-      account_name: sampleacct
+      name: sampleacct
       location: eastus
+      auto_storage:
+        storage_account_id: /subscriptions/subid/resourceGroups/default-azurebatch-japaneast/providers/Microsoft.Storage/storageAccounts/samplestorage
 '''
 
 RETURN = '''
@@ -125,7 +127,7 @@ class AzureRMBatchAccount(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -151,7 +153,7 @@ class AzureRMBatchAccount(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -179,7 +181,6 @@ class AzureRMBatchAccount(AzureRMModuleBase):
                 elif key == "key_vault_reference":
                     self.parameters["key_vault_reference"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchManagementClient,
@@ -203,8 +204,8 @@ class AzureRMBatchAccount(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Batch Account instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Batch Account instance")
@@ -215,10 +216,7 @@ class AzureRMBatchAccount(AzureRMModuleBase):
 
             response = self.create_update_batchaccount()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Batch Account instance deleted")
@@ -247,16 +245,16 @@ class AzureRMBatchAccount(AzureRMModuleBase):
 
         :return: deserialized Batch Account instance state dictionary
         '''
-        self.log("Creating / Updating the Batch Account instance {0}".format(self.account_name))
+        self.log("Creating / Updating the Batch Account instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.batch_account.create(resource_group_name=self.resource_group,
-                                                                 account_name=self.account_name,
+                                                                 account_name=self.name,
                                                                  parameters=self.parameters)
             else:
                 response = self.mgmt_client.batch_account.update(resource_group_name=self.resource_group,
-                                                                 account_name=self.account_name)
+                                                                 account_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -271,10 +269,10 @@ class AzureRMBatchAccount(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Batch Account instance {0}".format(self.account_name))
+        self.log("Deleting the Batch Account instance {0}".format(self.name))
         try:
             response = self.mgmt_client.batch_account.delete(resource_group_name=self.resource_group,
-                                                             account_name=self.account_name)
+                                                             account_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Batch Account instance.')
             self.fail("Error deleting the Batch Account instance: {0}".format(str(e)))
@@ -287,11 +285,11 @@ class AzureRMBatchAccount(AzureRMModuleBase):
 
         :return: deserialized Batch Account instance state dictionary
         '''
-        self.log("Checking if the Batch Account instance {0} is present".format(self.account_name))
+        self.log("Checking if the Batch Account instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.batch_account.get(resource_group_name=self.resource_group,
-                                                          account_name=self.account_name)
+                                                          account_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Batch Account instance : {0} found".format(response.name))
@@ -307,6 +305,38 @@ class AzureRMBatchAccount(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

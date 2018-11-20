@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group.
         required: True
-    registration_name:
+    name:
         description:
             - Name of the Azure Stack registration.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Registration
     azure_rm_azurestackregistration_facts:
       resource_group: resource_group
-      registration_name: registration_name
+      name: registration_name
 '''
 
 RETURN = '''
@@ -106,7 +106,7 @@ class AzureRMRegistrationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            registration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -120,7 +120,7 @@ class AzureRMRegistrationsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.registration_name = None
+        self.name = None
         self.tags = None
         super(AzureRMRegistrationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -138,7 +138,7 @@ class AzureRMRegistrationsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.registrations.get(resource_group=self.resource_group,
-                                                          registration_name=self.registration_name)
+                                                          registration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Registrations.')

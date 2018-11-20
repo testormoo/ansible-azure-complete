@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -49,13 +49,13 @@ EXAMPLES = '''
   - name: Get instance of Job Schedule
     azure_rm_automationjobschedule_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       job_schedule_id: job_schedule_id
 
   - name: List instances of Job Schedule
     azure_rm_automationjobschedule_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       filter: filter
 '''
 
@@ -125,7 +125,7 @@ class AzureRMJobScheduleFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,7 +142,7 @@ class AzureRMJobScheduleFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.job_schedule_id = None
         self.filter = None
         super(AzureRMJobScheduleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -164,7 +164,7 @@ class AzureRMJobScheduleFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.job_schedule.get(resource_group_name=self.resource_group,
-                                                         automation_account_name=self.automation_account_name,
+                                                         automation_account_name=self.name,
                                                          job_schedule_id=self.job_schedule_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -180,7 +180,7 @@ class AzureRMJobScheduleFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.job_schedule.list_by_automation_account(resource_group_name=self.resource_group,
-                                                                                automation_account_name=self.automation_account_name)
+                                                                                automation_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobSchedule.')

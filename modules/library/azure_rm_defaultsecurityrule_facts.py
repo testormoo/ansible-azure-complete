@@ -30,7 +30,7 @@ options:
         description:
             - The name of the network security group.
         required: True
-    default_security_rule_name:
+    name:
         description:
             - The name of the default security rule.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_defaultsecurityrule_facts:
       resource_group: resource_group_name
       network_security_group_name: network_security_group_name
-      default_security_rule_name: default_security_rule_name
+      name: default_security_rule_name
 '''
 
 RETURN = '''
@@ -126,7 +126,7 @@ class AzureRMDefaultSecurityRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            default_security_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -138,7 +138,7 @@ class AzureRMDefaultSecurityRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.network_security_group_name = None
-        self.default_security_rule_name = None
+        self.name = None
         super(AzureRMDefaultSecurityRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -156,7 +156,7 @@ class AzureRMDefaultSecurityRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.default_security_rules.get(resource_group_name=self.resource_group,
                                                                    network_security_group_name=self.network_security_group_name,
-                                                                   default_security_rule_name=self.default_security_rule_name)
+                                                                   default_security_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DefaultSecurityRules.')

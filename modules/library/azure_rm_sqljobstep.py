@@ -38,7 +38,7 @@ options:
         description:
             - The name of the job.
         required: True
-    step_name:
+    name:
         description:
             - The name of the job step.
         required: True
@@ -49,15 +49,15 @@ options:
     target_group:
         description:
             - The resource ID of the target group that the job step will be executed on.
-        required: True
+            - Required when C(state) is I(present).
     credential:
         description:
             - The resource ID of the job credential that will be used to connect to the targets.
-        required: True
+            - Required when C(state) is I(present).
     action:
         description:
             - The action payload of the job step.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             type:
                 description:
@@ -72,7 +72,7 @@ options:
             value:
                 description:
                     - The action value, for example the text of the T-SQL script to execute.
-                required: True
+                    - Required when C(state) is I(present).
     output:
         description:
             - Output destination properties of the job step.
@@ -91,22 +91,22 @@ options:
             server_name:
                 description:
                     - The output destination server name.
-                required: True
+                    - Required when C(state) is I(present).
             database_name:
                 description:
                     - The output destination database.
-                required: True
+                    - Required when C(state) is I(present).
             schema_name:
                 description:
                     - The output destination schema.
             table_name:
                 description:
                     - The output destination table.
-                required: True
+                    - Required when C(state) is I(present).
             credential:
                 description:
                     - The resource ID of the credential to use to connect to the output destination.
-                required: True
+                    - Required when C(state) is I(present).
     execution_options:
         description:
             - Execution options for the job step.
@@ -150,7 +150,11 @@ EXAMPLES = '''
       server_name: server1
       job_agent_name: agent1
       job_name: job1
-      step_name: step1
+      name: step1
+      target_group: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/jobAgents/agent1/targetGroups/targetGroup0
+      credential: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/jobAgents/agent1/credentials/cred0
+      action:
+        value: select 1
 '''
 
 RETURN = '''
@@ -202,7 +206,7 @@ class AzureRMJobSteps(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            step_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -210,16 +214,13 @@ class AzureRMJobSteps(AzureRMModuleBase):
                 type='int'
             ),
             target_group=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             credential=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             action=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             output=dict(
                 type='dict'
@@ -238,7 +239,7 @@ class AzureRMJobSteps(AzureRMModuleBase):
         self.server_name = None
         self.job_agent_name = None
         self.job_name = None
-        self.step_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -281,7 +282,6 @@ class AzureRMJobSteps(AzureRMModuleBase):
                 elif key == "execution_options":
                     self.parameters["execution_options"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -302,8 +302,8 @@ class AzureRMJobSteps(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job Step instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job Step instance")
@@ -314,10 +314,7 @@ class AzureRMJobSteps(AzureRMModuleBase):
 
             response = self.create_update_jobstep()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job Step instance deleted")
@@ -346,14 +343,14 @@ class AzureRMJobSteps(AzureRMModuleBase):
 
         :return: deserialized Job Step instance state dictionary
         '''
-        self.log("Creating / Updating the Job Step instance {0}".format(self.step_name))
+        self.log("Creating / Updating the Job Step instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.job_steps.create_or_update(resource_group_name=self.resource_group,
                                                                    server_name=self.server_name,
                                                                    job_agent_name=self.job_agent_name,
                                                                    job_name=self.job_name,
-                                                                   step_name=self.step_name,
+                                                                   step_name=self.name,
                                                                    parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -369,13 +366,13 @@ class AzureRMJobSteps(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Job Step instance {0}".format(self.step_name))
+        self.log("Deleting the Job Step instance {0}".format(self.name))
         try:
             response = self.mgmt_client.job_steps.delete(resource_group_name=self.resource_group,
                                                          server_name=self.server_name,
                                                          job_agent_name=self.job_agent_name,
                                                          job_name=self.job_name,
-                                                         step_name=self.step_name)
+                                                         step_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Job Step instance.')
             self.fail("Error deleting the Job Step instance: {0}".format(str(e)))
@@ -388,14 +385,14 @@ class AzureRMJobSteps(AzureRMModuleBase):
 
         :return: deserialized Job Step instance state dictionary
         '''
-        self.log("Checking if the Job Step instance {0} is present".format(self.step_name))
+        self.log("Checking if the Job Step instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.job_steps.get(resource_group_name=self.resource_group,
                                                       server_name=self.server_name,
                                                       job_agent_name=self.job_agent_name,
                                                       job_name=self.job_name,
-                                                      step_name=self.step_name)
+                                                      step_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Job Step instance : {0} found".format(response.name))
@@ -411,6 +408,38 @@ class AzureRMJobSteps(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

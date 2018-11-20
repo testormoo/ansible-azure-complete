@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Automation Account
     azure_rm_automationaccount_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
 
   - name: List instances of Automation Account
     azure_rm_automationaccount_facts:
@@ -140,7 +140,7 @@ class AzureRMAutomationAccountFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -153,7 +153,7 @@ class AzureRMAutomationAccountFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAutomationAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -163,7 +163,7 @@ class AzureRMAutomationAccountFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.automation_account_name is not None:
+        if self.name is not None:
             self.results['automation_account'] = self.get()
         else:
             self.results['automation_account'] = self.list_by_resource_group()
@@ -174,7 +174,7 @@ class AzureRMAutomationAccountFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.automation_account.get(resource_group_name=self.resource_group,
-                                                               automation_account_name=self.automation_account_name)
+                                                               automation_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AutomationAccount.')

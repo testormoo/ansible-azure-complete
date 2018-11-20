@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Linked Workspace
     azure_rm_automationlinkedworkspace_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
 '''
 
 RETURN = '''
@@ -79,7 +79,7 @@ class AzureRMLinkedWorkspaceFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -90,7 +90,7 @@ class AzureRMLinkedWorkspaceFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         super(AzureRMLinkedWorkspaceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -107,7 +107,7 @@ class AzureRMLinkedWorkspaceFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.linked_workspace.get(resource_group_name=self.resource_group,
-                                                             automation_account_name=self.automation_account_name)
+                                                             automation_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LinkedWorkspace.')

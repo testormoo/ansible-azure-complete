@@ -30,7 +30,7 @@ options:
         description:
             - The name of the service topology .
         required: True
-    service_name:
+    name:
         description:
             - The name of the service resource.
         required: True
@@ -42,15 +42,15 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             target_location:
                 description:
                     - The Azure location to which the resources in the service belong to or should be deployed to.
-                required: True
+                    - Required when C(state) is I(present).
             target_subscription_id:
                 description:
                     - The subscription to which the resources in the service belong to or should be deployed to.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Service.
@@ -74,9 +74,11 @@ EXAMPLES = '''
     azure_rm_deploymentmanagerservice:
       resource_group: myResourceGroup
       service_topology_name: myTopology
-      service_name: myService
+      name: myService
       service_info:
         location: centralus
+        target_location: centralus
+        target_subscription_id: 600c95c5-3ee5-44fe-b190-ca38a19adcd7
 '''
 
 RETURN = '''
@@ -120,7 +122,7 @@ class AzureRMServices(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -137,7 +139,7 @@ class AzureRMServices(AzureRMModuleBase):
 
         self.resource_group = None
         self.service_topology_name = None
-        self.service_name = None
+        self.name = None
         self.service_info = dict()
 
         self.results = dict(changed=False)
@@ -163,7 +165,6 @@ class AzureRMServices(AzureRMModuleBase):
                 elif key == "target_subscription_id":
                     self.service_info["target_subscription_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureDeploymentManager,
@@ -184,8 +185,8 @@ class AzureRMServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Service instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Service instance")
@@ -196,10 +197,7 @@ class AzureRMServices(AzureRMModuleBase):
 
             response = self.create_update_service()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Service instance deleted")
@@ -228,12 +226,12 @@ class AzureRMServices(AzureRMModuleBase):
 
         :return: deserialized Service instance state dictionary
         '''
-        self.log("Creating / Updating the Service instance {0}".format(self.service_name))
+        self.log("Creating / Updating the Service instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.services.create_or_update(resource_group_name=self.resource_group,
                                                                   service_topology_name=self.service_topology_name,
-                                                                  service_name=self.service_name,
+                                                                  service_name=self.name,
                                                                   service_info=self.service_info)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -249,11 +247,11 @@ class AzureRMServices(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Service instance {0}".format(self.service_name))
+        self.log("Deleting the Service instance {0}".format(self.name))
         try:
             response = self.mgmt_client.services.delete(resource_group_name=self.resource_group,
                                                         service_topology_name=self.service_topology_name,
-                                                        service_name=self.service_name)
+                                                        service_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Service instance.')
             self.fail("Error deleting the Service instance: {0}".format(str(e)))
@@ -266,12 +264,12 @@ class AzureRMServices(AzureRMModuleBase):
 
         :return: deserialized Service instance state dictionary
         '''
-        self.log("Checking if the Service instance {0} is present".format(self.service_name))
+        self.log("Checking if the Service instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.services.get(resource_group_name=self.resource_group,
                                                      service_topology_name=self.service_topology_name,
-                                                     service_name=self.service_name)
+                                                     service_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Service instance : {0} found".format(response.name))
@@ -287,6 +285,38 @@ class AzureRMServices(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

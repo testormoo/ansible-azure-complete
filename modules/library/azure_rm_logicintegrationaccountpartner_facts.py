@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    partner_name:
+    name:
         description:
             - The integration account partner name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountpartner_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      partner_name: partner_name
+      name: partner_name
 '''
 
 RETURN = '''
@@ -124,7 +124,7 @@ class AzureRMIntegrationAccountPartnersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            partner_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -139,7 +139,7 @@ class AzureRMIntegrationAccountPartnersFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.partner_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountPartnersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -158,7 +158,7 @@ class AzureRMIntegrationAccountPartnersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_partners.get(resource_group_name=self.resource_group,
                                                                          integration_account_name=self.integration_account_name,
-                                                                         partner_name=self.partner_name)
+                                                                         partner_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountPartners.')

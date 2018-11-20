@@ -30,7 +30,7 @@ options:
         description:
             - The name of the machine learning team account.
         required: True
-    workspace_name:
+    name:
         description:
             - The name of the machine learning team account workspace.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_machinelearningexperimentationworkspace_facts:
       resource_group: resource_group_name
       account_name: account_name
-      workspace_name: workspace_name
+      name: workspace_name
 
   - name: List instances of Workspace
     azure_rm_machinelearningexperimentationworkspace_facts:
@@ -114,7 +114,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workspace_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -128,7 +128,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.workspace_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkspacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -138,7 +138,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(MLTeamAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.workspace_name is not None:
+        if self.name is not None:
             self.results['workspaces'] = self.get()
         else:
             self.results['workspaces'] = self.list_by_accounts()
@@ -150,7 +150,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.workspaces.get(resource_group_name=self.resource_group,
                                                        account_name=self.account_name,
-                                                       workspace_name=self.workspace_name)
+                                                       workspace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workspaces.')

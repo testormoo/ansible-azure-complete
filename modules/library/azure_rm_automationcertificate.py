@@ -30,18 +30,18 @@ options:
         description:
             - The name of the automation account.
         required: True
-    certificate_name:
+    name:
         description:
             - The parameters supplied to the create or update certificate operation.
         required: True
     name:
         description:
             - Gets or sets the name of the certificate.
-        required: True
+            - Required when C(state) is I(present).
     base64_value:
         description:
             - Gets or sets the base64 encoded value of the certificate.
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - Gets or sets the description of the certificate.
@@ -73,8 +73,12 @@ EXAMPLES = '''
     azure_rm_automationcertificate:
       resource_group: rg
       automation_account_name: myAutomationAccount18
-      certificate_name: testCert
       name: testCert
+      name: testCert
+      base64_value: base 64 value of cert
+      description: Sample Cert
+      thumbprint: thumbprint of cert
+      is_exportable: False
 '''
 
 RETURN = '''
@@ -117,17 +121,15 @@ class AzureRMCertificate(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
-                type='str',
-                required=True
-            ),
             name=dict(
                 type='str',
                 required=True
             ),
+            name=dict(
+                type='str'
+            ),
             base64_value=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
@@ -147,7 +149,7 @@ class AzureRMCertificate(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.certificate_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -177,7 +179,6 @@ class AzureRMCertificate(AzureRMModuleBase):
                 elif key == "is_exportable":
                     self.parameters["is_exportable"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -198,8 +199,8 @@ class AzureRMCertificate(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Certificate instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Certificate instance")
@@ -210,10 +211,7 @@ class AzureRMCertificate(AzureRMModuleBase):
 
             response = self.create_update_certificate()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Certificate instance deleted")
@@ -242,12 +240,12 @@ class AzureRMCertificate(AzureRMModuleBase):
 
         :return: deserialized Certificate instance state dictionary
         '''
-        self.log("Creating / Updating the Certificate instance {0}".format(self.certificate_name))
+        self.log("Creating / Updating the Certificate instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.certificate.create_or_update(resource_group_name=self.resource_group,
                                                                      automation_account_name=self.automation_account_name,
-                                                                     certificate_name=self.certificate_name,
+                                                                     certificate_name=self.name,
                                                                      parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -263,11 +261,11 @@ class AzureRMCertificate(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Certificate instance {0}".format(self.certificate_name))
+        self.log("Deleting the Certificate instance {0}".format(self.name))
         try:
             response = self.mgmt_client.certificate.delete(resource_group_name=self.resource_group,
                                                            automation_account_name=self.automation_account_name,
-                                                           certificate_name=self.certificate_name)
+                                                           certificate_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Certificate instance.')
             self.fail("Error deleting the Certificate instance: {0}".format(str(e)))
@@ -280,12 +278,12 @@ class AzureRMCertificate(AzureRMModuleBase):
 
         :return: deserialized Certificate instance state dictionary
         '''
-        self.log("Checking if the Certificate instance {0} is present".format(self.certificate_name))
+        self.log("Checking if the Certificate instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.certificate.get(resource_group_name=self.resource_group,
                                                         automation_account_name=self.automation_account_name,
-                                                        certificate_name=self.certificate_name)
+                                                        certificate_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Certificate instance : {0} found".format(response.name))
@@ -301,6 +299,38 @@ class AzureRMCertificate(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -34,7 +34,7 @@ options:
         description:
             - The workflow trigger name.
         required: True
-    history_name:
+    name:
         description:
             - The workflow trigger history name. Corresponds to the run name for triggers that resulted in a run.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       workflow_name: workflow_name
       trigger_name: trigger_name
-      history_name: history_name
+      name: history_name
 '''
 
 RETURN = '''
@@ -104,7 +104,7 @@ class AzureRMWorkflowTriggerHistoriesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            history_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -117,7 +117,7 @@ class AzureRMWorkflowTriggerHistoriesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.workflow_name = None
         self.trigger_name = None
-        self.history_name = None
+        self.name = None
         super(AzureRMWorkflowTriggerHistoriesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -136,7 +136,7 @@ class AzureRMWorkflowTriggerHistoriesFacts(AzureRMModuleBase):
             response = self.mgmt_client.workflow_trigger_histories.get(resource_group_name=self.resource_group,
                                                                        workflow_name=self.workflow_name,
                                                                        trigger_name=self.trigger_name,
-                                                                       history_name=self.history_name)
+                                                                       history_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for WorkflowTriggerHistories.')

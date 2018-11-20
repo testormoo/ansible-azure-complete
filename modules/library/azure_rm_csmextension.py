@@ -57,7 +57,7 @@ options:
         description:
             - The name of the Visual Studio Team Services account resource.
         required: True
-    extension_resource_name:
+    name:
         description:
             - The name of the extension.
         required: True
@@ -91,7 +91,7 @@ EXAMPLES = '''
           publisher: ExampleExtensionPublisher
           version: 1.0
       account_resource_name: ExampleAccount
-      extension_resource_name: ms.example
+      name: ms.example
 '''
 
 RETURN = '''
@@ -139,7 +139,7 @@ class AzureRMExtensions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            extension_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -153,7 +153,7 @@ class AzureRMExtensions(AzureRMModuleBase):
         self.resource_group = None
         self.body = dict()
         self.account_resource_name = None
-        self.extension_resource_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -176,7 +176,6 @@ class AzureRMExtensions(AzureRMModuleBase):
                 elif key == "plan":
                     self.body["plan"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(VisualStudioResourceProviderClient,
@@ -197,8 +196,8 @@ class AzureRMExtensions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Extension instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Extension instance")
@@ -209,10 +208,7 @@ class AzureRMExtensions(AzureRMModuleBase):
 
             response = self.create_update_extension()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Extension instance deleted")
@@ -241,19 +237,19 @@ class AzureRMExtensions(AzureRMModuleBase):
 
         :return: deserialized Extension instance state dictionary
         '''
-        self.log("Creating / Updating the Extension instance {0}".format(self.extension_resource_name))
+        self.log("Creating / Updating the Extension instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.extensions.create(resource_group_name=self.resource_group,
                                                               body=self.body,
                                                               account_resource_name=self.account_resource_name,
-                                                              extension_resource_name=self.extension_resource_name)
+                                                              extension_resource_name=self.name)
             else:
                 response = self.mgmt_client.extensions.update(resource_group_name=self.resource_group,
                                                               body=self.body,
                                                               account_resource_name=self.account_resource_name,
-                                                              extension_resource_name=self.extension_resource_name)
+                                                              extension_resource_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -268,11 +264,11 @@ class AzureRMExtensions(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Extension instance {0}".format(self.extension_resource_name))
+        self.log("Deleting the Extension instance {0}".format(self.name))
         try:
             response = self.mgmt_client.extensions.delete(resource_group_name=self.resource_group,
                                                           account_resource_name=self.account_resource_name,
-                                                          extension_resource_name=self.extension_resource_name)
+                                                          extension_resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Extension instance.')
             self.fail("Error deleting the Extension instance: {0}".format(str(e)))
@@ -285,12 +281,12 @@ class AzureRMExtensions(AzureRMModuleBase):
 
         :return: deserialized Extension instance state dictionary
         '''
-        self.log("Checking if the Extension instance {0} is present".format(self.extension_resource_name))
+        self.log("Checking if the Extension instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.extensions.get(resource_group_name=self.resource_group,
                                                        account_resource_name=self.account_resource_name,
-                                                       extension_resource_name=self.extension_resource_name)
+                                                       extension_resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Extension instance : {0} found".format(response.name))
@@ -306,6 +302,38 @@ class AzureRMExtensions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

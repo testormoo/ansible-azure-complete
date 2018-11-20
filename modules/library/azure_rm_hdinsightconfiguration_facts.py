@@ -30,7 +30,7 @@ options:
         description:
             - The name of the cluster.
         required: True
-    configuration_name:
+    name:
         description:
             - The name of the cluster configuration.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_hdinsightconfiguration_facts:
       resource_group: resource_group_name
       cluster_name: cluster_name
-      configuration_name: configuration_name
+      name: configuration_name
 '''
 
 RETURN = '''
@@ -82,7 +82,7 @@ class AzureRMConfigurationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -94,7 +94,7 @@ class AzureRMConfigurationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.cluster_name = None
-        self.configuration_name = None
+        self.name = None
         super(AzureRMConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -112,7 +112,7 @@ class AzureRMConfigurationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.configurations.get(resource_group_name=self.resource_group,
                                                            cluster_name=self.cluster_name,
-                                                           configuration_name=self.configuration_name)
+                                                           configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Configurations.')

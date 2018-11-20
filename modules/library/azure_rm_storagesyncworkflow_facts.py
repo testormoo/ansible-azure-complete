@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    storage_sync_service_name:
+    name:
         description:
             - Name of Storage Sync Service resource.
         required: True
@@ -46,13 +46,13 @@ EXAMPLES = '''
   - name: Get instance of Workflow
     azure_rm_storagesyncworkflow_facts:
       resource_group: resource_group_name
-      storage_sync_service_name: storage_sync_service_name
+      name: storage_sync_service_name
       workflow_id: workflow_id
 
   - name: List instances of Workflow
     azure_rm_storagesyncworkflow_facts:
       resource_group: resource_group_name
-      storage_sync_service_name: storage_sync_service_name
+      name: storage_sync_service_name
 '''
 
 RETURN = '''
@@ -116,7 +116,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            storage_sync_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -130,7 +130,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.storage_sync_service_name = None
+        self.name = None
         self.workflow_id = None
         super(AzureRMWorkflowsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workflows.get(resource_group_name=self.resource_group,
-                                                      storage_sync_service_name=self.storage_sync_service_name,
+                                                      storage_sync_service_name=self.name,
                                                       workflow_id=self.workflow_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -167,7 +167,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workflows.list_by_storage_sync_service(resource_group_name=self.resource_group,
-                                                                               storage_sync_service_name=self.storage_sync_service_name)
+                                                                               storage_sync_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workflows.')

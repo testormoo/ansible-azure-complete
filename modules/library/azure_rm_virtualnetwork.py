@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    virtual_network_name:
+    name:
         description:
             - The name of the virtual network.
         required: True
@@ -89,7 +89,7 @@ options:
                                 description:
                                     - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*)
                                        C(*)valuesC(*) C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'tcp'
                                     - 'udp'
@@ -162,7 +162,7 @@ options:
                                 description:
                                     - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*)
                                        C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'allow'
                                     - 'deny'
@@ -179,23 +179,15 @@ options:
                                        C(*)ifC(*) C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*)
                                        C(*)outcomingC(*) C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*)
                                        'C(*)OutboundC(*)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'inbound'
                                     - 'outbound'
-                            provisioning_state:
-                                description:
-                                    - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*).
-                                       C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
                             name:
                                 description:
                                     - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*)
                                        C(*)withinC(*) C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*)
                                        C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                            etag:
-                                description:
-                                    - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*)
-                                       C(*)theC(*) C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
                     default_security_rules:
                         description:
                             - The default security rules of network security group.
@@ -212,7 +204,7 @@ options:
                                 description:
                                     - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*)
                                        C(*)valuesC(*) C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'tcp'
                                     - 'udp'
@@ -285,7 +277,7 @@ options:
                                 description:
                                     - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*)
                                        C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'allow'
                                     - 'deny'
@@ -302,32 +294,18 @@ options:
                                        C(*)ifC(*) C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*)
                                        C(*)outcomingC(*) C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*)
                                        'C(*)OutboundC(*)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'inbound'
                                     - 'outbound'
-                            provisioning_state:
-                                description:
-                                    - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*).
-                                       C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
                             name:
                                 description:
                                     - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*)
                                        C(*)withinC(*) C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*)
                                        C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                            etag:
-                                description:
-                                    - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*)
-                                       C(*)theC(*) C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
                     resource_guid:
                         description:
                             - The resource GUID property of the network security group resource.
-                    provisioning_state:
-                        description:
-                            - "The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
             route_table:
                 description:
                     - The reference of the RouteTable resource.
@@ -353,7 +331,7 @@ options:
                                 description:
                                     - "The type of Azure hop the packet should be sent to. Possible values are: 'C(virtual_network_gateway)',
                                        'C(vnet_local)', 'C(internet)', 'C(virtual_appliance)', and 'C(none)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'virtual_network_gateway'
                                     - 'vnet_local'
@@ -364,24 +342,12 @@ options:
                                 description:
                                     - "The IP address packets should be forwarded to. Next hop values are only allowed in routes where the next hop type is
                                        C(virtual_appliance)."
-                            provisioning_state:
-                                description:
-                                    - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                             name:
                                 description:
                                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     disable_bgp_route_propagation:
                         description:
                             - Gets or sets whether to disable the I(routes) learned by BGP on that route table. True means disable.
-                    provisioning_state:
-                        description:
-                            - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-                    etag:
-                        description:
-                            - Gets a unique read-only string that changes whenever the resource is updated.
             service_endpoints:
                 description:
                     - An array of service endpoints.
@@ -394,9 +360,6 @@ options:
                         description:
                             - A list of locations.
                         type: list
-                    provisioning_state:
-                        description:
-                            - The provisioning state of the resource.
             resource_navigation_links:
                 description:
                     - Gets an array of references to the external resources using subnet.
@@ -414,15 +377,9 @@ options:
                     name:
                         description:
                             - Name of the resource that is unique within a resource group. This name can be used to access the resource.
-            provisioning_state:
-                description:
-                    - The provisioning state of the resource.
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     virtual_network_peerings:
         description:
             - A list of peerings in a Virtual Network.
@@ -468,30 +425,18 @@ options:
                     - 'initiated'
                     - 'connected'
                     - 'disconnected'
-            provisioning_state:
-                description:
-                    - The provisioning state of the resource.
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     resource_guid:
         description:
             - The resourceGuid property of the Virtual Network resource.
-    provisioning_state:
-        description:
-            - "The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
     enable_ddos_protection:
         description:
             - Indicates if DDoS protection is enabled for all the protected resources in a Virtual Network.
     enable_vm_protection:
         description:
             - Indicates if Vm protection is enabled for all the I(subnets) in a Virtual Network.
-    etag:
-        description:
-            - Gets a unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Virtual Network.
@@ -514,8 +459,13 @@ EXAMPLES = '''
   - name: Create (or update) Virtual Network
     azure_rm_virtualnetwork:
       resource_group: rg1
-      virtual_network_name: test-vnet
+      name: test-vnet
       location: eastus
+      address_space:
+        address_prefixes:
+          - [
+  "10.0.0.0/16"
+]
 '''
 
 RETURN = '''
@@ -554,7 +504,7 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -579,16 +529,10 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
             resource_guid=dict(
                 type='str'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
             enable_ddos_protection=dict(
                 type='str'
             ),
             enable_vm_protection=dict(
-                type='str'
-            ),
-            etag=dict(
                 type='str'
             ),
             state=dict(
@@ -599,7 +543,7 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.virtual_network_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -640,16 +584,11 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
                     self.parameters["virtual_network_peerings"] = ev
                 elif key == "resource_guid":
                     self.parameters["resource_guid"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
                 elif key == "enable_ddos_protection":
                     self.parameters["enable_ddos_protection"] = kwargs[key]
                 elif key == "enable_vm_protection":
                     self.parameters["enable_vm_protection"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -673,8 +612,8 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Virtual Network instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Virtual Network instance")
@@ -685,10 +624,7 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
 
             response = self.create_update_virtualnetwork()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Virtual Network instance deleted")
@@ -717,11 +653,11 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
 
         :return: deserialized Virtual Network instance state dictionary
         '''
-        self.log("Creating / Updating the Virtual Network instance {0}".format(self.virtual_network_name))
+        self.log("Creating / Updating the Virtual Network instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.virtual_networks.create_or_update(resource_group_name=self.resource_group,
-                                                                          virtual_network_name=self.virtual_network_name,
+                                                                          virtual_network_name=self.name,
                                                                           parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -737,10 +673,10 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Virtual Network instance {0}".format(self.virtual_network_name))
+        self.log("Deleting the Virtual Network instance {0}".format(self.name))
         try:
             response = self.mgmt_client.virtual_networks.delete(resource_group_name=self.resource_group,
-                                                                virtual_network_name=self.virtual_network_name)
+                                                                virtual_network_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Virtual Network instance.')
             self.fail("Error deleting the Virtual Network instance: {0}".format(str(e)))
@@ -753,11 +689,11 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
 
         :return: deserialized Virtual Network instance state dictionary
         '''
-        self.log("Checking if the Virtual Network instance {0} is present".format(self.virtual_network_name))
+        self.log("Checking if the Virtual Network instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.virtual_networks.get(resource_group_name=self.resource_group,
-                                                             virtual_network_name=self.virtual_network_name)
+                                                             virtual_network_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Virtual Network instance : {0} found".format(response.name))
@@ -773,6 +709,38 @@ class AzureRMVirtualNetworks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

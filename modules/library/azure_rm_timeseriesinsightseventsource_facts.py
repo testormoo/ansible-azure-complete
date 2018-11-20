@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
         required: True
-    event_source_name:
+    name:
         description:
             - The name of the Time Series Insights event source associated with the specified environment.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_timeseriesinsightseventsource_facts:
       resource_group: resource_group_name
       environment_name: environment_name
-      event_source_name: event_source_name
+      name: event_source_name
 
   - name: List instances of Event Source
     azure_rm_timeseriesinsightseventsource_facts:
@@ -119,7 +119,7 @@ class AzureRMEventSourcesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_source_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -133,7 +133,7 @@ class AzureRMEventSourcesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.environment_name = None
-        self.event_source_name = None
+        self.name = None
         self.tags = None
         super(AzureRMEventSourcesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -143,7 +143,7 @@ class AzureRMEventSourcesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.event_source_name is not None:
+        if self.name is not None:
             self.results['event_sources'] = self.get()
         else:
             self.results['event_sources'] = self.list_by_environment()
@@ -155,7 +155,7 @@ class AzureRMEventSourcesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.event_sources.get(resource_group_name=self.resource_group,
                                                           environment_name=self.environment_name,
-                                                          event_source_name=self.event_source_name)
+                                                          event_source_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for EventSources.')

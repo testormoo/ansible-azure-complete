@@ -30,7 +30,7 @@ options:
         description:
             - The name of the API Management service.
         required: True
-    notification_name:
+    name:
         description:
             - Notification Name Identifier.
         required: True
@@ -68,7 +68,7 @@ EXAMPLES = '''
     azure_rm_apimanagementnotificationrecipientuser:
       resource_group: rg1
       service_name: apimService1
-      notification_name: RequestPublisherNotificationMessage
+      name: RequestPublisherNotificationMessage
       uid: 576823d0a40f7e74ec07d642
 '''
 
@@ -113,7 +113,7 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            notification_name=dict(
+            name=dict(
                 type='str',
                 choices=['request_publisher_notification_message',
                          'purchase_publisher_notification_message',
@@ -137,7 +137,7 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
 
         self.resource_group = None
         self.service_name = None
-        self.notification_name = None
+        self.name = None
         self.uid = None
 
         self.results = dict(changed=False)
@@ -156,7 +156,6 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -177,8 +176,8 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Notification Recipient User instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Notification Recipient User instance")
@@ -189,10 +188,7 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
 
             response = self.create_update_notificationrecipientuser()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Notification Recipient User instance deleted")
@@ -226,7 +222,7 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
         try:
             response = self.mgmt_client.notification_recipient_user.create_or_update(resource_group_name=self.resource_group,
                                                                                      service_name=self.service_name,
-                                                                                     notification_name=self.notification_name,
+                                                                                     notification_name=self.name,
                                                                                      uid=self.uid)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -246,7 +242,7 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
         try:
             response = self.mgmt_client.notification_recipient_user.delete(resource_group_name=self.resource_group,
                                                                            service_name=self.service_name,
-                                                                           notification_name=self.notification_name,
+                                                                           notification_name=self.name,
                                                                            uid=self.uid)
         except CloudError as e:
             self.log('Error attempting to delete the Notification Recipient User instance.')
@@ -279,6 +275,38 @@ class AzureRMNotificationRecipientUser(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

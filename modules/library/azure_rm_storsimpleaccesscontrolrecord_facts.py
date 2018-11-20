@@ -29,7 +29,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -47,12 +47,12 @@ EXAMPLES = '''
     azure_rm_storsimpleaccesscontrolrecord_facts:
       access_control_record_name: access_control_record_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Access Control Record
     azure_rm_storsimpleaccesscontrolrecord_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -98,7 +98,7 @@ class AzureRMAccessControlRecordsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -110,7 +110,7 @@ class AzureRMAccessControlRecordsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.access_control_record_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMAccessControlRecordsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMAccessControlRecordsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.access_control_records.get(access_control_record_name=self.access_control_record_name,
                                                                    resource_group_name=self.resource_group,
-                                                                   manager_name=self.manager_name)
+                                                                   manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AccessControlRecords.')
@@ -146,7 +146,7 @@ class AzureRMAccessControlRecordsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.access_control_records.list_by_manager(resource_group_name=self.resource_group,
-                                                                               manager_name=self.manager_name)
+                                                                               manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AccessControlRecords.')

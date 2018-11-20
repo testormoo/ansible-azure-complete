@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Billing Period.
 
 options:
-    billing_period_name:
+    name:
         description:
             - The name of a BillingPeriod resource.
         required: True
@@ -38,7 +38,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Billing Period
     azure_rm_billingperiod_facts:
-      billing_period_name: billing_period_name
+      name: billing_period_name
 '''
 
 RETURN = '''
@@ -76,7 +76,7 @@ class AzureRMBillingPeriodsFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            billing_period_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -86,7 +86,7 @@ class AzureRMBillingPeriodsFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.billing_period_name = None
+        self.name = None
         super(AzureRMBillingPeriodsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -102,7 +102,7 @@ class AzureRMBillingPeriodsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.billing_periods.get(billing_period_name=self.billing_period_name)
+            response = self.mgmt_client.billing_periods.get(billing_period_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for BillingPeriods.')

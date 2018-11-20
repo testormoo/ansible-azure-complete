@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -41,7 +41,7 @@ options:
             type:
                 description:
                     - I(host_name) type.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'proxy'
                     - 'portal'
@@ -50,7 +50,7 @@ options:
             host_name:
                 description:
                     - Hostname to configure on the Api C(management) service.
-                required: True
+                    - Required when C(state) is I(present).
             key_vault_id:
                 description:
                     - "Url to the KeyVault Secret containing the Ssl I(certificate). If absolute Url containing version is provided, auto-update of ssl
@@ -79,15 +79,15 @@ options:
                         description:
                             - "Expiration date of the certificate. The date conforms to the following format: `yyyy-MM-ddTHH:mm:ssZ` as specified by the ISO
                                8601 standard."
-                        required: True
+                            - Required when C(state) is I(present).
                     thumbprint:
                         description:
                             - Thumbprint of the certificate.
-                        required: True
+                            - Required when C(state) is I(present).
                     subject:
                         description:
                             - Subject of the certificate.
-                        required: True
+                            - Required when C(state) is I(present).
     virtual_network_configuration:
         description:
             - Virtual network configuration of the API Management service.
@@ -103,16 +103,16 @@ options:
             location:
                 description:
                     - The location name of the additional region among Azure Data center regions.
-                required: True
+                    - Required when C(state) is I(present).
             sku:
                 description:
                     - SKU properties of the API Management service.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
                             - Name of the Sku.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'developer'
                             - 'standard'
@@ -149,7 +149,7 @@ options:
                 description:
                     - "The System.Security.Cryptography.x509certificates.Storename I(certificate) store location. Only C(root) and C(certificate_authority)
                        are valid locations."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'certificate_authority'
                     - 'root'
@@ -161,15 +161,15 @@ options:
                         description:
                             - "Expiration date of the certificate. The date conforms to the following format: `yyyy-MM-ddTHH:mm:ssZ` as specified by the ISO
                                8601 standard."
-                        required: True
+                            - Required when C(state) is I(present).
                     thumbprint:
                         description:
                             - Thumbprint of the certificate.
-                        required: True
+                            - Required when C(state) is I(present).
                     subject:
                         description:
                             - Subject of the certificate.
-                        required: True
+                            - Required when C(state) is I(present).
     virtual_network_type:
         description:
             - "The type of VPN in which API Managemet service needs to be configured in. C(none) (Default Value) means the API Management service is not
@@ -182,20 +182,20 @@ options:
     publisher_email:
         description:
             - Publisher email.
-        required: True
+            - Required when C(state) is I(present).
     publisher_name:
         description:
             - Publisher name.
-        required: True
+            - Required when C(state) is I(present).
     sku:
         description:
             - SKU properties of the API Management service.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
                     - Name of the Sku.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'developer'
                     - 'standard'
@@ -211,7 +211,7 @@ options:
             type:
                 description:
                     - "The identity type. Currently the only supported type is 'SystemAssigned'."
-                required: True
+                    - Required when C(state) is I(present).
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
@@ -237,7 +237,9 @@ EXAMPLES = '''
   - name: Create (or update) Api Management Service
     azure_rm_apimanagementservice:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
+      publisher_email: admin@live.com
+      publisher_name: contoso
       sku:
         name: Premium
         capacity: 1
@@ -280,7 +282,7 @@ class AzureRMApiManagementService(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -309,16 +311,13 @@ class AzureRMApiManagementService(AzureRMModuleBase):
                          'internal']
             ),
             publisher_email=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             publisher_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             sku=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             identity=dict(
                 type='dict'
@@ -334,7 +333,7 @@ class AzureRMApiManagementService(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -404,7 +403,6 @@ class AzureRMApiManagementService(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -428,8 +426,8 @@ class AzureRMApiManagementService(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Api Management Service instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Api Management Service instance")
@@ -440,10 +438,7 @@ class AzureRMApiManagementService(AzureRMModuleBase):
 
             response = self.create_update_apimanagementservice()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Api Management Service instance deleted")
@@ -472,11 +467,11 @@ class AzureRMApiManagementService(AzureRMModuleBase):
 
         :return: deserialized Api Management Service instance state dictionary
         '''
-        self.log("Creating / Updating the Api Management Service instance {0}".format(self.service_name))
+        self.log("Creating / Updating the Api Management Service instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.api_management_service.create_or_update(resource_group_name=self.resource_group,
-                                                                                service_name=self.service_name,
+                                                                                service_name=self.name,
                                                                                 parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -492,10 +487,10 @@ class AzureRMApiManagementService(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Api Management Service instance {0}".format(self.service_name))
+        self.log("Deleting the Api Management Service instance {0}".format(self.name))
         try:
             response = self.mgmt_client.api_management_service.delete(resource_group_name=self.resource_group,
-                                                                      service_name=self.service_name)
+                                                                      service_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Api Management Service instance.')
             self.fail("Error deleting the Api Management Service instance: {0}".format(str(e)))
@@ -508,11 +503,11 @@ class AzureRMApiManagementService(AzureRMModuleBase):
 
         :return: deserialized Api Management Service instance state dictionary
         '''
-        self.log("Checking if the Api Management Service instance {0} is present".format(self.service_name))
+        self.log("Checking if the Api Management Service instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.api_management_service.get(resource_group_name=self.resource_group,
-                                                                   service_name=self.service_name)
+                                                                   service_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Api Management Service instance : {0} found".format(response.name))
@@ -528,6 +523,38 @@ class AzureRMApiManagementService(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

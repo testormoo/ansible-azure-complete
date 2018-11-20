@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group to get. The name is case insensitive.
-    management_configuration_name:
+    name:
         description:
             - User Management Configuration Name.
 
@@ -41,7 +41,7 @@ EXAMPLES = '''
   - name: Get instance of Management Configuration
     azure_rm_operationsmanagementmanagementconfiguration_facts:
       resource_group: resource_group_name
-      management_configuration_name: management_configuration_name
+      name: management_configuration_name
 
   - name: List instances of Management Configuration
     azure_rm_operationsmanagementmanagementconfiguration_facts:
@@ -118,7 +118,7 @@ class AzureRMManagementConfigurationsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            management_configuration_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -128,7 +128,7 @@ class AzureRMManagementConfigurationsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.management_configuration_name = None
+        self.name = None
         super(AzureRMManagementConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -138,7 +138,7 @@ class AzureRMManagementConfigurationsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.management_configuration_name is not None):
+                self.name is not None):
             self.results['management_configurations'] = self.get()
         else:
             self.results['management_configurations'] = self.list_by_subscription()
@@ -149,7 +149,7 @@ class AzureRMManagementConfigurationsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.management_configurations.get(resource_group_name=self.resource_group,
-                                                                      management_configuration_name=self.management_configuration_name)
+                                                                      management_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagementConfigurations.')

@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    session_name:
+    name:
         description:
             - The integration account session name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountsession_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      session_name: session_name
+      name: session_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMIntegrationAccountSessionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            session_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -125,7 +125,7 @@ class AzureRMIntegrationAccountSessionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.session_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountSessionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -144,7 +144,7 @@ class AzureRMIntegrationAccountSessionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_sessions.get(resource_group_name=self.resource_group,
                                                                          integration_account_name=self.integration_account_name,
-                                                                         session_name=self.session_name)
+                                                                         session_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountSessions.')

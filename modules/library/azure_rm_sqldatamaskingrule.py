@@ -38,7 +38,7 @@ options:
         description:
             - The name of the database for which the data masking rule applies.
         required: True
-    data_masking_rule_name:
+    name:
         description:
             - The name of the data masking rule.
         required: True
@@ -56,19 +56,19 @@ options:
     schema_name:
         description:
             - The schema name on which the data masking rule is applied.
-        required: True
+            - Required when C(state) is I(present).
     table_name:
         description:
             - The table name on which the data masking rule is applied.
-        required: True
+            - Required when C(state) is I(present).
     column_name:
         description:
             - The column name on which the data masking rule is applied.
-        required: True
+            - Required when C(state) is I(present).
     masking_function:
         description:
             - The masking function that is used for the data masking rule.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'default'
             - 'ccn'
@@ -118,7 +118,14 @@ EXAMPLES = '''
       server_name: sqlcrudtest-2080
       database_name: sqlcrudtest-331
       data_masking_policy_name: Default
-      data_masking_rule_name: rule1
+      name: rule1
+      schema_name: dbo
+      table_name: Table_1
+      column_name: test1
+      masking_function: Text
+      prefix_size: 1
+      suffix_size: 0
+      replacement_string: asdf
 '''
 
 RETURN = '''
@@ -170,7 +177,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            data_masking_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -183,16 +190,13 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                          'enabled']
             ),
             schema_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             table_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             column_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             masking_function=dict(
                 type='str',
@@ -201,8 +205,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                          'email',
                          'number',
                          'ssn',
-                         'text'],
-                required=True
+                         'text']
             ),
             number_from=dict(
                 type='str'
@@ -230,7 +233,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
         self.server_name = None
         self.database_name = None
         self.data_masking_policy_name = None
-        self.data_masking_rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -277,7 +280,6 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                 elif key == "replacement_string":
                     self.parameters["replacement_string"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -298,8 +300,8 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Data Masking Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Data Masking Rule instance")
@@ -310,10 +312,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
 
             response = self.create_update_datamaskingrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Data Masking Rule instance deleted")
@@ -349,7 +348,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                                                                             server_name=self.server_name,
                                                                             database_name=self.database_name,
                                                                             data_masking_policy_name=self.data_masking_policy_name,
-                                                                            data_masking_rule_name=self.data_masking_rule_name,
+                                                                            data_masking_rule_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -399,6 +398,38 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

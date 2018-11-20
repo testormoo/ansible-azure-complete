@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    web_test_name:
+    name:
         description:
             - The name of the Application Insights webtest resource.
         required: True
@@ -38,7 +38,7 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             kind:
                 description:
                     - The kind of web test that this web test watches. Choices are C(C(ping)) and C(C(multistep)).
@@ -48,11 +48,11 @@ options:
             synthetic_monitor_id:
                 description:
                     - Unique ID of this WebTest. This is typically the same value as the Name field.
-                required: True
+                    - Required when C(state) is I(present).
             web_test_name:
                 description:
                     - User defined name if this WebTest.
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - Purpose/user defined descriptive test for this WebTest.
@@ -68,7 +68,7 @@ options:
             web_test_kind:
                 description:
                     - The I(kind) of web test this is, valid choices are C(C(ping)) and C(C(multistep)).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'ping'
                     - 'multistep'
@@ -78,7 +78,7 @@ options:
             locations:
                 description:
                     - A list of where to physically run the tests from to give global coverage for accessibility of your application.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     location:
@@ -113,10 +113,22 @@ EXAMPLES = '''
   - name: Create (or update) Web Test
     azure_rm_applicationinsightswebtest:
       resource_group: my-resource-group
-      web_test_name: my-webtest-my-component
+      name: my-webtest-my-component
       web_test_definition:
         location: South Central US
         kind: ping
+        synthetic_monitor_id: my-webtest-my-component
+        web_test_name: my-webtest-my-component
+        description: Ping web test alert for mytestwebapp
+        enabled: True
+        frequency: 900
+        timeout: 120
+        web_test_kind: ping
+        retry_enabled: True
+        locations:
+          - location: us-fl-mia-edge
+        configuration:
+          web_test: <WebTest Name="my-webtest" Id="678ddf96-1ab8-44c8-9274-123456789abc" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="120" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="" ><Items><Request Method="GET" Guid="a4162485-9114-fcfc-e086-123456789abc" Version="1.1" Url="http://my-component.azurewebsites.net" ThinkTime="0" Timeout="120" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" /></Items></WebTest>
 '''
 
 RETURN = '''
@@ -155,7 +167,7 @@ class AzureRMWebTests(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            web_test_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -171,7 +183,7 @@ class AzureRMWebTests(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.web_test_name = None
+        self.name = None
         self.web_test_definition = dict()
 
         self.results = dict(changed=False)
@@ -215,7 +227,6 @@ class AzureRMWebTests(AzureRMModuleBase):
                 elif key == "configuration":
                     self.web_test_definition["configuration"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApplicationInsightsManagementClient,
@@ -236,8 +247,8 @@ class AzureRMWebTests(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Web Test instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Web Test instance")
@@ -248,10 +259,7 @@ class AzureRMWebTests(AzureRMModuleBase):
 
             response = self.create_update_webtest()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Web Test instance deleted")
@@ -280,11 +288,11 @@ class AzureRMWebTests(AzureRMModuleBase):
 
         :return: deserialized Web Test instance state dictionary
         '''
-        self.log("Creating / Updating the Web Test instance {0}".format(self.web_test_name))
+        self.log("Creating / Updating the Web Test instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.web_tests.create_or_update(resource_group_name=self.resource_group,
-                                                                   web_test_name=self.web_test_name,
+                                                                   web_test_name=self.name,
                                                                    web_test_definition=self.web_test_definition)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -300,10 +308,10 @@ class AzureRMWebTests(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Web Test instance {0}".format(self.web_test_name))
+        self.log("Deleting the Web Test instance {0}".format(self.name))
         try:
             response = self.mgmt_client.web_tests.delete(resource_group_name=self.resource_group,
-                                                         web_test_name=self.web_test_name)
+                                                         web_test_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Web Test instance.')
             self.fail("Error deleting the Web Test instance: {0}".format(str(e)))
@@ -316,11 +324,11 @@ class AzureRMWebTests(AzureRMModuleBase):
 
         :return: deserialized Web Test instance state dictionary
         '''
-        self.log("Checking if the Web Test instance {0} is present".format(self.web_test_name))
+        self.log("Checking if the Web Test instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.web_tests.get(resource_group_name=self.resource_group,
-                                                      web_test_name=self.web_test_name)
+                                                      web_test_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Web Test instance : {0} found".format(response.name))
@@ -336,6 +344,38 @@ class AzureRMWebTests(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

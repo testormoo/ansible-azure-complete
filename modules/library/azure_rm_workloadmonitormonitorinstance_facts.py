@@ -34,7 +34,7 @@ options:
         description:
             - The type of the resource.
         required: True
-    resource_name:
+    name:
         description:
             - Name of the resource.
         required: True
@@ -77,7 +77,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       resource_namespace: resource_namespace
       resource_type: resource_type
-      resource_name: resource_name
+      name: resource_name
       select: select
       filter: filter
       apply: apply
@@ -91,7 +91,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       resource_namespace: resource_namespace
       resource_type: resource_type
-      resource_name: resource_name
+      name: resource_name
       monitor_instance_id: monitor_instance_id
       select: select
       expand: expand
@@ -159,7 +159,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -196,7 +196,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.resource_namespace = None
         self.resource_type = None
-        self.resource_name = None
+        self.name = None
         self.select = None
         self.filter = None
         self.apply = None
@@ -226,7 +226,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
             response = self.mgmt_client.monitor_instances.list_by_resource(resource_group_name=self.resource_group,
                                                                            resource_namespace=self.resource_namespace,
                                                                            resource_type=self.resource_type,
-                                                                           resource_name=self.resource_name)
+                                                                           resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for MonitorInstances.')
@@ -244,7 +244,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
             response = self.mgmt_client.monitor_instances.get(resource_group_name=self.resource_group,
                                                               resource_namespace=self.resource_namespace,
                                                               resource_type=self.resource_type,
-                                                              resource_name=self.resource_name,
+                                                              resource_name=self.name,
                                                               monitor_instance_id=self.monitor_instance_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -37,15 +37,15 @@ options:
     user_id:
         description:
             - User (user id path) for whom subscription is being created in form /users/{uid}
-        required: True
+            - Required when C(state) is I(present).
     product_id:
         description:
             - Product (product id path) for which subscription is being created in form /products/{productid}
-        required: True
+            - Required when C(state) is I(present).
     display_name:
         description:
             - Subscription name.
-        required: True
+            - Required when C(state) is I(present).
     primary_key:
         description:
             - Primary subscription key. If not specified during request key will be generated automatically.
@@ -95,8 +95,11 @@ EXAMPLES = '''
   - name: Create (or update) Subscription
     azure_rm_apimanagementsubscription:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       sid: testsub
+      user_id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.ApiManagement/service/apimService1/users/57127d485157a511ace86ae7
+      product_id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.ApiManagement/service/apimService1/products/5600b59475ff190048060002
+      display_name: testsub
       notify: NOT FOUND
       if_match: NOT FOUND
 '''
@@ -131,7 +134,7 @@ class AzureRMSubscription(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -140,16 +143,13 @@ class AzureRMSubscription(AzureRMModuleBase):
                 required=True
             ),
             user_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             product_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             primary_key=dict(
                 type='str'
@@ -180,7 +180,7 @@ class AzureRMSubscription(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.sid = None
         self.parameters = dict()
         self.notify = None
@@ -215,7 +215,6 @@ class AzureRMSubscription(AzureRMModuleBase):
                 elif key == "state":
                     self.parameters["state"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -236,8 +235,8 @@ class AzureRMSubscription(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Subscription instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Subscription instance")
@@ -248,10 +247,7 @@ class AzureRMSubscription(AzureRMModuleBase):
 
             response = self.create_update_subscription()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Subscription instance deleted")
@@ -284,7 +280,7 @@ class AzureRMSubscription(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.subscription.create_or_update(resource_group_name=self.resource_group,
-                                                                      service_name=self.service_name,
+                                                                      service_name=self.name,
                                                                       sid=self.sid,
                                                                       parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -304,7 +300,7 @@ class AzureRMSubscription(AzureRMModuleBase):
         self.log("Deleting the Subscription instance {0}".format(self.sid))
         try:
             response = self.mgmt_client.subscription.delete(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             sid=self.sid,
                                                             if_match=self.if_match)
         except CloudError as e:
@@ -323,7 +319,7 @@ class AzureRMSubscription(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.subscription.get(resource_group_name=self.resource_group,
-                                                         service_name=self.service_name,
+                                                         service_name=self.name,
                                                          sid=self.sid)
             found = True
             self.log("Response : {0}".format(response))
@@ -339,6 +335,38 @@ class AzureRMSubscription(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

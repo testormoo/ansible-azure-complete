@@ -30,7 +30,7 @@ options:
         description:
             - The namespace name.
         required: True
-    notification_hub_name:
+    name:
         description:
             - The notification hub name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_notificationhub_facts:
       resource_group: resource_group_name
       namespace_name: namespace_name
-      notification_hub_name: notification_hub_name
+      name: notification_hub_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMNotificationHubsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            notification_hub_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -125,7 +125,7 @@ class AzureRMNotificationHubsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.namespace_name = None
-        self.notification_hub_name = None
+        self.name = None
         self.tags = None
         super(AzureRMNotificationHubsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -144,7 +144,7 @@ class AzureRMNotificationHubsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.notification_hubs.get(resource_group_name=self.resource_group,
                                                               namespace_name=self.namespace_name,
-                                                              notification_hub_name=self.notification_hub_name)
+                                                              notification_hub_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NotificationHubs.')

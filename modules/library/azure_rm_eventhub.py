@@ -30,7 +30,7 @@ options:
         description:
             - The Namespace name
         required: True
-    event_hub_name:
+    name:
         description:
             - The Event Hub name
         required: True
@@ -113,7 +113,20 @@ EXAMPLES = '''
     azure_rm_eventhub:
       resource_group: Default-NotificationHubs-AustraliaEast
       namespace_name: sdk-Namespace-5357
-      event_hub_name: sdk-EventHub-6547
+      name: sdk-EventHub-6547
+      message_retention_in_days: 4
+      partition_count: 4
+      status: Active
+      capture_description:
+        enabled: True
+        encoding: Avro
+        interval_in_seconds: 120
+        size_limit_in_bytes: 10485763
+        destination:
+          name: EventHubArchive.AzureBlockBlob
+          storage_account_resource_id: /subscriptions/e2f361f0-3b27-4503-a9cc-21cfba380093/resourceGroups/Default-Storage-SouthCentralUS/providers/Microsoft.ClassicStorage/storageAccounts/arjunteststorage
+          blob_container: container
+          archive_name_format: {Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}
 '''
 
 RETURN = '''
@@ -164,7 +177,7 @@ class AzureRMEventHubs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_hub_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -198,7 +211,7 @@ class AzureRMEventHubs(AzureRMModuleBase):
 
         self.resource_group = None
         self.namespace_name = None
-        self.event_hub_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -232,7 +245,6 @@ class AzureRMEventHubs(AzureRMModuleBase):
                             ev['encoding'] = 'AvroDeflate'
                     self.parameters["capture_description"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(EventHubManagementClient,
@@ -253,8 +265,8 @@ class AzureRMEventHubs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Event Hub instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Event Hub instance")
@@ -265,10 +277,7 @@ class AzureRMEventHubs(AzureRMModuleBase):
 
             response = self.create_update_eventhub()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Event Hub instance deleted")
@@ -297,12 +306,12 @@ class AzureRMEventHubs(AzureRMModuleBase):
 
         :return: deserialized Event Hub instance state dictionary
         '''
-        self.log("Creating / Updating the Event Hub instance {0}".format(self.event_hub_name))
+        self.log("Creating / Updating the Event Hub instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.event_hubs.create_or_update(resource_group_name=self.resource_group,
                                                                     namespace_name=self.namespace_name,
-                                                                    event_hub_name=self.event_hub_name,
+                                                                    event_hub_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -318,11 +327,11 @@ class AzureRMEventHubs(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Event Hub instance {0}".format(self.event_hub_name))
+        self.log("Deleting the Event Hub instance {0}".format(self.name))
         try:
             response = self.mgmt_client.event_hubs.delete(resource_group_name=self.resource_group,
                                                           namespace_name=self.namespace_name,
-                                                          event_hub_name=self.event_hub_name)
+                                                          event_hub_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Event Hub instance.')
             self.fail("Error deleting the Event Hub instance: {0}".format(str(e)))
@@ -335,12 +344,12 @@ class AzureRMEventHubs(AzureRMModuleBase):
 
         :return: deserialized Event Hub instance state dictionary
         '''
-        self.log("Checking if the Event Hub instance {0} is present".format(self.event_hub_name))
+        self.log("Checking if the Event Hub instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.event_hubs.get(resource_group_name=self.resource_group,
                                                        namespace_name=self.namespace_name,
-                                                       event_hub_name=self.event_hub_name)
+                                                       event_hub_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Event Hub instance : {0} found".format(response.name))
@@ -357,6 +366,38 @@ class AzureRMEventHubs(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

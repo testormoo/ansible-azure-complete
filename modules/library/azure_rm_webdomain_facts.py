@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    domain_name:
+    name:
         description:
             - Name of the domain.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Domain
     azure_rm_webdomain_facts:
       resource_group: resource_group_name
-      domain_name: domain_name
+      name: domain_name
 
   - name: List instances of Domain
     azure_rm_webdomain_facts:
@@ -91,7 +91,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            domain_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -104,7 +104,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.domain_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDomainsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -114,7 +114,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(WebSiteManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.domain_name is not None:
+        if self.name is not None:
             self.results['domains'] = self.get()
         else:
             self.results['domains'] = self.list_by_resource_group()
@@ -125,7 +125,7 @@ class AzureRMDomainsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.domains.get(resource_group_name=self.resource_group,
-                                                    domain_name=self.domain_name)
+                                                    domain_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Domains.')

@@ -30,14 +30,14 @@ options:
         description:
             - The name of the automation account.
         required: True
-    webhook_name:
+    name:
         description:
             - The webhook name.
         required: True
     name:
         description:
             - Gets or sets the name of the webhook.
-        required: True
+            - Required when C(state) is I(present).
     is_enabled:
         description:
             - Gets or sets the value of the enabled flag of webhook.
@@ -82,8 +82,13 @@ EXAMPLES = '''
     azure_rm_automationwebhook:
       resource_group: rg
       automation_account_name: myAutomationAccount33
-      webhook_name: TestWebhook
       name: TestWebhook
+      name: TestWebhook
+      is_enabled: True
+      uri: https://s1events.azure-automation.net/webhooks?token=7u3KfQvM1vUPWaDMFRv2%2fAA4Jqx8QwS8aBuyO6Xsdcw%3d
+      expiry_time: 2018-03-29T22:18:13.7002872Z
+      runbook:
+        name: TestRunbook
 '''
 
 RETURN = '''
@@ -126,13 +131,12 @@ class AzureRMWebhook(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            webhook_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             is_enabled=dict(
                 type='str'
@@ -161,7 +165,7 @@ class AzureRMWebhook(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.webhook_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -195,7 +199,6 @@ class AzureRMWebhook(AzureRMModuleBase):
                 elif key == "run_on":
                     self.parameters["run_on"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -216,8 +219,8 @@ class AzureRMWebhook(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Webhook instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Webhook instance")
@@ -228,10 +231,7 @@ class AzureRMWebhook(AzureRMModuleBase):
 
             response = self.create_update_webhook()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Webhook instance deleted")
@@ -260,12 +260,12 @@ class AzureRMWebhook(AzureRMModuleBase):
 
         :return: deserialized Webhook instance state dictionary
         '''
-        self.log("Creating / Updating the Webhook instance {0}".format(self.webhook_name))
+        self.log("Creating / Updating the Webhook instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.webhook.create_or_update(resource_group_name=self.resource_group,
                                                                  automation_account_name=self.automation_account_name,
-                                                                 webhook_name=self.webhook_name,
+                                                                 webhook_name=self.name,
                                                                  parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -281,11 +281,11 @@ class AzureRMWebhook(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Webhook instance {0}".format(self.webhook_name))
+        self.log("Deleting the Webhook instance {0}".format(self.name))
         try:
             response = self.mgmt_client.webhook.delete(resource_group_name=self.resource_group,
                                                        automation_account_name=self.automation_account_name,
-                                                       webhook_name=self.webhook_name)
+                                                       webhook_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Webhook instance.')
             self.fail("Error deleting the Webhook instance: {0}".format(str(e)))
@@ -298,12 +298,12 @@ class AzureRMWebhook(AzureRMModuleBase):
 
         :return: deserialized Webhook instance state dictionary
         '''
-        self.log("Checking if the Webhook instance {0} is present".format(self.webhook_name))
+        self.log("Checking if the Webhook instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.webhook.get(resource_group_name=self.resource_group,
                                                     automation_account_name=self.automation_account_name,
-                                                    webhook_name=self.webhook_name)
+                                                    webhook_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Webhook instance : {0} found".format(response.name))
@@ -319,6 +319,38 @@ class AzureRMWebhook(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Node Count Information
     azure_rm_automationnodecountinformation_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       self.config.count_type: self.config.count_type
 '''
 
@@ -85,7 +85,7 @@ class AzureRMNodeCountInformationFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -100,7 +100,7 @@ class AzureRMNodeCountInformationFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.self.config.count_type = None
         super(AzureRMNodeCountInformationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -118,7 +118,7 @@ class AzureRMNodeCountInformationFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.node_count_information.get(resource_group_name=self.resource_group,
-                                                                   automation_account_name=self.automation_account_name,
+                                                                   automation_account_name=self.name,
                                                                    self.config.count_type=self.self.config.count_type)
             self.log("Response : {0}".format(response))
         except CloudError as e:

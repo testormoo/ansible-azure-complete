@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
   - name: Get instance of Quota By Period Key
     azure_rm_apimanagementquotabyperiodkey_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       quota_counter_key: quota_counter_key
       quota_period_key: quota_period_key
 '''
@@ -92,7 +92,7 @@ class AzureRMQuotaByPeriodKeysFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -111,7 +111,7 @@ class AzureRMQuotaByPeriodKeysFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.quota_counter_key = None
         self.quota_period_key = None
         super(AzureRMQuotaByPeriodKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -130,7 +130,7 @@ class AzureRMQuotaByPeriodKeysFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.quota_by_period_keys.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  quota_counter_key=self.quota_counter_key,
                                                                  quota_period_key=self.quota_period_key)
             self.log("Response : {0}".format(response))

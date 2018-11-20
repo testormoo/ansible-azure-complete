@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    policy_name:
+    name:
         description:
             - The name of the resource group.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Policy
     azure_rm_frontdoorpolicy_facts:
       resource_group: resource_group_name
-      policy_name: policy_name
+      name: policy_name
 '''
 
 RETURN = '''
@@ -100,7 +100,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -114,7 +114,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.policy_name = None
+        self.name = None
         self.tags = None
         super(AzureRMPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.policies.get(resource_group_name=self.resource_group,
-                                                     policy_name=self.policy_name)
+                                                     policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Policies.')

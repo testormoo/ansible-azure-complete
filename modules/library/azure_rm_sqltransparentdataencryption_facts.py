@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database for which the transparent data encryption applies.
         required: True
-    transparent_data_encryption_name:
+    name:
         description:
             - The name of the transparent data encryption configuration.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      transparent_data_encryption_name: transparent_data_encryption_name
+      name: transparent_data_encryption_name
 '''
 
 RETURN = '''
@@ -116,7 +116,7 @@ class AzureRMTransparentDataEncryptionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            transparent_data_encryption_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -129,7 +129,7 @@ class AzureRMTransparentDataEncryptionsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.transparent_data_encryption_name = None
+        self.name = None
         super(AzureRMTransparentDataEncryptionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -148,7 +148,7 @@ class AzureRMTransparentDataEncryptionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.transparent_data_encryptions.get(resource_group_name=self.resource_group,
                                                                          server_name=self.server_name,
                                                                          database_name=self.database_name,
-                                                                         transparent_data_encryption_name=self.transparent_data_encryption_name)
+                                                                         transparent_data_encryption_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for TransparentDataEncryptions.')

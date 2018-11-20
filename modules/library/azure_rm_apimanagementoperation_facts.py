@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -64,7 +64,7 @@ EXAMPLES = '''
   - name: List instances of Operation
     azure_rm_apimanagementoperation_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       filter: filter
       top: top
@@ -98,7 +98,7 @@ class AzureRMOperationFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -122,7 +122,7 @@ class AzureRMOperationFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.filter = None
         self.top = None
@@ -143,7 +143,7 @@ class AzureRMOperationFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.operation.list_by_tags(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

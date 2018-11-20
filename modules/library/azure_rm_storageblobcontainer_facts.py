@@ -31,7 +31,7 @@ options:
             - "The name of the storage account within the specified resource group. Storage account names must be between 3 and 24 characters in length and
                use numbers and lower-case letters only."
         required: True
-    container_name:
+    name:
         description:
             - "The name of the blob container within the specified storage account. Blob container names must be between 3 and 63 characters in length and
                use numbers, lower-case letters and dash (-) only. Every dash (-) character must be immediately preceded and followed by a letter or number."
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_storageblobcontainer_facts:
       resource_group: resource_group_name
       account_name: account_name
-      container_name: container_name
+      name: container_name
 '''
 
 RETURN = '''
@@ -104,7 +104,7 @@ class AzureRMBlobContainersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -116,7 +116,7 @@ class AzureRMBlobContainersFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.container_name = None
+        self.name = None
         super(AzureRMBlobContainersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -134,7 +134,7 @@ class AzureRMBlobContainersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.blob_containers.get(resource_group_name=self.resource_group,
                                                             account_name=self.account_name,
-                                                            container_name=self.container_name)
+                                                            container_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for BlobContainers.')

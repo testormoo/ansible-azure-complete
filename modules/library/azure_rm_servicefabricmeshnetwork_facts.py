@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure resource group name
-    network_resource_name:
+    name:
         description:
             - The identity of the network.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Network
     azure_rm_servicefabricmeshnetwork_facts:
       resource_group: resource_group_name
-      network_resource_name: network_resource_name
+      name: network_resource_name
 
   - name: List instances of Network
     azure_rm_servicefabricmeshnetwork_facts:
@@ -130,7 +130,7 @@ class AzureRMNetworkFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            network_resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -143,7 +143,7 @@ class AzureRMNetworkFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.network_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMNetworkFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -154,7 +154,7 @@ class AzureRMNetworkFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.network_resource_name is not None):
+                self.name is not None):
             self.results['network'] = self.get()
         elif self.resource_group is not None:
             self.results['network'] = self.list_by_resource_group()
@@ -167,7 +167,7 @@ class AzureRMNetworkFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.network.get(resource_group_name=self.resource_group,
-                                                    network_resource_name=self.network_resource_name)
+                                                    network_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Network.')

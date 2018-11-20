@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    connection_type_name:
+    name:
         description:
             - The name of connectiontype.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_automationconnectiontype_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      connection_type_name: connection_type_name
+      name: connection_type_name
 
   - name: List instances of Connection Type
     azure_rm_automationconnectiontype_facts:
@@ -98,7 +98,7 @@ class AzureRMConnectionTypeFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_type_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMConnectionTypeFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.connection_type_name = None
+        self.name = None
         super(AzureRMConnectionTypeFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMConnectionTypeFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.connection_type_name is not None:
+        if self.name is not None:
             self.results['connection_type'] = self.get()
         else:
             self.results['connection_type'] = self.list_by_automation_account()
@@ -130,7 +130,7 @@ class AzureRMConnectionTypeFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.connection_type.get(resource_group_name=self.resource_group,
                                                             automation_account_name=self.automation_account_name,
-                                                            connection_type_name=self.connection_type_name)
+                                                            connection_type_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ConnectionType.')

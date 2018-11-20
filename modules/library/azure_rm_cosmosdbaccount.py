@@ -33,6 +33,7 @@ options:
     location:
         description:
             - The location of the resource group to which the resource belongs.
+            - Required when C(state) is I(present).
     kind:
         description:
             - Indicates the type of database account. This can only be set at database account creation.
@@ -47,7 +48,7 @@ options:
             default_consistency_level:
                 description:
                     - The default consistency level and configuration settings of the Cosmos DB account.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'eventual'
                     - 'session'
@@ -65,6 +66,7 @@ options:
     locations:
         description:
             - An array that contains the georeplication locations enabled for the Cosmos DB account.
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             location_name:
@@ -76,7 +78,7 @@ options:
                        (total number of regions - 1). Failover priority values must be unique for each of the regions in which the database account exists."
     database_account_offer_type:
         description:
-            - TBD
+            - Required when C(state) is I(present).
     ip_range_filter:
         description:
             - "Cosmos DB Firewall Support: This value specifies the set of IP addresses or IP address ranges in CIDR form to be included as the allowed list
@@ -88,7 +90,6 @@ options:
         description:
             - "Enables automatic failover of the write region in the rare event that the region is unavailable due to an outage. Automatic failover will
                result in a new write region for the account and is chosen based on the failover priorities configured for the account."
-        type: bool
     capabilities:
         description:
             - List of Cosmos DB capabilities for the account
@@ -136,7 +137,7 @@ EXAMPLES = '''
       name: ddb1
       location: westus
       locations:
-        - location_name: eastus
+        - location_name: southcentralus
           failover_priority: 0
       database_account_offer_type: Standard
 '''
@@ -163,7 +164,6 @@ except ImportError:
     # This is handled in azure_rm_common
     pass
 
-comparison_failure = {}
 
 class Actions:
     NoAction, Create, Update, Delete = range(4)
@@ -207,7 +207,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 type='str'
             ),
             enable_automatic_failover=dict(
-                type='bool'
+                type='str'
             ),
             capabilities=dict(
                 type='list'
@@ -308,25 +308,11 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                old_response['locations'] = old_response['failover_policies']
-                if (not compare(self.parameters, old_response,
-                                {'location': 'location',
-                                 'kind': None,
-                                 'consistency_policy': {
-                                     'default_consistency_level': None,
-                                     'max_staleness_prefix': None,
-                                     'max_interval_in_seconds': None
-                                 },
-                                 'ip_range_filter': None,
-                                 'enable_automatic_failover': None,
-                                 'enable_multiple_write_locations': None,
-                                 'locations': {
-                                     'location_name': 'location',
-                                     '__sort__': 'failover_priority'
-                                 }
-                                })):
+                if (not default_compare(self.parameters, old_response, '', {
+                '/location': 'location',
+                '/locations/location_name': 'location
+                       })):
                     self.to_do = Actions.Update
-                self.results['comparison_failure'] = comparison_failure
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Database Account instance")
@@ -336,6 +322,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 return self.results
 
             response = self.create_update_databaseaccount()
+
             self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
@@ -423,55 +410,36 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
         return d
 
 
-def compare(a, b, t):
-    if isinstance(t, dict):
-        if isinstance(a, list) and isinstance(b, list):
-            s = t.get('__sort__', None)
-            if s is not None:
-                a = sorted(a, key=lambda x: x[s])
-                b = sorted(b, key=lambda x: x[s])
-            if len(a) != len(b):
-                comparison_failure['error'] = "DDD " + str(a) + "--" + str(b) 
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
                 return False
-            for i in range(len(a)):
-                if not compare(a[i], b[i], t):
-                    return False
-            return True
-        elif isinstance(a, dict) and isinstance(b, dict):
-            for k in t.keys():
-                if not k == '__sort__':
-                    if not compare(a.get(k, None), b.get(k, None), t[k]):
-                        return False
-            return True
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
         else:
-            comparison_failure['error'] = "AAA " + str(a) + "--" + str(b) 
-            return a is None
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
     else:
-        if a is None:
-            return True
-        if t == "location":
-            # location needs to be normalized, remove spaces, lowercase
-            a = a.replace(' ', '').lower()
-            b = b.replace(' ', '').lower()
-            if a != b:
-                comparison_failure['error'] = "BBB " + str(a) + "--" + str(b) 
-            return a == b
-        else:
-            # default comparison
-            if type(a) == 'bool':
-                a = str(a)
-            if (type(b) == 'bool'):
-                b = str(b)
-            if a != b:
-                comparison_failure['error'] = ("CCC " +
-                                              str(type(a)) +
-                                              ":" +
-                                              str(a) +
-                                              "--" +
-                                              str(type(b)) +
-                                              ":" +
-                                              str(b))
-            return a == b
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

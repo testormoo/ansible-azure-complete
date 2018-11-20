@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    prediction_name:
+    name:
         description:
             - The name of the Prediction.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsprediction_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      prediction_name: prediction_name
+      name: prediction_name
 
   - name: List instances of Prediction
     azure_rm_customerinsightsprediction_facts:
@@ -137,7 +137,7 @@ class AzureRMPredictionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            prediction_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -148,7 +148,7 @@ class AzureRMPredictionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.prediction_name = None
+        self.name = None
         super(AzureRMPredictionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -157,7 +157,7 @@ class AzureRMPredictionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.prediction_name is not None:
+        if self.name is not None:
             self.results['predictions'] = self.get()
         else:
             self.results['predictions'] = self.list_by_hub()
@@ -169,7 +169,7 @@ class AzureRMPredictionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.predictions.get(resource_group_name=self.resource_group,
                                                         hub_name=self.hub_name,
-                                                        prediction_name=self.prediction_name)
+                                                        prediction_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Predictions.')

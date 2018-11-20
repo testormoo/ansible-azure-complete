@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    key_name:
+    name:
         description:
             - "The name of the server key to be operated on (updated or created). The key name is required to be in the format of 'vault_key_version'. For
                example, if the keyId is https://YourVaultName.vault.azure.net/keys/YourKeyName/01234567890123456789012345678901, then the server key name
@@ -42,7 +42,7 @@ options:
     server_key_type:
         description:
             - "The server key type like 'C(service_managed)', 'C(azure_key_vault)'."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'service_managed'
             - 'azure_key_vault'
@@ -77,7 +77,9 @@ EXAMPLES = '''
     azure_rm_sqlserverkey:
       resource_group: sqlcrudtest-7398
       server_name: sqlcrudtest-4645
-      key_name: someVault_someKey_01234567890123456789012345678901
+      name: someVault_someKey_01234567890123456789012345678901
+      server_key_type: AzureKeyVault
+      uri: https://someVault.vault.azure.net/keys/someKey/01234567890123456789012345678901
 '''
 
 RETURN = '''
@@ -121,7 +123,7 @@ class AzureRMServerKeys(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            key_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,8 +133,7 @@ class AzureRMServerKeys(AzureRMModuleBase):
             server_key_type=dict(
                 type='str',
                 choices=['service_managed',
-                         'azure_key_vault'],
-                required=True
+                         'azure_key_vault']
             ),
             uri=dict(
                 type='str'
@@ -152,7 +153,7 @@ class AzureRMServerKeys(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.key_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -182,7 +183,6 @@ class AzureRMServerKeys(AzureRMModuleBase):
                 elif key == "creation_date":
                     self.parameters["creation_date"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -203,8 +203,8 @@ class AzureRMServerKeys(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Key instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Key instance")
@@ -215,10 +215,7 @@ class AzureRMServerKeys(AzureRMModuleBase):
 
             response = self.create_update_serverkey()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Key instance deleted")
@@ -247,12 +244,12 @@ class AzureRMServerKeys(AzureRMModuleBase):
 
         :return: deserialized Server Key instance state dictionary
         '''
-        self.log("Creating / Updating the Server Key instance {0}".format(self.key_name))
+        self.log("Creating / Updating the Server Key instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.server_keys.create_or_update(resource_group_name=self.resource_group,
                                                                      server_name=self.server_name,
-                                                                     key_name=self.key_name,
+                                                                     key_name=self.name,
                                                                      parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -268,11 +265,11 @@ class AzureRMServerKeys(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Key instance {0}".format(self.key_name))
+        self.log("Deleting the Server Key instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_keys.delete(resource_group_name=self.resource_group,
                                                            server_name=self.server_name,
-                                                           key_name=self.key_name)
+                                                           key_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Server Key instance.')
             self.fail("Error deleting the Server Key instance: {0}".format(str(e)))
@@ -285,12 +282,12 @@ class AzureRMServerKeys(AzureRMModuleBase):
 
         :return: deserialized Server Key instance state dictionary
         '''
-        self.log("Checking if the Server Key instance {0} is present".format(self.key_name))
+        self.log("Checking if the Server Key instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_keys.get(resource_group_name=self.resource_group,
                                                         server_name=self.server_name,
-                                                        key_name=self.key_name)
+                                                        key_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Key instance : {0} found".format(response.name))
@@ -306,6 +303,38 @@ class AzureRMServerKeys(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

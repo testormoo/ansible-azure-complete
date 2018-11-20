@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: List instances of Quota By Counter Key
     azure_rm_apimanagementquotabycounterkey_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       quota_counter_key: quota_counter_key
 '''
 
@@ -80,7 +80,7 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -95,7 +95,7 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.quota_counter_key = None
         super(AzureRMQuotaByCounterKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -113,7 +113,7 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.quota_by_counter_keys.list_by_service(resource_group_name=self.resource_group,
-                                                                              service_name=self.service_name,
+                                                                              service_name=self.name,
                                                                               quota_counter_key=self.quota_counter_key)
             self.log("Response : {0}".format(response))
         except CloudError as e:

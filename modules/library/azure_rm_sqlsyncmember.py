@@ -38,7 +38,7 @@ options:
         description:
             - The name of the sync group on which the sync member is hosted.
         required: True
-    sync_member_name:
+    name:
         description:
             - The name of the sync member.
         required: True
@@ -97,7 +97,12 @@ EXAMPLES = '''
       server_name: syncgroupcrud-8475
       database_name: syncgroupcrud-4328
       sync_group_name: syncgroupcrud-3187
-      sync_member_name: syncgroupcrud-4879
+      name: syncgroupcrud-4879
+      database_type: AzureSqlDatabase
+      server_name: syncgroupcrud-3379.database.windows.net
+      database_name: syncgroupcrud-7421
+      user_name: myUser
+      sync_direction: Bidirectional
 '''
 
 RETURN = '''
@@ -149,7 +154,7 @@ class AzureRMSyncMembers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            sync_member_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -194,7 +199,7 @@ class AzureRMSyncMembers(AzureRMModuleBase):
         self.server_name = None
         self.database_name = None
         self.sync_group_name = None
-        self.sync_member_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -230,7 +235,6 @@ class AzureRMSyncMembers(AzureRMModuleBase):
                 elif key == "sync_direction":
                     self.parameters["sync_direction"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -251,8 +255,8 @@ class AzureRMSyncMembers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Sync Member instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Sync Member instance")
@@ -263,10 +267,7 @@ class AzureRMSyncMembers(AzureRMModuleBase):
 
             response = self.create_update_syncmember()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Sync Member instance deleted")
@@ -295,14 +296,14 @@ class AzureRMSyncMembers(AzureRMModuleBase):
 
         :return: deserialized Sync Member instance state dictionary
         '''
-        self.log("Creating / Updating the Sync Member instance {0}".format(self.sync_member_name))
+        self.log("Creating / Updating the Sync Member instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.sync_members.create_or_update(resource_group_name=self.resource_group,
                                                                       server_name=self.server_name,
                                                                       database_name=self.database_name,
                                                                       sync_group_name=self.sync_group_name,
-                                                                      sync_member_name=self.sync_member_name,
+                                                                      sync_member_name=self.name,
                                                                       parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -318,13 +319,13 @@ class AzureRMSyncMembers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Sync Member instance {0}".format(self.sync_member_name))
+        self.log("Deleting the Sync Member instance {0}".format(self.name))
         try:
             response = self.mgmt_client.sync_members.delete(resource_group_name=self.resource_group,
                                                             server_name=self.server_name,
                                                             database_name=self.database_name,
                                                             sync_group_name=self.sync_group_name,
-                                                            sync_member_name=self.sync_member_name)
+                                                            sync_member_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Sync Member instance.')
             self.fail("Error deleting the Sync Member instance: {0}".format(str(e)))
@@ -337,14 +338,14 @@ class AzureRMSyncMembers(AzureRMModuleBase):
 
         :return: deserialized Sync Member instance state dictionary
         '''
-        self.log("Checking if the Sync Member instance {0} is present".format(self.sync_member_name))
+        self.log("Checking if the Sync Member instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.sync_members.get(resource_group_name=self.resource_group,
                                                          server_name=self.server_name,
                                                          database_name=self.database_name,
                                                          sync_group_name=self.sync_group_name,
-                                                         sync_member_name=self.sync_member_name)
+                                                         sync_member_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Sync Member instance : {0} found".format(response.name))
@@ -360,6 +361,38 @@ class AzureRMSyncMembers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

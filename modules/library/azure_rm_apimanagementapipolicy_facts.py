@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -51,14 +51,14 @@ EXAMPLES = '''
   - name: Get instance of Api Policy
     azure_rm_apimanagementapipolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       policy_id: policy_id
 
   - name: List instances of Api Policy
     azure_rm_apimanagementapipolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
 '''
 
@@ -101,7 +101,7 @@ class AzureRMApiPolicyFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -119,7 +119,7 @@ class AzureRMApiPolicyFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.policy_id = None
         super(AzureRMApiPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -141,7 +141,7 @@ class AzureRMApiPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_policy.get(resource_group_name=self.resource_group,
-                                                       service_name=self.service_name,
+                                                       service_name=self.name,
                                                        api_id=self.api_id,
                                                        policy_id=self.policy_id)
             self.log("Response : {0}".format(response))
@@ -158,7 +158,7 @@ class AzureRMApiPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_policy.list_by_api(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

@@ -38,7 +38,7 @@ options:
         description:
             - Unique name of an assessment within a project.
         required: True
-    assessed_machine_name:
+    name:
         description:
             - Unique name of an assessed machine evaluated as part of an assessment.
     self.config.accept_language:
@@ -60,7 +60,7 @@ EXAMPLES = '''
       project_name: project_name
       group_name: group_name
       assessment_name: assessment_name
-      assessed_machine_name: assessed_machine_name
+      name: assessed_machine_name
       self.config.accept_language: self.config.accept_language
 
   - name: List instances of Assessed Machine
@@ -163,7 +163,7 @@ class AzureRMAssessedMachinesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            assessed_machine_name=dict(
+            name=dict(
                 type='str'
             ),
             self.config.accept_language=dict(
@@ -179,7 +179,7 @@ class AzureRMAssessedMachinesFacts(AzureRMModuleBase):
         self.project_name = None
         self.group_name = None
         self.assessment_name = None
-        self.assessed_machine_name = None
+        self.name = None
         self.self.config.accept_language = None
         super(AzureRMAssessedMachinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -189,7 +189,7 @@ class AzureRMAssessedMachinesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AzureMigrate,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.assessed_machine_name is not None:
+        if self.name is not None:
             self.results['assessed_machines'] = self.get()
         else:
             self.results['assessed_machines'] = self.list_by_assessment()
@@ -203,7 +203,7 @@ class AzureRMAssessedMachinesFacts(AzureRMModuleBase):
                                                               project_name=self.project_name,
                                                               group_name=self.group_name,
                                                               assessment_name=self.assessment_name,
-                                                              assessed_machine_name=self.assessed_machine_name)
+                                                              assessed_machine_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AssessedMachines.')

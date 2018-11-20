@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    link_name:
+    name:
         description:
             - The name of the link.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightslink_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      link_name: link_name
+      name: link_name
 
   - name: List instances of Link
     azure_rm_customerinsightslink_facts:
@@ -112,7 +112,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            link_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -123,7 +123,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.link_name = None
+        self.name = None
         super(AzureRMLinksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -132,7 +132,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.link_name is not None:
+        if self.name is not None:
             self.results['links'] = self.get()
         else:
             self.results['links'] = self.list_by_hub()
@@ -144,7 +144,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.links.get(resource_group_name=self.resource_group,
                                                   hub_name=self.hub_name,
-                                                  link_name=self.link_name)
+                                                  link_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Links.')

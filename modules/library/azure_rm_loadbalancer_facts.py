@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    load_balancer_name:
+    name:
         description:
             - The name of the load balancer.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Load Balancer
     azure_rm_loadbalancer_facts:
       resource_group: resource_group_name
-      load_balancer_name: load_balancer_name
+      name: load_balancer_name
       expand: expand
 '''
 
@@ -124,7 +124,7 @@ class AzureRMLoadBalancersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            load_balancer_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -141,7 +141,7 @@ class AzureRMLoadBalancersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.load_balancer_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMLoadBalancersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -160,7 +160,7 @@ class AzureRMLoadBalancersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.load_balancers.get(resource_group_name=self.resource_group,
-                                                           load_balancer_name=self.load_balancer_name)
+                                                           load_balancer_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LoadBalancers.')

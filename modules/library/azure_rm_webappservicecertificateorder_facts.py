@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    certificate_order_name:
+    name:
         description:
             - Name of the certificate order..
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of App Service Certificate Order
     azure_rm_webappservicecertificateorder_facts:
       resource_group: resource_group_name
-      certificate_order_name: certificate_order_name
+      name: certificate_order_name
 
   - name: List instances of App Service Certificate Order
     azure_rm_webappservicecertificateorder_facts:
@@ -98,7 +98,7 @@ class AzureRMAppServiceCertificateOrdersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_order_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -111,7 +111,7 @@ class AzureRMAppServiceCertificateOrdersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.certificate_order_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAppServiceCertificateOrdersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -121,7 +121,7 @@ class AzureRMAppServiceCertificateOrdersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(WebSiteManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.certificate_order_name is not None:
+        if self.name is not None:
             self.results['app_service_certificate_orders'] = self.get()
         else:
             self.results['app_service_certificate_orders'] = self.list_by_resource_group()
@@ -132,7 +132,7 @@ class AzureRMAppServiceCertificateOrdersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.app_service_certificate_orders.get(resource_group_name=self.resource_group,
-                                                                           certificate_order_name=self.certificate_order_name)
+                                                                           certificate_order_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AppServiceCertificateOrders.')

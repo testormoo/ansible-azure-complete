@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Annotation
     azure_rm_applicationinsightsannotation_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
       annotation_id: annotation_id
 '''
 
@@ -78,7 +78,7 @@ class AzureRMAnnotationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -93,7 +93,7 @@ class AzureRMAnnotationsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.annotation_id = None
         super(AzureRMAnnotationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -111,7 +111,7 @@ class AzureRMAnnotationsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.annotations.get(resource_group_name=self.resource_group,
-                                                        resource_name=self.resource_name,
+                                                        resource_name=self.name,
                                                         annotation_id=self.annotation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

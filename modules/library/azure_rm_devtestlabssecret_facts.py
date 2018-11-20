@@ -30,7 +30,7 @@ options:
         description:
             - The name of the lab.
         required: True
-    user_name:
+    name:
         description:
             - The name of the user profile.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
     azure_rm_devtestlabssecret_facts:
       resource_group: resource_group_name
       lab_name: lab_name
-      user_name: user_name
+      name: user_name
       name: name
       expand: expand
 '''
@@ -106,7 +106,7 @@ class AzureRMSecretsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            user_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMSecretsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.lab_name = None
-        self.user_name = None
+        self.name = None
         self.name = None
         self.expand = None
         self.tags = None
@@ -149,7 +149,7 @@ class AzureRMSecretsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.secrets.get(resource_group_name=self.resource_group,
                                                     lab_name=self.lab_name,
-                                                    user_name=self.user_name,
+                                                    user_name=self.name,
                                                     name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

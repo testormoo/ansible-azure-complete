@@ -26,7 +26,7 @@ options:
         description:
             - ManagementGroup where blueprint stores.
         required: True
-    blueprint_name:
+    name:
         description:
             - name of the blueprint.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Published Blueprint
     azure_rm_blueprintpublishedblueprint_facts:
       management_group_name: management_group_name
-      blueprint_name: blueprint_name
+      name: blueprint_name
       version_id: version_id
 '''
 
@@ -113,7 +113,7 @@ class AzureRMPublishedBlueprintsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            blueprint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMPublishedBlueprintsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.management_group_name = None
-        self.blueprint_name = None
+        self.name = None
         self.version_id = None
         super(AzureRMPublishedBlueprintsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -146,7 +146,7 @@ class AzureRMPublishedBlueprintsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.published_blueprints.get(management_group_name=self.management_group_name,
-                                                                 blueprint_name=self.blueprint_name,
+                                                                 blueprint_name=self.name,
                                                                  version_id=self.version_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

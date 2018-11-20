@@ -26,7 +26,7 @@ options:
         description:
             - The name of a supported Azure region.
         required: True
-    publisher_name:
+    name:
         description:
             - A valid image publisher.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Machine Image
     azure_rm_computevirtualmachineimage_facts:
       location: location
-      publisher_name: publisher_name
+      name: publisher_name
       offer: offer
       skus: skus
       version: version
@@ -104,7 +104,7 @@ class AzureRMVirtualMachineImagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            publisher_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -130,7 +130,7 @@ class AzureRMVirtualMachineImagesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.location = None
-        self.publisher_name = None
+        self.name = None
         self.offer = None
         self.skus = None
         self.version = None
@@ -151,7 +151,7 @@ class AzureRMVirtualMachineImagesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_machine_images.get(location=self.location,
-                                                                   publisher_name=self.publisher_name,
+                                                                   publisher_name=self.name,
                                                                    offer=self.offer,
                                                                    skus=self.skus,
                                                                    version=self.version)

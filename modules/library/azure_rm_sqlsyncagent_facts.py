@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server on which the sync agent is hosted.
         required: True
-    sync_agent_name:
+    name:
         description:
             - The name of the sync agent.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_sqlsyncagent_facts:
       resource_group: resource_group_name
       server_name: server_name
-      sync_agent_name: sync_agent_name
+      name: sync_agent_name
 
   - name: List instances of Sync Agent
     azure_rm_sqlsyncagent_facts:
@@ -111,7 +111,7 @@ class AzureRMSyncAgentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            sync_agent_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -122,7 +122,7 @@ class AzureRMSyncAgentsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.sync_agent_name = None
+        self.name = None
         super(AzureRMSyncAgentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMSyncAgentsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.sync_agent_name is not None:
+        if self.name is not None:
             self.results['sync_agents'] = self.get()
         else:
             self.results['sync_agents'] = self.list_by_server()
@@ -143,7 +143,7 @@ class AzureRMSyncAgentsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.sync_agents.get(resource_group_name=self.resource_group,
                                                         server_name=self.server_name,
-                                                        sync_agent_name=self.sync_agent_name)
+                                                        sync_agent_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SyncAgents.')

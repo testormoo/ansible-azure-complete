@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the Batch account.
         required: True
-    account_name:
+    name:
         description:
             - The name of the Batch account.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Batch Account
     azure_rm_batchaccount_facts:
       resource_group: resource_group_name
-      account_name: account_name
+      name: account_name
 
   - name: List instances of Batch Account
     azure_rm_batchaccount_facts:
@@ -103,7 +103,7 @@ class AzureRMBatchAccountFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -116,7 +116,7 @@ class AzureRMBatchAccountFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMBatchAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -126,7 +126,7 @@ class AzureRMBatchAccountFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(BatchManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.account_name is not None:
+        if self.name is not None:
             self.results['batch_account'] = self.get()
         else:
             self.results['batch_account'] = self.list_by_resource_group()
@@ -137,7 +137,7 @@ class AzureRMBatchAccountFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.batch_account.get(resource_group_name=self.resource_group,
-                                                          account_name=self.account_name)
+                                                          account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for BatchAccount.')

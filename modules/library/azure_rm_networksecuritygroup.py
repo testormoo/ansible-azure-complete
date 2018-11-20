@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    network_security_group_name:
+    name:
         description:
             - The name of the network security group.
         required: True
@@ -51,7 +51,7 @@ options:
                 description:
                     - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*)
                        'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'tcp'
                     - 'udp'
@@ -121,7 +121,7 @@ options:
                 description:
                     - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*) C(*)valuesC(*)
                        C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'allow'
                     - 'deny'
@@ -136,23 +136,15 @@ options:
                     - "C(*)TheC(*) C(*)directionC(*) C(*)ofC(*) C(*)theC(*) C(*)ruleC(*). C(*)TheC(*) C(*)directionC(*) C(*)specifiesC(*) C(*)ifC(*)
                        C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*) C(*)trafficC(*).
                        C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'inbound'
                     - 'outbound'
-            provisioning_state:
-                description:
-                    - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*). C(*)PossibleC(*)
-                       C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
             name:
                 description:
                     - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*) C(*)withinC(*) C(*)aC(*)
                        C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*) C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*))
                        C(*)theC(*) C(*)resourceC(*)."
-            etag:
-                description:
-                    - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*) C(*)theC(*)
-                       C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
     default_security_rules:
         description:
             - The default security rules of network security group.
@@ -168,7 +160,7 @@ options:
                 description:
                     - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*)
                        'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'tcp'
                     - 'udp'
@@ -238,7 +230,7 @@ options:
                 description:
                     - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*) C(*)valuesC(*)
                        C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'allow'
                     - 'deny'
@@ -253,32 +245,18 @@ options:
                     - "C(*)TheC(*) C(*)directionC(*) C(*)ofC(*) C(*)theC(*) C(*)ruleC(*). C(*)TheC(*) C(*)directionC(*) C(*)specifiesC(*) C(*)ifC(*)
                        C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*) C(*)trafficC(*).
                        C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'inbound'
                     - 'outbound'
-            provisioning_state:
-                description:
-                    - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*). C(*)PossibleC(*)
-                       C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
             name:
                 description:
                     - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*) C(*)withinC(*) C(*)aC(*)
                        C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*) C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*))
                        C(*)theC(*) C(*)resourceC(*)."
-            etag:
-                description:
-                    - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*) C(*)theC(*)
-                       C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
     resource_guid:
         description:
             - The resource GUID property of the network security group resource.
-    provisioning_state:
-        description:
-            - "The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-    etag:
-        description:
-            - A unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Network Security Group.
@@ -301,7 +279,7 @@ EXAMPLES = '''
   - name: Create (or update) Network Security Group
     azure_rm_networksecuritygroup:
       resource_group: rg1
-      network_security_group_name: testnsg
+      name: testnsg
       location: eastus
 '''
 
@@ -341,7 +319,7 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            network_security_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -360,12 +338,6 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
             resource_guid=dict(
                 type='str'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
-            etag=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -374,7 +346,7 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.network_security_group_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -435,12 +407,7 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
                     self.parameters["default_security_rules"] = ev
                 elif key == "resource_guid":
                     self.parameters["resource_guid"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -464,8 +431,8 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Network Security Group instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Network Security Group instance")
@@ -476,10 +443,7 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
 
             response = self.create_update_networksecuritygroup()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Network Security Group instance deleted")
@@ -508,11 +472,11 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
 
         :return: deserialized Network Security Group instance state dictionary
         '''
-        self.log("Creating / Updating the Network Security Group instance {0}".format(self.network_security_group_name))
+        self.log("Creating / Updating the Network Security Group instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.network_security_groups.create_or_update(resource_group_name=self.resource_group,
-                                                                                 network_security_group_name=self.network_security_group_name,
+                                                                                 network_security_group_name=self.name,
                                                                                  parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -528,10 +492,10 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Network Security Group instance {0}".format(self.network_security_group_name))
+        self.log("Deleting the Network Security Group instance {0}".format(self.name))
         try:
             response = self.mgmt_client.network_security_groups.delete(resource_group_name=self.resource_group,
-                                                                       network_security_group_name=self.network_security_group_name)
+                                                                       network_security_group_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Network Security Group instance.')
             self.fail("Error deleting the Network Security Group instance: {0}".format(str(e)))
@@ -544,11 +508,11 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
 
         :return: deserialized Network Security Group instance state dictionary
         '''
-        self.log("Checking if the Network Security Group instance {0} is present".format(self.network_security_group_name))
+        self.log("Checking if the Network Security Group instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.network_security_groups.get(resource_group_name=self.resource_group,
-                                                                    network_security_group_name=self.network_security_group_name)
+                                                                    network_security_group_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Network Security Group instance : {0} found".format(response.name))
@@ -564,6 +528,38 @@ class AzureRMNetworkSecurityGroups(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

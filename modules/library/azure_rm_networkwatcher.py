@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    network_watcher_name:
+    name:
         description:
             - The name of the network watcher.
         required: True
@@ -36,9 +36,6 @@ options:
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
-    etag:
-        description:
-            - A unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Network Watcher.
@@ -61,7 +58,7 @@ EXAMPLES = '''
   - name: Create (or update) Network Watcher
     azure_rm_networkwatcher:
       resource_group: NOT FOUND
-      network_watcher_name: NOT FOUND
+      name: NOT FOUND
       location: eastus
 '''
 
@@ -101,7 +98,7 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            network_watcher_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -109,9 +106,6 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
                 type='str'
             ),
             location=dict(
-                type='str'
-            ),
-            etag=dict(
                 type='str'
             ),
             state=dict(
@@ -122,7 +116,7 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.network_watcher_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -145,10 +139,7 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
                     self.parameters["id"] = kwargs[key]
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -172,8 +163,8 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Network Watcher instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Network Watcher instance")
@@ -184,10 +175,7 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
 
             response = self.create_update_networkwatcher()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Network Watcher instance deleted")
@@ -216,11 +204,11 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
 
         :return: deserialized Network Watcher instance state dictionary
         '''
-        self.log("Creating / Updating the Network Watcher instance {0}".format(self.network_watcher_name))
+        self.log("Creating / Updating the Network Watcher instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.network_watchers.create_or_update(resource_group_name=self.resource_group,
-                                                                          network_watcher_name=self.network_watcher_name,
+                                                                          network_watcher_name=self.name,
                                                                           parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -236,10 +224,10 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Network Watcher instance {0}".format(self.network_watcher_name))
+        self.log("Deleting the Network Watcher instance {0}".format(self.name))
         try:
             response = self.mgmt_client.network_watchers.delete(resource_group_name=self.resource_group,
-                                                                network_watcher_name=self.network_watcher_name)
+                                                                network_watcher_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Network Watcher instance.')
             self.fail("Error deleting the Network Watcher instance: {0}".format(str(e)))
@@ -252,11 +240,11 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
 
         :return: deserialized Network Watcher instance state dictionary
         '''
-        self.log("Checking if the Network Watcher instance {0} is present".format(self.network_watcher_name))
+        self.log("Checking if the Network Watcher instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.network_watchers.get(resource_group_name=self.resource_group,
-                                                             network_watcher_name=self.network_watcher_name)
+                                                             network_watcher_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Network Watcher instance : {0} found".format(response.name))
@@ -272,6 +260,38 @@ class AzureRMNetworkWatchers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

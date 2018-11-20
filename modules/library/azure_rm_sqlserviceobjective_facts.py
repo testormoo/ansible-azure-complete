@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    service_objective_name:
+    name:
         description:
             - The name of the service objective to retrieve.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_sqlserviceobjective_facts:
       resource_group: resource_group_name
       server_name: server_name
-      service_objective_name: service_objective_name
+      name: service_objective_name
 
   - name: List instances of Service Objective
     azure_rm_sqlserviceobjective_facts:
@@ -92,7 +92,7 @@ class AzureRMServiceObjectivesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_objective_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -103,7 +103,7 @@ class AzureRMServiceObjectivesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.service_objective_name = None
+        self.name = None
         super(AzureRMServiceObjectivesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -112,7 +112,7 @@ class AzureRMServiceObjectivesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.service_objective_name is not None:
+        if self.name is not None:
             self.results['service_objectives'] = self.get()
         else:
             self.results['service_objectives'] = self.list_by_server()
@@ -124,7 +124,7 @@ class AzureRMServiceObjectivesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.service_objectives.get(resource_group_name=self.resource_group,
                                                                server_name=self.server_name,
-                                                               service_objective_name=self.service_objective_name)
+                                                               service_objective_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceObjectives.')

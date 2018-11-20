@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -49,13 +49,13 @@ EXAMPLES = '''
   - name: List instances of Policy
     azure_rm_apimanagementpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       scope: scope
 
   - name: Get instance of Policy
     azure_rm_apimanagementpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       policy_id: policy_id
 '''
 
@@ -98,7 +98,7 @@ class AzureRMPolicyFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -115,7 +115,7 @@ class AzureRMPolicyFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.scope = None
         self.policy_id = None
         super(AzureRMPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -137,7 +137,7 @@ class AzureRMPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.policy.list_by_service(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name)
+                                                               service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Policy.')
@@ -153,7 +153,7 @@ class AzureRMPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.policy.get(resource_group_name=self.resource_group,
-                                                   service_name=self.service_name,
+                                                   service_name=self.name,
                                                    policy_id=self.policy_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

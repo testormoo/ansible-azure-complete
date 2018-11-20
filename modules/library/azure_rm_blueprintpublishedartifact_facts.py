@@ -34,7 +34,7 @@ options:
         description:
             - version of the published blueprint.
         required: True
-    artifact_name:
+    name:
         description:
             - name of the artifact.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       management_group_name: management_group_name
       blueprint_name: blueprint_name
       version_id: version_id
-      artifact_name: artifact_name
+      name: artifact_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMPublishedArtifactsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            artifact_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -123,7 +123,7 @@ class AzureRMPublishedArtifactsFacts(AzureRMModuleBase):
         self.management_group_name = None
         self.blueprint_name = None
         self.version_id = None
-        self.artifact_name = None
+        self.name = None
         super(AzureRMPublishedArtifactsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -142,7 +142,7 @@ class AzureRMPublishedArtifactsFacts(AzureRMModuleBase):
             response = self.mgmt_client.published_artifacts.get(management_group_name=self.management_group_name,
                                                                 blueprint_name=self.blueprint_name,
                                                                 version_id=self.version_id,
-                                                                artifact_name=self.artifact_name)
+                                                                artifact_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for PublishedArtifacts.')

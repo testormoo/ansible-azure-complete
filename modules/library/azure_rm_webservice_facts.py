@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Name of the resource group in which the web service is located.
-    web_service_name:
+    name:
         description:
             - The name of the web service.
     region:
@@ -50,7 +50,7 @@ EXAMPLES = '''
   - name: Get instance of Web Service
     azure_rm_webservice_facts:
       resource_group: resource_group_name
-      web_service_name: web_service_name
+      name: web_service_name
       region: region
 
   - name: List instances of Web Service
@@ -224,7 +224,7 @@ class AzureRMWebServicesFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            web_service_name=dict(
+            name=dict(
                 type='str'
             ),
             region=dict(
@@ -243,7 +243,7 @@ class AzureRMWebServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.web_service_name = None
+        self.name = None
         self.region = None
         self.skiptoken = None
         self.tags = None
@@ -256,7 +256,7 @@ class AzureRMWebServicesFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.web_service_name is not None):
+                self.name is not None):
             self.results['web_services'] = self.get()
         elif self.resource_group is not None:
             self.results['web_services'] = self.list_by_resource_group()
@@ -269,7 +269,7 @@ class AzureRMWebServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.web_services.get(resource_group_name=self.resource_group,
-                                                         web_service_name=self.web_service_name)
+                                                         web_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for WebServices.')

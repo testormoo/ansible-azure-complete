@@ -30,7 +30,7 @@ options:
         description:
             - OMS workspace containing the resources of interest.
         required: True
-    client_group_name:
+    name:
         description:
             - Client Group resource name.
         required: True
@@ -54,7 +54,7 @@ EXAMPLES = '''
     azure_rm_armservicemapclientgroup_facts:
       resource_group: resource_group_name
       workspace_name: workspace_name
-      client_group_name: client_group_name
+      name: client_group_name
       start_time: start_time
       end_time: end_time
 '''
@@ -109,7 +109,7 @@ class AzureRMClientGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            client_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -127,7 +127,7 @@ class AzureRMClientGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workspace_name = None
-        self.client_group_name = None
+        self.name = None
         self.start_time = None
         self.end_time = None
         super(AzureRMClientGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -147,7 +147,7 @@ class AzureRMClientGroupsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.client_groups.get(resource_group_name=self.resource_group,
                                                           workspace_name=self.workspace_name,
-                                                          client_group_name=self.client_group_name)
+                                                          client_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ClientGroups.')

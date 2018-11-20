@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -37,7 +37,7 @@ options:
             name:
                 description:
                     - Gets or sets the SKU name of the account.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'free'
                     - 'basic'
@@ -75,7 +75,9 @@ EXAMPLES = '''
   - name: Create (or update) Automation Account
     azure_rm_automationaccount:
       resource_group: rg
-      automation_account_name: myAutomationAccount9
+      name: myAutomationAccount9
+      sku:
+        name: Free
       name: myAutomationAccount9
       location: eastus
 '''
@@ -122,7 +124,7 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -143,7 +145,7 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -175,7 +177,6 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -199,8 +200,8 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Automation Account instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Automation Account instance")
@@ -211,10 +212,7 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
 
             response = self.create_update_automationaccount()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Automation Account instance deleted")
@@ -243,11 +241,11 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
 
         :return: deserialized Automation Account instance state dictionary
         '''
-        self.log("Creating / Updating the Automation Account instance {0}".format(self.automation_account_name))
+        self.log("Creating / Updating the Automation Account instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.automation_account.create_or_update(resource_group_name=self.resource_group,
-                                                                            automation_account_name=self.automation_account_name,
+                                                                            automation_account_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -263,10 +261,10 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Automation Account instance {0}".format(self.automation_account_name))
+        self.log("Deleting the Automation Account instance {0}".format(self.name))
         try:
             response = self.mgmt_client.automation_account.delete(resource_group_name=self.resource_group,
-                                                                  automation_account_name=self.automation_account_name)
+                                                                  automation_account_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Automation Account instance.')
             self.fail("Error deleting the Automation Account instance: {0}".format(str(e)))
@@ -279,11 +277,11 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
 
         :return: deserialized Automation Account instance state dictionary
         '''
-        self.log("Checking if the Automation Account instance {0} is present".format(self.automation_account_name))
+        self.log("Checking if the Automation Account instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.automation_account.get(resource_group_name=self.resource_group,
-                                                               automation_account_name=self.automation_account_name)
+                                                               automation_account_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Automation Account instance : {0} found".format(response.name))
@@ -300,6 +298,38 @@ class AzureRMAutomationAccount(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

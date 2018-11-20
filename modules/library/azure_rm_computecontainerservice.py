@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    container_service_name:
+    name:
         description:
             - The name of the container service in the specified subscription and resource group.
         required: True
@@ -40,7 +40,7 @@ options:
             orchestrator_type:
                 description:
                     - The orchestrator to use to manage container service cluster resources. Valid values are C(swarm), C(dcos), and C(custom).
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'swarm'
                     - 'dcos'
@@ -53,7 +53,7 @@ options:
             orchestrator:
                 description:
                     - The name of the custom orchestrator to use.
-                required: True
+                    - Required when C(state) is I(present).
     service_principal_profile:
         description:
             - Properties for cluster service principals.
@@ -61,15 +61,15 @@ options:
             client_id:
                 description:
                     - The ID for the service principal.
-                required: True
+                    - Required when C(state) is I(present).
             secret:
                 description:
                     - The secret password associated with the service principal.
-                required: True
+                    - Required when C(state) is I(present).
     master_profile:
         description:
             - Properties of master agents.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             count:
                 description:
@@ -77,25 +77,25 @@ options:
             dns_prefix:
                 description:
                     - DNS prefix to be used to create the FQDN for master.
-                required: True
+                    - Required when C(state) is I(present).
     agent_pool_profiles:
         description:
             - Properties of the agent pool.
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             name:
                 description:
                     - Unique name of the agent pool profile in the context of the subscription and resource group.
-                required: True
+                    - Required when C(state) is I(present).
             count:
                 description:
                     - Number of agents (VMs) to host docker containers. Allowed values must be in the range of 1 to 100 (inclusive). The default value is 1.
-                required: True
+                    - Required when C(state) is I(present).
             vm_size:
                 description:
                     - Size of agent VMs.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'standard_a0'
                     - 'standard_a1'
@@ -147,7 +147,7 @@ options:
             dns_prefix:
                 description:
                     - DNS prefix to be used to create the FQDN for the agent pool.
-                required: True
+                    - Required when C(state) is I(present).
     windows_profile:
         description:
             - Properties of Windows VMs.
@@ -155,36 +155,36 @@ options:
             admin_username:
                 description:
                     - The administrator username to use for Windows VMs.
-                required: True
+                    - Required when C(state) is I(present).
             admin_password:
                 description:
                     - The administrator password to use for Windows VMs.
-                required: True
+                    - Required when C(state) is I(present).
     linux_profile:
         description:
             - Properties of Linux VMs.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             admin_username:
                 description:
                     - The administrator username to use for Linux VMs.
-                required: True
+                    - Required when C(state) is I(present).
             ssh:
                 description:
                     - The ssh key configuration for Linux VMs.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     public_keys:
                         description:
                             - the list of SSH public keys used to authenticate with Linux-based VMs.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             key_data:
                                 description:
                                     - "Certificate public key used to authenticate with VMs through SSH. The certificate must be in PEM format with or
                                        without headers."
-                                required: True
+                                    - Required when C(state) is I(present).
     diagnostics_profile:
         description:
             - Properties of the diagnostic agent.
@@ -192,12 +192,12 @@ options:
             vm_diagnostics:
                 description:
                     - Profile for the container service VM diagnostic agent.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     enabled:
                         description:
                             - Whether the VM diagnostic agent is provisioned on the VM.
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Container Service.
@@ -220,7 +220,7 @@ EXAMPLES = '''
   - name: Create (or update) Container Service
     azure_rm_computecontainerservice:
       resource_group: rg1
-      container_service_name: acs1
+      name: acs1
       location: eastus
 '''
 
@@ -260,7 +260,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -277,19 +277,16 @@ class AzureRMContainerServices(AzureRMModuleBase):
                 type='dict'
             ),
             master_profile=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             agent_pool_profiles=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             windows_profile=dict(
                 type='dict'
             ),
             linux_profile=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             diagnostics_profile=dict(
                 type='dict'
@@ -302,7 +299,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.container_service_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -446,7 +443,6 @@ class AzureRMContainerServices(AzureRMModuleBase):
                 elif key == "diagnostics_profile":
                     self.parameters["diagnostics_profile"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -470,8 +466,8 @@ class AzureRMContainerServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Container Service instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Container Service instance")
@@ -482,10 +478,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
 
             response = self.create_update_containerservice()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Container Service instance deleted")
@@ -514,11 +507,11 @@ class AzureRMContainerServices(AzureRMModuleBase):
 
         :return: deserialized Container Service instance state dictionary
         '''
-        self.log("Creating / Updating the Container Service instance {0}".format(self.container_service_name))
+        self.log("Creating / Updating the Container Service instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.container_services.create_or_update(resource_group_name=self.resource_group,
-                                                                            container_service_name=self.container_service_name,
+                                                                            container_service_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -534,10 +527,10 @@ class AzureRMContainerServices(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Container Service instance {0}".format(self.container_service_name))
+        self.log("Deleting the Container Service instance {0}".format(self.name))
         try:
             response = self.mgmt_client.container_services.delete(resource_group_name=self.resource_group,
-                                                                  container_service_name=self.container_service_name)
+                                                                  container_service_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Container Service instance.')
             self.fail("Error deleting the Container Service instance: {0}".format(str(e)))
@@ -550,11 +543,11 @@ class AzureRMContainerServices(AzureRMModuleBase):
 
         :return: deserialized Container Service instance state dictionary
         '''
-        self.log("Checking if the Container Service instance {0} is present".format(self.container_service_name))
+        self.log("Checking if the Container Service instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.container_services.get(resource_group_name=self.resource_group,
-                                                               container_service_name=self.container_service_name)
+                                                               container_service_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Container Service instance : {0} found".format(response.name))
@@ -570,6 +563,38 @@ class AzureRMContainerServices(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

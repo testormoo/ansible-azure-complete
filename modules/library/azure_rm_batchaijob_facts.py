@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    job_name:
+    name:
         description:
             - "The name of the job within the specified resource group. Job names can only contain a combination of alphanumeric characters along with dash
                (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Job
     azure_rm_batchaijob_facts:
       resource_group: resource_group_name
-      job_name: job_name
+      name: job_name
 
   - name: List instances of Job
     azure_rm_batchaijob_facts:
@@ -130,7 +130,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str'
             ),
             jobs_list_by_resource_group_options=dict(
@@ -146,7 +146,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.jobs_list_by_resource_group_options = None
         self.tags = None
         super(AzureRMJobsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -157,7 +157,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.job_name is not None:
+        if self.name is not None:
             self.results['jobs'] = self.get()
         else:
             self.results['jobs'] = self.list_by_resource_group()
@@ -168,7 +168,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.jobs.get(resource_group_name=self.resource_group,
-                                                 job_name=self.job_name)
+                                                 job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Jobs.')

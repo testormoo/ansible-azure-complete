@@ -36,7 +36,7 @@ options:
     skip:
         description:
             - Number of records to skip.
-    template_name:
+    name:
         description:
             - Email Template Name Identifier.
 
@@ -60,7 +60,7 @@ EXAMPLES = '''
     azure_rm_apimanagementemailtemplate_facts:
       resource_group: resource_group_name
       service_name: service_name
-      template_name: template_name
+      name: template_name
 '''
 
 RETURN = '''
@@ -148,7 +148,7 @@ class AzureRMEmailTemplateFacts(AzureRMModuleBase):
             skip=dict(
                 type='int'
             ),
-            template_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -161,7 +161,7 @@ class AzureRMEmailTemplateFacts(AzureRMModuleBase):
         self.service_name = None
         self.top = None
         self.skip = None
-        self.template_name = None
+        self.name = None
         super(AzureRMEmailTemplateFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -172,7 +172,7 @@ class AzureRMEmailTemplateFacts(AzureRMModuleBase):
 
         else:
             self.results['email_template'] = self.list_by_service()
-        elif self.template_name is not None:
+        elif self.name is not None:
             self.results['email_template'] = self.get()
         return self.results
 
@@ -198,7 +198,7 @@ class AzureRMEmailTemplateFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.email_template.get(resource_group_name=self.resource_group,
                                                            service_name=self.service_name,
-                                                           template_name=self.template_name)
+                                                           template_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for EmailTemplate.')

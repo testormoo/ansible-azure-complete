@@ -34,7 +34,7 @@ options:
         description:
             - The name of the Live Event.
         required: True
-    live_output_name:
+    name:
         description:
             - The name of the Live Output.
         required: True
@@ -44,11 +44,11 @@ options:
     asset_name:
         description:
             - The asset name.
-        required: True
+            - Required when C(state) is I(present).
     archive_window_length:
         description:
             - ISO 8601 timespan duration of the archive window length. This is duration that customer want to retain the recorded content.
-        required: True
+            - Required when C(state) is I(present).
     manifest_name:
         description:
             - The manifest file name.  If not provided, the service will generate one automatically.
@@ -85,7 +85,13 @@ EXAMPLES = '''
       resource_group: mediaresources
       account_name: slitestmedia10
       live_event_name: myLiveEvent1
-      live_output_name: myLiveOutput1
+      name: myLiveOutput1
+      description: test live output 1
+      asset_name: 6f3264f5-a189-48b4-a29a-a40f22575212
+      archive_window_length: PT5M
+      manifest_name: testmanifest
+      hls:
+        fragments_per_ts_segment: 5
 '''
 
 RETURN = '''
@@ -133,7 +139,7 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            live_output_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -141,12 +147,10 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
                 type='str'
             ),
             asset_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             archive_window_length=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             manifest_name=dict(
                 type='str'
@@ -167,7 +171,7 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.live_event_name = None
-        self.live_output_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -199,7 +203,6 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
                 elif key == "output_snap_time":
                     self.parameters["output_snap_time"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMediaServices,
@@ -220,8 +223,8 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Live Output instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Live Output instance")
@@ -232,10 +235,7 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
 
             response = self.create_update_liveoutput()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Live Output instance deleted")
@@ -264,14 +264,14 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
 
         :return: deserialized Live Output instance state dictionary
         '''
-        self.log("Creating / Updating the Live Output instance {0}".format(self.live_output_name))
+        self.log("Creating / Updating the Live Output instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.live_outputs.create(resource_group_name=self.resource_group,
                                                                 account_name=self.account_name,
                                                                 live_event_name=self.live_event_name,
-                                                                live_output_name=self.live_output_name,
+                                                                live_output_name=self.name,
                                                                 parameters=self.parameters)
             else:
                 response = self.mgmt_client.live_outputs.update()
@@ -289,12 +289,12 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Live Output instance {0}".format(self.live_output_name))
+        self.log("Deleting the Live Output instance {0}".format(self.name))
         try:
             response = self.mgmt_client.live_outputs.delete(resource_group_name=self.resource_group,
                                                             account_name=self.account_name,
                                                             live_event_name=self.live_event_name,
-                                                            live_output_name=self.live_output_name)
+                                                            live_output_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Live Output instance.')
             self.fail("Error deleting the Live Output instance: {0}".format(str(e)))
@@ -307,13 +307,13 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
 
         :return: deserialized Live Output instance state dictionary
         '''
-        self.log("Checking if the Live Output instance {0} is present".format(self.live_output_name))
+        self.log("Checking if the Live Output instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.live_outputs.get(resource_group_name=self.resource_group,
                                                          account_name=self.account_name,
                                                          live_event_name=self.live_event_name,
-                                                         live_output_name=self.live_output_name)
+                                                         live_output_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Live Output instance : {0} found".format(response.name))
@@ -329,6 +329,38 @@ class AzureRMLiveOutputs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

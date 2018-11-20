@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Data Lake Store account.
         required: True
-    trusted_id_provider_name:
+    name:
         description:
             - The name of the trusted identity provider to retrieve.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_storetrustedidprovider_facts:
       resource_group: resource_group_name
       account_name: account_name
-      trusted_id_provider_name: trusted_id_provider_name
+      name: trusted_id_provider_name
 
   - name: List instances of Trusted Id Provider
     azure_rm_storetrustedidprovider_facts:
@@ -98,7 +98,7 @@ class AzureRMTrustedIdProvidersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            trusted_id_provider_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMTrustedIdProvidersFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.trusted_id_provider_name = None
+        self.name = None
         super(AzureRMTrustedIdProvidersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMTrustedIdProvidersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeStoreAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.trusted_id_provider_name is not None:
+        if self.name is not None:
             self.results['trusted_id_providers'] = self.get()
         else:
             self.results['trusted_id_providers'] = self.list_by_account()
@@ -130,7 +130,7 @@ class AzureRMTrustedIdProvidersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.trusted_id_providers.get(resource_group_name=self.resource_group,
                                                                  account_name=self.account_name,
-                                                                 trusted_id_provider_name=self.trusted_id_provider_name)
+                                                                 trusted_id_provider_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for TrustedIdProviders.')

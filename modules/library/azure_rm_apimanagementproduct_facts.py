@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -64,7 +64,7 @@ EXAMPLES = '''
   - name: List instances of Product
     azure_rm_apimanagementproduct_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -73,7 +73,7 @@ EXAMPLES = '''
   - name: Get instance of Product
     azure_rm_apimanagementproduct_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       product_id: product_id
 '''
 
@@ -129,7 +129,7 @@ class AzureRMProductFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -155,7 +155,7 @@ class AzureRMProductFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.filter = None
         self.top = None
         self.skip = None
@@ -180,7 +180,7 @@ class AzureRMProductFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.product.list_by_service(resource_group_name=self.resource_group,
-                                                                service_name=self.service_name)
+                                                                service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Product.')
@@ -196,7 +196,7 @@ class AzureRMProductFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.product.get(resource_group_name=self.resource_group,
-                                                    service_name=self.service_name,
+                                                    service_name=self.name,
                                                     product_id=self.product_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

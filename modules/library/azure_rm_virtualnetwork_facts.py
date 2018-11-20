@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    virtual_network_name:
+    name:
         description:
             - The name of the virtual network.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Network
     azure_rm_virtualnetwork_facts:
       resource_group: resource_group_name
-      virtual_network_name: virtual_network_name
+      name: virtual_network_name
       expand: expand
 '''
 
@@ -111,7 +111,7 @@ class AzureRMVirtualNetworksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMVirtualNetworksFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.virtual_network_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMVirtualNetworksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -147,7 +147,7 @@ class AzureRMVirtualNetworksFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_networks.get(resource_group_name=self.resource_group,
-                                                             virtual_network_name=self.virtual_network_name)
+                                                             virtual_network_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualNetworks.')

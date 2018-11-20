@@ -38,20 +38,20 @@ options:
             password:
                 description:
                     - The chap password.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     value:
                         description:
                             - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
                                EncryptionCertThumbprint will be null."
-                        required: True
+                            - Required when C(state) is I(present).
                     encryption_certificate_thumbprint:
                         description:
                             - "Thumbprint certificate that was used to encrypt 'I(value)'"
                     encryption_algorithm:
                         description:
                             - "Algorithm used to encrypt 'I(value)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'aes256'
@@ -60,7 +60,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -86,8 +86,13 @@ EXAMPLES = '''
     azure_rm_storsimplechapsetting:
       device_name: HSDK-WSJQERQW3F
       chap_user_name: ChapSettingForSDK
+      chap_setting:
+        password:
+          value: W4xL3maActbzoehB9Ny1nr16uyjZZfvuJ70f8yBQgtS3vU4SLrOpoggmutOsbcgOgmgNHZnKe73WRZxzJFxzUQqcFNrAV+dReDkO5I/L1GxDjT5rsWn+74dRl8ditTew4z6OcwrT6RXtjG0njkUNsxXuawuylXsdHdvgQtSWbXBSao6KVhSbGQ57/V++CXqBbG2zoGLlHMdZF9OQccvCgh7qwD4ua7FLwqvQ8vYYVXryKm+XDmmT+GYWDqxPly0M2mJl/GLB/c6rNem4oRHBsf/vKfEKm8WGLWNsRZGcbxZKGiGsKC8QsxDHou6Ci3rfphVJE2R/9TxL+/1lUu2poQ==
+          encryption_certificate_thumbprint: D73DB57C4CDD6761E159F8D1E8A7D759424983FD
+          encryption_algorithm: RSAES_PKCS1_v_1_5
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -139,7 +144,7 @@ class AzureRMChapSettings(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -154,7 +159,7 @@ class AzureRMChapSettings(AzureRMModuleBase):
         self.chap_user_name = None
         self.chap_setting = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -183,7 +188,6 @@ class AzureRMChapSettings(AzureRMModuleBase):
                             ev['encryption_algorithm'] = 'RSAES_PKCS1_v_1_5'
                     self.chap_setting["password"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -204,8 +208,8 @@ class AzureRMChapSettings(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Chap Setting instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Chap Setting instance")
@@ -216,10 +220,7 @@ class AzureRMChapSettings(AzureRMModuleBase):
 
             response = self.create_update_chapsetting()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Chap Setting instance deleted")
@@ -248,14 +249,14 @@ class AzureRMChapSettings(AzureRMModuleBase):
 
         :return: deserialized Chap Setting instance state dictionary
         '''
-        self.log("Creating / Updating the Chap Setting instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Chap Setting instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.chap_settings.create_or_update(device_name=self.device_name,
                                                                        chap_user_name=self.chap_user_name,
                                                                        chap_setting=self.chap_setting,
                                                                        resource_group_name=self.resource_group,
-                                                                       manager_name=self.manager_name)
+                                                                       manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -270,12 +271,12 @@ class AzureRMChapSettings(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Chap Setting instance {0}".format(self.manager_name))
+        self.log("Deleting the Chap Setting instance {0}".format(self.name))
         try:
             response = self.mgmt_client.chap_settings.delete(device_name=self.device_name,
                                                              chap_user_name=self.chap_user_name,
                                                              resource_group_name=self.resource_group,
-                                                             manager_name=self.manager_name)
+                                                             manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Chap Setting instance.')
             self.fail("Error deleting the Chap Setting instance: {0}".format(str(e)))
@@ -288,13 +289,13 @@ class AzureRMChapSettings(AzureRMModuleBase):
 
         :return: deserialized Chap Setting instance state dictionary
         '''
-        self.log("Checking if the Chap Setting instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Chap Setting instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.chap_settings.get(device_name=self.device_name,
                                                           chap_user_name=self.chap_user_name,
                                                           resource_group_name=self.resource_group,
-                                                          manager_name=self.manager_name)
+                                                          manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Chap Setting instance : {0} found".format(response.name))
@@ -310,6 +311,38 @@ class AzureRMChapSettings(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

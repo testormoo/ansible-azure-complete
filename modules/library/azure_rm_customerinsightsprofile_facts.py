@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    profile_name:
+    name:
         description:
             - The name of the profile.
     locale_code:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsprofile_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      profile_name: profile_name
+      name: profile_name
       locale_code: locale_code
 
   - name: List instances of Profile
@@ -111,7 +111,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            profile_name=dict(
+            name=dict(
                 type='str'
             ),
             locale_code=dict(
@@ -125,7 +125,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.profile_name = None
+        self.name = None
         self.locale_code = None
         super(AzureRMProfilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -135,7 +135,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.profile_name is not None:
+        if self.name is not None:
             self.results['profiles'] = self.get()
         else:
             self.results['profiles'] = self.list_by_hub()
@@ -147,7 +147,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.profiles.get(resource_group_name=self.resource_group,
                                                      hub_name=self.hub_name,
-                                                     profile_name=self.profile_name)
+                                                     profile_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Profiles.')

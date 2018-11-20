@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server.
         required: True
-    database_name:
+    name:
         description:
             - The name of the database to get the link for.
         required: True
@@ -51,14 +51,14 @@ EXAMPLES = '''
     azure_rm_sqlreplicationlink_facts:
       resource_group: resource_group_name
       server_name: server_name
-      database_name: database_name
+      name: database_name
       link_id: link_id
 
   - name: List instances of Replication Link
     azure_rm_sqlreplicationlink_facts:
       resource_group: resource_group_name
       server_name: server_name
-      database_name: database_name
+      name: database_name
 '''
 
 RETURN = '''
@@ -118,7 +118,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            database_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -133,7 +133,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.server_name = None
-        self.database_name = None
+        self.name = None
         self.link_id = None
         super(AzureRMReplicationLinksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -155,7 +155,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.replication_links.get(resource_group_name=self.resource_group,
                                                               server_name=self.server_name,
-                                                              database_name=self.database_name,
+                                                              database_name=self.name,
                                                               link_id=self.link_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -172,7 +172,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.replication_links.list_by_database(resource_group_name=self.resource_group,
                                                                            server_name=self.server_name,
-                                                                           database_name=self.database_name)
+                                                                           database_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ReplicationLinks.')

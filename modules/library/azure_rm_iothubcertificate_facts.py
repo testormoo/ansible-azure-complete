@@ -30,7 +30,7 @@ options:
         description:
             - The name of the IoT hub.
         required: True
-    certificate_name:
+    name:
         description:
             - The name of the certificate
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_iothubcertificate_facts:
       resource_group: resource_group_name
       resource_name: resource_name
-      certificate_name: certificate_name
+      name: certificate_name
 
   - name: List instances of Certificate
     azure_rm_iothubcertificate_facts:
@@ -142,7 +142,7 @@ class AzureRMCertificatesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -153,7 +153,7 @@ class AzureRMCertificatesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.resource_name = None
-        self.certificate_name = None
+        self.name = None
         super(AzureRMCertificatesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -162,7 +162,7 @@ class AzureRMCertificatesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(IotHubClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.certificate_name is not None:
+        if self.name is not None:
             self.results['certificates'] = self.get()
         else:
             self.results['certificates'] = self.list_by_iot_hub()
@@ -174,7 +174,7 @@ class AzureRMCertificatesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.certificates.get(resource_group_name=self.resource_group,
                                                          resource_name=self.resource_name,
-                                                         certificate_name=self.certificate_name)
+                                                         certificate_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Certificates.')

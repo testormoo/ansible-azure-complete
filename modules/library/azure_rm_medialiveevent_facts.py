@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    live_event_name:
+    name:
         description:
             - The name of the Live Event.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_medialiveevent_facts:
       resource_group: resource_group_name
       account_name: account_name
-      live_event_name: live_event_name
+      name: live_event_name
 '''
 
 RETURN = '''
@@ -157,7 +157,7 @@ class AzureRMLiveEventsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            live_event_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -172,7 +172,7 @@ class AzureRMLiveEventsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.live_event_name = None
+        self.name = None
         self.tags = None
         super(AzureRMLiveEventsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -191,7 +191,7 @@ class AzureRMLiveEventsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.live_events.get(resource_group_name=self.resource_group,
                                                         account_name=self.account_name,
-                                                        live_event_name=self.live_event_name)
+                                                        live_event_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LiveEvents.')

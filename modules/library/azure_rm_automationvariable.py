@@ -30,14 +30,14 @@ options:
         description:
             - The name of the automation account.
         required: True
-    variable_name:
+    name:
         description:
             - The variable name.
         required: True
     name:
         description:
             - Gets or sets the name of the variable.
-        required: True
+            - Required when C(state) is I(present).
     value:
         description:
             - Gets or sets the value of the variable.
@@ -69,8 +69,11 @@ EXAMPLES = '''
     azure_rm_automationvariable:
       resource_group: rg
       automation_account_name: sampleAccount9
-      variable_name: sampleVariable
       name: sampleVariable
+      name: sampleVariable
+      value: "ComputerName.domain.com"
+      description: my description
+      is_encrypted: False
 '''
 
 RETURN = '''
@@ -113,13 +116,12 @@ class AzureRMVariable(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            variable_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             value=dict(
                 type='str'
@@ -139,7 +141,7 @@ class AzureRMVariable(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.variable_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -167,7 +169,6 @@ class AzureRMVariable(AzureRMModuleBase):
                 elif key == "is_encrypted":
                     self.parameters["is_encrypted"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -188,8 +189,8 @@ class AzureRMVariable(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Variable instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Variable instance")
@@ -200,10 +201,7 @@ class AzureRMVariable(AzureRMModuleBase):
 
             response = self.create_update_variable()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Variable instance deleted")
@@ -232,12 +230,12 @@ class AzureRMVariable(AzureRMModuleBase):
 
         :return: deserialized Variable instance state dictionary
         '''
-        self.log("Creating / Updating the Variable instance {0}".format(self.variable_name))
+        self.log("Creating / Updating the Variable instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.variable.create_or_update(resource_group_name=self.resource_group,
                                                                   automation_account_name=self.automation_account_name,
-                                                                  variable_name=self.variable_name,
+                                                                  variable_name=self.name,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -253,11 +251,11 @@ class AzureRMVariable(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Variable instance {0}".format(self.variable_name))
+        self.log("Deleting the Variable instance {0}".format(self.name))
         try:
             response = self.mgmt_client.variable.delete(resource_group_name=self.resource_group,
                                                         automation_account_name=self.automation_account_name,
-                                                        variable_name=self.variable_name)
+                                                        variable_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Variable instance.')
             self.fail("Error deleting the Variable instance: {0}".format(str(e)))
@@ -270,12 +268,12 @@ class AzureRMVariable(AzureRMModuleBase):
 
         :return: deserialized Variable instance state dictionary
         '''
-        self.log("Checking if the Variable instance {0} is present".format(self.variable_name))
+        self.log("Checking if the Variable instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.variable.get(resource_group_name=self.resource_group,
                                                      automation_account_name=self.automation_account_name,
-                                                     variable_name=self.variable_name)
+                                                     variable_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Variable instance : {0} found".format(response.name))
@@ -291,6 +289,38 @@ class AzureRMVariable(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

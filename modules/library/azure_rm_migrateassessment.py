@@ -34,7 +34,7 @@ options:
         description:
             - Unique name of a group within a project.
         required: True
-    assessment_name:
+    name:
         description:
             - Unique name of an I(assessment) within a project.
         required: True
@@ -51,7 +51,7 @@ options:
             azure_location:
                 description:
                     - Target Azure location for which the machines should be assessed. These enums are the same as used by Compute API.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'unknown'
                     - 'east_asia'
@@ -87,7 +87,7 @@ options:
             azure_offer_code:
                 description:
                     - Offer code according to which cost estimation is done.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'unknown'
                     - 'msazr0003_p'
@@ -130,14 +130,14 @@ options:
             azure_pricing_tier:
                 description:
                     - Pricing tier for Size evaluation.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'standard'
                     - 'basic'
             azure_storage_redundancy:
                 description:
                     - Storage Redundancy type offered by Azure.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'unknown'
                     - 'locally_redundant'
@@ -148,11 +148,11 @@ options:
                 description:
                     - "Scaling factor used over utilization data to add a performance buffer for new machines to be created in Azure. Min Value = 1.0, Max
                        value = 1.9, Default = 1.3."
-                required: True
+                    - Required when C(state) is I(present).
             percentile:
                 description:
                     - Percentile of performance data used to recommend Azure size.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'percentile50'
                     - 'percentile90'
@@ -161,7 +161,7 @@ options:
             time_range:
                 description:
                     - Time range of performance data used to recommend a size.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'day'
                     - 'week'
@@ -169,7 +169,7 @@ options:
             stage:
                 description:
                     - User configurable setting that describes the status of the assessment.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'in_progress'
                     - 'under_review'
@@ -177,7 +177,7 @@ options:
             currency:
                 description:
                     - Currency to report prices in.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'unknown'
                     - 'usd'
@@ -208,7 +208,7 @@ options:
             azure_hybrid_use_benefit:
                 description:
                     - AHUB discount on windows virtual machines.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'unknown'
                     - 'yes'
@@ -216,11 +216,11 @@ options:
             discount_percentage:
                 description:
                     - Custom discount percentage to be applied on final costs. Can be in the range [0, 100].
-                required: True
+                    - Required when C(state) is I(present).
             sizing_criterion:
                 description:
                     - Assessment sizing criterion.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'performance_based'
                     - 'as_on_premises'
@@ -247,10 +247,22 @@ EXAMPLES = '''
       resource_group: myResourceGroup
       project_name: project01
       group_name: group01
-      assessment_name: assessment01
+      name: assessment01
       self.config.accept_language: NOT FOUND
       assessment:
         e_tag: "1100637e-0000-0000-0000-59f6ed1f0000"
+        azure_location: WestUs
+        azure_offer_code: MSAZR0003P
+        azure_pricing_tier: Standard
+        azure_storage_redundancy: LocallyRedundant
+        scaling_factor: 1.2
+        percentile: Percentile50
+        time_range: Day
+        stage: InProgress
+        currency: USD
+        azure_hybrid_use_benefit: Yes
+        discount_percentage: 100
+        sizing_criterion: PerformanceBased
 '''
 
 RETURN = '''
@@ -306,7 +318,7 @@ class AzureRMAssessments(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            assessment_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -326,7 +338,7 @@ class AzureRMAssessments(AzureRMModuleBase):
         self.resource_group = None
         self.project_name = None
         self.group_name = None
-        self.assessment_name = None
+        self.name = None
         self.self.config.accept_language = None
         self.assessment = dict()
 
@@ -499,7 +511,6 @@ class AzureRMAssessments(AzureRMModuleBase):
                 elif key == "sizing_criterion":
                     self.assessment["sizing_criterion"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMigrate,
@@ -520,8 +531,8 @@ class AzureRMAssessments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Assessment instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Assessment instance")
@@ -532,10 +543,7 @@ class AzureRMAssessments(AzureRMModuleBase):
 
             response = self.create_update_assessment()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Assessment instance deleted")
@@ -571,7 +579,7 @@ class AzureRMAssessments(AzureRMModuleBase):
                 response = self.mgmt_client.assessments.create(resource_group_name=self.resource_group,
                                                                project_name=self.project_name,
                                                                group_name=self.group_name,
-                                                               assessment_name=self.assessment_name)
+                                                               assessment_name=self.name)
             else:
                 response = self.mgmt_client.assessments.update()
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -593,7 +601,7 @@ class AzureRMAssessments(AzureRMModuleBase):
             response = self.mgmt_client.assessments.delete(resource_group_name=self.resource_group,
                                                            project_name=self.project_name,
                                                            group_name=self.group_name,
-                                                           assessment_name=self.assessment_name)
+                                                           assessment_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Assessment instance.')
             self.fail("Error deleting the Assessment instance: {0}".format(str(e)))
@@ -612,7 +620,7 @@ class AzureRMAssessments(AzureRMModuleBase):
             response = self.mgmt_client.assessments.get(resource_group_name=self.resource_group,
                                                         project_name=self.project_name,
                                                         group_name=self.group_name,
-                                                        assessment_name=self.assessment_name)
+                                                        assessment_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Assessment instance : {0} found".format(response.name))
@@ -629,6 +637,38 @@ class AzureRMAssessments(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -31,7 +31,7 @@ options:
     filter:
         description:
             - "The filter to apply on the operation. Options for filters include: State, Trigger, and ReferencedResourceId."
-    workflow_name:
+    name:
         description:
             - The workflow name.
     tags:
@@ -61,7 +61,7 @@ EXAMPLES = '''
   - name: Get instance of Workflow
     azure_rm_logicworkflow_facts:
       resource_group: resource_group_name
-      workflow_name: workflow_name
+      name: workflow_name
 '''
 
 RETURN = '''
@@ -120,7 +120,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
             filter=dict(
                 type='str'
             ),
-            workflow_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -135,7 +135,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.top = None
         self.filter = None
-        self.workflow_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkflowsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -150,7 +150,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         else:
             self.results['workflows'] = self.list_by_subscription()
         elif (self.resource_group is not None and
-                self.workflow_name is not None):
+                self.name is not None):
             self.results['workflows'] = self.get()
         return self.results
 
@@ -191,7 +191,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workflows.get(resource_group_name=self.resource_group,
-                                                      workflow_name=self.workflow_name)
+                                                      workflow_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workflows.')

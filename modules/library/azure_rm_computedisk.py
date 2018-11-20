@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    disk_name:
+    name:
         description:
             - "The name of the managed I(disk) that is being created. The name can't be changed after the I(disk) is created. Supported characters for the
                name are a-z, A-Z, 0-9 and _. The maximum name length is 80 characters."
@@ -39,7 +39,7 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             sku:
                 description:
                 suboptions:
@@ -64,12 +64,12 @@ options:
             creation_data:
                 description:
                     - Disk source information. CreationData information cannot be changed after the disk has been created.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     create_option:
                         description:
                             - "This enumerates the possible sources of a disk's creation."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'empty'
                             - 'attach'
@@ -88,7 +88,7 @@ options:
                             id:
                                 description:
                                     - A relative uri containing either a Platform Image Repository or user image reference.
-                                required: True
+                                    - Required when C(state) is I(present).
                             lun:
                                 description:
                                     - "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the
@@ -120,7 +120,7 @@ options:
                             source_vault:
                                 description:
                                     - Resource id of the KeyVault containing the key or secret
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     id:
                                         description:
@@ -128,7 +128,7 @@ options:
                             secret_url:
                                 description:
                                     - Url pointing to a key or secret in KeyVault
-                                required: True
+                                    - Required when C(state) is I(present).
                     key_encryption_key:
                         description:
                             - Key Vault Key Url and vault id of the key encryption key
@@ -136,7 +136,7 @@ options:
                             source_vault:
                                 description:
                                     - Resource id of the KeyVault containing the key or secret
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     id:
                                         description:
@@ -144,7 +144,7 @@ options:
                             key_url:
                                 description:
                                     - Url pointing to a key or secret in KeyVault
-                                required: True
+                                    - Required when C(state) is I(present).
             disk_iops_read_write:
                 description:
                     - The number of IOPS allowed for this disk; only settable for UltraSSD disks. One operation can transfer between 4k and 256k bytes.
@@ -174,9 +174,12 @@ EXAMPLES = '''
   - name: Create (or update) Disk
     azure_rm_computedisk:
       resource_group: myResourceGroup
-      disk_name: myDisk
+      name: myDisk
       disk:
         location: West US
+        creation_data:
+          create_option: Empty
+        disk_size_gb: 200
 '''
 
 RETURN = '''
@@ -215,7 +218,7 @@ class AzureRMDisks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            disk_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -231,7 +234,7 @@ class AzureRMDisks(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.disk_name = None
+        self.name = None
         self.disk = dict()
 
         self.results = dict(changed=False)
@@ -293,7 +296,6 @@ class AzureRMDisks(AzureRMModuleBase):
                 elif key == "disk_mbps_read_write":
                     self.disk["disk_mbps_read_write"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -314,8 +316,8 @@ class AzureRMDisks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Disk instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Disk instance")
@@ -326,10 +328,7 @@ class AzureRMDisks(AzureRMModuleBase):
 
             response = self.create_update_disk()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Disk instance deleted")
@@ -358,11 +357,11 @@ class AzureRMDisks(AzureRMModuleBase):
 
         :return: deserialized Disk instance state dictionary
         '''
-        self.log("Creating / Updating the Disk instance {0}".format(self.disk_name))
+        self.log("Creating / Updating the Disk instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.disks.create_or_update(resource_group_name=self.resource_group,
-                                                               disk_name=self.disk_name,
+                                                               disk_name=self.name,
                                                                disk=self.disk)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -378,10 +377,10 @@ class AzureRMDisks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Disk instance {0}".format(self.disk_name))
+        self.log("Deleting the Disk instance {0}".format(self.name))
         try:
             response = self.mgmt_client.disks.delete(resource_group_name=self.resource_group,
-                                                     disk_name=self.disk_name)
+                                                     disk_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Disk instance.')
             self.fail("Error deleting the Disk instance: {0}".format(str(e)))
@@ -394,11 +393,11 @@ class AzureRMDisks(AzureRMModuleBase):
 
         :return: deserialized Disk instance state dictionary
         '''
-        self.log("Checking if the Disk instance {0} is present".format(self.disk_name))
+        self.log("Checking if the Disk instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.disks.get(resource_group_name=self.resource_group,
-                                                  disk_name=self.disk_name)
+                                                  disk_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Disk instance : {0} found".format(response.name))
@@ -414,6 +413,38 @@ class AzureRMDisks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

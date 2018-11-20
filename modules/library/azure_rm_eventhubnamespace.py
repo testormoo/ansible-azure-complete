@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group within the azure subscription.
         required: True
-    namespace_name:
+    name:
         description:
             - The Namespace name
         required: True
@@ -40,7 +40,7 @@ options:
             name:
                 description:
                     - Name of this SKU.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'basic'
                     - 'standard'
@@ -85,7 +85,7 @@ EXAMPLES = '''
   - name: Create (or update) Namespace
     azure_rm_eventhubnamespace:
       resource_group: ArunMonocle
-      namespace_name: sdk-Namespace-5849
+      name: sdk-Namespace-5849
       location: eastus
       sku:
         name: Standard
@@ -128,7 +128,7 @@ class AzureRMNamespaces(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            namespace_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -155,7 +155,7 @@ class AzureRMNamespaces(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.namespace_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -196,7 +196,6 @@ class AzureRMNamespaces(AzureRMModuleBase):
                 elif key == "kafka_enabled":
                     self.parameters["kafka_enabled"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(EventHubManagementClient,
@@ -220,8 +219,8 @@ class AzureRMNamespaces(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Namespace instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Namespace instance")
@@ -232,10 +231,7 @@ class AzureRMNamespaces(AzureRMModuleBase):
 
             response = self.create_update_namespace()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Namespace instance deleted")
@@ -264,11 +260,11 @@ class AzureRMNamespaces(AzureRMModuleBase):
 
         :return: deserialized Namespace instance state dictionary
         '''
-        self.log("Creating / Updating the Namespace instance {0}".format(self.namespace_name))
+        self.log("Creating / Updating the Namespace instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.namespaces.create_or_update(resource_group_name=self.resource_group,
-                                                                    namespace_name=self.namespace_name,
+                                                                    namespace_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -284,10 +280,10 @@ class AzureRMNamespaces(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Namespace instance {0}".format(self.namespace_name))
+        self.log("Deleting the Namespace instance {0}".format(self.name))
         try:
             response = self.mgmt_client.namespaces.delete(resource_group_name=self.resource_group,
-                                                          namespace_name=self.namespace_name)
+                                                          namespace_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Namespace instance.')
             self.fail("Error deleting the Namespace instance: {0}".format(str(e)))
@@ -300,11 +296,11 @@ class AzureRMNamespaces(AzureRMModuleBase):
 
         :return: deserialized Namespace instance state dictionary
         '''
-        self.log("Checking if the Namespace instance {0} is present".format(self.namespace_name))
+        self.log("Checking if the Namespace instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.namespaces.get(resource_group_name=self.resource_group,
-                                                       namespace_name=self.namespace_name)
+                                                       namespace_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Namespace instance : {0} found".format(response.name))
@@ -320,6 +316,38 @@ class AzureRMNamespaces(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

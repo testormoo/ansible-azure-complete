@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    batch_configuration_name:
+    name:
         description:
             - The batch configuration name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountbatchconfiguration_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      batch_configuration_name: batch_configuration_name
+      name: batch_configuration_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            batch_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -126,7 +126,7 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.batch_configuration_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountBatchConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -145,7 +145,7 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_batch_configurations.get(resource_group_name=self.resource_group,
                                                                                      integration_account_name=self.integration_account_name,
-                                                                                     batch_configuration_name=self.batch_configuration_name)
+                                                                                     batch_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountBatchConfigurations.')

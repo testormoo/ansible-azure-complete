@@ -30,7 +30,7 @@ options:
         description:
             - The name of the streaming job.
         required: True
-    input_name:
+    name:
         description:
             - The name of the input.
     select:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_streamingjobsinput_facts:
       resource_group: resource_group_name
       job_name: job_name
-      input_name: input_name
+      name: input_name
 
   - name: List instances of Input
     azure_rm_streamingjobsinput_facts:
@@ -131,7 +131,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            input_name=dict(
+            name=dict(
                 type='str'
             ),
             select=dict(
@@ -145,7 +145,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.job_name = None
-        self.input_name = None
+        self.name = None
         self.select = None
         super(AzureRMInputsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -155,7 +155,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(StreamAnalyticsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.input_name is not None:
+        if self.name is not None:
             self.results['inputs'] = self.get()
         else:
             self.results['inputs'] = self.list_by_streaming_job()
@@ -167,7 +167,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.inputs.get(resource_group_name=self.resource_group,
                                                    job_name=self.job_name,
-                                                   input_name=self.input_name)
+                                                   input_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Inputs.')

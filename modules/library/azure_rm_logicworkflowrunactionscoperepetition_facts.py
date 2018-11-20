@@ -38,7 +38,7 @@ options:
         description:
             - The workflow action name.
         required: True
-    repetition_name:
+    name:
         description:
             - The workflow repetition.
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
       workflow_name: workflow_name
       run_name: run_name
       action_name: action_name
-      repetition_name: repetition_name
+      name: repetition_name
 '''
 
 RETURN = '''
@@ -142,7 +142,7 @@ class AzureRMWorkflowRunActionScopeRepetitionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            repetition_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -159,7 +159,7 @@ class AzureRMWorkflowRunActionScopeRepetitionsFacts(AzureRMModuleBase):
         self.workflow_name = None
         self.run_name = None
         self.action_name = None
-        self.repetition_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkflowRunActionScopeRepetitionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -180,7 +180,7 @@ class AzureRMWorkflowRunActionScopeRepetitionsFacts(AzureRMModuleBase):
                                                                                   workflow_name=self.workflow_name,
                                                                                   run_name=self.run_name,
                                                                                   action_name=self.action_name,
-                                                                                  repetition_name=self.repetition_name)
+                                                                                  repetition_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for WorkflowRunActionScopeRepetitions.')

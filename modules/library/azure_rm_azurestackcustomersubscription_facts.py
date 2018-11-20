@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Azure Stack registration.
         required: True
-    customer_subscription_name:
+    name:
         description:
             - Name of the product.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_azurestackcustomersubscription_facts:
       resource_group: resource_group
       registration_name: registration_name
-      customer_subscription_name: customer_subscription_name
+      name: customer_subscription_name
 '''
 
 RETURN = '''
@@ -95,7 +95,7 @@ class AzureRMCustomerSubscriptionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            customer_subscription_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -107,7 +107,7 @@ class AzureRMCustomerSubscriptionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.registration_name = None
-        self.customer_subscription_name = None
+        self.name = None
         super(AzureRMCustomerSubscriptionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -125,7 +125,7 @@ class AzureRMCustomerSubscriptionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.customer_subscriptions.get(resource_group=self.resource_group,
                                                                    registration_name=self.registration_name,
-                                                                   customer_subscription_name=self.customer_subscription_name)
+                                                                   customer_subscription_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for CustomerSubscriptions.')

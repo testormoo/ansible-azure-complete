@@ -34,7 +34,7 @@ options:
         description:
             - Name of Sync Group resource.
         required: True
-    server_endpoint_name:
+    name:
         description:
             - Name of Server Endpoint object.
         required: True
@@ -82,7 +82,12 @@ EXAMPLES = '''
       resource_group: SampleResourceGroup_1
       storage_sync_service_name: SampleStorageSyncService_1
       sync_group_name: SampleSyncGroup_1
-      server_endpoint_name: SampleServerEndpoint_1
+      name: SampleServerEndpoint_1
+      server_local_path: D:\SampleServerEndpoint_1
+      cloud_tiering: off
+      volume_free_space_percent: 100
+      tier_files_older_than_days: 0
+      server_resource_id: /subscriptions/3a048283-338f-4002-a9dd-a50fdadcb392/resourceGroups/SampleResourceGroup_1/providers/Microsoft.StorageSync/storageSyncServices/SampleStorageSyncServer_1/registeredServers/080d4133-bdb5-40a0-96a0-71a6057bfe9a
 '''
 
 RETURN = '''
@@ -131,7 +136,7 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -165,7 +170,7 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
         self.resource_group = None
         self.storage_sync_service_name = None
         self.sync_group_name = None
-        self.server_endpoint_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -197,7 +202,6 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
                 elif key == "server_resource_id":
                     self.parameters["server_resource_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorageSyncManagementClient,
@@ -218,8 +222,8 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Endpoint instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Endpoint instance")
@@ -230,10 +234,7 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
 
             response = self.create_update_serverendpoint()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Endpoint instance deleted")
@@ -262,20 +263,20 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
 
         :return: deserialized Server Endpoint instance state dictionary
         '''
-        self.log("Creating / Updating the Server Endpoint instance {0}".format(self.server_endpoint_name))
+        self.log("Creating / Updating the Server Endpoint instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.server_endpoints.create(resource_group_name=self.resource_group,
                                                                     storage_sync_service_name=self.storage_sync_service_name,
                                                                     sync_group_name=self.sync_group_name,
-                                                                    server_endpoint_name=self.server_endpoint_name,
+                                                                    server_endpoint_name=self.name,
                                                                     parameters=self.parameters)
             else:
                 response = self.mgmt_client.server_endpoints.update(resource_group_name=self.resource_group,
                                                                     storage_sync_service_name=self.storage_sync_service_name,
                                                                     sync_group_name=self.sync_group_name,
-                                                                    server_endpoint_name=self.server_endpoint_name)
+                                                                    server_endpoint_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -290,12 +291,12 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Endpoint instance {0}".format(self.server_endpoint_name))
+        self.log("Deleting the Server Endpoint instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_endpoints.delete(resource_group_name=self.resource_group,
                                                                 storage_sync_service_name=self.storage_sync_service_name,
                                                                 sync_group_name=self.sync_group_name,
-                                                                server_endpoint_name=self.server_endpoint_name)
+                                                                server_endpoint_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Server Endpoint instance.')
             self.fail("Error deleting the Server Endpoint instance: {0}".format(str(e)))
@@ -308,13 +309,13 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
 
         :return: deserialized Server Endpoint instance state dictionary
         '''
-        self.log("Checking if the Server Endpoint instance {0} is present".format(self.server_endpoint_name))
+        self.log("Checking if the Server Endpoint instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_endpoints.get(resource_group_name=self.resource_group,
                                                              storage_sync_service_name=self.storage_sync_service_name,
                                                              sync_group_name=self.sync_group_name,
-                                                             server_endpoint_name=self.server_endpoint_name)
+                                                             server_endpoint_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Endpoint instance : {0} found".format(response.name))
@@ -330,6 +331,38 @@ class AzureRMServerEndpoints(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

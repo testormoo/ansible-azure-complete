@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
         required: True
-    event_source_name:
+    name:
         description:
             - Name of the event source.
         required: True
@@ -40,7 +40,7 @@ options:
     kind:
         description:
             - Constant filled by server.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Event Source.
@@ -64,7 +64,7 @@ EXAMPLES = '''
     azure_rm_timeseriesinsightseventsource:
       resource_group: rg1
       environment_name: env1
-      event_source_name: es1
+      name: es1
       location: eastus
       kind: Microsoft.EventHub
 '''
@@ -109,7 +109,7 @@ class AzureRMEventSources(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_source_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -117,8 +117,7 @@ class AzureRMEventSources(AzureRMModuleBase):
                 type='str'
             ),
             kind=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -129,7 +128,7 @@ class AzureRMEventSources(AzureRMModuleBase):
 
         self.resource_group = None
         self.environment_name = None
-        self.event_source_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -153,7 +152,6 @@ class AzureRMEventSources(AzureRMModuleBase):
                 elif key == "kind":
                     self.parameters["kind"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
@@ -177,8 +175,8 @@ class AzureRMEventSources(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Event Source instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Event Source instance")
@@ -189,10 +187,7 @@ class AzureRMEventSources(AzureRMModuleBase):
 
             response = self.create_update_eventsource()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Event Source instance deleted")
@@ -221,12 +216,12 @@ class AzureRMEventSources(AzureRMModuleBase):
 
         :return: deserialized Event Source instance state dictionary
         '''
-        self.log("Creating / Updating the Event Source instance {0}".format(self.event_source_name))
+        self.log("Creating / Updating the Event Source instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.event_sources.create_or_update(resource_group_name=self.resource_group,
                                                                        environment_name=self.environment_name,
-                                                                       event_source_name=self.event_source_name,
+                                                                       event_source_name=self.name,
                                                                        parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -242,11 +237,11 @@ class AzureRMEventSources(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Event Source instance {0}".format(self.event_source_name))
+        self.log("Deleting the Event Source instance {0}".format(self.name))
         try:
             response = self.mgmt_client.event_sources.delete(resource_group_name=self.resource_group,
                                                              environment_name=self.environment_name,
-                                                             event_source_name=self.event_source_name)
+                                                             event_source_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Event Source instance.')
             self.fail("Error deleting the Event Source instance: {0}".format(str(e)))
@@ -259,12 +254,12 @@ class AzureRMEventSources(AzureRMModuleBase):
 
         :return: deserialized Event Source instance state dictionary
         '''
-        self.log("Checking if the Event Source instance {0} is present".format(self.event_source_name))
+        self.log("Checking if the Event Source instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.event_sources.get(resource_group_name=self.resource_group,
                                                           environment_name=self.environment_name,
-                                                          event_source_name=self.event_source_name)
+                                                          event_source_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Event Source instance : {0} found".format(response.name))
@@ -280,6 +275,38 @@ class AzureRMEventSources(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

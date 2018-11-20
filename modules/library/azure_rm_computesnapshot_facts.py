@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    snapshot_name:
+    name:
         description:
             - "The name of the snapshot that is being created. The name can't be changed after the snapshot is created. Supported characters for the name
                are a-z, A-Z, 0-9 and _. The max name length is 80 characters."
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Snapshot
     azure_rm_computesnapshot_facts:
       resource_group: resource_group_name
-      snapshot_name: snapshot_name
+      name: snapshot_name
 
   - name: List instances of Snapshot
     azure_rm_computesnapshot_facts:
@@ -104,7 +104,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            snapshot_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -117,7 +117,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.snapshot_name = None
+        self.name = None
         self.tags = None
         super(AzureRMSnapshotsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -127,7 +127,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.snapshot_name is not None:
+        if self.name is not None:
             self.results['snapshots'] = self.get()
         else:
             self.results['snapshots'] = self.list_by_resource_group()
@@ -138,7 +138,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.snapshots.get(resource_group_name=self.resource_group,
-                                                      snapshot_name=self.snapshot_name)
+                                                      snapshot_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Snapshots.')

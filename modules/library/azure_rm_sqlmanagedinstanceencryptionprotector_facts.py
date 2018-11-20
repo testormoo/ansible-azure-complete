@@ -30,7 +30,7 @@ options:
         description:
             - The name of the managed instance.
         required: True
-    encryption_protector_name:
+    name:
         description:
             - The name of the encryption protector to be retrieved.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_sqlmanagedinstanceencryptionprotector_facts:
       resource_group: resource_group_name
       managed_instance_name: managed_instance_name
-      encryption_protector_name: encryption_protector_name
+      name: encryption_protector_name
 
   - name: List instances of Managed Instance Encryption Protector
     azure_rm_sqlmanagedinstanceencryptionprotector_facts:
@@ -111,7 +111,7 @@ class AzureRMManagedInstanceEncryptionProtectorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            encryption_protector_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -122,7 +122,7 @@ class AzureRMManagedInstanceEncryptionProtectorsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.managed_instance_name = None
-        self.encryption_protector_name = None
+        self.name = None
         super(AzureRMManagedInstanceEncryptionProtectorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMManagedInstanceEncryptionProtectorsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.encryption_protector_name is not None:
+        if self.name is not None:
             self.results['managed_instance_encryption_protectors'] = self.get()
         else:
             self.results['managed_instance_encryption_protectors'] = self.list_by_instance()
@@ -143,7 +143,7 @@ class AzureRMManagedInstanceEncryptionProtectorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.managed_instance_encryption_protectors.get(resource_group_name=self.resource_group,
                                                                                    managed_instance_name=self.managed_instance_name,
-                                                                                   encryption_protector_name=self.encryption_protector_name)
+                                                                                   encryption_protector_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagedInstanceEncryptionProtectors.')

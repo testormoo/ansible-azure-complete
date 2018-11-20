@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    runbook_name:
+    name:
         description:
             - The runbook name.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationrunbook_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      runbook_name: runbook_name
+      name: runbook_name
 
   - name: List instances of Runbook
     azure_rm_automationrunbook_facts:
@@ -138,7 +138,7 @@ class AzureRMRunbookFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            runbook_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -152,7 +152,7 @@ class AzureRMRunbookFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.runbook_name = None
+        self.name = None
         self.tags = None
         super(AzureRMRunbookFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -162,7 +162,7 @@ class AzureRMRunbookFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.runbook_name is not None:
+        if self.name is not None:
             self.results['runbook'] = self.get()
         else:
             self.results['runbook'] = self.list_by_automation_account()
@@ -174,7 +174,7 @@ class AzureRMRunbookFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.runbook.get(resource_group_name=self.resource_group,
                                                     automation_account_name=self.automation_account_name,
-                                                    runbook_name=self.runbook_name)
+                                                    runbook_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Runbook.')

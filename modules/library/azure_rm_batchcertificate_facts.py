@@ -41,7 +41,7 @@ options:
         description:
             - "OData filter expression. Valid properties for filtering are 'properties/provisioningState', 'properties/provisioningStateTransitionTime',
                'name'."
-    certificate_name:
+    name:
         description:
             - "The identifier for the certificate. This must be made up of algorithm and thumbprint separated by a dash, and must match the certificate data
                in the request. For example SHA1-a3d1c5."
@@ -67,7 +67,7 @@ EXAMPLES = '''
     azure_rm_batchcertificate_facts:
       resource_group: resource_group_name
       account_name: account_name
-      certificate_name: certificate_name
+      name: certificate_name
 '''
 
 RETURN = '''
@@ -141,7 +141,7 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
             filter=dict(
                 type='str'
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -155,7 +155,7 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
         self.maxresults = None
         self.select = None
         self.filter = None
-        self.certificate_name = None
+        self.name = None
         super(AzureRMCertificateFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -166,7 +166,7 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
 
         else:
             self.results['certificate'] = self.list_by_batch_account()
-        elif self.certificate_name is not None:
+        elif self.name is not None:
             self.results['certificate'] = self.get()
         return self.results
 
@@ -192,7 +192,7 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.certificate.get(resource_group_name=self.resource_group,
                                                         account_name=self.account_name,
-                                                        certificate_name=self.certificate_name)
+                                                        certificate_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Certificate.')

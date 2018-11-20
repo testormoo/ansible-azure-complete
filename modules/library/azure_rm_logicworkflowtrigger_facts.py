@@ -30,7 +30,7 @@ options:
         description:
             - The workflow name.
         required: True
-    trigger_name:
+    name:
         description:
             - The workflow trigger name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_logicworkflowtrigger_facts:
       resource_group: resource_group_name
       workflow_name: workflow_name
-      trigger_name: trigger_name
+      name: trigger_name
 '''
 
 RETURN = '''
@@ -101,7 +101,7 @@ class AzureRMWorkflowTriggersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            trigger_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -113,7 +113,7 @@ class AzureRMWorkflowTriggersFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workflow_name = None
-        self.trigger_name = None
+        self.name = None
         super(AzureRMWorkflowTriggersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMWorkflowTriggersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.workflow_triggers.get(resource_group_name=self.resource_group,
                                                               workflow_name=self.workflow_name,
-                                                              trigger_name=self.trigger_name)
+                                                              trigger_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for WorkflowTriggers.')

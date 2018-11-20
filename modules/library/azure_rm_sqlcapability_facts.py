@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Capability.
 
 options:
-    location_name:
+    name:
         description:
             - The location name whose capabilities are retrieved.
         required: True
@@ -41,7 +41,7 @@ author:
 EXAMPLES = '''
   - name: List instances of Capability
     azure_rm_sqlcapability_facts:
-      location_name: location_name
+      name: location_name
       include: include
 '''
 
@@ -68,7 +68,7 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            location_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -81,7 +81,7 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.location_name = None
+        self.name = None
         self.include = None
         super(AzureRMCapabilitiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -98,7 +98,7 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.capabilities.list_by_location(location_name=self.location_name)
+            response = self.mgmt_client.capabilities.list_by_location(location_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Capabilities.')

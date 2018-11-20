@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    route_table_name:
+    name:
         description:
             - The name of the route table.
         required: True
@@ -51,7 +51,7 @@ options:
                 description:
                     - "The type of Azure hop the packet should be sent to. Possible values are: 'C(virtual_network_gateway)', 'C(vnet_local)',
                        'C(internet)', 'C(virtual_appliance)', and 'C(none)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'virtual_network_gateway'
                     - 'vnet_local'
@@ -61,24 +61,12 @@ options:
             next_hop_ip_address:
                 description:
                     - The IP address packets should be forwarded to. Next hop values are only allowed in routes where the next hop type is C(virtual_appliance).
-            provisioning_state:
-                description:
-                    - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     disable_bgp_route_propagation:
         description:
             - Gets or sets whether to disable the I(routes) learned by BGP on that route table. True means disable.
-    provisioning_state:
-        description:
-            - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-    etag:
-        description:
-            - Gets a unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Route Table.
@@ -101,7 +89,7 @@ EXAMPLES = '''
   - name: Create (or update) Route Table
     azure_rm_routetable:
       resource_group: rg1
-      route_table_name: testrt
+      name: testrt
       location: eastus
 '''
 
@@ -141,7 +129,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            route_table_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -157,12 +145,6 @@ class AzureRMRouteTables(AzureRMModuleBase):
             disable_bgp_route_propagation=dict(
                 type='str'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
-            etag=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -171,7 +153,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.route_table_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -210,12 +192,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
                     self.parameters["routes"] = ev
                 elif key == "disable_bgp_route_propagation":
                     self.parameters["disable_bgp_route_propagation"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -239,8 +216,8 @@ class AzureRMRouteTables(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Route Table instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Route Table instance")
@@ -251,10 +228,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
 
             response = self.create_update_routetable()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Route Table instance deleted")
@@ -283,11 +257,11 @@ class AzureRMRouteTables(AzureRMModuleBase):
 
         :return: deserialized Route Table instance state dictionary
         '''
-        self.log("Creating / Updating the Route Table instance {0}".format(self.route_table_name))
+        self.log("Creating / Updating the Route Table instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.route_tables.create_or_update(resource_group_name=self.resource_group,
-                                                                      route_table_name=self.route_table_name,
+                                                                      route_table_name=self.name,
                                                                       parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -303,10 +277,10 @@ class AzureRMRouteTables(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Route Table instance {0}".format(self.route_table_name))
+        self.log("Deleting the Route Table instance {0}".format(self.name))
         try:
             response = self.mgmt_client.route_tables.delete(resource_group_name=self.resource_group,
-                                                            route_table_name=self.route_table_name)
+                                                            route_table_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Route Table instance.')
             self.fail("Error deleting the Route Table instance: {0}".format(str(e)))
@@ -319,11 +293,11 @@ class AzureRMRouteTables(AzureRMModuleBase):
 
         :return: deserialized Route Table instance state dictionary
         '''
-        self.log("Checking if the Route Table instance {0} is present".format(self.route_table_name))
+        self.log("Checking if the Route Table instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.route_tables.get(resource_group_name=self.resource_group,
-                                                         route_table_name=self.route_table_name)
+                                                         route_table_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Route Table instance : {0} found".format(response.name))
@@ -339,6 +313,38 @@ class AzureRMRouteTables(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

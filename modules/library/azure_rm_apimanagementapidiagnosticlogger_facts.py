@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -63,7 +63,7 @@ EXAMPLES = '''
   - name: List instances of Api Diagnostic Logger
     azure_rm_apimanagementapidiagnosticlogger_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       diagnostic_id: diagnostic_id
       filter: filter
@@ -98,7 +98,7 @@ class AzureRMApiDiagnosticLoggerFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -126,7 +126,7 @@ class AzureRMApiDiagnosticLoggerFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.diagnostic_id = None
         self.filter = None
@@ -148,7 +148,7 @@ class AzureRMApiDiagnosticLoggerFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_diagnostic_logger.list_by_service(resource_group_name=self.resource_group,
-                                                                              service_name=self.service_name,
+                                                                              service_name=self.name,
                                                                               api_id=self.api_id,
                                                                               diagnostic_id=self.diagnostic_id)
             self.log("Response : {0}".format(response))

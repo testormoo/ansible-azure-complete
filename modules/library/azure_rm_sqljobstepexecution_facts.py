@@ -63,7 +63,7 @@ options:
     top:
         description:
             - The number of elements to return from the collection.
-    step_name:
+    name:
         description:
             - The name of the step.
 
@@ -98,7 +98,7 @@ EXAMPLES = '''
       job_agent_name: job_agent_name
       job_name: job_name
       job_execution_id: job_execution_id
-      step_name: step_name
+      name: step_name
 '''
 
 RETURN = '''
@@ -185,7 +185,7 @@ class AzureRMJobStepExecutionsFacts(AzureRMModuleBase):
             top=dict(
                 type='int'
             ),
-            step_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -206,7 +206,7 @@ class AzureRMJobStepExecutionsFacts(AzureRMModuleBase):
         self.is_active = None
         self.skip = None
         self.top = None
-        self.step_name = None
+        self.name = None
         super(AzureRMJobStepExecutionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -217,7 +217,7 @@ class AzureRMJobStepExecutionsFacts(AzureRMModuleBase):
 
         else:
             self.results['job_step_executions'] = self.list_by_job_execution()
-        elif self.step_name is not None:
+        elif self.name is not None:
             self.results['job_step_executions'] = self.get()
         return self.results
 
@@ -249,7 +249,7 @@ class AzureRMJobStepExecutionsFacts(AzureRMModuleBase):
                                                                 job_agent_name=self.job_agent_name,
                                                                 job_name=self.job_name,
                                                                 job_execution_id=self.job_execution_id,
-                                                                step_name=self.step_name)
+                                                                step_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobStepExecutions.')

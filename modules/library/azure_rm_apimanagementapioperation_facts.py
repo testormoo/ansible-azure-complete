@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -65,7 +65,7 @@ EXAMPLES = '''
   - name: List instances of Api Operation
     azure_rm_apimanagementapioperation_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       filter: filter
       top: top
@@ -74,7 +74,7 @@ EXAMPLES = '''
   - name: Get instance of Api Operation
     azure_rm_apimanagementapioperation_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       operation_id: operation_id
 '''
@@ -159,7 +159,7 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -186,7 +186,7 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.filter = None
         self.top = None
@@ -211,7 +211,7 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_operation.list_by_api(resource_group_name=self.resource_group,
-                                                                  service_name=self.service_name,
+                                                                  service_name=self.name,
                                                                   api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -228,7 +228,7 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_operation.get(resource_group_name=self.resource_group,
-                                                          service_name=self.service_name,
+                                                          service_name=self.name,
                                                           api_id=self.api_id,
                                                           operation_id=self.operation_id)
             self.log("Response : {0}".format(response))

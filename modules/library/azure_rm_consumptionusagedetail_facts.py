@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Usage Detail.
 
 options:
-    billing_period_name:
+    name:
         description:
             - Billing Period Name.
     expand:
@@ -68,7 +68,7 @@ author:
 EXAMPLES = '''
   - name: List instances of Usage Detail
     azure_rm_consumptionusagedetail_facts:
-      billing_period_name: billing_period_name
+      name: billing_period_name
       expand: expand
       filter: filter
       skiptoken: skiptoken
@@ -135,7 +135,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            billing_period_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -171,7 +171,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.billing_period_name = None
+        self.name = None
         self.expand = None
         self.filter = None
         self.skiptoken = None
@@ -189,7 +189,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ConsumptionManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.billing_period_name is not None:
+        if self.name is not None:
             self.results['usage_details'] = self.list_by_billing_period()
         elif self.billing_account_id is not None:
             self.results['usage_details'] = self.list_by_billing_account()
@@ -205,7 +205,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.usage_details.list_by_billing_period(billing_period_name=self.billing_period_name)
+            response = self.mgmt_client.usage_details.list_by_billing_period(billing_period_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for UsageDetails.')

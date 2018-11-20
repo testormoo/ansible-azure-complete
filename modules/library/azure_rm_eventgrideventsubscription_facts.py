@@ -49,7 +49,7 @@ options:
                for a resource, and
                '/subscriptions/{subscriptionId}/resourceGroups/{I(resource_group)}/providers/Microsoft.EventGrid/topics/{I(topic_name)}' for an EventGrid
                topic."
-    event_subscription_name:
+    name:
         description:
             - Name of the event subscription
 
@@ -78,7 +78,7 @@ EXAMPLES = '''
   - name: Get instance of Event Subscription
     azure_rm_eventgrideventsubscription_facts:
       scope: scope
-      event_subscription_name: event_subscription_name
+      name: event_subscription_name
 '''
 
 RETURN = '''
@@ -163,7 +163,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
             scope=dict(
                 type='str'
             ),
-            event_subscription_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -179,7 +179,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
         self.domain_name = None
         self.topic_name = None
         self.scope = None
-        self.event_subscription_name = None
+        self.name = None
         super(AzureRMEventSubscriptionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -198,7 +198,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
                 self.topic_name is not None):
             self.results['event_subscriptions'] = self.list_by_domain_topic()
         elif (self.scope is not None and
-                self.event_subscription_name is not None):
+                self.name is not None):
             self.results['event_subscriptions'] = self.get()
         return self.results
 
@@ -242,7 +242,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.event_subscriptions.get(scope=self.scope,
-                                                                event_subscription_name=self.event_subscription_name)
+                                                                event_subscription_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for EventSubscriptions.')

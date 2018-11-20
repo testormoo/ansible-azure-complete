@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    rollout_name:
+    name:
         description:
             - The rollout name.
         required: True
@@ -37,42 +37,42 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             identity:
                 description:
                     - Identity for the resource.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     type:
                         description:
                             - The identity type.
-                        required: True
+                            - Required when C(state) is I(present).
                     identity_ids:
                         description:
                             - The list of identities.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
             build_version:
                 description:
                     - The version of the build being deployed.
-                required: True
+                    - Required when C(state) is I(present).
             artifact_source_id:
                 description:
                     - The reference to the artifact source resource Id where the payload is located.
             target_service_topology_id:
                 description:
                     - The resource Id of the service topology from which service units are being referenced in step groups to be deployed.
-                required: True
+                    - Required when C(state) is I(present).
             step_groups:
                 description:
                     - The list of step groups that define the orchestration.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     name:
                         description:
                             - The name of the step group.
-                        required: True
+                            - Required when C(state) is I(present).
                     depends_on_step_groups:
                         description:
                             - The list of step group names on which this step group depends on.
@@ -85,12 +85,12 @@ options:
                             step_id:
                                 description:
                                     - The resource Id of the step to be run.
-                                required: True
+                                    - Required when C(state) is I(present).
                     deployment_target_id:
                         description:
                             - "The resource Id of service unit to be deployed. The service unit should be from the service topology referenced in
                                targetServiceTopologyId"
-                        required: True
+                            - Required when C(state) is I(present).
                     post_deployment_steps:
                         description:
                             - The list of steps to be run after deploying the target.
@@ -99,7 +99,7 @@ options:
                             step_id:
                                 description:
                                     - The resource Id of the step to be run.
-                                required: True
+                                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Rollout.
@@ -122,7 +122,7 @@ EXAMPLES = '''
   - name: Create (or update) Rollout
     azure_rm_deploymentmanagerrollout:
       resource_group: myResourceGroup
-      rollout_name: myRollout
+      name: myRollout
       rollout_request:
         location: centralus
         identity:
@@ -131,6 +131,16 @@ EXAMPLES = '''
             - [
   "/subscriptions/caac1590-e859-444f-a9e0-62091c0f5929/resourceGroups/myResourceGroup/providers/Microsoft.ManagedIdentity/userassignedidentities/myuseridentity"
 ]
+        build_version: 1.0.0.1
+        artifact_source_id: /subscriptions/caac1590-e859-444f-a9e0-62091c0f5929/resourceGroups/myResourceGroup/Microsoft.DeploymentManager/artifactSources/myArtifactSource
+        target_service_topology_id: /subscriptions/caac1590-e859-444f-a9e0-62091c0f5929/resourceGroups/myResourceGroup/Microsoft.DeploymentManager/serviceTopologies/myTopology
+        step_groups:
+          - name: FirstRegion
+            pre_deployment_steps:
+              - step_id: Microsoft.DeploymentManager/steps/preDeployStep1
+            deployment_target_id: Microsoft.DeploymentManager/serviceTopologies/myTopology/services/myService/serviceUnits/myServiceUnit1'
+            post_deployment_steps:
+              - step_id: Microsoft.DeploymentManager/steps/postDeployStep1
 '''
 
 RETURN = '''
@@ -170,7 +180,7 @@ class AzureRMRollouts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rollout_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -185,7 +195,7 @@ class AzureRMRollouts(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.rollout_name = None
+        self.name = None
         self.rollout_request = dict()
 
         self.results = dict(changed=False)
@@ -217,7 +227,6 @@ class AzureRMRollouts(AzureRMModuleBase):
                 elif key == "step_groups":
                     self.rollout_request["step_groups"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureDeploymentManager,
@@ -238,8 +247,8 @@ class AzureRMRollouts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Rollout instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Rollout instance")
@@ -250,10 +259,7 @@ class AzureRMRollouts(AzureRMModuleBase):
 
             response = self.create_update_rollout()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Rollout instance deleted")
@@ -282,11 +288,11 @@ class AzureRMRollouts(AzureRMModuleBase):
 
         :return: deserialized Rollout instance state dictionary
         '''
-        self.log("Creating / Updating the Rollout instance {0}".format(self.rollout_name))
+        self.log("Creating / Updating the Rollout instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.rollouts.create_or_update(resource_group_name=self.resource_group,
-                                                                  rollout_name=self.rollout_name)
+                                                                  rollout_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -301,10 +307,10 @@ class AzureRMRollouts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Rollout instance {0}".format(self.rollout_name))
+        self.log("Deleting the Rollout instance {0}".format(self.name))
         try:
             response = self.mgmt_client.rollouts.delete(resource_group_name=self.resource_group,
-                                                        rollout_name=self.rollout_name)
+                                                        rollout_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Rollout instance.')
             self.fail("Error deleting the Rollout instance: {0}".format(str(e)))
@@ -317,11 +323,11 @@ class AzureRMRollouts(AzureRMModuleBase):
 
         :return: deserialized Rollout instance state dictionary
         '''
-        self.log("Checking if the Rollout instance {0} is present".format(self.rollout_name))
+        self.log("Checking if the Rollout instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.rollouts.get(resource_group_name=self.resource_group,
-                                                     rollout_name=self.rollout_name)
+                                                     rollout_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Rollout instance : {0} found".format(response.name))
@@ -337,6 +343,38 @@ class AzureRMRollouts(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

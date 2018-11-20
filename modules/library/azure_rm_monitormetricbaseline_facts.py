@@ -28,7 +28,7 @@ options:
                subscriptions/{subscriptionName}/resourceGroups/{resourceGroupName}/providers/{providerName}/{resourceName}. For example:
                subscriptions/b368ca2f-e298-46b7-b0ab-012281956afa/resourceGroups/vms/providers/Microsoft.Compute/virtualMachines/vm1"
         required: True
-    metric_name:
+    name:
         description:
             - The name of the metric to retrieve the baseline for.
         required: True
@@ -60,7 +60,7 @@ EXAMPLES = '''
   - name: Get instance of Metric Baseline
     azure_rm_monitormetricbaseline_facts:
       resource_uri: resource_uri
-      metric_name: metric_name
+      name: metric_name
       timespan: timespan
       interval: interval
       aggregation: aggregation
@@ -148,7 +148,7 @@ class AzureRMMetricBaselineFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            metric_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -174,7 +174,7 @@ class AzureRMMetricBaselineFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_uri = None
-        self.metric_name = None
+        self.name = None
         self.timespan = None
         self.interval = None
         self.aggregation = None
@@ -196,7 +196,7 @@ class AzureRMMetricBaselineFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.metric_baseline.get(resource_uri=self.resource_uri,
-                                                            metric_name=self.metric_name)
+                                                            metric_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for MetricBaseline.')

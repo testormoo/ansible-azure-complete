@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group that contains the IoT Central application.
-    resource_name:
+    name:
         description:
             - The ARM resource name of the IoT Central application.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of App
     azure_rm_iotcentralapp_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
 
   - name: List instances of App
     azure_rm_iotcentralapp_facts:
@@ -130,7 +130,7 @@ class AzureRMAppsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -143,7 +143,7 @@ class AzureRMAppsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAppsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -154,7 +154,7 @@ class AzureRMAppsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.resource_name is not None):
+                self.name is not None):
             self.results['apps'] = self.get()
         elif self.resource_group is not None:
             self.results['apps'] = self.list_by_resource_group()
@@ -167,7 +167,7 @@ class AzureRMAppsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.apps.get(resource_group_name=self.resource_group,
-                                                 resource_name=self.resource_name)
+                                                 resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Apps.')

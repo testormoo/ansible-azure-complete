@@ -42,7 +42,7 @@ options:
     inlinecount:
         description:
             - Return total rows.
-    node_configuration_name:
+    name:
         description:
             - The Dsc node configuration name.
 
@@ -68,7 +68,7 @@ EXAMPLES = '''
     azure_rm_automationdscnodeconfiguration_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      node_configuration_name: node_configuration_name
+      name: node_configuration_name
 '''
 
 RETURN = '''
@@ -146,7 +146,7 @@ class AzureRMDscNodeConfigurationFacts(AzureRMModuleBase):
             inlinecount=dict(
                 type='str'
             ),
-            node_configuration_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -161,7 +161,7 @@ class AzureRMDscNodeConfigurationFacts(AzureRMModuleBase):
         self.skip = None
         self.top = None
         self.inlinecount = None
-        self.node_configuration_name = None
+        self.name = None
         super(AzureRMDscNodeConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -172,7 +172,7 @@ class AzureRMDscNodeConfigurationFacts(AzureRMModuleBase):
 
         else:
             self.results['dsc_node_configuration'] = self.list_by_automation_account()
-        elif self.node_configuration_name is not None:
+        elif self.name is not None:
             self.results['dsc_node_configuration'] = self.get()
         return self.results
 
@@ -198,7 +198,7 @@ class AzureRMDscNodeConfigurationFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.dsc_node_configuration.get(resource_group_name=self.resource_group,
                                                                    automation_account_name=self.automation_account_name,
-                                                                   node_configuration_name=self.node_configuration_name)
+                                                                   node_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DscNodeConfiguration.')

@@ -53,7 +53,7 @@ options:
             enabled:
                 description:
                     - a value indicating whether this I(category) is enabled.
-                required: True
+                    - Required when C(state) is I(present).
             retention_policy:
                 description:
                     - the retention policy for this I(category).
@@ -61,11 +61,11 @@ options:
                     enabled:
                         description:
                             - a value indicating whether the retention policy is enabled.
-                        required: True
+                            - Required when C(state) is I(present).
                     days:
                         description:
                             - the number of days for the retention in days. A value of 0 will retain the events indefinitely.
-                        required: True
+                            - Required when C(state) is I(present).
     logs:
         description:
             - the list of logs settings.
@@ -78,7 +78,7 @@ options:
             enabled:
                 description:
                     - a value indicating whether this log is enabled.
-                required: True
+                    - Required when C(state) is I(present).
             retention_policy:
                 description:
                     - the retention policy for this log.
@@ -86,11 +86,11 @@ options:
                     enabled:
                         description:
                             - a value indicating whether the retention policy is enabled.
-                        required: True
+                            - Required when C(state) is I(present).
                     days:
                         description:
                             - the number of days for the retention in days. A value of 0 will retain the events indefinitely.
-                        required: True
+                            - Required when C(state) is I(present).
     workspace_id:
         description:
             - "The workspace ID (resource ID of a Log Analytics workspace) for a Log Analytics workspace to which you would like to send Diagnostic I(logs).
@@ -122,6 +122,21 @@ EXAMPLES = '''
   - name: Create (or update) Diagnostic Setting
     azure_rm_monitordiagnosticsetting:
       resource_uri: subscriptions/1a66ce04-b633-4a0b-b2bc-a912ec8986a6/resourcegroups/viruela1/providers/microsoft.logic/workflows/viruela6
+      storage_account_id: /subscriptions/df602c9c-7aa0-407d-a6fb-eb20c8bd1192/resourceGroups/apptest/providers/Microsoft.Storage/storageAccounts/appteststorage1
+      event_hub_authorization_rule_id: /subscriptions/1a66ce04-b633-4a0b-b2bc-a912ec8986a6/resourceGroups/montest/providers/microsoft.eventhub/namespaces/mynamespace/eventhubs/myeventhub/authorizationrules/myrule
+      event_hub_name: myeventhub
+      metrics:
+        - category: WorkflowMetrics
+          enabled: True
+          retention_policy:
+            enabled: False
+            days: 0
+      logs:
+        - category: WorkflowRuntime
+          enabled: True
+          retention_policy:
+            enabled: False
+            days: 0
       name: mysetting
 '''
 
@@ -229,7 +244,6 @@ class AzureRMDiagnosticSettings(AzureRMModuleBase):
                 elif key == "workspace_id":
                     self.parameters["workspace_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
@@ -248,8 +262,8 @@ class AzureRMDiagnosticSettings(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Diagnostic Setting instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Diagnostic Setting instance")
@@ -260,10 +274,7 @@ class AzureRMDiagnosticSettings(AzureRMModuleBase):
 
             response = self.create_update_diagnosticsetting()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Diagnostic Setting instance deleted")
@@ -348,6 +359,38 @@ class AzureRMDiagnosticSettings(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -55,7 +55,7 @@ EXAMPLES = '''
   - name: Get instance of Api Operation Policy
     azure_rm_apimanagementapioperationpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       operation_id: operation_id
       policy_id: policy_id
@@ -63,7 +63,7 @@ EXAMPLES = '''
   - name: List instances of Api Operation Policy
     azure_rm_apimanagementapioperationpolicy_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       operation_id: operation_id
 '''
@@ -108,7 +108,7 @@ class AzureRMApiOperationPolicyFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -130,7 +130,7 @@ class AzureRMApiOperationPolicyFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.operation_id = None
         self.policy_id = None
@@ -153,7 +153,7 @@ class AzureRMApiOperationPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_operation_policy.get(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name,
+                                                                 service_name=self.name,
                                                                  api_id=self.api_id,
                                                                  operation_id=self.operation_id,
                                                                  policy_id=self.policy_id)
@@ -171,7 +171,7 @@ class AzureRMApiOperationPolicyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_operation_policy.list_by_operation(resource_group_name=self.resource_group,
-                                                                               service_name=self.service_name,
+                                                                               service_name=self.name,
                                                                                api_id=self.api_id,
                                                                                operation_id=self.operation_id)
             self.log("Response : {0}".format(response))

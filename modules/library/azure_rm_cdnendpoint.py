@@ -30,7 +30,7 @@ options:
         description:
             - Name of the CDN profile which is unique within the resource group.
         required: True
-    endpoint_name:
+    name:
         description:
             - Name of the I(endpoint) under the profile which is unique globally.
         required: True
@@ -42,7 +42,7 @@ options:
             location:
                 description:
                     - Resource location.
-                required: True
+                    - Required when C(state) is I(present).
             origin_host_header:
                 description:
                     - "The host header value sent to the origin with each request. If you leave this blank, the request hostname determines this value.
@@ -98,18 +98,18 @@ options:
                     relative_path:
                         description:
                             - "Relative path applicable to geo filter. (e.g. '/mypictures', '/mypicture/kitty.jpg', and etc.)"
-                        required: True
+                            - Required when C(state) is I(present).
                     action:
                         description:
                             - Action of the geo filter, i.e. C(allow) or C(block) access.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'block'
                             - 'allow'
                     country_codes:
                         description:
                             - Two letter country codes defining user country access in a geo filter, e.g. AU, MX, US.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
             delivery_policy:
                 description:
@@ -128,17 +128,17 @@ options:
                                     - "The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,………}. A rule with a lesser order
                                        will be applied before a rule with a greater order. Rule with order 0 is a special rule. It does not require any
                                        condition and I(actions) listed in it will always be applied."
-                                required: True
+                                    - Required when C(state) is I(present).
                             actions:
                                 description:
                                     - A list of actions that are executed when all the I(conditions) of a rule are satisfied.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                                 suboptions:
                                     name:
                                         description:
                                             - Constant filled by server.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             conditions:
                                 description:
                                     - A list of conditions that must be matched for the I(actions) to be executed
@@ -147,21 +147,21 @@ options:
                                     name:
                                         description:
                                             - Constant filled by server.
-                                        required: True
+                                            - Required when C(state) is I(present).
             origins:
                 description:
                     - The source of the content being delivered via CDN.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     name:
                         description:
                             - Origin name
-                        required: True
+                            - Required when C(state) is I(present).
                     host_name:
                         description:
                             - The address of the origin. It can be a domain name, IPv4 address, or IPv6 address.
-                        required: True
+                            - Required when C(state) is I(present).
                     http_port:
                         description:
                             - The value of the HTTP port. Must be between 1 and 65535
@@ -191,9 +191,14 @@ EXAMPLES = '''
     azure_rm_cdnendpoint:
       resource_group: RG
       profile_name: profile1
-      endpoint_name: endpoint1
+      name: endpoint1
       endpoint:
         location: WestCentralUs
+        origins:
+          - name: www-bing-com
+            host_name: www.bing.com
+            http_port: 80
+            https_port: 443
 '''
 
 RETURN = '''
@@ -236,7 +241,7 @@ class AzureRMEndpoints(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -253,7 +258,7 @@ class AzureRMEndpoints(AzureRMModuleBase):
 
         self.resource_group = None
         self.profile_name = None
-        self.endpoint_name = None
+        self.name = None
         self.endpoint = dict()
 
         self.results = dict(changed=False)
@@ -305,7 +310,6 @@ class AzureRMEndpoints(AzureRMModuleBase):
                 elif key == "origins":
                     self.endpoint["origins"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CdnManagementClient,
@@ -326,8 +330,8 @@ class AzureRMEndpoints(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Endpoint instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Endpoint instance")
@@ -338,10 +342,7 @@ class AzureRMEndpoints(AzureRMModuleBase):
 
             response = self.create_update_endpoint()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Endpoint instance deleted")
@@ -370,18 +371,18 @@ class AzureRMEndpoints(AzureRMModuleBase):
 
         :return: deserialized Endpoint instance state dictionary
         '''
-        self.log("Creating / Updating the Endpoint instance {0}".format(self.endpoint_name))
+        self.log("Creating / Updating the Endpoint instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.endpoints.create(resource_group_name=self.resource_group,
                                                              profile_name=self.profile_name,
-                                                             endpoint_name=self.endpoint_name,
+                                                             endpoint_name=self.name,
                                                              endpoint=self.endpoint)
             else:
                 response = self.mgmt_client.endpoints.update(resource_group_name=self.resource_group,
                                                              profile_name=self.profile_name,
-                                                             endpoint_name=self.endpoint_name,
+                                                             endpoint_name=self.name,
                                                              endpoint_update_properties=self.endpoint_update_properties)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -397,11 +398,11 @@ class AzureRMEndpoints(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Endpoint instance {0}".format(self.endpoint_name))
+        self.log("Deleting the Endpoint instance {0}".format(self.name))
         try:
             response = self.mgmt_client.endpoints.delete(resource_group_name=self.resource_group,
                                                          profile_name=self.profile_name,
-                                                         endpoint_name=self.endpoint_name)
+                                                         endpoint_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Endpoint instance.')
             self.fail("Error deleting the Endpoint instance: {0}".format(str(e)))
@@ -414,12 +415,12 @@ class AzureRMEndpoints(AzureRMModuleBase):
 
         :return: deserialized Endpoint instance state dictionary
         '''
-        self.log("Checking if the Endpoint instance {0} is present".format(self.endpoint_name))
+        self.log("Checking if the Endpoint instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.endpoints.get(resource_group_name=self.resource_group,
                                                       profile_name=self.profile_name,
-                                                      endpoint_name=self.endpoint_name)
+                                                      endpoint_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Endpoint instance : {0} found".format(response.name))
@@ -435,6 +436,38 @@ class AzureRMEndpoints(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

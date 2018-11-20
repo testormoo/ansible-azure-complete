@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    network_interface_name:
+    name:
         description:
             - The name of the network interface.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Network Interface
     azure_rm_networkinterface_facts:
       resource_group: resource_group_name
-      network_interface_name: network_interface_name
+      name: network_interface_name
       expand: expand
 '''
 
@@ -110,7 +110,7 @@ class AzureRMNetworkInterfacesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            network_interface_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -127,7 +127,7 @@ class AzureRMNetworkInterfacesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.network_interface_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMNetworkInterfacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -146,7 +146,7 @@ class AzureRMNetworkInterfacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.network_interfaces.get(resource_group_name=self.resource_group,
-                                                               network_interface_name=self.network_interface_name)
+                                                               network_interface_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NetworkInterfaces.')

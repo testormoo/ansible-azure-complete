@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Name of the resource group in which the cluster is located.
-    cluster_name:
+    name:
         description:
             - The name of the cluster.
     skiptoken:
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Operationalization Cluster
     azure_rm_machinelearningcomputeoperationalizationcluster_facts:
       resource_group: resource_group_name
-      cluster_name: cluster_name
+      name: cluster_name
 
   - name: List instances of Operationalization Cluster
     azure_rm_machinelearningcomputeoperationalizationcluster_facts:
@@ -116,7 +116,7 @@ class AzureRMOperationalizationClustersFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str'
             ),
             skiptoken=dict(
@@ -132,7 +132,7 @@ class AzureRMOperationalizationClustersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.skiptoken = None
         self.tags = None
         super(AzureRMOperationalizationClustersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -144,7 +144,7 @@ class AzureRMOperationalizationClustersFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.cluster_name is not None):
+                self.name is not None):
             self.results['operationalization_clusters'] = self.get()
         elif self.resource_group is not None:
             self.results['operationalization_clusters'] = self.list_by_resource_group()
@@ -157,7 +157,7 @@ class AzureRMOperationalizationClustersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.operationalization_clusters.get(resource_group_name=self.resource_group,
-                                                                        cluster_name=self.cluster_name)
+                                                                        cluster_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for OperationalizationClusters.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    policy_name:
+    name:
         description:
             - "Backup policy name whose operation's status needs to be fetched."
         required: True
@@ -52,7 +52,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesbackupprotectionpolicyoperationstatuse_facts:
       vault_name: vault_name
       resource_group: resource_group_name
-      policy_name: policy_name
+      name: policy_name
       operation_id: operation_id
 '''
 
@@ -112,7 +112,7 @@ class AzureRMProtectionPolicyOperationStatusesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMProtectionPolicyOperationStatusesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        self.policy_name = None
+        self.name = None
         self.operation_id = None
         super(AzureRMProtectionPolicyOperationStatusesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -147,7 +147,7 @@ class AzureRMProtectionPolicyOperationStatusesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.protection_policy_operation_statuses.get(vault_name=self.vault_name,
                                                                                  resource_group_name=self.resource_group,
-                                                                                 policy_name=self.policy_name,
+                                                                                 policy_name=self.name,
                                                                                  operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

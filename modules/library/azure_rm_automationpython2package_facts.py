@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    package_name:
+    name:
         description:
             - The python package name.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationpython2package_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      package_name: package_name
+      name: package_name
 
   - name: List instances of Python2 Package
     azure_rm_automationpython2package_facts:
@@ -145,7 +145,7 @@ class AzureRMPython2PackageFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            package_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -159,7 +159,7 @@ class AzureRMPython2PackageFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.package_name = None
+        self.name = None
         self.tags = None
         super(AzureRMPython2PackageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -169,7 +169,7 @@ class AzureRMPython2PackageFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.package_name is not None:
+        if self.name is not None:
             self.results['python2_package'] = self.get()
         else:
             self.results['python2_package'] = self.list_by_automation_account()
@@ -181,7 +181,7 @@ class AzureRMPython2PackageFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.python2_package.get(resource_group_name=self.resource_group,
                                                             automation_account_name=self.automation_account_name,
-                                                            package_name=self.package_name)
+                                                            package_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Python2Package.')

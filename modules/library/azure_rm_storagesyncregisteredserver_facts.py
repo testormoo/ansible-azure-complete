@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    storage_sync_service_name:
+    name:
         description:
             - Name of Storage Sync Service resource.
         required: True
@@ -46,13 +46,13 @@ EXAMPLES = '''
   - name: Get instance of Registered Server
     azure_rm_storagesyncregisteredserver_facts:
       resource_group: resource_group_name
-      storage_sync_service_name: storage_sync_service_name
+      name: storage_sync_service_name
       server_id: server_id
 
   - name: List instances of Registered Server
     azure_rm_storagesyncregisteredserver_facts:
       resource_group: resource_group_name
-      storage_sync_service_name: storage_sync_service_name
+      name: storage_sync_service_name
 '''
 
 RETURN = '''
@@ -96,7 +96,7 @@ class AzureRMRegisteredServersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            storage_sync_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -110,7 +110,7 @@ class AzureRMRegisteredServersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.storage_sync_service_name = None
+        self.name = None
         self.server_id = None
         super(AzureRMRegisteredServersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -131,7 +131,7 @@ class AzureRMRegisteredServersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.registered_servers.get(resource_group_name=self.resource_group,
-                                                               storage_sync_service_name=self.storage_sync_service_name,
+                                                               storage_sync_service_name=self.name,
                                                                server_id=self.server_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -147,7 +147,7 @@ class AzureRMRegisteredServersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.registered_servers.list_by_storage_sync_service(resource_group_name=self.resource_group,
-                                                                                        storage_sync_service_name=self.storage_sync_service_name)
+                                                                                        storage_sync_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RegisteredServers.')

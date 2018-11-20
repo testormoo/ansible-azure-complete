@@ -30,7 +30,7 @@ options:
         description:
             - The name of the server that the alias is pointing to.
         required: True
-    dns_alias_name:
+    name:
         description:
             - The name of the server DNS alias.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
     azure_rm_sqlserverdnsaliase:
       resource_group: Default
       server_name: dns-alias-server
-      dns_alias_name: dns-alias-name-1
+      name: dns-alias-name-1
 '''
 
 RETURN = '''
@@ -100,7 +100,7 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            dns_alias_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.dns_alias_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -131,7 +131,6 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -152,8 +151,8 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Dns Aliase instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Dns Aliase instance")
@@ -164,10 +163,7 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
 
             response = self.create_update_serverdnsaliase()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Dns Aliase instance deleted")
@@ -196,12 +192,12 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
 
         :return: deserialized Server Dns Aliase instance state dictionary
         '''
-        self.log("Creating / Updating the Server Dns Aliase instance {0}".format(self.dns_alias_name))
+        self.log("Creating / Updating the Server Dns Aliase instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.server_dns_aliases.create_or_update(resource_group_name=self.resource_group,
                                                                             server_name=self.server_name,
-                                                                            dns_alias_name=self.dns_alias_name)
+                                                                            dns_alias_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -216,11 +212,11 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Dns Aliase instance {0}".format(self.dns_alias_name))
+        self.log("Deleting the Server Dns Aliase instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_dns_aliases.delete(resource_group_name=self.resource_group,
                                                                   server_name=self.server_name,
-                                                                  dns_alias_name=self.dns_alias_name)
+                                                                  dns_alias_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Server Dns Aliase instance.')
             self.fail("Error deleting the Server Dns Aliase instance: {0}".format(str(e)))
@@ -233,12 +229,12 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
 
         :return: deserialized Server Dns Aliase instance state dictionary
         '''
-        self.log("Checking if the Server Dns Aliase instance {0} is present".format(self.dns_alias_name))
+        self.log("Checking if the Server Dns Aliase instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_dns_aliases.get(resource_group_name=self.resource_group,
                                                                server_name=self.server_name,
-                                                               dns_alias_name=self.dns_alias_name)
+                                                               dns_alias_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Dns Aliase instance : {0} found".format(response.name))
@@ -254,6 +250,38 @@ class AzureRMServerDnsAliases(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

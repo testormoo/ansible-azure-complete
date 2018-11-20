@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
   - name: List instances of Property
     azure_rm_apimanagementproperty_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -69,7 +69,7 @@ EXAMPLES = '''
   - name: Get instance of Property
     azure_rm_apimanagementproperty_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       prop_id: prop_id
 '''
 
@@ -130,7 +130,7 @@ class AzureRMPropertyFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -156,7 +156,7 @@ class AzureRMPropertyFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.filter = None
         self.top = None
         self.skip = None
@@ -181,7 +181,7 @@ class AzureRMPropertyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.property.list_by_service(resource_group_name=self.resource_group,
-                                                                 service_name=self.service_name)
+                                                                 service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Property.')
@@ -198,7 +198,7 @@ class AzureRMPropertyFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.property.get(resource_group_name=self.resource_group,
-                                                     service_name=self.service_name,
+                                                     service_name=self.name,
                                                      prop_id=self.prop_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

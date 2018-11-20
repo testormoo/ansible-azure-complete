@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    image_name:
+    name:
         description:
             - The name of the image.
     expand:
@@ -48,7 +48,7 @@ EXAMPLES = '''
   - name: Get instance of Image
     azure_rm_computeimage_facts:
       resource_group: resource_group_name
-      image_name: image_name
+      name: image_name
       expand: expand
 
   - name: List instances of Image
@@ -107,7 +107,7 @@ class AzureRMImagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            image_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -123,7 +123,7 @@ class AzureRMImagesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.image_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMImagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -134,7 +134,7 @@ class AzureRMImagesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.image_name is not None:
+        if self.name is not None:
             self.results['images'] = self.get()
         else:
             self.results['images'] = self.list_by_resource_group()
@@ -145,7 +145,7 @@ class AzureRMImagesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.images.get(resource_group_name=self.resource_group,
-                                                   image_name=self.image_name)
+                                                   image_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Images.')

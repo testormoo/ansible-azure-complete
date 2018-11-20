@@ -26,7 +26,7 @@ options:
         description:
             - "The name of the resource group within the user's subscription. The name is case insensitive."
         required: True
-    domain_service_name:
+    name:
         description:
             - The name of the domain service in the specified subscription and resource group.
         required: True
@@ -130,7 +130,7 @@ EXAMPLES = '''
   - name: Create (or update) Domain Service
     azure_rm_domainservice:
       resource_group: sva-tt-WUS
-      domain_service_name: zdomain.zforest.com
+      name: zdomain.zforest.com
       domain_name: zdomain.zforest.com
       subnet_id: /subscriptions/1639790a-76a2-4ac4-98d9-8562f5dfcb4d/resourceGroups/Default-Networking/providers/Microsoft.Network/virtualNetworks/DCIaasTmpWusNet/subnets/Subnet-1
       ldaps_settings:
@@ -189,7 +189,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            domain_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -221,7 +221,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.domain_service_name = None
+        self.name = None
         self.properties = dict()
 
         self.results = dict(changed=False)
@@ -291,7 +291,6 @@ class AzureRMDomainServices(AzureRMModuleBase):
                 elif key == "filtered_sync":
                     self.properties["filtered_sync"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DomainServicesResourceProvider,
@@ -312,8 +311,8 @@ class AzureRMDomainServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Domain Service instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Domain Service instance")
@@ -324,10 +323,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
 
             response = self.create_update_domainservice()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Domain Service instance deleted")
@@ -356,11 +352,11 @@ class AzureRMDomainServices(AzureRMModuleBase):
 
         :return: deserialized Domain Service instance state dictionary
         '''
-        self.log("Creating / Updating the Domain Service instance {0}".format(self.domain_service_name))
+        self.log("Creating / Updating the Domain Service instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.domain_services.create_or_update(resource_group_name=self.resource_group,
-                                                                         domain_service_name=self.domain_service_name,
+                                                                         domain_service_name=self.name,
                                                                          properties=self.properties)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -376,10 +372,10 @@ class AzureRMDomainServices(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Domain Service instance {0}".format(self.domain_service_name))
+        self.log("Deleting the Domain Service instance {0}".format(self.name))
         try:
             response = self.mgmt_client.domain_services.delete(resource_group_name=self.resource_group,
-                                                               domain_service_name=self.domain_service_name)
+                                                               domain_service_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Domain Service instance.')
             self.fail("Error deleting the Domain Service instance: {0}".format(str(e)))
@@ -392,11 +388,11 @@ class AzureRMDomainServices(AzureRMModuleBase):
 
         :return: deserialized Domain Service instance state dictionary
         '''
-        self.log("Checking if the Domain Service instance {0} is present".format(self.domain_service_name))
+        self.log("Checking if the Domain Service instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.domain_services.get(resource_group_name=self.resource_group,
-                                                            domain_service_name=self.domain_service_name)
+                                                            domain_service_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Domain Service instance : {0} found".format(response.name))
@@ -412,6 +408,38 @@ class AzureRMDomainServices(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

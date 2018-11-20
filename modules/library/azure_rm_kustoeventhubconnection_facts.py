@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database in the Kusto cluster.
         required: True
-    event_hub_connection_name:
+    name:
         description:
             - The name of the event hub connection.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       cluster_name: cluster_name
       database_name: database_name
-      event_hub_connection_name: event_hub_connection_name
+      name: event_hub_connection_name
 
   - name: List instances of Event Hub Connection
     azure_rm_kustoeventhubconnection_facts:
@@ -116,7 +116,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_hub_connection_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -128,7 +128,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.cluster_name = None
         self.database_name = None
-        self.event_hub_connection_name = None
+        self.name = None
         super(AzureRMEventHubConnectionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -137,7 +137,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(KustoManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.event_hub_connection_name is not None:
+        if self.name is not None:
             self.results['event_hub_connections'] = self.get()
         else:
             self.results['event_hub_connections'] = self.list_by_database()
@@ -150,7 +150,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.event_hub_connections.get(resource_group_name=self.resource_group,
                                                                   cluster_name=self.cluster_name,
                                                                   database_name=self.database_name,
-                                                                  event_hub_connection_name=self.event_hub_connection_name)
+                                                                  event_hub_connection_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for EventHubConnections.')

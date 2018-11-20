@@ -37,7 +37,7 @@ options:
         description:
             - Name of the project
         required: True
-    task_name:
+    name:
         description:
             - Name of the Task
         required: True
@@ -57,7 +57,7 @@ EXAMPLES = '''
       group_name: group_name
       service_name: service_name
       project_name: project_name
-      task_name: task_name
+      name: task_name
 '''
 
 RETURN = '''
@@ -131,7 +131,7 @@ class AzureRMTasksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            task_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -145,7 +145,7 @@ class AzureRMTasksFacts(AzureRMModuleBase):
         self.group_name = None
         self.service_name = None
         self.project_name = None
-        self.task_name = None
+        self.name = None
         super(AzureRMTasksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -164,7 +164,7 @@ class AzureRMTasksFacts(AzureRMModuleBase):
             response = self.mgmt_client.tasks.get(group_name=self.group_name,
                                                   service_name=self.service_name,
                                                   project_name=self.project_name,
-                                                  task_name=self.task_name)
+                                                  task_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Tasks.')

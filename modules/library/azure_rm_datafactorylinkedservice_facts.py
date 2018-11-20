@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    linked_service_name:
+    name:
         description:
             - The linked service name.
     if_none_match:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datafactorylinkedservice_facts:
       resource_group: resource_group_name
       factory_name: factory_name
-      linked_service_name: linked_service_name
+      name: linked_service_name
       if_none_match: if_none_match
 
   - name: List instances of Linked Service
@@ -129,7 +129,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            linked_service_name=dict(
+            name=dict(
                 type='str'
             ),
             if_none_match=dict(
@@ -143,7 +143,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.factory_name = None
-        self.linked_service_name = None
+        self.name = None
         self.if_none_match = None
         super(AzureRMLinkedServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.linked_service_name is not None:
+        if self.name is not None:
             self.results['linked_services'] = self.get()
         else:
             self.results['linked_services'] = self.list_by_factory()
@@ -165,7 +165,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.linked_services.get(resource_group_name=self.resource_group,
                                                             factory_name=self.factory_name,
-                                                            linked_service_name=self.linked_service_name)
+                                                            linked_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LinkedServices.')

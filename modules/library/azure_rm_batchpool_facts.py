@@ -51,7 +51,7 @@ options:
             -  properties/interNodeCommunication
             -  properties/scaleSettings/autoScale
             -  properties/scaleSettings/fixedScale
-    pool_name:
+    name:
         description:
             - The pool name. This must be unique within the account.
 
@@ -76,7 +76,7 @@ EXAMPLES = '''
     azure_rm_batchpool_facts:
       resource_group: resource_group_name
       account_name: account_name
-      pool_name: pool_name
+      name: pool_name
 '''
 
 RETURN = '''
@@ -154,7 +154,7 @@ class AzureRMPoolFacts(AzureRMModuleBase):
             filter=dict(
                 type='str'
             ),
-            pool_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -168,7 +168,7 @@ class AzureRMPoolFacts(AzureRMModuleBase):
         self.maxresults = None
         self.select = None
         self.filter = None
-        self.pool_name = None
+        self.name = None
         super(AzureRMPoolFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -179,7 +179,7 @@ class AzureRMPoolFacts(AzureRMModuleBase):
 
         else:
             self.results['pool'] = self.list_by_batch_account()
-        elif self.pool_name is not None:
+        elif self.name is not None:
             self.results['pool'] = self.get()
         return self.results
 
@@ -205,7 +205,7 @@ class AzureRMPoolFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.pool.get(resource_group_name=self.resource_group,
                                                  account_name=self.account_name,
-                                                 pool_name=self.pool_name)
+                                                 pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Pool.')

@@ -32,7 +32,7 @@ options:
                a resource, and '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventGrid/topics/{topicName}' for an
                EventGrid topic."
         required: True
-    event_subscription_name:
+    name:
         description:
             - Name of the event subscription. Event subscription names must be between 3 and 64 characters in length and should use alphanumeric letters only.
         required: True
@@ -48,7 +48,7 @@ options:
                     endpoint_type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
             filter:
                 description:
                     - Information about the filter for the event subscription.
@@ -82,7 +82,7 @@ options:
                             operator_type:
                                 description:
                                     - Constant filled by server.
-                                required: True
+                                    - Required when C(state) is I(present).
             labels:
                 description:
                     - List of user defined labels.
@@ -114,7 +114,7 @@ options:
                     endpoint_type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Event Subscription.
@@ -136,7 +136,10 @@ EXAMPLES = '''
   - name: Create (or update) Event Subscription
     azure_rm_eventgrideventsubscription:
       scope: subscriptions/5b4b650e-28b9-4790-b3ab-ddbd88d727c4
-      event_subscription_name: examplesubscription3
+      name: examplesubscription3
+      event_subscription_info:
+        filter:
+          is_subject_case_sensitive: False
 '''
 
 RETURN = '''
@@ -175,7 +178,7 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_subscription_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -191,7 +194,7 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
         )
 
         self.scope = None
-        self.event_subscription_name = None
+        self.name = None
         self.event_subscription_info = dict()
 
         self.results = dict(changed=False)
@@ -225,7 +228,6 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
                 elif key == "dead_letter_destination":
                     self.event_subscription_info["dead_letter_destination"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(EventGridManagementClient,
@@ -244,8 +246,8 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Event Subscription instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Event Subscription instance")
@@ -256,10 +258,7 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
 
             response = self.create_update_eventsubscription()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Event Subscription instance deleted")
@@ -288,11 +287,11 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
 
         :return: deserialized Event Subscription instance state dictionary
         '''
-        self.log("Creating / Updating the Event Subscription instance {0}".format(self.event_subscription_name))
+        self.log("Creating / Updating the Event Subscription instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.event_subscriptions.create_or_update(scope=self.scope,
-                                                                             event_subscription_name=self.event_subscription_name,
+                                                                             event_subscription_name=self.name,
                                                                              event_subscription_info=self.event_subscription_info)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -308,10 +307,10 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Event Subscription instance {0}".format(self.event_subscription_name))
+        self.log("Deleting the Event Subscription instance {0}".format(self.name))
         try:
             response = self.mgmt_client.event_subscriptions.delete(scope=self.scope,
-                                                                   event_subscription_name=self.event_subscription_name)
+                                                                   event_subscription_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Event Subscription instance.')
             self.fail("Error deleting the Event Subscription instance: {0}".format(str(e)))
@@ -324,11 +323,11 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
 
         :return: deserialized Event Subscription instance state dictionary
         '''
-        self.log("Checking if the Event Subscription instance {0} is present".format(self.event_subscription_name))
+        self.log("Checking if the Event Subscription instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.event_subscriptions.get(scope=self.scope,
-                                                                event_subscription_name=self.event_subscription_name)
+                                                                event_subscription_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Event Subscription instance : {0} found".format(response.name))
@@ -344,6 +343,38 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

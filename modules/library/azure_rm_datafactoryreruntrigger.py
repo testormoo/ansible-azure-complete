@@ -34,22 +34,22 @@ options:
         description:
             - The trigger name.
         required: True
-    rerun_trigger_name:
+    name:
         description:
             - The rerun trigger name.
         required: True
     start_time:
         description:
             - The start time for the time period for which restatement is initiated. Only UTC time is currently supported.
-        required: True
+            - Required when C(state) is I(present).
     end_time:
         description:
             - The end time for the time period for which restatement is initiated. Only UTC time is currently supported.
-        required: True
+            - Required when C(state) is I(present).
     max_concurrency:
         description:
             - The max number of parallel time windows (ready for execution) for which a rerun is triggered.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Rerun Trigger.
@@ -73,7 +73,10 @@ EXAMPLES = '''
       resource_group: exampleResourceGroup
       factory_name: exampleFactoryName
       trigger_name: exampleTrigger
-      rerun_trigger_name: NOT FOUND
+      name: NOT FOUND
+      start_time: 2018-06-16T00:39:13.8441801Z
+      end_time: 2018-06-16T00:55:13.8441801Z
+      max_concurrency: 4
 '''
 
 RETURN = '''
@@ -121,21 +124,18 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rerun_trigger_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             start_time=dict(
-                type='datetime',
-                required=True
+                type='datetime'
             ),
             end_time=dict(
-                type='datetime',
-                required=True
+                type='datetime'
             ),
             max_concurrency=dict(
-                type='int',
-                required=True
+                type='int'
             ),
             state=dict(
                 type='str',
@@ -147,7 +147,7 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
         self.resource_group = None
         self.factory_name = None
         self.trigger_name = None
-        self.rerun_trigger_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -173,7 +173,6 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
                 elif key == "max_concurrency":
                     self.parameters["max_concurrency"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
@@ -194,8 +193,8 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Rerun Trigger instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Rerun Trigger instance")
@@ -206,10 +205,7 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
 
             response = self.create_update_reruntrigger()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Rerun Trigger instance deleted")
@@ -245,7 +241,7 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
                 response = self.mgmt_client.rerun_triggers.create(resource_group_name=self.resource_group,
                                                                   factory_name=self.factory_name,
                                                                   trigger_name=self.trigger_name,
-                                                                  rerun_trigger_name=self.rerun_trigger_name,
+                                                                  rerun_trigger_name=self.name,
                                                                   rerun_tumbling_window_trigger_action_parameters=self.parameters)
             else:
                 response = self.mgmt_client.rerun_triggers.update()
@@ -297,6 +293,38 @@ class AzureRMRerunTriggers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

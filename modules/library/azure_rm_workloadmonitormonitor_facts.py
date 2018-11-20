@@ -34,7 +34,7 @@ options:
         description:
             - The type of the resource.
         required: True
-    resource_name:
+    name:
         description:
             - Name of the resource.
         required: True
@@ -62,7 +62,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       resource_namespace: resource_namespace
       resource_type: resource_type
-      resource_name: resource_name
+      name: resource_name
       filter: filter
       skiptoken: skiptoken
 
@@ -71,7 +71,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       resource_namespace: resource_namespace
       resource_type: resource_type
-      resource_name: resource_name
+      name: resource_name
       monitor_id: monitor_id
 '''
 
@@ -150,7 +150,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -172,7 +172,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.resource_namespace = None
         self.resource_type = None
-        self.resource_name = None
+        self.name = None
         self.filter = None
         self.skiptoken = None
         self.monitor_id = None
@@ -197,7 +197,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
             response = self.mgmt_client.monitors.list_by_resource(resource_group_name=self.resource_group,
                                                                   resource_namespace=self.resource_namespace,
                                                                   resource_type=self.resource_type,
-                                                                  resource_name=self.resource_name)
+                                                                  resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Monitors.')
@@ -215,7 +215,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
             response = self.mgmt_client.monitors.get(resource_group_name=self.resource_group,
                                                      resource_namespace=self.resource_namespace,
                                                      resource_type=self.resource_type,
-                                                     resource_name=self.resource_name,
+                                                     resource_name=self.name,
                                                      monitor_id=self.monitor_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

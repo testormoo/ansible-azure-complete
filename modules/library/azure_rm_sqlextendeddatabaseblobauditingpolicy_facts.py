@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database.
         required: True
-    blob_auditing_policy_name:
+    name:
         description:
             - The name of the blob auditing policy.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      blob_auditing_policy_name: blob_auditing_policy_name
+      name: blob_auditing_policy_name
 '''
 
 RETURN = '''
@@ -77,7 +77,7 @@ extended_database_blob_auditing_policies:
             sample: default
         state:
             description:
-                - "Specifies the state of the policy. If state is Enabled, storageEndpoint or isAzureMonitorTargetEnabled are required. Possible values
+                - "Specifies the state of the policy. If state is Enabled, storageEndpoint and storageAccountAccessKey are required. Possible values
                    include: 'Enabled', 'Disabled'"
             returned: always
             type: str
@@ -111,7 +111,7 @@ class AzureRMExtendedDatabaseBlobAuditingPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            blob_auditing_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -124,7 +124,7 @@ class AzureRMExtendedDatabaseBlobAuditingPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.blob_auditing_policy_name = None
+        self.name = None
         super(AzureRMExtendedDatabaseBlobAuditingPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMExtendedDatabaseBlobAuditingPoliciesFacts(AzureRMModuleBase):
             response = self.mgmt_client.extended_database_blob_auditing_policies.get(resource_group_name=self.resource_group,
                                                                                      server_name=self.server_name,
                                                                                      database_name=self.database_name,
-                                                                                     blob_auditing_policy_name=self.blob_auditing_policy_name)
+                                                                                     blob_auditing_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ExtendedDatabaseBlobAuditingPolicies.')

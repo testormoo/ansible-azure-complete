@@ -30,7 +30,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    backup_engine_name:
+    name:
         description:
             - Name of the backup management server.
         required: True
@@ -57,7 +57,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesbackupbackupengine_facts:
       vault_name: vault_name
       resource_group: resource_group_name
-      backup_engine_name: backup_engine_name
+      name: backup_engine_name
       filter: filter
       skip_token: skip_token
 '''
@@ -119,7 +119,7 @@ class AzureRMBackupEnginesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            backup_engine_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -140,7 +140,7 @@ class AzureRMBackupEnginesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        self.backup_engine_name = None
+        self.name = None
         self.filter = None
         self.skip_token = None
         self.tags = None
@@ -161,7 +161,7 @@ class AzureRMBackupEnginesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.backup_engines.get(vault_name=self.vault_name,
                                                            resource_group_name=self.resource_group,
-                                                           backup_engine_name=self.backup_engine_name)
+                                                           backup_engine_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for BackupEngines.')

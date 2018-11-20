@@ -26,7 +26,7 @@ options:
         description:
             - The name of the C(bot) resource group in the user subscription.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the C(bot) resource.
         required: True
@@ -40,7 +40,7 @@ options:
             name:
                 description:
                     - The sku name.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'f0'
                     - 's1'
@@ -52,13 +52,10 @@ options:
             - 'designer'
             - 'bot'
             - 'function'
-    etag:
-        description:
-            - Entity Tag
     display_name:
         description:
             - The Name of the C(bot)
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - The description of the C(bot)
@@ -68,11 +65,11 @@ options:
     endpoint:
         description:
             - "The C(bot)'s endpoint"
-        required: True
+            - Required when C(state) is I(present).
     msa_app_id:
         description:
             - Microsoft App Id for the C(bot)
-        required: True
+            - Required when C(state) is I(present).
     developer_app_insight_key:
         description:
             - The Application Insights key
@@ -111,12 +108,11 @@ EXAMPLES = '''
   - name: Create (or update) Bot
     azure_rm_botservicebot:
       resource_group: OneResourceGroupName
-      resource_name: samplebotname
+      name: samplebotname
       location: eastus
       sku:
         name: S1
       kind: sdk
-      etag: etag1
       display_name: The Name of the bot
       description: The description of the bot
       icon_url: http://myicon
@@ -169,7 +165,7 @@ class AzureRMBots(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -186,12 +182,8 @@ class AzureRMBots(AzureRMModuleBase):
                          'bot',
                          'function']
             ),
-            etag=dict(
-                type='str'
-            ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
@@ -200,12 +192,10 @@ class AzureRMBots(AzureRMModuleBase):
                 type='str'
             ),
             endpoint=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             msa_app_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             developer_app_insight_key=dict(
                 type='str'
@@ -230,7 +220,7 @@ class AzureRMBots(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -261,8 +251,6 @@ class AzureRMBots(AzureRMModuleBase):
                     self.parameters["sku"] = ev
                 elif key == "kind":
                     self.parameters["kind"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
                 elif key == "display_name":
                     self.parameters.setdefault("properties", {})["display_name"] = kwargs[key]
                 elif key == "description":
@@ -284,7 +272,6 @@ class AzureRMBots(AzureRMModuleBase):
                 elif key == "luis_key":
                     self.parameters.setdefault("properties", {})["luis_key"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureBotService,
@@ -308,8 +295,8 @@ class AzureRMBots(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Bot instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Bot instance")
@@ -320,10 +307,7 @@ class AzureRMBots(AzureRMModuleBase):
 
             response = self.create_update_bot()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Bot instance deleted")
@@ -352,16 +336,16 @@ class AzureRMBots(AzureRMModuleBase):
 
         :return: deserialized Bot instance state dictionary
         '''
-        self.log("Creating / Updating the Bot instance {0}".format(self.resource_name))
+        self.log("Creating / Updating the Bot instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.bots.create(resource_group_name=self.resource_group,
-                                                        resource_name=self.resource_name,
+                                                        resource_name=self.name,
                                                         parameters=self.parameters)
             else:
                 response = self.mgmt_client.bots.update(resource_group_name=self.resource_group,
-                                                        resource_name=self.resource_name)
+                                                        resource_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -376,10 +360,10 @@ class AzureRMBots(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Bot instance {0}".format(self.resource_name))
+        self.log("Deleting the Bot instance {0}".format(self.name))
         try:
             response = self.mgmt_client.bots.delete(resource_group_name=self.resource_group,
-                                                    resource_name=self.resource_name)
+                                                    resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Bot instance.')
             self.fail("Error deleting the Bot instance: {0}".format(str(e)))
@@ -392,11 +376,11 @@ class AzureRMBots(AzureRMModuleBase):
 
         :return: deserialized Bot instance state dictionary
         '''
-        self.log("Checking if the Bot instance {0} is present".format(self.resource_name))
+        self.log("Checking if the Bot instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.bots.get(resource_group_name=self.resource_group,
-                                                 resource_name=self.resource_name)
+                                                 resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Bot instance : {0} found".format(response.name))
@@ -412,6 +396,38 @@ class AzureRMBots(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -31,7 +31,7 @@ options:
             - "The name of the storage account within the specified resource group. Storage account names must be between 3 and 24 characters in length and
                use numbers and lower-case letters only."
         required: True
-    management_policy_name:
+    name:
         description:
             - "The name of the Storage Account Management I(policy). It should always be 'default'"
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
     azure_rm_storagemanagementpolicy:
       resource_group: res7687
       account_name: sto9699
-      management_policy_name: default
+      name: default
       policy: NOT FOUND
 '''
 
@@ -106,7 +106,7 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            management_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -122,7 +122,7 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.account_name = None
-        self.management_policy_name = None
+        self.name = None
         self.policy = None
 
         self.results = dict(changed=False)
@@ -141,7 +141,6 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorageManagementClient,
@@ -162,8 +161,8 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Management Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Management Policy instance")
@@ -174,10 +173,7 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
 
             response = self.create_update_managementpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Management Policy instance deleted")
@@ -206,12 +202,12 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
 
         :return: deserialized Management Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Management Policy instance {0}".format(self.management_policy_name))
+        self.log("Creating / Updating the Management Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.management_policies.create_or_update(resource_group_name=self.resource_group,
                                                                              account_name=self.account_name,
-                                                                             management_policy_name=self.management_policy_name)
+                                                                             management_policy_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -226,11 +222,11 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Management Policy instance {0}".format(self.management_policy_name))
+        self.log("Deleting the Management Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.management_policies.delete(resource_group_name=self.resource_group,
                                                                    account_name=self.account_name,
-                                                                   management_policy_name=self.management_policy_name)
+                                                                   management_policy_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Management Policy instance.')
             self.fail("Error deleting the Management Policy instance: {0}".format(str(e)))
@@ -243,12 +239,12 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
 
         :return: deserialized Management Policy instance state dictionary
         '''
-        self.log("Checking if the Management Policy instance {0} is present".format(self.management_policy_name))
+        self.log("Checking if the Management Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.management_policies.get(resource_group_name=self.resource_group,
                                                                 account_name=self.account_name,
-                                                                management_policy_name=self.management_policy_name)
+                                                                management_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Management Policy instance : {0} found".format(response.name))
@@ -264,6 +260,38 @@ class AzureRMManagementPolicies(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

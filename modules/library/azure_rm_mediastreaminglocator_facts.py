@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    streaming_locator_name:
+    name:
         description:
             - The Streaming Locator name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_mediastreaminglocator_facts:
       resource_group: resource_group_name
       account_name: account_name
-      streaming_locator_name: streaming_locator_name
+      name: streaming_locator_name
 '''
 
 RETURN = '''
@@ -101,7 +101,7 @@ class AzureRMStreamingLocatorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            streaming_locator_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -113,7 +113,7 @@ class AzureRMStreamingLocatorsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.streaming_locator_name = None
+        self.name = None
         super(AzureRMStreamingLocatorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMStreamingLocatorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.streaming_locators.get(resource_group_name=self.resource_group,
                                                                account_name=self.account_name,
-                                                               streaming_locator_name=self.streaming_locator_name)
+                                                               streaming_locator_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StreamingLocators.')

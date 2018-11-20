@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group containing the Traffic Manager profile.
         required: True
-    profile_name:
+    name:
         description:
             - The name of the Traffic Manager profile.
         required: True
@@ -247,8 +247,17 @@ EXAMPLES = '''
   - name: Create (or update) Profile
     azure_rm_trafficmanagerprofile:
       resource_group: azuresdkfornetautoresttrafficmanager1421
-      profile_name: azsmnet6386
+      name: azsmnet6386
       location: eastus
+      profile_status: Enabled
+      traffic_routing_method: Performance
+      dns_config:
+        relative_name: azsmnet6386
+        ttl: 35
+      monitor_config:
+        protocol: HTTP
+        port: 80
+        path: /testpath.aspx
 '''
 
 RETURN = '''
@@ -289,7 +298,7 @@ class AzureRMProfiles(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            profile_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -344,7 +353,7 @@ class AzureRMProfiles(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.profile_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -424,7 +433,6 @@ class AzureRMProfiles(AzureRMModuleBase):
                 elif key == "max_return":
                     self.parameters["max_return"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(TrafficManagerManagementClient,
@@ -448,8 +456,8 @@ class AzureRMProfiles(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Profile instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Profile instance")
@@ -460,10 +468,7 @@ class AzureRMProfiles(AzureRMModuleBase):
 
             response = self.create_update_profile()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Profile instance deleted")
@@ -492,11 +497,11 @@ class AzureRMProfiles(AzureRMModuleBase):
 
         :return: deserialized Profile instance state dictionary
         '''
-        self.log("Creating / Updating the Profile instance {0}".format(self.profile_name))
+        self.log("Creating / Updating the Profile instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.profiles.create_or_update(resource_group_name=self.resource_group,
-                                                                  profile_name=self.profile_name,
+                                                                  profile_name=self.name,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -512,10 +517,10 @@ class AzureRMProfiles(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Profile instance {0}".format(self.profile_name))
+        self.log("Deleting the Profile instance {0}".format(self.name))
         try:
             response = self.mgmt_client.profiles.delete(resource_group_name=self.resource_group,
-                                                        profile_name=self.profile_name)
+                                                        profile_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Profile instance.')
             self.fail("Error deleting the Profile instance: {0}".format(str(e)))
@@ -528,11 +533,11 @@ class AzureRMProfiles(AzureRMModuleBase):
 
         :return: deserialized Profile instance state dictionary
         '''
-        self.log("Checking if the Profile instance {0} is present".format(self.profile_name))
+        self.log("Checking if the Profile instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.profiles.get(resource_group_name=self.resource_group,
-                                                     profile_name=self.profile_name)
+                                                     profile_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Profile instance : {0} found".format(response.name))
@@ -548,6 +553,38 @@ class AzureRMProfiles(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

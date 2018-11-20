@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    live_event_name:
+    name:
         description:
             - The name of the Live Event.
         required: True
@@ -46,12 +46,12 @@ options:
     input:
         description:
             - The Live Event input.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             streaming_protocol:
                 description:
                     - The streaming protocol for the Live Event.  This is specified at creation time and cannot be updated.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'fragmented_mp4'
                     - 'rtmp'
@@ -198,9 +198,19 @@ EXAMPLES = '''
     azure_rm_medialiveevent:
       resource_group: mediaresources
       account_name: slitestmedia10
-      live_event_name: myLiveEvent1
+      name: myLiveEvent1
       auto_start: NOT FOUND
       location: eastus
+      description: test event 1
+      input:
+        streaming_protocol: RTMP
+        key_frame_interval_duration: PT2S
+      preview:
+        access_control:
+          ip:
+            allow:
+              - name: AllowAll
+                address: 0.0.0.0
 '''
 
 RETURN = '''
@@ -244,7 +254,7 @@ class AzureRMLiveEvents(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            live_event_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -258,8 +268,7 @@ class AzureRMLiveEvents(AzureRMModuleBase):
                 type='str'
             ),
             input=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             preview=dict(
                 type='dict'
@@ -285,7 +294,7 @@ class AzureRMLiveEvents(AzureRMModuleBase):
 
         self.resource_group = None
         self.account_name = None
-        self.live_event_name = None
+        self.name = None
         self.auto_start = None
         self.parameters = dict()
 
@@ -334,7 +343,6 @@ class AzureRMLiveEvents(AzureRMModuleBase):
                 elif key == "stream_options":
                     self.parameters["stream_options"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMediaServices,
@@ -358,8 +366,8 @@ class AzureRMLiveEvents(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Live Event instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Live Event instance")
@@ -370,10 +378,7 @@ class AzureRMLiveEvents(AzureRMModuleBase):
 
             response = self.create_update_liveevent()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Live Event instance deleted")
@@ -402,18 +407,18 @@ class AzureRMLiveEvents(AzureRMModuleBase):
 
         :return: deserialized Live Event instance state dictionary
         '''
-        self.log("Creating / Updating the Live Event instance {0}".format(self.live_event_name))
+        self.log("Creating / Updating the Live Event instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.live_events.create(resource_group_name=self.resource_group,
                                                                account_name=self.account_name,
-                                                               live_event_name=self.live_event_name,
+                                                               live_event_name=self.name,
                                                                parameters=self.parameters)
             else:
                 response = self.mgmt_client.live_events.update(resource_group_name=self.resource_group,
                                                                account_name=self.account_name,
-                                                               live_event_name=self.live_event_name,
+                                                               live_event_name=self.name,
                                                                parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -429,11 +434,11 @@ class AzureRMLiveEvents(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Live Event instance {0}".format(self.live_event_name))
+        self.log("Deleting the Live Event instance {0}".format(self.name))
         try:
             response = self.mgmt_client.live_events.delete(resource_group_name=self.resource_group,
                                                            account_name=self.account_name,
-                                                           live_event_name=self.live_event_name)
+                                                           live_event_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Live Event instance.')
             self.fail("Error deleting the Live Event instance: {0}".format(str(e)))
@@ -446,12 +451,12 @@ class AzureRMLiveEvents(AzureRMModuleBase):
 
         :return: deserialized Live Event instance state dictionary
         '''
-        self.log("Checking if the Live Event instance {0} is present".format(self.live_event_name))
+        self.log("Checking if the Live Event instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.live_events.get(resource_group_name=self.resource_group,
                                                         account_name=self.account_name,
-                                                        live_event_name=self.live_event_name)
+                                                        live_event_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Live Event instance : {0} found".format(response.name))
@@ -467,6 +472,38 @@ class AzureRMLiveEvents(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

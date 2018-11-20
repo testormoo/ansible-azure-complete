@@ -30,7 +30,7 @@ options:
         description:
             - The identity of the application.
         required: True
-    service_resource_name:
+    name:
         description:
             - The identity of the service.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_servicefabricmeshservice_facts:
       resource_group: resource_group_name
       application_resource_name: application_resource_name
-      service_resource_name: service_resource_name
+      name: service_resource_name
 '''
 
 RETURN = '''
@@ -108,7 +108,7 @@ class AzureRMServiceFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -120,7 +120,7 @@ class AzureRMServiceFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.application_resource_name = None
-        self.service_resource_name = None
+        self.name = None
         super(AzureRMServiceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -138,7 +138,7 @@ class AzureRMServiceFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.service.get(resource_group_name=self.resource_group,
                                                     application_resource_name=self.application_resource_name,
-                                                    service_resource_name=self.service_resource_name)
+                                                    service_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Service.')

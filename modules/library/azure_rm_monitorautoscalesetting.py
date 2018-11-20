@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    autoscale_setting_name:
+    name:
         description:
             - The autoscale setting name.
         required: True
@@ -37,60 +37,60 @@ options:
         description:
             - "the collection of automatic scaling profiles that specify different scaling parameters for different time periods. A maximum of 20 profiles
                can be specified."
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             name:
                 description:
                     - the name of the profile.
-                required: True
+                    - Required when C(state) is I(present).
             capacity:
                 description:
                     - the number of instances that can be used during this profile.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     minimum:
                         description:
                             - the minimum number of instances for the resource.
-                        required: True
+                            - Required when C(state) is I(present).
                     maximum:
                         description:
                             - "the maximum number of instances for the resource. The actual maximum number of instances is limited by the cores that are
                                available in the subscription."
-                        required: True
+                            - Required when C(state) is I(present).
                     default:
                         description:
                             - "the number of instances that will be set if metrics are not available for evaluation. The default is only used if the current
                                instance count is lower than the default."
-                        required: True
+                            - Required when C(state) is I(present).
             rules:
                 description:
                     - the collection of rules that provide the triggers and parameters for the scaling action. A maximum of 10 rules can be specified.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     metric_trigger:
                         description:
                             - the trigger that results in a scaling action.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             metric_name:
                                 description:
                                     - the name of the metric that defines what the rule monitors.
-                                required: True
+                                    - Required when C(state) is I(present).
                             metric_resource_uri:
                                 description:
                                     - the resource identifier of the resource the rule monitors.
-                                required: True
+                                    - Required when C(state) is I(present).
                             time_grain:
                                 description:
                                     - "the granularity of metrics the rule monitors. Must be one of the predefined values returned from metric definitions
                                        for the metric. Must be between 12 hours and 1 minute."
-                                required: True
+                                    - Required when C(state) is I(present).
                             statistic:
                                 description:
                                     - the metric statistic type. How the metrics from multiple instances are combined.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'average'
                                     - 'min'
@@ -100,11 +100,11 @@ options:
                                 description:
                                     - "the range of time in which instance data is collected. This value must be greater than the delay in metric
                                        collection, which can vary from resource-to-resource. Must be between 12 hours and 5 minutes."
-                                required: True
+                                    - Required when C(state) is I(present).
                             time_aggregation:
                                 description:
                                     - time aggregation type. How the data that is collected should be combined over time. The default value is C(C(average)).
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'average'
                                     - 'minimum'
@@ -115,7 +115,7 @@ options:
                             operator:
                                 description:
                                     - the operator that is used to compare the metric data and the I(threshold).
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'equals'
                                     - 'not_equals'
@@ -126,16 +126,16 @@ options:
                             threshold:
                                 description:
                                     - the threshold of the metric that triggers the scale action.
-                                required: True
+                                    - Required when C(state) is I(present).
                     scale_action:
                         description:
                             - the parameters for the scaling action.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             direction:
                                 description:
                                     - the scale direction. Whether the scaling action increases or decreases the number of instances.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'none'
                                     - 'increase'
@@ -143,7 +143,7 @@ options:
                             type:
                                 description:
                                     - the type of action that should occur when the scale rule fires.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'change_count'
                                     - 'percent_change_count'
@@ -155,7 +155,7 @@ options:
                                 description:
                                     - "the amount of time to wait since the last scaling action before this action occurs. It must be between 1 week and 1
                                        minute in ISO 8601 format."
-                                required: True
+                                    - Required when C(state) is I(present).
             fixed_date:
                 description:
                     - the specific date-time for the profile. This element is not used if the I(recurrence) element is used.
@@ -188,11 +188,11 @@ options:
                     start:
                         description:
                             - the start time for the profile in ISO 8601 format.
-                        required: True
+                            - Required when C(state) is I(present).
                     end:
                         description:
                             - the end time for the profile in ISO 8601 format.
-                        required: True
+                            - Required when C(state) is I(present).
             recurrence:
                 description:
                     - the repeating times at which this profile begins. This element is not used if the I(fixed_date) element is used.
@@ -202,7 +202,7 @@ options:
                             - "the recurrence frequency. How often the I(schedule) profile should take effect. This value must be C(week), meaning each
                                C(week) will have the same set of profiles. For example, to set a daily I(schedule), set **I(schedule)** to every C(day) of
                                the C(week). The frequency property specifies that the I(schedule) is repeated weekly."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'second'
@@ -215,7 +215,7 @@ options:
                     schedule:
                         description:
                             - the scheduling constraints for when the profile begins.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             time_zone:
                                 description:
@@ -243,22 +243,22 @@ options:
                                        Standard Time, Tasmania Standard Time, Magadan Standard Time, Vladivostok Standard Time, Russia Time Zone 10,
                                        Central Pacific Standard Time, Russia Time Zone 11, New Zealand Standard Time, UTC+12, Fiji Standard Time, Kamchatka
                                        Standard Time, Tonga Standard Time, Samoa Standard Time, Line Islands Standard Time"
-                                required: True
+                                    - Required when C(state) is I(present).
                             days:
                                 description:
                                     - the collection of days that the profile takes effect on. Possible values are Sunday through Saturday.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             hours:
                                 description:
                                     - "A collection of hours that the profile takes effect on. Values supported are 0 to 23 on the 24-hour clock (AM/PM
                                        times are not supported)."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             minutes:
                                 description:
                                     - A collection of minutes at which the profile takes effect at.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
     notifications:
         description:
@@ -268,7 +268,7 @@ options:
             operation:
                 description:
                     - "the operation associated with the notification and its value must be 'scale'"
-                required: True
+                    - Required when C(state) is I(present).
             email:
                 description:
                     - the email notification.
@@ -322,8 +322,47 @@ EXAMPLES = '''
   - name: Create (or update) Autoscale Setting
     azure_rm_monitorautoscalesetting:
       resource_group: TestingMetricsScaleSet
-      autoscale_setting_name: MySetting
+      name: MySetting
       location: eastus
+      profiles:
+        - name: adios
+          capacity:
+            minimum: 1
+            maximum: 10
+            default: 1
+          rules:
+            - metric_trigger:
+                metric_name: Percentage CPU
+                metric_resource_uri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+                time_grain: PT1M
+                statistic: Average
+                time_window: PT5M
+                time_aggregation: Average
+                operator: GreaterThan
+                threshold: 10
+              scale_action:
+                direction: Increase
+                type: ChangeCount
+                value: 1
+                cooldown: PT5M
+          fixed_date:
+            time_zone: UTC
+            start: 2015-03-05T14:00:00Z
+            end: 2015-03-05T14:30:00Z
+      notifications:
+        - operation: Scale
+          email:
+            send_to_subscription_administrator: True
+            send_to_subscription_co_administrators: True
+            custom_emails:
+              - [
+  "gu@ms.com",
+  "ge@ns.net"
+]
+          webhooks:
+            - service_uri: http://myservice.com
+      enabled: True
+      target_resource_uri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
 '''
 
 RETURN = '''
@@ -362,7 +401,7 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            autoscale_setting_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -370,8 +409,7 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
                 type='str'
             ),
             profiles=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             notifications=dict(
                 type='list'
@@ -393,7 +431,7 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.autoscale_setting_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -425,7 +463,6 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
                 elif key == "target_resource_uri":
                     self.parameters["target_resource_uri"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
@@ -449,8 +486,8 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Autoscale Setting instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Autoscale Setting instance")
@@ -461,10 +498,7 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
 
             response = self.create_update_autoscalesetting()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Autoscale Setting instance deleted")
@@ -493,11 +527,11 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
 
         :return: deserialized Autoscale Setting instance state dictionary
         '''
-        self.log("Creating / Updating the Autoscale Setting instance {0}".format(self.autoscale_setting_name))
+        self.log("Creating / Updating the Autoscale Setting instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.autoscale_settings.create_or_update(resource_group_name=self.resource_group,
-                                                                            autoscale_setting_name=self.autoscale_setting_name,
+                                                                            autoscale_setting_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -513,10 +547,10 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Autoscale Setting instance {0}".format(self.autoscale_setting_name))
+        self.log("Deleting the Autoscale Setting instance {0}".format(self.name))
         try:
             response = self.mgmt_client.autoscale_settings.delete(resource_group_name=self.resource_group,
-                                                                  autoscale_setting_name=self.autoscale_setting_name)
+                                                                  autoscale_setting_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Autoscale Setting instance.')
             self.fail("Error deleting the Autoscale Setting instance: {0}".format(str(e)))
@@ -529,11 +563,11 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
 
         :return: deserialized Autoscale Setting instance state dictionary
         '''
-        self.log("Checking if the Autoscale Setting instance {0} is present".format(self.autoscale_setting_name))
+        self.log("Checking if the Autoscale Setting instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.autoscale_settings.get(resource_group_name=self.resource_group,
-                                                               autoscale_setting_name=self.autoscale_setting_name)
+                                                               autoscale_setting_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Autoscale Setting instance : {0} found".format(response.name))
@@ -549,6 +583,38 @@ class AzureRMAutoscaleSettings(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

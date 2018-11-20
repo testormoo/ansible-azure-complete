@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    view_name:
+    name:
         description:
             - The name of the view.
     user_id:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsview_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      view_name: view_name
+      name: view_name
       user_id: user_id
 
   - name: List instances of View
@@ -111,7 +111,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            view_name=dict(
+            name=dict(
                 type='str'
             ),
             user_id=dict(
@@ -126,7 +126,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.view_name = None
+        self.name = None
         self.user_id = None
         super(AzureRMViewsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -136,7 +136,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.view_name is not None:
+        if self.name is not None:
             self.results['views'] = self.get()
         else:
             self.results['views'] = self.list_by_hub()
@@ -148,7 +148,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.views.get(resource_group_name=self.resource_group,
                                                   hub_name=self.hub_name,
-                                                  view_name=self.view_name,
+                                                  view_name=self.name,
                                                   user_id=self.user_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

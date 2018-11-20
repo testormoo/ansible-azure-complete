@@ -30,7 +30,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    fabric_name:
+    name:
         description:
             - Fabric name associated with the container.
         required: True
@@ -52,7 +52,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesbackupprotectioncontainerrefreshoperationresult_facts:
       vault_name: vault_name
       resource_group: resource_group_name
-      fabric_name: fabric_name
+      name: fabric_name
       operation_id: operation_id
 '''
 
@@ -87,7 +87,7 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            fabric_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -103,7 +103,7 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        self.fabric_name = None
+        self.name = None
         self.operation_id = None
         super(AzureRMProtectionContainerRefreshOperationResultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -122,7 +122,7 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.protection_container_refresh_operation_results.get(vault_name=self.vault_name,
                                                                                            resource_group_name=self.resource_group,
-                                                                                           fabric_name=self.fabric_name,
+                                                                                           fabric_name=self.name,
                                                                                            operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    virtual_network_gateway_connection_name:
+    name:
         description:
             - The name of the virtual network gateway connection.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Network Gateway Connection
     azure_rm_virtualnetworkgatewayconnection_facts:
       resource_group: resource_group_name
-      virtual_network_gateway_connection_name: virtual_network_gateway_connection_name
+      name: virtual_network_gateway_connection_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMVirtualNetworkGatewayConnectionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network_gateway_connection_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -102,7 +102,7 @@ class AzureRMVirtualNetworkGatewayConnectionsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.virtual_network_gateway_connection_name = None
+        self.name = None
         self.tags = None
         super(AzureRMVirtualNetworkGatewayConnectionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMVirtualNetworkGatewayConnectionsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_network_gateway_connections.get(resource_group_name=self.resource_group,
-                                                                                virtual_network_gateway_connection_name=self.virtual_network_gateway_connection_name)
+                                                                                virtual_network_gateway_connection_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualNetworkGatewayConnections.')

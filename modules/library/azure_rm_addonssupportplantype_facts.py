@@ -26,7 +26,7 @@ options:
         description:
             - "The support plan type. For now the only valid type is 'canonical'."
         required: True
-    plan_type_name:
+    name:
         description:
             - The Canonical support plan type.
         required: True
@@ -43,7 +43,7 @@ EXAMPLES = '''
   - name: Get instance of Support Plan Type
     azure_rm_addonssupportplantype_facts:
       provider_name: provider_name
-      plan_type_name: plan_type_name
+      name: plan_type_name
 '''
 
 RETURN = '''
@@ -86,7 +86,7 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            plan_type_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -97,7 +97,7 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.provider_name = None
-        self.plan_type_name = None
+        self.name = None
         super(AzureRMSupportPlanTypesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -114,7 +114,7 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.support_plan_types.get(provider_name=self.provider_name,
-                                                               plan_type_name=self.plan_type_name)
+                                                               plan_type_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SupportPlanTypes.')

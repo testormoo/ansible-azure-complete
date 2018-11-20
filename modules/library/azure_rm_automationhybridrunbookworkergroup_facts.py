@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    hybrid_runbook_worker_group_name:
+    name:
         description:
             - The hybrid runbook worker group name
     filter:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationhybridrunbookworkergroup_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      hybrid_runbook_worker_group_name: hybrid_runbook_worker_group_name
+      name: hybrid_runbook_worker_group_name
 
   - name: List instances of Hybrid Runbook Worker Group
     azure_rm_automationhybridrunbookworkergroup_facts:
@@ -116,7 +116,7 @@ class AzureRMHybridRunbookWorkerGroupFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            hybrid_runbook_worker_group_name=dict(
+            name=dict(
                 type='str'
             ),
             filter=dict(
@@ -130,7 +130,7 @@ class AzureRMHybridRunbookWorkerGroupFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.hybrid_runbook_worker_group_name = None
+        self.name = None
         self.filter = None
         super(AzureRMHybridRunbookWorkerGroupFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -140,7 +140,7 @@ class AzureRMHybridRunbookWorkerGroupFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.hybrid_runbook_worker_group_name is not None:
+        if self.name is not None:
             self.results['hybrid_runbook_worker_group'] = self.get()
         else:
             self.results['hybrid_runbook_worker_group'] = self.list_by_automation_account()
@@ -152,7 +152,7 @@ class AzureRMHybridRunbookWorkerGroupFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.hybrid_runbook_worker_group.get(resource_group_name=self.resource_group,
                                                                         automation_account_name=self.automation_account_name,
-                                                                        hybrid_runbook_worker_group_name=self.hybrid_runbook_worker_group_name)
+                                                                        hybrid_runbook_worker_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for HybridRunbookWorkerGroup.')

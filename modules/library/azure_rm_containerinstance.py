@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    container_group_name:
+    name:
         description:
             - The name of the container group.
         required: True
@@ -38,7 +38,7 @@ options:
             location:
                 description:
                     - The resource location.
-                required: True
+                    - Required when C(state) is I(present).
             containers:
                 description:
                     - The containers within the container group.
@@ -47,11 +47,11 @@ options:
                     name:
                         description:
                             - The user-provided name of the container instance.
-                        required: True
+                            - Required when C(state) is I(present).
                     image:
                         description:
                             - The name of the image used to create the container instance.
-                        required: True
+                            - Required when C(state) is I(present).
                     command:
                         description:
                             - The commands to execute within the container instance in exec form.
@@ -70,7 +70,7 @@ options:
                             port:
                                 description:
                                     - The port number exposed within the container group.
-                                required: True
+                                    - Required when C(state) is I(present).
                     environment_variables:
                         description:
                             - The environment variables to set in the container instance.
@@ -79,29 +79,29 @@ options:
                             name:
                                 description:
                                     - The name of the environment variable.
-                                required: True
+                                    - Required when C(state) is I(present).
                             value:
                                 description:
                                     - The value of the environment variable.
-                                required: True
+                                    - Required when C(state) is I(present).
                     resources:
                         description:
                             - The resource requirements of the container instance.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             requests:
                                 description:
                                     - The resource requests of this container instance.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     memory_in_gb:
                                         description:
                                             - The memory request in GB of this container instance.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     cpu:
                                         description:
                                             - The CPU request of this container instance.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             limits:
                                 description:
                                     - The resource limits of this container instance.
@@ -120,11 +120,11 @@ options:
                             name:
                                 description:
                                     - The name of the volume mount.
-                                required: True
+                                    - Required when C(state) is I(present).
                             mount_path:
                                 description:
                                     - "The path within the container where the volume should be mounted. Must not contain colon (:)."
-                                required: True
+                                    - Required when C(state) is I(present).
                             read_only:
                                 description:
                                     - The flag indicating whether the volume mount is read-only.
@@ -136,11 +136,11 @@ options:
                     server:
                         description:
                             - "The Docker image registry server without a protocol such as 'http' and 'https'."
-                        required: True
+                            - Required when C(state) is I(present).
                     username:
                         description:
                             - The username for the private registry.
-                        required: True
+                            - Required when C(state) is I(present).
                     password:
                         description:
                             - The password for the private registry.
@@ -162,7 +162,7 @@ options:
                     ports:
                         description:
                             - The list of ports exposed on the container group.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             protocol:
@@ -174,11 +174,11 @@ options:
                             port:
                                 description:
                                     - The port number.
-                                required: True
+                                    - Required when C(state) is I(present).
                     type:
                         description:
                             - Specifies if the I(ip) is exposed to the public internet.
-                        required: True
+                            - Required when C(state) is I(present).
                     ip:
                         description:
                             - The IP exposed to the public internet.
@@ -196,7 +196,7 @@ options:
                     name:
                         description:
                             - The name of the volume.
-                        required: True
+                            - Required when C(state) is I(present).
                     azure_file:
                         description:
                             - The name of the Azure File volume.
@@ -204,14 +204,14 @@ options:
                             share_name:
                                 description:
                                     - The name of the Azure File share to be mounted as a volume.
-                                required: True
+                                    - Required when C(state) is I(present).
                             read_only:
                                 description:
                                     - The flag indicating whether the Azure File shared mounted as a volume is read-only.
                             storage_account_name:
                                 description:
                                     - The name of the storage account that contains the Azure File share.
-                                required: True
+                                    - Required when C(state) is I(present).
                             storage_account_key:
                                 description:
                                     - The storage account access key used to access the Azure File share.
@@ -240,9 +240,35 @@ EXAMPLES = '''
   - name: Create (or update) Container Group
     azure_rm_containerinstance:
       resource_group: demo
-      container_group_name: mycontainers
+      name: mycontainers
       container_group:
         location: westus
+        containers:
+          - name: mycontainers
+            image: nginx
+            command:
+              - []
+            ports:
+              - port: 80
+            resources:
+              requests:
+                memory_in_gb: 1.5
+                cpu: 1
+            volume_mounts:
+              - name: volume1
+                mount_path: /mnt/volume1
+                read_only: False
+        ip_address:
+          ports:
+            - protocol: TCP
+              port: 80
+          type: Public
+        os_type: Linux
+        volumes:
+          - name: volume1
+            azure_file:
+              share_name: shareName
+              storage_account_name: accountName
 '''
 
 RETURN = '''
@@ -281,7 +307,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -297,7 +323,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.container_group_name = None
+        self.name = None
         self.container_group = dict()
 
         self.results = dict(changed=False)
@@ -331,7 +357,6 @@ class AzureRMContainerGroups(AzureRMModuleBase):
                 elif key == "volumes":
                     self.container_group["volumes"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ContainerInstanceManagementClient,
@@ -352,8 +377,8 @@ class AzureRMContainerGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Container Group instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Container Group instance")
@@ -364,10 +389,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
 
             response = self.create_update_containergroup()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Container Group instance deleted")
@@ -396,11 +418,11 @@ class AzureRMContainerGroups(AzureRMModuleBase):
 
         :return: deserialized Container Group instance state dictionary
         '''
-        self.log("Creating / Updating the Container Group instance {0}".format(self.container_group_name))
+        self.log("Creating / Updating the Container Group instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.container_groups.create_or_update(resource_group_name=self.resource_group,
-                                                                          container_group_name=self.container_group_name,
+                                                                          container_group_name=self.name,
                                                                           container_group=self.container_group)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -416,10 +438,10 @@ class AzureRMContainerGroups(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Container Group instance {0}".format(self.container_group_name))
+        self.log("Deleting the Container Group instance {0}".format(self.name))
         try:
             response = self.mgmt_client.container_groups.delete(resource_group_name=self.resource_group,
-                                                                container_group_name=self.container_group_name)
+                                                                container_group_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Container Group instance.')
             self.fail("Error deleting the Container Group instance: {0}".format(str(e)))
@@ -432,11 +454,11 @@ class AzureRMContainerGroups(AzureRMModuleBase):
 
         :return: deserialized Container Group instance state dictionary
         '''
-        self.log("Checking if the Container Group instance {0} is present".format(self.container_group_name))
+        self.log("Checking if the Container Group instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.container_groups.get(resource_group_name=self.resource_group,
-                                                             container_group_name=self.container_group_name)
+                                                             container_group_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Container Group instance : {0} found".format(response.name))
@@ -452,6 +474,38 @@ class AzureRMContainerGroups(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

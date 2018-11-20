@@ -26,16 +26,13 @@ options:
         description:
             - "The name of the resource group within the user's subscription. The name is case insensitive."
         required: True
-    self.config.catalog_name:
+    name:
         description:
             - The name of the data catlog in the specified subscription and resource group.
         required: True
     location:
         description:
             - Resource location
-    etag:
-        description:
-            - Resource etag
     sku:
         description:
             - Azure data catalog SKU.
@@ -95,8 +92,17 @@ EXAMPLES = '''
   - name: Create (or update) A D C Catalog
     azure_rm_datacatalogadccatalog:
       resource_group: exampleResourceGroup
-      self.config.catalog_name: exampleCatalog
+      name: exampleCatalog
       location: North US
+      sku: Standard
+      units: 1
+      admins:
+        - upn: myupn@microsoft.com
+          object_id: 99999999-9999-9999-999999999999
+      users:
+        - upn: myupn@microsoft.com
+          object_id: 99999999-9999-9999-999999999999
+      enable_automatic_unit_adjustment: False
 '''
 
 RETURN = '''
@@ -135,14 +141,11 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            self.config.catalog_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             location=dict(
-                type='str'
-            ),
-            etag=dict(
                 type='str'
             ),
             sku=dict(
@@ -173,7 +176,7 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.self.config.catalog_name = None
+        self.name = None
         self.properties = dict()
 
         self.results = dict(changed=False)
@@ -194,8 +197,6 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 if key == "location":
                     self.properties["location"] = kwargs[key]
-                elif key == "etag":
-                    self.properties["etag"] = kwargs[key]
                 elif key == "sku":
                     self.properties["sku"] = _snake_to_camel(kwargs[key], True)
                 elif key == "units":
@@ -209,7 +210,6 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
                 elif key == "enable_automatic_unit_adjustment":
                     self.properties["enable_automatic_unit_adjustment"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataCatalogRestClient,
@@ -230,8 +230,8 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if A D C Catalog instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the A D C Catalog instance")
@@ -242,10 +242,7 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
 
             response = self.create_update_adccatalog()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("A D C Catalog instance deleted")
@@ -274,11 +271,11 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
 
         :return: deserialized A D C Catalog instance state dictionary
         '''
-        self.log("Creating / Updating the A D C Catalog instance {0}".format(self.self.config.catalog_name))
+        self.log("Creating / Updating the A D C Catalog instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.adc_catalogs.create_or_update(resource_group_name=self.resource_group,
-                                                                      self.config.catalog_name=self.self.config.catalog_name,
+                                                                      self.config.catalog_name=self.name,
                                                                       properties=self.properties)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -294,10 +291,10 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the A D C Catalog instance {0}".format(self.self.config.catalog_name))
+        self.log("Deleting the A D C Catalog instance {0}".format(self.name))
         try:
             response = self.mgmt_client.adc_catalogs.delete(resource_group_name=self.resource_group,
-                                                            self.config.catalog_name=self.self.config.catalog_name)
+                                                            self.config.catalog_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the A D C Catalog instance.')
             self.fail("Error deleting the A D C Catalog instance: {0}".format(str(e)))
@@ -310,11 +307,11 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
 
         :return: deserialized A D C Catalog instance state dictionary
         '''
-        self.log("Checking if the A D C Catalog instance {0} is present".format(self.self.config.catalog_name))
+        self.log("Checking if the A D C Catalog instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.adc_catalogs.get(resource_group_name=self.resource_group,
-                                                         self.config.catalog_name=self.self.config.catalog_name)
+                                                         self.config.catalog_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("A D C Catalog instance : {0} found".format(response.name))
@@ -330,6 +327,38 @@ class AzureRMADCCatalogs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

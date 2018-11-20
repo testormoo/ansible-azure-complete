@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    action_group_name:
+    name:
         description:
             - The name of the action group.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Action Group
     azure_rm_monitoractiongroup_facts:
       resource_group: resource_group_name
-      action_group_name: action_group_name
+      name: action_group_name
 
   - name: List instances of Action Group
     azure_rm_monitoractiongroup_facts:
@@ -111,7 +111,7 @@ class AzureRMActionGroupsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            action_group_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -124,7 +124,7 @@ class AzureRMActionGroupsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.action_group_name = None
+        self.name = None
         self.tags = None
         super(AzureRMActionGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -135,7 +135,7 @@ class AzureRMActionGroupsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.action_group_name is not None):
+                self.name is not None):
             self.results['action_groups'] = self.get()
         elif self.resource_group is not None:
             self.results['action_groups'] = self.list_by_resource_group()
@@ -148,7 +148,7 @@ class AzureRMActionGroupsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.action_groups.get(resource_group_name=self.resource_group,
-                                                          action_group_name=self.action_group_name)
+                                                          action_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ActionGroups.')

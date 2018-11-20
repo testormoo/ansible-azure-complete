@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -63,7 +63,7 @@ EXAMPLES = '''
   - name: List instances of Tag Description
     azure_rm_apimanagementtagdescription_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       filter: filter
       top: top
@@ -72,7 +72,7 @@ EXAMPLES = '''
   - name: Get instance of Tag Description
     azure_rm_apimanagementtagdescription_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       tag_id: tag_id
 '''
@@ -122,7 +122,7 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -149,7 +149,7 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.filter = None
         self.top = None
@@ -174,7 +174,7 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.tag_description.list_by_api(resource_group_name=self.resource_group,
-                                                                    service_name=self.service_name,
+                                                                    service_name=self.name,
                                                                     api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -191,7 +191,7 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.tag_description.get(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             api_id=self.api_id,
                                                             tag_id=self.tag_id)
             self.log("Response : {0}".format(response))

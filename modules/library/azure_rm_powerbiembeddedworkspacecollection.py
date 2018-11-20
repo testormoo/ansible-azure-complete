@@ -26,7 +26,7 @@ options:
         description:
             - Azure resource group
         required: True
-    workspace_collection_name:
+    name:
         description:
             - Power BI Embedded Workspace Collection name
         required: True
@@ -55,7 +55,7 @@ EXAMPLES = '''
   - name: Create (or update) Workspace Collection
     azure_rm_powerbiembeddedworkspacecollection:
       resource_group: NOT FOUND
-      workspace_collection_name: NOT FOUND
+      name: NOT FOUND
       location: NOT FOUND
 '''
 
@@ -95,7 +95,7 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workspace_collection_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -110,7 +110,7 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.workspace_collection_name = None
+        self.name = None
         self.location = None
 
         self.results = dict(changed=False)
@@ -129,7 +129,6 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(PowerBIEmbeddedManagementClient,
@@ -150,8 +149,8 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Workspace Collection instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Workspace Collection instance")
@@ -162,10 +161,7 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
 
             response = self.create_update_workspacecollection()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Workspace Collection instance deleted")
@@ -194,15 +190,15 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
 
         :return: deserialized Workspace Collection instance state dictionary
         '''
-        self.log("Creating / Updating the Workspace Collection instance {0}".format(self.workspace_collection_name))
+        self.log("Creating / Updating the Workspace Collection instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.workspace_collections.create(resource_group_name=self.resource_group,
-                                                                         workspace_collection_name=self.workspace_collection_name)
+                                                                         workspace_collection_name=self.name)
             else:
                 response = self.mgmt_client.workspace_collections.update(resource_group_name=self.resource_group,
-                                                                         workspace_collection_name=self.workspace_collection_name)
+                                                                         workspace_collection_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -217,10 +213,10 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Workspace Collection instance {0}".format(self.workspace_collection_name))
+        self.log("Deleting the Workspace Collection instance {0}".format(self.name))
         try:
             response = self.mgmt_client.workspace_collections.delete(resource_group_name=self.resource_group,
-                                                                     workspace_collection_name=self.workspace_collection_name)
+                                                                     workspace_collection_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Workspace Collection instance.')
             self.fail("Error deleting the Workspace Collection instance: {0}".format(str(e)))
@@ -233,7 +229,7 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
 
         :return: deserialized Workspace Collection instance state dictionary
         '''
-        self.log("Checking if the Workspace Collection instance {0} is present".format(self.workspace_collection_name))
+        self.log("Checking if the Workspace Collection instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.workspace_collections.get()
@@ -252,6 +248,38 @@ class AzureRMWorkspaceCollections(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

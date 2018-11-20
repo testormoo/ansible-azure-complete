@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Proactive Detection Configuration
     azure_rm_applicationinsightsproactivedetectionconfiguration_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
       configuration_id: configuration_id
 '''
 
@@ -78,7 +78,7 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -93,7 +93,7 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.configuration_id = None
         super(AzureRMProactiveDetectionConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -111,7 +111,7 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.proactive_detection_configurations.get(resource_group_name=self.resource_group,
-                                                                               resource_name=self.resource_name,
+                                                                               resource_name=self.name,
                                                                                configuration_id=self.configuration_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

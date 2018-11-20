@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -63,7 +63,7 @@ EXAMPLES = '''
   - name: List instances of Api Version Set
     azure_rm_apimanagementapiversionset_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       filter: filter
       top: top
       skip: skip
@@ -71,7 +71,7 @@ EXAMPLES = '''
   - name: Get instance of Api Version Set
     azure_rm_apimanagementapiversionset_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       version_set_id: version_set_id
 '''
 
@@ -120,7 +120,7 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -143,7 +143,7 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.filter = None
         self.top = None
         self.skip = None
@@ -167,7 +167,7 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_version_set.list_by_service(resource_group_name=self.resource_group,
-                                                                        service_name=self.service_name)
+                                                                        service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ApiVersionSet.')
@@ -183,7 +183,7 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_version_set.get(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             version_set_id=self.version_set_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

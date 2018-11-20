@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
   - name: List instances of Api Diagnostic
     azure_rm_apimanagementapidiagnostic_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       filter: filter
       top: top
@@ -70,7 +70,7 @@ EXAMPLES = '''
   - name: Get instance of Api Diagnostic
     azure_rm_apimanagementapidiagnostic_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       diagnostic_id: diagnostic_id
 '''
@@ -121,7 +121,7 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -148,7 +148,7 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.filter = None
         self.top = None
@@ -173,7 +173,7 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_diagnostic.list_by_service(resource_group_name=self.resource_group,
-                                                                       service_name=self.service_name,
+                                                                       service_name=self.name,
                                                                        api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -190,7 +190,7 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_diagnostic.get(resource_group_name=self.resource_group,
-                                                           service_name=self.service_name,
+                                                           service_name=self.name,
                                                            api_id=self.api_id,
                                                            diagnostic_id=self.diagnostic_id)
             self.log("Response : {0}".format(response))

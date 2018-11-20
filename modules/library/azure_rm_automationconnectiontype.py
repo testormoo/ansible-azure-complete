@@ -30,21 +30,21 @@ options:
         description:
             - The name of the automation account.
         required: True
-    connection_type_name:
+    name:
         description:
             - The parameters supplied to the create or update connectiontype operation.
         required: True
     name:
         description:
             - Gets or sets the name of the connection type.
-        required: True
+            - Required when C(state) is I(present).
     is_global:
         description:
             - Gets or sets a Boolean value to indicate if the connection type is global.
     field_definitions:
         description:
             - Gets or sets the field definitions of the connection type.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Connection Type.
@@ -67,8 +67,26 @@ EXAMPLES = '''
     azure_rm_automationconnectiontype:
       resource_group: rg
       automation_account_name: myAutomationAccount22
-      connection_type_name: myCT
       name: myCT
+      name: myCT
+      is_global: False
+      field_definitions: {
+  "myStringField": {
+    "isEncrypted": false,
+    "isOptional": false,
+    "type": "string"
+  },
+  "myBoolField": {
+    "isEncrypted": false,
+    "isOptional": false,
+    "type": "bool"
+  },
+  "myStringFieldEncrypted": {
+    "isEncrypted": true,
+    "isOptional": false,
+    "type": "string"
+  }
+}
 '''
 
 RETURN = '''
@@ -111,20 +129,18 @@ class AzureRMConnectionType(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_type_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             is_global=dict(
                 type='str'
             ),
             field_definitions=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -135,7 +151,7 @@ class AzureRMConnectionType(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.connection_type_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -161,7 +177,6 @@ class AzureRMConnectionType(AzureRMModuleBase):
                 elif key == "field_definitions":
                     self.parameters["field_definitions"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -182,8 +197,8 @@ class AzureRMConnectionType(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Connection Type instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Connection Type instance")
@@ -194,10 +209,7 @@ class AzureRMConnectionType(AzureRMModuleBase):
 
             response = self.create_update_connectiontype()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Connection Type instance deleted")
@@ -226,12 +238,12 @@ class AzureRMConnectionType(AzureRMModuleBase):
 
         :return: deserialized Connection Type instance state dictionary
         '''
-        self.log("Creating / Updating the Connection Type instance {0}".format(self.connection_type_name))
+        self.log("Creating / Updating the Connection Type instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.connection_type.create_or_update(resource_group_name=self.resource_group,
                                                                          automation_account_name=self.automation_account_name,
-                                                                         connection_type_name=self.connection_type_name,
+                                                                         connection_type_name=self.name,
                                                                          parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -247,11 +259,11 @@ class AzureRMConnectionType(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Connection Type instance {0}".format(self.connection_type_name))
+        self.log("Deleting the Connection Type instance {0}".format(self.name))
         try:
             response = self.mgmt_client.connection_type.delete(resource_group_name=self.resource_group,
                                                                automation_account_name=self.automation_account_name,
-                                                               connection_type_name=self.connection_type_name)
+                                                               connection_type_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Connection Type instance.')
             self.fail("Error deleting the Connection Type instance: {0}".format(str(e)))
@@ -264,12 +276,12 @@ class AzureRMConnectionType(AzureRMModuleBase):
 
         :return: deserialized Connection Type instance state dictionary
         '''
-        self.log("Checking if the Connection Type instance {0} is present".format(self.connection_type_name))
+        self.log("Checking if the Connection Type instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.connection_type.get(resource_group_name=self.resource_group,
                                                             automation_account_name=self.automation_account_name,
-                                                            connection_type_name=self.connection_type_name)
+                                                            connection_type_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Connection Type instance : {0} found".format(response.name))
@@ -285,6 +297,38 @@ class AzureRMConnectionType(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

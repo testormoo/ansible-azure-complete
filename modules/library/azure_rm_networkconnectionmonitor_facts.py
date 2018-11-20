@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Network Watcher resource.
         required: True
-    connection_monitor_name:
+    name:
         description:
             - The name of the connection monitor.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_networkconnectionmonitor_facts:
       resource_group: resource_group_name
       network_watcher_name: network_watcher_name
-      connection_monitor_name: connection_monitor_name
+      name: connection_monitor_name
 '''
 
 RETURN = '''
@@ -97,7 +97,7 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_monitor_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -112,7 +112,7 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.network_watcher_name = None
-        self.connection_monitor_name = None
+        self.name = None
         self.tags = None
         super(AzureRMConnectionMonitorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -131,7 +131,7 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.connection_monitors.get(resource_group_name=self.resource_group,
                                                                 network_watcher_name=self.network_watcher_name,
-                                                                connection_monitor_name=self.connection_monitor_name)
+                                                                connection_monitor_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ConnectionMonitors.')

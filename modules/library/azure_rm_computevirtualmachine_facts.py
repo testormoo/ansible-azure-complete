@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    vm_name:
+    name:
         description:
             - The name of the virtual machine.
     expand:
@@ -50,7 +50,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Machine
     azure_rm_computevirtualmachine_facts:
       resource_group: resource_group_name
-      vm_name: vm_name
+      name: vm_name
       expand: expand
 
   - name: List instances of Virtual Machine
@@ -96,7 +96,7 @@ class AzureRMVirtualMachinesFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            vm_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -115,7 +115,7 @@ class AzureRMVirtualMachinesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.vm_name = None
+        self.name = None
         self.expand = None
         self.location = None
         self.tags = None
@@ -128,7 +128,7 @@ class AzureRMVirtualMachinesFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.vm_name is not None):
+                self.name is not None):
             self.results['virtual_machines'] = self.get()
         elif self.location is not None:
             self.results['virtual_machines'] = self.list_by_location()
@@ -139,7 +139,7 @@ class AzureRMVirtualMachinesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_machines.get(resource_group_name=self.resource_group,
-                                                             vm_name=self.vm_name)
+                                                             vm_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualMachines.')

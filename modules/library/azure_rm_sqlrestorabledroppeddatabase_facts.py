@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    server_name:
+    name:
         description:
             - The name of the server.
         required: True
@@ -46,13 +46,13 @@ EXAMPLES = '''
   - name: Get instance of Restorable Dropped Database
     azure_rm_sqlrestorabledroppeddatabase_facts:
       resource_group: resource_group_name
-      server_name: server_name
+      name: server_name
       restorable_droppeded_database_id: restorable_droppeded_database_id
 
   - name: List instances of Restorable Dropped Database
     azure_rm_sqlrestorabledroppeddatabase_facts:
       resource_group: resource_group_name
-      server_name: server_name
+      name: server_name
 '''
 
 RETURN = '''
@@ -107,7 +107,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -121,7 +121,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.server_name = None
+        self.name = None
         self.restorable_droppeded_database_id = None
         super(AzureRMRestorableDroppedDatabasesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -142,7 +142,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.restorable_dropped_databases.get(resource_group_name=self.resource_group,
-                                                                         server_name=self.server_name,
+                                                                         server_name=self.name,
                                                                          restorable_droppeded_database_id=self.restorable_droppeded_database_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -158,7 +158,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.restorable_dropped_databases.list_by_server(resource_group_name=self.resource_group,
-                                                                                    server_name=self.server_name)
+                                                                                    server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RestorableDroppedDatabases.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the load balancer.
         required: True
-    load_balancing_rule_name:
+    name:
         description:
             - The name of the load balancing rule.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_loadbalancerloadbalancingrule_facts:
       resource_group: resource_group_name
       load_balancer_name: load_balancer_name
-      load_balancing_rule_name: load_balancing_rule_name
+      name: load_balancing_rule_name
 '''
 
 RETURN = '''
@@ -119,7 +119,7 @@ class AzureRMLoadBalancerLoadBalancingRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            load_balancing_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -131,7 +131,7 @@ class AzureRMLoadBalancerLoadBalancingRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.load_balancer_name = None
-        self.load_balancing_rule_name = None
+        self.name = None
         super(AzureRMLoadBalancerLoadBalancingRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -149,7 +149,7 @@ class AzureRMLoadBalancerLoadBalancingRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.load_balancer_load_balancing_rules.get(resource_group_name=self.resource_group,
                                                                                load_balancer_name=self.load_balancer_name,
-                                                                               load_balancing_rule_name=self.load_balancing_rule_name)
+                                                                               load_balancing_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LoadBalancerLoadBalancingRules.')

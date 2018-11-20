@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    schema_name:
+    name:
         description:
             - The integration account I(schema) name.
         required: True
@@ -45,7 +45,7 @@ options:
             schema_type:
                 description:
                     - The schema type.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'not_specified'
                     - 'xml'
@@ -90,9 +90,169 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountschema:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      schema_name: testSchema
+      name: testSchema
       schema:
         location: westus
+        schema_type: Xml
+        metadata: {}
+        content: <?xml version="1.0" encoding="utf-16"?>
+<xs:schema xmlns:b="http://schemas.microsoft.com/BizTalk/2003" xmlns="http://Inbound_EDI.OrderFile" targetNamespace="http://Inbound_EDI.OrderFile" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:appinfo>
+      <b:schemaInfo default_pad_char=" " count_positions_by_byte="false" parser_optimization="speed" lookahead_depth="3" suppress_empty_nodes="false" generate_empty_nodes="true" allow_early_termination="false" early_terminate_optional_fields="false" allow_message_breakup_of_infix_root="false" compile_parse_tables="false" standard="Flat File" root_reference="OrderFile" />
+      <schemaEditorExtension:schemaInfo namespaceAlias="b" extensionClass="Microsoft.BizTalk.FlatFileExtension.FlatFileExtension" standardName="Flat File" xmlns:schemaEditorExtension="http://schemas.microsoft.com/BizTalk/2003/SchemaEditorExtensions" />
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="OrderFile">
+    <xs:annotation>
+      <xs:appinfo>
+        <b:recordInfo structure="delimited" preserve_delimiter_for_empty_data="true" suppress_trailing_delimiters="false" sequence_number="1" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:annotation>
+          <xs:appinfo>
+            <b:groupInfo sequence_number="0" />
+          </xs:appinfo>
+        </xs:annotation>
+        <xs:element name="Order">
+          <xs:annotation>
+            <xs:appinfo>
+              <b:recordInfo sequence_number="1" structure="delimited" preserve_delimiter_for_empty_data="true" suppress_trailing_delimiters="false" child_delimiter_type="hex" child_delimiter="0x0D 0x0A" child_order="infix" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:annotation>
+                <xs:appinfo>
+                  <b:groupInfo sequence_number="0" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:element name="Header">
+                <xs:annotation>
+                  <xs:appinfo>
+                    <b:recordInfo sequence_number="1" structure="delimited" preserve_delimiter_for_empty_data="true" suppress_trailing_delimiters="false" child_delimiter_type="char" child_delimiter="|" child_order="infix" tag_name="HDR|" />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:annotation>
+                      <xs:appinfo>
+                        <b:groupInfo sequence_number="0" />
+                      </xs:appinfo>
+                    </xs:annotation>
+                    <xs:element name="PODate" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="1" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="PONumber" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo justification="left" sequence_number="2" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="CustomerID" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="3" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="CustomerContactName" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="4" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="CustomerContactPhone" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="5" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element minOccurs="1" maxOccurs="unbounded" name="LineItems">
+                <xs:annotation>
+                  <xs:appinfo>
+                    <b:recordInfo sequence_number="2" structure="delimited" preserve_delimiter_for_empty_data="true" suppress_trailing_delimiters="false" child_delimiter_type="char" child_delimiter="|" child_order="infix" tag_name="DTL|" />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:annotation>
+                      <xs:appinfo>
+                        <b:groupInfo sequence_number="0" />
+                      </xs:appinfo>
+                    </xs:annotation>
+                    <xs:element name="PONumber" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="1" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="ItemOrdered" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="2" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Quantity" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="3" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="UOM" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="4" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Price" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="5" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="ExtendedPrice" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="6" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Description" type="xs:string">
+                      <xs:annotation>
+                        <xs:appinfo>
+                          <b:fieldInfo sequence_number="7" justification="left" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+        content_type: application/xml
 '''
 
 RETURN = '''
@@ -136,7 +296,7 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            schema_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -153,7 +313,7 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.schema_name = None
+        self.name = None
         self.schema = dict()
 
         self.results = dict(changed=False)
@@ -189,7 +349,6 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
                 elif key == "content_type":
                     self.schema["content_type"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -210,8 +369,8 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Schema instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Schema instance")
@@ -222,10 +381,7 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountschema()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Schema instance deleted")
@@ -254,12 +410,12 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
 
         :return: deserialized Integration Account Schema instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Schema instance {0}".format(self.schema_name))
+        self.log("Creating / Updating the Integration Account Schema instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_schemas.create_or_update(resource_group_name=self.resource_group,
                                                                                      integration_account_name=self.integration_account_name,
-                                                                                     schema_name=self.schema_name,
+                                                                                     schema_name=self.name,
                                                                                      schema=self.schema)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -275,11 +431,11 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Schema instance {0}".format(self.schema_name))
+        self.log("Deleting the Integration Account Schema instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_schemas.delete(resource_group_name=self.resource_group,
                                                                            integration_account_name=self.integration_account_name,
-                                                                           schema_name=self.schema_name)
+                                                                           schema_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Schema instance.')
             self.fail("Error deleting the Integration Account Schema instance: {0}".format(str(e)))
@@ -292,12 +448,12 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
 
         :return: deserialized Integration Account Schema instance state dictionary
         '''
-        self.log("Checking if the Integration Account Schema instance {0} is present".format(self.schema_name))
+        self.log("Checking if the Integration Account Schema instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_schemas.get(resource_group_name=self.resource_group,
                                                                         integration_account_name=self.integration_account_name,
-                                                                        schema_name=self.schema_name)
+                                                                        schema_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Schema instance : {0} found".format(response.name))
@@ -313,6 +469,38 @@ class AzureRMIntegrationAccountSchemas(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    connector_name:
+    name:
         description:
             - The name of the connector.
         required: True
@@ -40,7 +40,7 @@ options:
     connector_type:
         description:
             - Type of connector.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'none'
             - 'crm'
@@ -57,7 +57,7 @@ options:
     connector_properties:
         description:
             - The connector properties.
-        required: True
+            - Required when C(state) is I(present).
     is_internal:
         description:
             - If this is an internal connector.
@@ -83,7 +83,16 @@ EXAMPLES = '''
     azure_rm_customerinsightsconnector:
       resource_group: TestHubRG
       hub_name: sdkTestHub
-      connector_name: testConnector
+      name: testConnector
+      connector_type: AzureBlob
+      display_name: testConnector
+      description: Test connector
+      connector_properties: {
+  "connectionKeyVaultUrl": {
+    "organizationId": "XXX",
+    "organizationUrl": "https://XXX.crmlivetie.com/"
+  }
+}
 '''
 
 RETURN = '''
@@ -133,7 +142,7 @@ class AzureRMConnectors(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connector_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -147,8 +156,7 @@ class AzureRMConnectors(AzureRMModuleBase):
                          'azure_blob',
                          'salesforce',
                          'exchange_online',
-                         'outbound'],
-                required=True
+                         'outbound']
             ),
             display_name=dict(
                 type='str'
@@ -157,8 +165,7 @@ class AzureRMConnectors(AzureRMModuleBase):
                 type='str'
             ),
             connector_properties=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             is_internal=dict(
                 type='str'
@@ -172,7 +179,7 @@ class AzureRMConnectors(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.connector_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -207,7 +214,6 @@ class AzureRMConnectors(AzureRMModuleBase):
                 elif key == "is_internal":
                     self.parameters["is_internal"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -228,8 +234,8 @@ class AzureRMConnectors(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Connector instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Connector instance")
@@ -240,10 +246,7 @@ class AzureRMConnectors(AzureRMModuleBase):
 
             response = self.create_update_connector()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Connector instance deleted")
@@ -272,12 +275,12 @@ class AzureRMConnectors(AzureRMModuleBase):
 
         :return: deserialized Connector instance state dictionary
         '''
-        self.log("Creating / Updating the Connector instance {0}".format(self.connector_name))
+        self.log("Creating / Updating the Connector instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.connectors.create_or_update(resource_group_name=self.resource_group,
                                                                     hub_name=self.hub_name,
-                                                                    connector_name=self.connector_name,
+                                                                    connector_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -293,11 +296,11 @@ class AzureRMConnectors(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Connector instance {0}".format(self.connector_name))
+        self.log("Deleting the Connector instance {0}".format(self.name))
         try:
             response = self.mgmt_client.connectors.delete(resource_group_name=self.resource_group,
                                                           hub_name=self.hub_name,
-                                                          connector_name=self.connector_name)
+                                                          connector_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Connector instance.')
             self.fail("Error deleting the Connector instance: {0}".format(str(e)))
@@ -310,12 +313,12 @@ class AzureRMConnectors(AzureRMModuleBase):
 
         :return: deserialized Connector instance state dictionary
         '''
-        self.log("Checking if the Connector instance {0} is present".format(self.connector_name))
+        self.log("Checking if the Connector instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.connectors.get(resource_group_name=self.resource_group,
                                                        hub_name=self.hub_name,
-                                                       connector_name=self.connector_name)
+                                                       connector_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Connector instance : {0} found".format(response.name))
@@ -332,6 +335,38 @@ class AzureRMConnectors(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

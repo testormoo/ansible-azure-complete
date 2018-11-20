@@ -38,7 +38,7 @@ options:
         description:
             - The name of the volume
         required: True
-    snapshot_name:
+    name:
         description:
             - The name of the mount target
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
       account_name: account_name
       pool_name: pool_name
       volume_name: volume_name
-      snapshot_name: snapshot_name
+      name: snapshot_name
 '''
 
 RETURN = '''
@@ -127,7 +127,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            snapshot_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -144,7 +144,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
         self.account_name = None
         self.pool_name = None
         self.volume_name = None
-        self.snapshot_name = None
+        self.name = None
         self.tags = None
         super(AzureRMSnapshotsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -165,7 +165,7 @@ class AzureRMSnapshotsFacts(AzureRMModuleBase):
                                                       account_name=self.account_name,
                                                       pool_name=self.pool_name,
                                                       volume_name=self.volume_name,
-                                                      snapshot_name=self.snapshot_name)
+                                                      snapshot_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Snapshots.')

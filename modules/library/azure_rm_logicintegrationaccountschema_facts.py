@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    schema_name:
+    name:
         description:
             - The integration account schema name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountschema_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      schema_name: schema_name
+      name: schema_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            schema_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -125,7 +125,7 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.schema_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountSchemasFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -144,7 +144,7 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_schemas.get(resource_group_name=self.resource_group,
                                                                         integration_account_name=self.integration_account_name,
-                                                                        schema_name=self.schema_name)
+                                                                        schema_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountSchemas.')

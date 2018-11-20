@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Api Management Service
     azure_rm_apimanagementservice_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
 
   - name: List instances of Api Management Service
     azure_rm_apimanagementservice_facts:
@@ -128,7 +128,7 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -141,7 +141,7 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMApiManagementServiceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.service_name is not None:
+        if self.name is not None:
             self.results['api_management_service'] = self.get()
         else:
             self.results['api_management_service'] = self.list_by_resource_group()
@@ -162,7 +162,7 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_management_service.get(resource_group_name=self.resource_group,
-                                                                   service_name=self.service_name)
+                                                                   service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ApiManagementService.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -68,7 +68,7 @@ EXAMPLES = '''
   - name: Create (or update) Work Item Configuration
     azure_rm_applicationinsightsworkitemconfiguration:
       resource_group: my-resource-group
-      resource_name: my-component
+      name: my-component
       work_item_configuration_properties:
         connector_id: d334e2a4-6733-488e-8645-a9fdc1694f41
         connector_data_configuration: {
@@ -127,7 +127,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -143,7 +143,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.work_item_configuration_properties = dict()
 
         self.results = dict(changed=False)
@@ -171,7 +171,6 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
                 elif key == "work_item_properties":
                     self.work_item_configuration_properties["work_item_properties"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApplicationInsightsManagementClient,
@@ -192,8 +191,8 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Work Item Configuration instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Work Item Configuration instance")
@@ -204,10 +203,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
 
             response = self.create_update_workitemconfiguration()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Work Item Configuration instance deleted")
@@ -241,7 +237,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.work_item_configurations.create(resource_group_name=self.resource_group,
-                                                                            resource_name=self.resource_name,
+                                                                            resource_name=self.name,
                                                                             work_item_configuration_properties=self.work_item_configuration_properties)
             else:
                 response = self.mgmt_client.work_item_configurations.update()
@@ -262,7 +258,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
         self.log("Deleting the Work Item Configuration instance {0}".format(self.work_item_config_id))
         try:
             response = self.mgmt_client.work_item_configurations.delete(resource_group_name=self.resource_group,
-                                                                        resource_name=self.resource_name,
+                                                                        resource_name=self.name,
                                                                         work_item_config_id=self.work_item_config_id)
         except CloudError as e:
             self.log('Error attempting to delete the Work Item Configuration instance.')
@@ -295,6 +291,38 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

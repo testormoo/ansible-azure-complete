@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    artifact_source_name:
+    name:
         description:
             - The name of the artifact source.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Artifact Source
     azure_rm_deploymentmanagerartifactsource_facts:
       resource_group: resource_group_name
-      artifact_source_name: artifact_source_name
+      name: artifact_source_name
 '''
 
 RETURN = '''
@@ -114,7 +114,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            artifact_source_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.artifact_source_name = None
+        self.name = None
         self.tags = None
         super(AzureRMArtifactSourcesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -146,7 +146,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.artifact_sources.get(resource_group_name=self.resource_group,
-                                                             artifact_source_name=self.artifact_source_name)
+                                                             artifact_source_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ArtifactSources.')

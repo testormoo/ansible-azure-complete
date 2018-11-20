@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    relationship_link_name:
+    name:
         description:
             - The name of the relationship link.
         required: True
@@ -43,7 +43,7 @@ options:
     interaction_type:
         description:
             - The InteractionType associated with the Relationship Link.
-        required: True
+            - Required when C(state) is I(present).
     mappings:
         description:
             - The mappings between Interaction and Relationship fields.
@@ -52,7 +52,7 @@ options:
             interaction_field_name:
                 description:
                     - The field name on the Interaction Type.
-                required: True
+                    - Required when C(state) is I(present).
             link_type:
                 description:
                     - Link type.
@@ -62,39 +62,39 @@ options:
             relationship_field_name:
                 description:
                     - The field name on the Relationship metadata.
-                required: True
+                    - Required when C(state) is I(present).
     profile_property_references:
         description:
             - The property references for the Profile of the Relationship.
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             interaction_property_name:
                 description:
                     - The source interaction property that maps to the target profile property.
-                required: True
+                    - Required when C(state) is I(present).
             profile_property_name:
                 description:
                     - The target profile property that maps to the source interaction property.
-                required: True
+                    - Required when C(state) is I(present).
     related_profile_property_references:
         description:
             - The property references for the Related Profile of the Relationship.
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             interaction_property_name:
                 description:
                     - The source interaction property that maps to the target profile property.
-                required: True
+                    - Required when C(state) is I(present).
             profile_property_name:
                 description:
                     - The target profile property that maps to the source interaction property.
-                required: True
+                    - Required when C(state) is I(present).
     relationship_name:
         description:
             - The Relationship associated with the Link.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Relationship Link.
@@ -117,7 +117,21 @@ EXAMPLES = '''
     azure_rm_customerinsightsrelationshiplink:
       resource_group: TestHubRG
       hub_name: sdkTestHub
-      relationship_link_name: Somelink
+      name: Somelink
+      display_name: {
+  "en-us": "Link DisplayName"
+}
+      description: {
+  "en-us": "Link Description"
+}
+      interaction_type: testInteraction4332
+      profile_property_references:
+        - interaction_property_name: profile1
+          profile_property_name: ProfileId
+      related_profile_property_references:
+        - interaction_property_name: profile1
+          profile_property_name: ProfileId
+      relationship_name: testProfile2326994
 '''
 
 RETURN = '''
@@ -161,7 +175,7 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            relationship_link_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -172,23 +186,19 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
                 type='dict'
             ),
             interaction_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             mappings=dict(
                 type='list'
             ),
             profile_property_references=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             related_profile_property_references=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             relationship_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -199,7 +209,7 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.relationship_link_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -239,7 +249,6 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
                 elif key == "relationship_name":
                     self.parameters["relationship_name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -260,8 +269,8 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Relationship Link instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Relationship Link instance")
@@ -272,10 +281,7 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
 
             response = self.create_update_relationshiplink()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Relationship Link instance deleted")
@@ -304,12 +310,12 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
 
         :return: deserialized Relationship Link instance state dictionary
         '''
-        self.log("Creating / Updating the Relationship Link instance {0}".format(self.relationship_link_name))
+        self.log("Creating / Updating the Relationship Link instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.relationship_links.create_or_update(resource_group_name=self.resource_group,
                                                                             hub_name=self.hub_name,
-                                                                            relationship_link_name=self.relationship_link_name,
+                                                                            relationship_link_name=self.name,
                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -325,11 +331,11 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Relationship Link instance {0}".format(self.relationship_link_name))
+        self.log("Deleting the Relationship Link instance {0}".format(self.name))
         try:
             response = self.mgmt_client.relationship_links.delete(resource_group_name=self.resource_group,
                                                                   hub_name=self.hub_name,
-                                                                  relationship_link_name=self.relationship_link_name)
+                                                                  relationship_link_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Relationship Link instance.')
             self.fail("Error deleting the Relationship Link instance: {0}".format(str(e)))
@@ -342,12 +348,12 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
 
         :return: deserialized Relationship Link instance state dictionary
         '''
-        self.log("Checking if the Relationship Link instance {0} is present".format(self.relationship_link_name))
+        self.log("Checking if the Relationship Link instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.relationship_links.get(resource_group_name=self.resource_group,
                                                                hub_name=self.hub_name,
-                                                               relationship_link_name=self.relationship_link_name)
+                                                               relationship_link_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Relationship Link instance : {0} found".format(response.name))
@@ -363,6 +369,38 @@ class AzureRMRelationshipLinks(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -34,7 +34,7 @@ options:
         description:
             - The name of the service resource.
         required: True
-    service_unit_name:
+    name:
         description:
             - The name of the service unit resource.
         required: True
@@ -46,15 +46,15 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             target_resource_group:
                 description:
                     - The Azure Resource Group to which the resources in the service unit belong to or should be deployed to.
-                required: True
+                    - Required when C(state) is I(present).
             deployment_mode:
                 description:
                     - Describes the type of ARM deployment to be performed on the resource.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'incremental'
                     - 'complete'
@@ -98,9 +98,14 @@ EXAMPLES = '''
       resource_group: myResourceGroup
       service_topology_name: myTopology
       service_name: myService
-      service_unit_name: myServiceUnit
+      name: myServiceUnit
       service_unit_info:
         location: centralus
+        target_resource_group: myDeploymentResourceGroup
+        deployment_mode: Incremental
+        artifacts:
+          template_artifact_source_relative_path: templates/myTopologyUnit.template.json
+          parameters_artifact_source_relative_path: parameter/myTopologyUnit.parameters.json
 '''
 
 RETURN = '''
@@ -148,7 +153,7 @@ class AzureRMServiceUnits(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_unit_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -166,7 +171,7 @@ class AzureRMServiceUnits(AzureRMModuleBase):
         self.resource_group = None
         self.service_topology_name = None
         self.service_name = None
-        self.service_unit_name = None
+        self.name = None
         self.service_unit_info = dict()
 
         self.results = dict(changed=False)
@@ -194,7 +199,6 @@ class AzureRMServiceUnits(AzureRMModuleBase):
                 elif key == "artifacts":
                     self.service_unit_info["artifacts"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureDeploymentManager,
@@ -215,8 +219,8 @@ class AzureRMServiceUnits(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Service Unit instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Service Unit instance")
@@ -227,10 +231,7 @@ class AzureRMServiceUnits(AzureRMModuleBase):
 
             response = self.create_update_serviceunit()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Service Unit instance deleted")
@@ -259,13 +260,13 @@ class AzureRMServiceUnits(AzureRMModuleBase):
 
         :return: deserialized Service Unit instance state dictionary
         '''
-        self.log("Creating / Updating the Service Unit instance {0}".format(self.service_unit_name))
+        self.log("Creating / Updating the Service Unit instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.service_units.create_or_update(resource_group_name=self.resource_group,
                                                                        service_topology_name=self.service_topology_name,
                                                                        service_name=self.service_name,
-                                                                       service_unit_name=self.service_unit_name,
+                                                                       service_unit_name=self.name,
                                                                        service_unit_info=self.service_unit_info)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -281,12 +282,12 @@ class AzureRMServiceUnits(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Service Unit instance {0}".format(self.service_unit_name))
+        self.log("Deleting the Service Unit instance {0}".format(self.name))
         try:
             response = self.mgmt_client.service_units.delete(resource_group_name=self.resource_group,
                                                              service_topology_name=self.service_topology_name,
                                                              service_name=self.service_name,
-                                                             service_unit_name=self.service_unit_name)
+                                                             service_unit_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Service Unit instance.')
             self.fail("Error deleting the Service Unit instance: {0}".format(str(e)))
@@ -299,13 +300,13 @@ class AzureRMServiceUnits(AzureRMModuleBase):
 
         :return: deserialized Service Unit instance state dictionary
         '''
-        self.log("Checking if the Service Unit instance {0} is present".format(self.service_unit_name))
+        self.log("Checking if the Service Unit instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.service_units.get(resource_group_name=self.resource_group,
                                                           service_topology_name=self.service_topology_name,
                                                           service_name=self.service_name,
-                                                          service_unit_name=self.service_unit_name)
+                                                          service_unit_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Service Unit instance : {0} found".format(response.name))
@@ -321,6 +322,38 @@ class AzureRMServiceUnits(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -19,14 +19,14 @@ module: azure_rm_hdinsightcluster_facts
 version_added: "2.8"
 short_description: Get Azure Cluster facts.
 description:
-    - Get facts of Cluster.
+    - Get facts of Azure Cluster.
 
 options:
     resource_group:
         description:
             - The name of the resource group.
         required: True
-    cluster_name:
+    name:
         description:
             - The name of the cluster.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Cluster
     azure_rm_hdinsightcluster_facts:
       resource_group: resource_group_name
-      cluster_name: cluster_name
+      name: cluster_name
 
   - name: List instances of Cluster
     azure_rm_hdinsightcluster_facts:
@@ -54,7 +54,7 @@ EXAMPLES = '''
 
 RETURN = '''
 clusters:
-    description: A list of dictionaries containing facts for Clusters.
+    description: A list of dictionaries containing facts for Cluster.
     returned: always
     type: complex
     contains:
@@ -107,7 +107,6 @@ from ansible.module_utils.azure_rm_common import AzureRMModuleBase
 
 try:
     from msrestazure.azure_exceptions import CloudError
-    from msrestazure.azure_operation import AzureOperationPoller
     from azure.mgmt.hdinsight import HDInsightManagementClient
     from msrest.serialization import Model
 except ImportError:
@@ -123,7 +122,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -136,9 +135,9 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.tags = None
-        super(AzureRMClustersFacts, self).__init__(self.module_arg_spec)
+        super(AzureRMClustersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,10 +145,9 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(HDInsightManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if (self.resource_group is not None and
-                self.cluster_name is not None):
+        if self.name is not None:
             self.results['clusters'] = self.get()
-        elif (self.resource_group is not None):
+        else:
             self.results['clusters'] = self.list_by_resource_group()
         return self.results
 
@@ -158,7 +156,7 @@ class AzureRMClustersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.clusters.get(resource_group_name=self.resource_group,
-                                                     cluster_name=self.cluster_name)
+                                                     cluster_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Clusters.')
@@ -186,13 +184,17 @@ class AzureRMClustersFacts(AzureRMModuleBase):
 
     def format_item(self, item):
         d = item.as_dict()
-        #d = {
-        #    'resource_group': self.resource_group,
-        #    'id': d['id'],
-        #    'name': d['name'],
-        #    'location': d['location'],
-        #    'etag': d['etag']
-        #}
+        d = {
+            'resource_group': self.resource_group,
+            'id': d.get('id', None),
+            'name': d.get('name', None),
+            'location': d.get('location', None),
+            'tags': d.get('tags', None),
+            'etag': d.get('etag', None),
+            'properties': {
+                'tier': d.get('properties', {}).get('tier', None)
+            }
+        }
         return d
 
 

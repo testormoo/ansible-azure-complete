@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    disk_name:
+    name:
         description:
             - "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name
                are a-z, A-Z, 0-9 and _. The maximum name length is 80 characters."
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Disk
     azure_rm_computedisk_facts:
       resource_group: resource_group_name
-      disk_name: disk_name
+      name: disk_name
 
   - name: List instances of Disk
     azure_rm_computedisk_facts:
@@ -117,7 +117,7 @@ class AzureRMDisksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            disk_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -130,7 +130,7 @@ class AzureRMDisksFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.disk_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDisksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -140,7 +140,7 @@ class AzureRMDisksFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.disk_name is not None:
+        if self.name is not None:
             self.results['disks'] = self.get()
         else:
             self.results['disks'] = self.list_by_resource_group()
@@ -151,7 +151,7 @@ class AzureRMDisksFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.disks.get(resource_group_name=self.resource_group,
-                                                  disk_name=self.disk_name)
+                                                  disk_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Disks.')

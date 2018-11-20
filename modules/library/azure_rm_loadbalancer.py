@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    load_balancer_name:
+    name:
         description:
             - The name of the load balancer.
         required: True
@@ -99,7 +99,7 @@ options:
                                         description:
                                             - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*)
                                                C(*)valuesC(*) C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'tcp'
                                             - 'udp'
@@ -158,7 +158,7 @@ options:
                                         description:
                                             - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*).
                                                C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
@@ -175,24 +175,15 @@ options:
                                                C(*)specifiesC(*) C(*)ifC(*) C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*)
                                                C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*) C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*):
                                                'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'inbound'
                                             - 'outbound'
-                                    provisioning_state:
-                                        description:
-                                            - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*)
-                                               C(*)resourceC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)',
-                                               C(*)andC(*) 'C(*)FailedC(*)'."
                                     name:
                                         description:
                                             - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*)
                                                C(*)withinC(*) C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*)
                                                C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                                    etag:
-                                        description:
-                                            - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*)
-                                               C(*)wheneverC(*) C(*)theC(*) C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
                             default_security_rules:
                                 description:
                                     - The default security rules of network security group.
@@ -209,7 +200,7 @@ options:
                                         description:
                                             - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*)
                                                C(*)valuesC(*) C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'tcp'
                                             - 'udp'
@@ -268,7 +259,7 @@ options:
                                         description:
                                             - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*).
                                                C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
@@ -285,33 +276,18 @@ options:
                                                C(*)specifiesC(*) C(*)ifC(*) C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*)
                                                C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*) C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*):
                                                'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'inbound'
                                             - 'outbound'
-                                    provisioning_state:
-                                        description:
-                                            - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*)
-                                               C(*)resourceC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)',
-                                               C(*)andC(*) 'C(*)FailedC(*)'."
                                     name:
                                         description:
                                             - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*)
                                                C(*)withinC(*) C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*)
                                                C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                                    etag:
-                                        description:
-                                            - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*)
-                                               C(*)wheneverC(*) C(*)theC(*) C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
                             resource_guid:
                                 description:
                                     - The resource GUID property of the network security group resource.
-                            provisioning_state:
-                                description:
-                                    - "The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-                            etag:
-                                description:
-                                    - A unique read-only string that changes whenever the resource is updated.
                     route_table:
                         description:
                             - The reference of the RouteTable resource.
@@ -337,7 +313,7 @@ options:
                                         description:
                                             - "The type of Azure hop the packet should be sent to. Possible values are: 'C(virtual_network_gateway)',
                                                'C(vnet_local)', 'C(internet)', 'C(virtual_appliance)', and 'C(none)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'virtual_network_gateway'
                                             - 'vnet_local'
@@ -348,24 +324,12 @@ options:
                                         description:
                                             - "The IP address packets should be forwarded to. Next hop values are only allowed in routes where the next hop
                                                type is C(virtual_appliance)."
-                                    provisioning_state:
-                                        description:
-                                            - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                                     name:
                                         description:
                                             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                                    etag:
-                                        description:
-                                            - A unique read-only string that changes whenever the resource is updated.
                             disable_bgp_route_propagation:
                                 description:
                                     - Gets or sets whether to disable the I(routes) learned by BGP on that route table. True means disable.
-                            provisioning_state:
-                                description:
-                                    - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-                            etag:
-                                description:
-                                    - Gets a unique read-only string that changes whenever the resource is updated.
                     service_endpoints:
                         description:
                             - An array of service endpoints.
@@ -378,9 +342,6 @@ options:
                                 description:
                                     - A list of locations.
                                 type: list
-                            provisioning_state:
-                                description:
-                                    - The provisioning state of the resource.
                     resource_navigation_links:
                         description:
                             - Gets an array of references to the external resources using subnet.
@@ -398,15 +359,9 @@ options:
                             name:
                                 description:
                                     - Name of the resource that is unique within a resource group. This name can be used to access the resource.
-                    provisioning_state:
-                        description:
-                            - The provisioning state of the resource.
                     name:
                         description:
                             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
             public_ip_address:
                 description:
                     - The reference of the Public IP resource.
@@ -466,25 +421,13 @@ options:
                     resource_guid:
                         description:
                             - The resource GUID property of the public IP resource.
-                    provisioning_state:
-                        description:
-                            - "The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
                     zones:
                         description:
                             - A list of availability zones denoting the IP allocated for the resource needs to come from.
                         type: list
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
             zones:
                 description:
                     - A list of availability zones denoting the IP allocated for the resource needs to come from.
@@ -497,15 +440,9 @@ options:
             id:
                 description:
                     - Resource ID.
-            provisioning_state:
-                description:
-                    - "Get provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - Gets name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     load_balancing_rules:
         description:
             - Object collection representing the load balancing rules Gets the provisioning
@@ -538,7 +475,7 @@ options:
             protocol:
                 description:
                     - "Possible values include: 'C(udp)', 'C(tcp)', 'C(all)'"
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'udp'
                     - 'tcp'
@@ -554,7 +491,7 @@ options:
                 description:
                     - "The port for the external endpoint. Port numbers for each rule must be unique within the Load Balancer. Acceptable values are between
                        0 and 65534. Note that value 0 enables 'Any Port'"
-                required: True
+                    - Required when C(state) is I(present).
             backend_port:
                 description:
                     - "The port used for internal connections on the endpoint. Acceptable values are between 0 and 65535. Note that value 0 enables 'Any
@@ -571,15 +508,9 @@ options:
             disable_outbound_snat:
                 description:
                     - Configures SNAT for the VMs in the backend pool to use the publicIP address specified in the frontend of the load balancing rule.
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     probes:
         description:
             - Collection of probe objects used in the load balancer
@@ -593,14 +524,14 @@ options:
                     - "The protocol of the end point. Possible values are: 'C(http)' or 'C(tcp)'. If 'C(tcp)' is specified, a received ACK is required for
                        the probe to be successful. If 'C(http)' is specified, a 200 OK response from the specifies URI is required for the probe to be
                        successful."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'http'
                     - 'tcp'
             port:
                 description:
                     - The port for communicating the probe. Possible values range from 1 to 65535, inclusive.
-                required: True
+                    - Required when C(state) is I(present).
             interval_in_seconds:
                 description:
                     - "The interval, in seconds, for how frequently to probe the endpoint for health status. Typically, the interval is slightly less than
@@ -614,15 +545,9 @@ options:
                 description:
                     - "The URI used for requesting health status from the VM. Path is required if a I(protocol) is set to C(http). Otherwise, it is not
                        allowed. There is no default value."
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - Gets name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     inbound_nat_rules:
         description:
             - "Collection of inbound NAT Rules used by a load balancer. Defining inbound NAT rules on your load balancer is mutually exclusive with defining
@@ -663,15 +588,9 @@ options:
                     - "Configures a virtual machine's endpoint for the floating IP capability required to configure a SQL AlwaysOn Availability Group. This
                        setting is required when using the SQL AlwaysOn Availability Groups in SQL server. This setting can't be changed after you create
                        the endpoint."
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - Gets name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     inbound_nat_pools:
         description:
             - "Defines an external port range for inbound NAT to a single backend port on NICs associated with a load balancer. Inbound NAT rules are
@@ -694,7 +613,7 @@ options:
             protocol:
                 description:
                     - "Possible values include: 'C(udp)', 'C(tcp)', 'C(all)'"
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'udp'
                     - 'tcp'
@@ -703,25 +622,19 @@ options:
                 description:
                     - "The first port number in the range of external ports that will be used to provide Inbound Nat to NICs associated with a load
                        balancer. Acceptable values range between 1 and 65534."
-                required: True
+                    - Required when C(state) is I(present).
             frontend_port_range_end:
                 description:
                     - "The last port number in the range of external ports that will be used to provide Inbound Nat to NICs associated with a load balancer.
                        Acceptable values range between 1 and 65535."
-                required: True
+                    - Required when C(state) is I(present).
             backend_port:
                 description:
                     - The port used for internal connections on the endpoint. Acceptable values are between 1 and 65535.
-                required: True
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
+                    - Required when C(state) is I(present).
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     outbound_nat_rules:
         description:
             - The outbound NAT rules.
@@ -744,29 +657,17 @@ options:
             backend_address_pool:
                 description:
                     - A reference to a pool of DIPs. Outbound traffic is randomly load balanced across IPs in the backend IPs.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     id:
                         description:
                             - Resource ID.
-            provisioning_state:
-                description:
-                    - "Gets the provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             name:
                 description:
                     - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     resource_guid:
         description:
             - The resource GUID property of the load balancer resource.
-    provisioning_state:
-        description:
-            - "Gets the provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-    etag:
-        description:
-            - A unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Load Balancer.
@@ -789,8 +690,44 @@ EXAMPLES = '''
   - name: Create (or update) Load Balancer
     azure_rm_loadbalancer:
       resource_group: rg1
-      load_balancer_name: lb
+      name: lb
       location: eastus
+      frontend_ip_configurations:
+        - subnet:
+            id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/vnetlb/subnets/subnetlb
+          name: fe-lb
+      backend_address_pools:
+        - name: be-lb
+      load_balancing_rules:
+        - frontend_ip_configuration:
+            id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/loadBalancers/lb/frontendIPConfigurations/fe-lb
+          backend_address_pool:
+            id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/loadBalancers/lb/backendAddressPools/be-lb
+          probe:
+            id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/loadBalancers/lb/probes/probe-lb
+          protocol: Tcp
+          load_distribution: Default
+          frontend_port: 80
+          backend_port: 80
+          idle_timeout_in_minutes: 15
+          enable_floating_ip: True
+          name: rulelb
+      probes:
+        - protocol: Http
+          port: 80
+          interval_in_seconds: 15
+          number_of_probes: 2
+          request_path: healthcheck.aspx
+          name: probe-lb
+      inbound_nat_rules:
+        - frontend_ip_configuration:
+            id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/loadBalancers/lb/frontendIPConfigurations/fe-lb
+          protocol: Tcp
+          frontend_port: 3389
+          backend_port: 3389
+          idle_timeout_in_minutes: 15
+          enable_floating_ip: True
+          name: in-nat-rule
 '''
 
 RETURN = '''
@@ -829,7 +766,7 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            load_balancer_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -866,12 +803,6 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
             resource_guid=dict(
                 type='str'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
-            etag=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -880,7 +811,7 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.load_balancer_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -970,12 +901,7 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
                     self.parameters["outbound_nat_rules"] = kwargs[key]
                 elif key == "resource_guid":
                     self.parameters["resource_guid"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -999,8 +925,8 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Load Balancer instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Load Balancer instance")
@@ -1011,10 +937,7 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
 
             response = self.create_update_loadbalancer()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Load Balancer instance deleted")
@@ -1043,11 +966,11 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
 
         :return: deserialized Load Balancer instance state dictionary
         '''
-        self.log("Creating / Updating the Load Balancer instance {0}".format(self.load_balancer_name))
+        self.log("Creating / Updating the Load Balancer instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.load_balancers.create_or_update(resource_group_name=self.resource_group,
-                                                                        load_balancer_name=self.load_balancer_name,
+                                                                        load_balancer_name=self.name,
                                                                         parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -1063,10 +986,10 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Load Balancer instance {0}".format(self.load_balancer_name))
+        self.log("Deleting the Load Balancer instance {0}".format(self.name))
         try:
             response = self.mgmt_client.load_balancers.delete(resource_group_name=self.resource_group,
-                                                              load_balancer_name=self.load_balancer_name)
+                                                              load_balancer_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Load Balancer instance.')
             self.fail("Error deleting the Load Balancer instance: {0}".format(str(e)))
@@ -1079,11 +1002,11 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
 
         :return: deserialized Load Balancer instance state dictionary
         '''
-        self.log("Checking if the Load Balancer instance {0} is present".format(self.load_balancer_name))
+        self.log("Checking if the Load Balancer instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.load_balancers.get(resource_group_name=self.resource_group,
-                                                           load_balancer_name=self.load_balancer_name)
+                                                           load_balancer_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Load Balancer instance : {0} found".format(response.name))
@@ -1099,6 +1022,38 @@ class AzureRMLoadBalancers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

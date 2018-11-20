@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Azure Resource Group Name.
-    report_config_name:
+    name:
         description:
             - Report Config Name.
     tags:
@@ -47,7 +47,7 @@ EXAMPLES = '''
 
   - name: Get instance of Report Config
     azure_rm_costmanagementreportconfig_facts:
-      report_config_name: report_config_name
+      name: report_config_name
 '''
 
 RETURN = '''
@@ -169,7 +169,7 @@ class AzureRMReportConfigFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            report_config_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -182,7 +182,7 @@ class AzureRMReportConfigFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.report_config_name = None
+        self.name = None
         self.tags = None
         super(AzureRMReportConfigFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -194,7 +194,7 @@ class AzureRMReportConfigFacts(AzureRMModuleBase):
 
         if self.resource_group is not None:
             self.results['report_config'] = self.list_by_resource_group_name()
-        elif self.report_config_name is not None:
+        elif self.name is not None:
             self.results['report_config'] = self.get()
         return self.results
 
@@ -218,7 +218,7 @@ class AzureRMReportConfigFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.report_config.get(report_config_name=self.report_config_name)
+            response = self.mgmt_client.report_config.get(report_config_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ReportConfig.')

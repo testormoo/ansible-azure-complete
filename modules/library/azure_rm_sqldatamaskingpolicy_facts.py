@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database.
         required: True
-    data_masking_policy_name:
+    name:
         description:
             - The name of the database for which the data masking rule applies.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      data_masking_policy_name: data_masking_policy_name
+      name: data_masking_policy_name
 '''
 
 RETURN = '''
@@ -116,7 +116,7 @@ class AzureRMDataMaskingPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            data_masking_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -129,7 +129,7 @@ class AzureRMDataMaskingPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.data_masking_policy_name = None
+        self.name = None
         super(AzureRMDataMaskingPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -148,7 +148,7 @@ class AzureRMDataMaskingPoliciesFacts(AzureRMModuleBase):
             response = self.mgmt_client.data_masking_policies.get(resource_group_name=self.resource_group,
                                                                   server_name=self.server_name,
                                                                   database_name=self.database_name,
-                                                                  data_masking_policy_name=self.data_masking_policy_name)
+                                                                  data_masking_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DataMaskingPolicies.')

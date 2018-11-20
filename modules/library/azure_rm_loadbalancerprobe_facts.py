@@ -30,7 +30,7 @@ options:
         description:
             - The name of the load balancer.
         required: True
-    probe_name:
+    name:
         description:
             - The name of the probe.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_loadbalancerprobe_facts:
       resource_group: resource_group_name
       load_balancer_name: load_balancer_name
-      probe_name: probe_name
+      name: probe_name
 '''
 
 RETURN = '''
@@ -114,7 +114,7 @@ class AzureRMLoadBalancerProbesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            probe_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -126,7 +126,7 @@ class AzureRMLoadBalancerProbesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.load_balancer_name = None
-        self.probe_name = None
+        self.name = None
         super(AzureRMLoadBalancerProbesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -144,7 +144,7 @@ class AzureRMLoadBalancerProbesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.load_balancer_probes.get(resource_group_name=self.resource_group,
                                                                  load_balancer_name=self.load_balancer_name,
-                                                                 probe_name=self.probe_name)
+                                                                 probe_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LoadBalancerProbes.')

@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    availability_set_name:
+    name:
         description:
             - The name of the availability set.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Availability Set
     azure_rm_computeavailabilityset_facts:
       resource_group: resource_group_name
-      availability_set_name: availability_set_name
+      name: availability_set_name
 
   - name: List instances of Availability Set
     azure_rm_computeavailabilityset_facts:
@@ -88,7 +88,7 @@ class AzureRMAvailabilitySetsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            availability_set_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -101,7 +101,7 @@ class AzureRMAvailabilitySetsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.availability_set_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAvailabilitySetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -112,7 +112,7 @@ class AzureRMAvailabilitySetsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.availability_set_name is not None):
+                self.name is not None):
             self.results['availability_sets'] = self.get()
         else:
             self.results['availability_sets'] = self.list_by_subscription()
@@ -123,7 +123,7 @@ class AzureRMAvailabilitySetsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.availability_sets.get(resource_group_name=self.resource_group,
-                                                              availability_set_name=self.availability_set_name)
+                                                              availability_set_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AvailabilitySets.')

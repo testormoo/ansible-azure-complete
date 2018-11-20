@@ -38,7 +38,7 @@ options:
         description:
             - The name of the volume
         required: True
-    mount_target_name:
+    name:
         description:
             - The name of the mount target
         required: True
@@ -61,7 +61,7 @@ EXAMPLES = '''
       account_name: account_name
       pool_name: pool_name
       volume_name: volume_name
-      mount_target_name: mount_target_name
+      name: mount_target_name
 '''
 
 RETURN = '''
@@ -139,7 +139,7 @@ class AzureRMMountTargetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            mount_target_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -156,7 +156,7 @@ class AzureRMMountTargetsFacts(AzureRMModuleBase):
         self.account_name = None
         self.pool_name = None
         self.volume_name = None
-        self.mount_target_name = None
+        self.name = None
         self.tags = None
         super(AzureRMMountTargetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -177,7 +177,7 @@ class AzureRMMountTargetsFacts(AzureRMModuleBase):
                                                           account_name=self.account_name,
                                                           pool_name=self.pool_name,
                                                           volume_name=self.volume_name,
-                                                          mount_target_name=self.mount_target_name)
+                                                          mount_target_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for MountTargets.')

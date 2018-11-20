@@ -34,76 +34,68 @@ options:
         description:
             - The name of the custom image.
         required: True
-    custom_image:
+    location:
         description:
-            - A custom image.
-        required: True
+            - The location of the resource.
+    vm:
+        description:
+            - The virtual machine from which the image is to be created.
         suboptions:
-            location:
+            source_vm_id:
                 description:
-                    - The location of the resource.
-            vm:
+                    - The source vm identifier.
+            windows_os_info:
                 description:
-                    - The virtual machine from which the image is to be created.
+                    - The Windows OS information of the VM.
                 suboptions:
-                    source_vm_id:
+                    windows_os_state:
                         description:
-                            - The source vm identifier.
-                    windows_os_info:
-                        description:
-                            - The Windows OS information of the VM.
-                        suboptions:
-                            windows_os_state:
-                                description:
-                                    - The state of the Windows OS (i.e. C(non_sysprepped), C(sysprep_requested), C(sysprep_applied)).
-                                choices:
-                                    - 'non_sysprepped'
-                                    - 'sysprep_requested'
-                                    - 'sysprep_applied'
-                    linux_os_info:
-                        description:
-                            - The Linux OS information of the VM.
-                        suboptions:
-                            linux_os_state:
-                                description:
-                                    - The state of the Linux OS (i.e. C(non_deprovisioned), C(deprovision_requested), C(deprovision_applied)).
-                                choices:
-                                    - 'non_deprovisioned'
-                                    - 'deprovision_requested'
-                                    - 'deprovision_applied'
-            vhd:
-                description:
-                    - The VHD from which the image is to be created.
-                suboptions:
-                    image_name:
-                        description:
-                            - The image name.
-                    sys_prep:
-                        description:
-                            - Indicates whether sysprep has been run on the VHD.
-                    os_type:
-                        description:
-                            - The OS type of the custom image (i.e. C(windows), C(linux)).
-                        required: True
+                            - The state of the Windows OS (i.e. C(non_sysprepped), C(sysprep_requested), C(sysprep_applied)).
                         choices:
-                            - 'windows'
-                            - 'linux'
-                            - 'none'
-            description:
+                            - 'non_sysprepped'
+                            - 'sysprep_requested'
+                            - 'sysprep_applied'
+            linux_os_info:
                 description:
-                    - The description of the custom image.
-            author:
+                    - The Linux OS information of the VM.
+                suboptions:
+                    linux_os_state:
+                        description:
+                            - The state of the Linux OS (i.e. C(non_deprovisioned), C(deprovision_requested), C(deprovision_applied)).
+                        choices:
+                            - 'non_deprovisioned'
+                            - 'deprovision_requested'
+                            - 'deprovision_applied'
+    vhd:
+        description:
+            - The VHD from which the image is to be created.
+        suboptions:
+            image_name:
                 description:
-                    - The author of the custom image.
-            managed_image_id:
+                    - The image name.
+            sys_prep:
                 description:
-                    - The Managed Image Id backing the custom image.
-            provisioning_state:
+                    - Indicates whether sysprep has been run on the VHD.
+            os_type:
                 description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+                    - The OS type of the custom image (i.e. C(windows), C(linux)).
+                    - Required when C(state) is I(present).
+                choices:
+                    - 'windows'
+                    - 'linux'
+                    - 'none'
+    description:
+        description:
+            - The description of the custom image.
+    author:
+        description:
+            - The author of the custom image.
+    managed_image_id:
+        description:
+            - The Managed Image Id backing the custom image.
+    unique_identifier:
+        description:
+            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Custom Image.
@@ -174,9 +166,26 @@ class AzureRMCustomImages(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            custom_image=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            vm=dict(
+                type='dict'
+            ),
+            vhd=dict(
+                type='dict'
+            ),
+            description=dict(
+                type='str'
+            ),
+            author=dict(
+                type='str'
+            ),
+            managed_image_id=dict(
+                type='str'
+            ),
+            unique_identifier=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -226,12 +235,9 @@ class AzureRMCustomImages(AzureRMModuleBase):
                     self.custom_image["author"] = kwargs[key]
                 elif key == "managed_image_id":
                     self.custom_image["managed_image_id"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.custom_image["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.custom_image["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -252,8 +258,8 @@ class AzureRMCustomImages(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Custom Image instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Custom Image instance")
@@ -264,10 +270,7 @@ class AzureRMCustomImages(AzureRMModuleBase):
 
             response = self.create_update_customimage()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Custom Image instance deleted")
@@ -355,6 +358,38 @@ class AzureRMCustomImages(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

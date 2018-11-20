@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    rule_name:
+    name:
         description:
             - The name of the rule.
         required: True
@@ -45,7 +45,7 @@ options:
     source:
         description:
             - Data Source against which rule will Query Data
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             query:
                 description:
@@ -57,7 +57,7 @@ options:
             data_source_id:
                 description:
                     - The resource uri over which log search I(query) is to be run.
-                required: True
+                    - Required when C(state) is I(present).
             query_type:
                 description:
                     - "Set value to 'C(result_count)'."
@@ -70,20 +70,20 @@ options:
             frequency_in_minutes:
                 description:
                     - frequency (in minutes) at which rule condition should be evaluated.
-                required: True
+                    - Required when C(state) is I(present).
             time_window_in_minutes:
                 description:
                     - Time window for which data needs to be fetched for query (should be greater than or equal to I(frequency_in_minutes)).
-                required: True
+                    - Required when C(state) is I(present).
     action:
         description:
             - Action needs to be taken on rule execution.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             odatatype:
                 description:
                     - Constant filled by server.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Scheduled Query Rule.
@@ -106,8 +106,17 @@ EXAMPLES = '''
   - name: Create (or update) Scheduled Query Rule
     azure_rm_monitorscheduledqueryrule:
       resource_group: Rac46PostSwapRG
-      rule_name: logalertfoo
+      name: logalertfoo
       location: eastus
+      description: log alert description
+      enabled: true
+      source:
+        query: Heartbeat | count
+        data_source_id: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/Rac46PostSwapRG/providers/Microsoft.OperationalInsights/workspaces/sampleWorkspace
+        query_type: ResultCount
+      schedule:
+        frequency_in_minutes: 15
+        time_window_in_minutes: 15
 '''
 
 RETURN = '''
@@ -146,7 +155,7 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -162,15 +171,13 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
                          'false']
             ),
             source=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             schedule=dict(
                 type='dict'
             ),
             action=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -180,7 +187,7 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -216,7 +223,6 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
                 elif key == "action":
                     self.parameters["action"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
@@ -240,8 +246,8 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Scheduled Query Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Scheduled Query Rule instance")
@@ -252,10 +258,7 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
 
             response = self.create_update_scheduledqueryrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Scheduled Query Rule instance deleted")
@@ -284,11 +287,11 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
 
         :return: deserialized Scheduled Query Rule instance state dictionary
         '''
-        self.log("Creating / Updating the Scheduled Query Rule instance {0}".format(self.rule_name))
+        self.log("Creating / Updating the Scheduled Query Rule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.scheduled_query_rules.create_or_update(resource_group_name=self.resource_group,
-                                                                               rule_name=self.rule_name,
+                                                                               rule_name=self.name,
                                                                                parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -304,10 +307,10 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Scheduled Query Rule instance {0}".format(self.rule_name))
+        self.log("Deleting the Scheduled Query Rule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.scheduled_query_rules.delete(resource_group_name=self.resource_group,
-                                                                     rule_name=self.rule_name)
+                                                                     rule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Scheduled Query Rule instance.')
             self.fail("Error deleting the Scheduled Query Rule instance: {0}".format(str(e)))
@@ -320,11 +323,11 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
 
         :return: deserialized Scheduled Query Rule instance state dictionary
         '''
-        self.log("Checking if the Scheduled Query Rule instance {0} is present".format(self.rule_name))
+        self.log("Checking if the Scheduled Query Rule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.scheduled_query_rules.get(resource_group_name=self.resource_group,
-                                                                  rule_name=self.rule_name)
+                                                                  rule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Scheduled Query Rule instance : {0} found".format(response.name))
@@ -340,6 +343,38 @@ class AzureRMScheduledQueryRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

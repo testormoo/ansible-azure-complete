@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
         required: True
-    access_policy_name:
+    name:
         description:
             - The name of the Time Series Insights access policy associated with the specified environment.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_timeseriesinsightsaccesspolicy_facts:
       resource_group: resource_group_name
       environment_name: environment_name
-      access_policy_name: access_policy_name
+      name: access_policy_name
 
   - name: List instances of Access Policy
     azure_rm_timeseriesinsightsaccesspolicy_facts:
@@ -110,7 +110,7 @@ class AzureRMAccessPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            access_policy_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -121,7 +121,7 @@ class AzureRMAccessPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.environment_name = None
-        self.access_policy_name = None
+        self.name = None
         super(AzureRMAccessPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -130,7 +130,7 @@ class AzureRMAccessPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.access_policy_name is not None:
+        if self.name is not None:
             self.results['access_policies'] = self.get()
         else:
             self.results['access_policies'] = self.list_by_environment()
@@ -142,7 +142,7 @@ class AzureRMAccessPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.access_policies.get(resource_group_name=self.resource_group,
                                                             environment_name=self.environment_name,
-                                                            access_policy_name=self.access_policy_name)
+                                                            access_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AccessPolicies.')

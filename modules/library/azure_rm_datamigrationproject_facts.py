@@ -30,7 +30,7 @@ options:
         description:
             - Name of the service
         required: True
-    project_name:
+    name:
         description:
             - Name of the project
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datamigrationproject_facts:
       group_name: group_name
       service_name: service_name
-      project_name: project_name
+      name: project_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            project_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -125,7 +125,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.group_name = None
         self.service_name = None
-        self.project_name = None
+        self.name = None
         self.tags = None
         super(AzureRMProjectsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -144,7 +144,7 @@ class AzureRMProjectsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.projects.get(group_name=self.group_name,
                                                      service_name=self.service_name,
-                                                     project_name=self.project_name)
+                                                     project_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Projects.')

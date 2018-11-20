@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    policy_name:
+    name:
         description:
             - The name of the resource group.
         required: True
@@ -64,11 +64,11 @@ options:
                     priority:
                         description:
                             - Describes priority of the rule. Rules with a lower value will be evaluated before rules with a higher value
-                        required: True
+                            - Required when C(state) is I(present).
                     rule_type:
                         description:
                             - Describes type of rule.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'match_rule'
                             - 'rate_limit_rule'
@@ -81,13 +81,13 @@ options:
                     match_conditions:
                         description:
                             - List of match conditions
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             match_variable:
                                 description:
                                     - Match Variable.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'remote_addr'
                                     - 'request_method'
@@ -102,7 +102,7 @@ options:
                             operator:
                                 description:
                                     - Describes operator to be matched.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'any'
                                     - 'ip_match'
@@ -121,12 +121,12 @@ options:
                             match_value:
                                 description:
                                     - Match value
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                     action:
                         description:
                             - Type of Actions.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'allow'
                             - 'block'
@@ -153,10 +153,7 @@ options:
                     rule_set_type:
                         description:
                             - Constant filled by server.
-                        required: True
-    etag:
-        description:
-            - Gets a unique read-only string that changes whenever the resource is updated.
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Policy.
@@ -179,8 +176,26 @@ EXAMPLES = '''
   - name: Create (or update) Policy
     azure_rm_frontdoorpolicy:
       resource_group: rg1
-      policy_name: Policy1
+      name: Policy1
       location: eastus
+      custom_rules:
+        rules:
+          - name: Rule1
+            priority: 1
+            rule_type: RateLimitRule
+            rate_limit_threshold: 1000
+            match_conditions:
+              - match_variable: RemoteAddr
+                operator: IPMatch
+                match_value:
+                  - [
+  "192.168.1.0/24",
+  "10.0.0.0/24"
+]
+            action: Block
+      managed_rules:
+        rule_sets:
+          - priority: 1
 '''
 
 RETURN = '''
@@ -219,7 +234,7 @@ class AzureRMPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -235,9 +250,6 @@ class AzureRMPolicies(AzureRMModuleBase):
             managed_rules=dict(
                 type='dict'
             ),
-            etag=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -246,7 +258,7 @@ class AzureRMPolicies(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -284,10 +296,7 @@ class AzureRMPolicies(AzureRMModuleBase):
                     self.parameters["custom_rules"] = kwargs[key]
                 elif key == "managed_rules":
                     self.parameters["managed_rules"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
@@ -311,8 +320,8 @@ class AzureRMPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Policy instance")
@@ -323,10 +332,7 @@ class AzureRMPolicies(AzureRMModuleBase):
 
             response = self.create_update_policy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Policy instance deleted")
@@ -355,11 +361,11 @@ class AzureRMPolicies(AzureRMModuleBase):
 
         :return: deserialized Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Policy instance {0}".format(self.policy_name))
+        self.log("Creating / Updating the Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.policies.create_or_update(resource_group_name=self.resource_group,
-                                                                  policy_name=self.policy_name,
+                                                                  policy_name=self.name,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -375,10 +381,10 @@ class AzureRMPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Policy instance {0}".format(self.policy_name))
+        self.log("Deleting the Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.policies.delete(resource_group_name=self.resource_group,
-                                                        policy_name=self.policy_name)
+                                                        policy_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Policy instance.')
             self.fail("Error deleting the Policy instance: {0}".format(str(e)))
@@ -391,11 +397,11 @@ class AzureRMPolicies(AzureRMModuleBase):
 
         :return: deserialized Policy instance state dictionary
         '''
-        self.log("Checking if the Policy instance {0} is present".format(self.policy_name))
+        self.log("Checking if the Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.policies.get(resource_group_name=self.resource_group,
-                                                     policy_name=self.policy_name)
+                                                     policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Policy instance : {0} found".format(response.name))
@@ -411,6 +417,38 @@ class AzureRMPolicies(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

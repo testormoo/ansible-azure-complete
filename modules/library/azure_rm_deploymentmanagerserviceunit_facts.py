@@ -34,7 +34,7 @@ options:
         description:
             - The name of the service resource.
         required: True
-    service_unit_name:
+    name:
         description:
             - The name of the service unit resource.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       service_topology_name: service_topology_name
       service_name: service_name
-      service_unit_name: service_unit_name
+      name: service_unit_name
 '''
 
 RETURN = '''
@@ -126,7 +126,7 @@ class AzureRMServiceUnitsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_unit_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,7 +142,7 @@ class AzureRMServiceUnitsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.service_topology_name = None
         self.service_name = None
-        self.service_unit_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServiceUnitsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -162,7 +162,7 @@ class AzureRMServiceUnitsFacts(AzureRMModuleBase):
             response = self.mgmt_client.service_units.get(resource_group_name=self.resource_group,
                                                           service_topology_name=self.service_topology_name,
                                                           service_name=self.service_name,
-                                                          service_unit_name=self.service_unit_name)
+                                                          service_unit_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceUnits.')

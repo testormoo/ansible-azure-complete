@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    agreement_name:
+    name:
         description:
             - The integration account agreement name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountagreement_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      agreement_name: agreement_name
+      name: agreement_name
 '''
 
 RETURN = '''
@@ -117,7 +117,7 @@ class AzureRMIntegrationAccountAgreementsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            agreement_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -132,7 +132,7 @@ class AzureRMIntegrationAccountAgreementsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.agreement_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountAgreementsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMIntegrationAccountAgreementsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_agreements.get(resource_group_name=self.resource_group,
                                                                            integration_account_name=self.integration_account_name,
-                                                                           agreement_name=self.agreement_name)
+                                                                           agreement_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountAgreements.')

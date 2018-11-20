@@ -33,7 +33,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -52,13 +52,13 @@ EXAMPLES = '''
       device_name: device_name
       chap_user_name: chap_user_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Chap Setting
     azure_rm_storsimplechapsetting_facts:
       device_name: device_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -124,7 +124,7 @@ class AzureRMChapSettingsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -137,7 +137,7 @@ class AzureRMChapSettingsFacts(AzureRMModuleBase):
         self.device_name = None
         self.chap_user_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMChapSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -159,7 +159,7 @@ class AzureRMChapSettingsFacts(AzureRMModuleBase):
             response = self.mgmt_client.chap_settings.get(device_name=self.device_name,
                                                           chap_user_name=self.chap_user_name,
                                                           resource_group_name=self.resource_group,
-                                                          manager_name=self.manager_name)
+                                                          manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ChapSettings.')
@@ -175,7 +175,7 @@ class AzureRMChapSettingsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.chap_settings.list_by_device(device_name=self.device_name,
                                                                      resource_group_name=self.resource_group,
-                                                                     manager_name=self.manager_name)
+                                                                     manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ChapSettings.')

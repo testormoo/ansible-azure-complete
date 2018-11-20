@@ -29,7 +29,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -47,12 +47,12 @@ EXAMPLES = '''
     azure_rm_storsimplestorageaccountcredential_facts:
       credential_name: credential_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Storage Account Credential
     azure_rm_storsimplestorageaccountcredential_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -110,7 +110,7 @@ class AzureRMStorageAccountCredentialsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -122,7 +122,7 @@ class AzureRMStorageAccountCredentialsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.credential_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMStorageAccountCredentialsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMStorageAccountCredentialsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.storage_account_credentials.get(credential_name=self.credential_name,
                                                                         resource_group_name=self.resource_group,
-                                                                        manager_name=self.manager_name)
+                                                                        manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StorageAccountCredentials.')
@@ -158,7 +158,7 @@ class AzureRMStorageAccountCredentialsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.storage_account_credentials.list_by_manager(resource_group_name=self.resource_group,
-                                                                                    manager_name=self.manager_name)
+                                                                                    manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StorageAccountCredentials.')

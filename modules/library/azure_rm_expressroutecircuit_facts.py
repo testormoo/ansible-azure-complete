@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    circuit_name:
+    name:
         description:
             - The name of express route circuit.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Express Route Circuit
     azure_rm_expressroutecircuit_facts:
       resource_group: resource_group_name
-      circuit_name: circuit_name
+      name: circuit_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMExpressRouteCircuitsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            circuit_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -102,7 +102,7 @@ class AzureRMExpressRouteCircuitsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.circuit_name = None
+        self.name = None
         self.tags = None
         super(AzureRMExpressRouteCircuitsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMExpressRouteCircuitsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.express_route_circuits.get(resource_group_name=self.resource_group,
-                                                                   circuit_name=self.circuit_name)
+                                                                   circuit_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ExpressRouteCircuits.')

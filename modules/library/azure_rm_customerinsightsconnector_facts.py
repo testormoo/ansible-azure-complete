@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    connector_name:
+    name:
         description:
             - The name of the connector.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsconnector_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      connector_name: connector_name
+      name: connector_name
 
   - name: List instances of Connector
     azure_rm_customerinsightsconnector_facts:
@@ -111,7 +111,7 @@ class AzureRMConnectorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connector_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -122,7 +122,7 @@ class AzureRMConnectorsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.connector_name = None
+        self.name = None
         super(AzureRMConnectorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMConnectorsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.connector_name is not None:
+        if self.name is not None:
             self.results['connectors'] = self.get()
         else:
             self.results['connectors'] = self.list_by_hub()
@@ -143,7 +143,7 @@ class AzureRMConnectorsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.connectors.get(resource_group_name=self.resource_group,
                                                        hub_name=self.hub_name,
-                                                       connector_name=self.connector_name)
+                                                       connector_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Connectors.')

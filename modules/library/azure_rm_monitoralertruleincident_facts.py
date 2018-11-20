@@ -30,7 +30,7 @@ options:
         description:
             - The name of the rule.
         required: True
-    incident_name:
+    name:
         description:
             - The name of the incident to retrieve.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_monitoralertruleincident_facts:
       resource_group: resource_group_name
       rule_name: rule_name
-      incident_name: incident_name
+      name: incident_name
 
   - name: List instances of Alert Rule Incident
     azure_rm_monitoralertruleincident_facts:
@@ -92,7 +92,7 @@ class AzureRMAlertRuleIncidentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            incident_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -103,7 +103,7 @@ class AzureRMAlertRuleIncidentsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.rule_name = None
-        self.incident_name = None
+        self.name = None
         super(AzureRMAlertRuleIncidentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -112,7 +112,7 @@ class AzureRMAlertRuleIncidentsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.incident_name is not None:
+        if self.name is not None:
             self.results['alert_rule_incidents'] = self.get()
         else:
             self.results['alert_rule_incidents'] = self.list_by_alert_rule()
@@ -124,7 +124,7 @@ class AzureRMAlertRuleIncidentsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.alert_rule_incidents.get(resource_group_name=self.resource_group,
                                                                  rule_name=self.rule_name,
-                                                                 incident_name=self.incident_name)
+                                                                 incident_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AlertRuleIncidents.')

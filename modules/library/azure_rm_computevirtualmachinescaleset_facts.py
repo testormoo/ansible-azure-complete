@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    vm_scale_set_name:
+    name:
         description:
             - The name of the VM scale set.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Virtual Machine Scale Set
     azure_rm_computevirtualmachinescaleset_facts:
       resource_group: resource_group_name
-      vm_scale_set_name: vm_scale_set_name
+      name: vm_scale_set_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMVirtualMachineScaleSetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_scale_set_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -102,7 +102,7 @@ class AzureRMVirtualMachineScaleSetsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.vm_scale_set_name = None
+        self.name = None
         self.tags = None
         super(AzureRMVirtualMachineScaleSetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMVirtualMachineScaleSetsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.virtual_machine_scale_sets.get(resource_group_name=self.resource_group,
-                                                                       vm_scale_set_name=self.vm_scale_set_name)
+                                                                       vm_scale_set_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualMachineScaleSets.')

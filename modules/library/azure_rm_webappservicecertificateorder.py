@@ -36,7 +36,7 @@ options:
     location:
         description:
             - Resource Location.
-        required: True
+            - Required when C(state) is I(present).
     certificates:
         description:
             - State of the Key Vault secret.
@@ -137,8 +137,7 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
                 type='str'
             ),
             location=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             certificates=dict(
                 type='dict'
@@ -172,7 +171,7 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
 
         self.resource_group = None
         self.certificate_order_name = None
-        self.certificate_distinguished_name = dict()
+        self.name = dict()
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -191,25 +190,24 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
                 if key == "kind":
-                    self.certificate_distinguished_name["kind"] = kwargs[key]
+                    self.name["kind"] = kwargs[key]
                 elif key == "location":
-                    self.certificate_distinguished_name["location"] = kwargs[key]
+                    self.name["location"] = kwargs[key]
                 elif key == "certificates":
-                    self.certificate_distinguished_name["certificates"] = kwargs[key]
+                    self.name["certificates"] = kwargs[key]
                 elif key == "distinguished_name":
-                    self.certificate_distinguished_name["distinguished_name"] = kwargs[key]
+                    self.name["distinguished_name"] = kwargs[key]
                 elif key == "validity_in_years":
-                    self.certificate_distinguished_name["validity_in_years"] = kwargs[key]
+                    self.name["validity_in_years"] = kwargs[key]
                 elif key == "key_size":
-                    self.certificate_distinguished_name["key_size"] = kwargs[key]
+                    self.name["key_size"] = kwargs[key]
                 elif key == "product_type":
-                    self.certificate_distinguished_name["product_type"] = _snake_to_camel(kwargs[key], True)
+                    self.name["product_type"] = _snake_to_camel(kwargs[key], True)
                 elif key == "auto_renew":
-                    self.certificate_distinguished_name["auto_renew"] = kwargs[key]
+                    self.name["auto_renew"] = kwargs[key]
                 elif key == "csr":
-                    self.certificate_distinguished_name["csr"] = kwargs[key]
+                    self.name["csr"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(WebSiteManagementClient,
@@ -230,8 +228,8 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if App Service Certificate Order instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the App Service Certificate Order instance")
@@ -242,10 +240,7 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
 
             response = self.create_update_appservicecertificateorder()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("App Service Certificate Order instance deleted")
@@ -279,7 +274,7 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
         try:
             response = self.mgmt_client.app_service_certificate_orders.create_or_update(resource_group_name=self.resource_group,
                                                                                         certificate_order_name=self.certificate_order_name,
-                                                                                        certificate_distinguished_name=self.certificate_distinguished_name)
+                                                                                        certificate_distinguished_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -331,6 +326,38 @@ class AzureRMAppServiceCertificateOrders(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

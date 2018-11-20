@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -40,11 +40,11 @@ options:
     display_name:
         description:
             - Unique name of Property. It may contain only letters, digits, period, dash, and underscore characters.
-        required: True
+            - Required when C(state) is I(present).
     value:
         description:
             - Value of the property. Can contain policy expressions. It may not be empty or consist only of whitespace.
-        required: True
+            - Required when C(state) is I(present).
     if_match:
         description:
             - ETag of the Entity. Not required when creating an entity, but required when updating an entity.
@@ -69,8 +69,11 @@ EXAMPLES = '''
   - name: Create (or update) Property
     azure_rm_apimanagementproperty:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       prop_id: testprop2
+      secret: True
+      display_name: prop3name
+      value: propValue
       if_match: NOT FOUND
 '''
 
@@ -104,7 +107,7 @@ class AzureRMProperty(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -116,12 +119,10 @@ class AzureRMProperty(AzureRMModuleBase):
                 type='str'
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             value=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             if_match=dict(
                 type='str'
@@ -134,7 +135,7 @@ class AzureRMProperty(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.prop_id = None
         self.parameters = dict()
         self.if_match = None
@@ -162,7 +163,6 @@ class AzureRMProperty(AzureRMModuleBase):
                 elif key == "value":
                     self.parameters["value"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -183,8 +183,8 @@ class AzureRMProperty(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Property instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Property instance")
@@ -195,10 +195,7 @@ class AzureRMProperty(AzureRMModuleBase):
 
             response = self.create_update_property()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Property instance deleted")
@@ -231,7 +228,7 @@ class AzureRMProperty(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.property.create_or_update(resource_group_name=self.resource_group,
-                                                                  service_name=self.service_name,
+                                                                  service_name=self.name,
                                                                   prop_id=self.prop_id,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -251,7 +248,7 @@ class AzureRMProperty(AzureRMModuleBase):
         self.log("Deleting the Property instance {0}".format(self.prop_id))
         try:
             response = self.mgmt_client.property.delete(resource_group_name=self.resource_group,
-                                                        service_name=self.service_name,
+                                                        service_name=self.name,
                                                         prop_id=self.prop_id,
                                                         if_match=self.if_match)
         except CloudError as e:
@@ -270,7 +267,7 @@ class AzureRMProperty(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.property.get(resource_group_name=self.resource_group,
-                                                     service_name=self.service_name,
+                                                     service_name=self.name,
                                                      prop_id=self.prop_id)
             found = True
             self.log("Response : {0}".format(response))
@@ -286,6 +283,38 @@ class AzureRMProperty(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

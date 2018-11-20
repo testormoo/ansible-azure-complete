@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    assignment_name:
+    name:
         description:
             - The name of the role assignment.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightsroleassignment_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      assignment_name: assignment_name
+      name: assignment_name
 
   - name: List instances of Role Assignment
     azure_rm_customerinsightsroleassignment_facts:
@@ -112,7 +112,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            assignment_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -123,7 +123,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.assignment_name = None
+        self.name = None
         super(AzureRMRoleAssignmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -132,7 +132,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.assignment_name is not None:
+        if self.name is not None:
             self.results['role_assignments'] = self.get()
         else:
             self.results['role_assignments'] = self.list_by_hub()
@@ -144,7 +144,7 @@ class AzureRMRoleAssignmentsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.role_assignments.get(resource_group_name=self.resource_group,
                                                              hub_name=self.hub_name,
-                                                             assignment_name=self.assignment_name)
+                                                             assignment_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RoleAssignments.')

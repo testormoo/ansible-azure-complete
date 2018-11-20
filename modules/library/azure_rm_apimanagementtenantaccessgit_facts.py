@@ -30,7 +30,7 @@ options:
         description:
             - The name of the API Management service.
         required: True
-    access_name:
+    name:
         description:
             - The identifier of the Access configuration.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_apimanagementtenantaccessgit_facts:
       resource_group: resource_group_name
       service_name: service_name
-      access_name: access_name
+      name: access_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMTenantAccessGitFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            access_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -106,7 +106,7 @@ class AzureRMTenantAccessGitFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.service_name = None
-        self.access_name = None
+        self.name = None
         super(AzureRMTenantAccessGitFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,7 +124,7 @@ class AzureRMTenantAccessGitFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.tenant_access_git.get(resource_group_name=self.resource_group,
                                                               service_name=self.service_name,
-                                                              access_name=self.access_name)
+                                                              access_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for TenantAccessGit.')

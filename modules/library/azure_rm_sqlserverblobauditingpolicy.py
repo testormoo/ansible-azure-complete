@@ -30,14 +30,14 @@ options:
         description:
             - The name of the server.
         required: True
-    blob_auditing_policy_name:
+    name:
         description:
             - The name of the blob auditing policy.
         required: True
     state:
         description:
-            - Specifies the state of the policy. If state is C(enabled), I(storage_endpoint) or I(is_azure_monitor_target_enabled) are required.
-        required: True
+            - Specifies the state of the policy. If state is C(enabled), I(storage_endpoint) and I(storage_account_access_key) are required.
+            - Required when C(state) is I(present).
         choices:
             - 'enabled'
             - 'disabled'
@@ -46,11 +46,10 @@ options:
             - "Specifies the blob storage endpoint (e.g. https://MyAccount.blob.core.windows.net). If I(state) is C(enabled), storageEndpoint is required."
     storage_account_access_key:
         description:
-            - "Specifies the identifier key of the auditing storage account. If I(state) is C(enabled) and I(storage_endpoint) is specified,
-               storageAccountAccessKey is required."
+            - Specifies the identifier key of the auditing storage account. If I(state) is C(enabled), storageAccountAccessKey is required.
     retention_days:
         description:
-            - Specifies the number of days to keep in the audit logs in the storage account.
+            - Specifies the number of days to keep in the audit logs.
     audit_actions_and_groups:
         description:
             - "Specifies the Actions-Groups and Actions to audit.\n"
@@ -114,19 +113,6 @@ options:
     is_storage_secondary_key_in_use:
         description:
             - "Specifies whether I(storage_account_access_key) value is the storage's secondary key."
-    is_azure_monitor_target_enabled:
-        description:
-            - "Specifies whether audit events are sent to Azure Monitor. \n"
-            - "In order to send the events to Azure Monitor, specify 'I(state)' as 'C(enabled)' and 'IsAzureMonitorTargetEnabled' as true.\n"
-            - "When using REST API to configure auditing, Diagnostic Settings with 'SQLSecurityAuditEvents' diagnostic logs category on the database should
-               be also created.\n"
-            - "Note that for server level audit you should use the 'master' database as <databaseName>.\n"
-            - "Diagnostic Settings URI format:\n"
-            - "PUT
-               https://management.azure.com/subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.Sql/servers/<I(server_name)>/d
-              atabases/<databaseName>/providers/microsoft.insights/diagnosticSettings/<settingsName>?api-version=2017-05-01-preview\n"
-            - "For more information, see [Diagnostic Settings REST API](https://go.microsoft.com/fwlink/?linkid=2033207)\n"
-            - "or [Diagnostic Settings PowerShell](https://go.microsoft.com/fwlink/?linkid=2033043)\n"
     state:
       description:
         - Assert the state of the Server Blob Auditing Policy.
@@ -149,7 +135,19 @@ EXAMPLES = '''
     azure_rm_sqlserverblobauditingpolicy:
       resource_group: blobauditingtest-4799
       server_name: blobauditingtest-6440
-      blob_auditing_policy_name: default
+      name: default
+      state: Enabled
+      storage_endpoint: https://mystorage.blob.core.windows.net
+      storage_account_access_key: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+      retention_days: 6
+      audit_actions_and_groups:
+        - [
+  "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",
+  "FAILED_DATABASE_AUTHENTICATION_GROUP",
+  "BATCH_COMPLETED_GROUP"
+]
+      storage_account_subscription_id: 00000000-1234-0000-5678-000000000000
+      is_storage_secondary_key_in_use: False
 '''
 
 RETURN = '''
@@ -162,7 +160,7 @@ id:
             uditingSettings/default"
 state:
     description:
-        - "Specifies the state of the policy. If state is Enabled, storageEndpoint or isAzureMonitorTargetEnabled are required. Possible values include:
+        - "Specifies the state of the policy. If state is Enabled, storageEndpoint and storageAccountAccessKey are required. Possible values include:
            'Enabled', 'Disabled'"
     returned: always
     type: str
@@ -200,15 +198,14 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            blob_auditing_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             state=dict(
                 type='str',
                 choices=['enabled',
-                         'disabled'],
-                required=True
+                         'disabled']
             ),
             storage_endpoint=dict(
                 type='str'
@@ -228,9 +225,6 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
             is_storage_secondary_key_in_use=dict(
                 type='str'
             ),
-            is_azure_monitor_target_enabled=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -240,7 +234,7 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.server_name = None
-        self.blob_auditing_policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -273,10 +267,7 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
                     self.parameters["storage_account_subscription_id"] = kwargs[key]
                 elif key == "is_storage_secondary_key_in_use":
                     self.parameters["is_storage_secondary_key_in_use"] = kwargs[key]
-                elif key == "is_azure_monitor_target_enabled":
-                    self.parameters["is_azure_monitor_target_enabled"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -297,8 +288,8 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Server Blob Auditing Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Server Blob Auditing Policy instance")
@@ -309,10 +300,7 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
 
             response = self.create_update_serverblobauditingpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Server Blob Auditing Policy instance deleted")
@@ -341,12 +329,12 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
 
         :return: deserialized Server Blob Auditing Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Server Blob Auditing Policy instance {0}".format(self.blob_auditing_policy_name))
+        self.log("Creating / Updating the Server Blob Auditing Policy instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.server_blob_auditing_policies.create_or_update(resource_group_name=self.resource_group,
                                                                                        server_name=self.server_name,
-                                                                                       blob_auditing_policy_name=self.blob_auditing_policy_name,
+                                                                                       blob_auditing_policy_name=self.name,
                                                                                        parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -362,7 +350,7 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Server Blob Auditing Policy instance {0}".format(self.blob_auditing_policy_name))
+        self.log("Deleting the Server Blob Auditing Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.server_blob_auditing_policies.delete()
         except CloudError as e:
@@ -377,12 +365,12 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
 
         :return: deserialized Server Blob Auditing Policy instance state dictionary
         '''
-        self.log("Checking if the Server Blob Auditing Policy instance {0} is present".format(self.blob_auditing_policy_name))
+        self.log("Checking if the Server Blob Auditing Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.server_blob_auditing_policies.get(resource_group_name=self.resource_group,
                                                                           server_name=self.server_name,
-                                                                          blob_auditing_policy_name=self.blob_auditing_policy_name)
+                                                                          blob_auditing_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Server Blob Auditing Policy instance : {0} found".format(response.name))
@@ -399,6 +387,38 @@ class AzureRMServerBlobAuditingPolicies(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

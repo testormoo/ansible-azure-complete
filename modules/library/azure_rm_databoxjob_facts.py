@@ -26,7 +26,7 @@ options:
         description:
             - The Resource Group Name
         required: True
-    job_name:
+    name:
         description:
             - "The name of the job Resource within the specified resource group. job names must be between 3 and 24 characters in length and use any
                alphanumeric and underscore only"
@@ -52,7 +52,7 @@ EXAMPLES = '''
   - name: Get instance of Job
     azure_rm_databoxjob_facts:
       resource_group: resource_group_name
-      job_name: job_name
+      name: job_name
       expand: expand
 
   - name: List instances of Job
@@ -135,7 +135,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -154,7 +154,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.expand = None
         self.skip_token = None
         self.tags = None
@@ -166,7 +166,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataBoxManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.job_name is not None:
+        if self.name is not None:
             self.results['jobs'] = self.get()
         else:
             self.results['jobs'] = self.list_by_resource_group()
@@ -177,7 +177,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.jobs.get(resource_group_name=self.resource_group,
-                                                 job_name=self.job_name)
+                                                 job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Jobs.')

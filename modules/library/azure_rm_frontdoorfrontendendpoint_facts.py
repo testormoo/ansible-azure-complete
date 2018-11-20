@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Front Door which is globally unique.
         required: True
-    frontend_endpoint_name:
+    name:
         description:
             - Name of the Frontend endpoint which is unique within the Front Door.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_frontdoorfrontendendpoint_facts:
       resource_group: resource_group_name
       front_door_name: front_door_name
-      frontend_endpoint_name: frontend_endpoint_name
+      name: frontend_endpoint_name
 
   - name: List instances of Frontend Endpoint
     azure_rm_frontdoorfrontendendpoint_facts:
@@ -98,7 +98,7 @@ class AzureRMFrontendEndpointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            frontend_endpoint_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMFrontendEndpointsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.front_door_name = None
-        self.frontend_endpoint_name = None
+        self.name = None
         super(AzureRMFrontendEndpointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMFrontendEndpointsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.frontend_endpoint_name is not None:
+        if self.name is not None:
             self.results['frontend_endpoints'] = self.get()
         else:
             self.results['frontend_endpoints'] = self.list_by_front_door()
@@ -130,7 +130,7 @@ class AzureRMFrontendEndpointsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.frontend_endpoints.get(resource_group_name=self.resource_group,
                                                                front_door_name=self.front_door_name,
-                                                               frontend_endpoint_name=self.frontend_endpoint_name)
+                                                               frontend_endpoint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FrontendEndpoints.')

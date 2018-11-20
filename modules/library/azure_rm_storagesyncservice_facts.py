@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group. The name is case insensitive.
-    storage_sync_service_name:
+    name:
         description:
             - Name of Storage Sync Service resource.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Storage Sync Service
     azure_rm_storagesyncservice_facts:
       resource_group: resource_group_name
-      storage_sync_service_name: storage_sync_service_name
+      name: storage_sync_service_name
 
   - name: List instances of Storage Sync Service
     azure_rm_storagesyncservice_facts:
@@ -106,7 +106,7 @@ class AzureRMStorageSyncServicesFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            storage_sync_service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -119,7 +119,7 @@ class AzureRMStorageSyncServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.storage_sync_service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMStorageSyncServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -130,7 +130,7 @@ class AzureRMStorageSyncServicesFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.storage_sync_service_name is not None):
+                self.name is not None):
             self.results['storage_sync_services'] = self.get()
         elif self.resource_group is not None:
             self.results['storage_sync_services'] = self.list_by_resource_group()
@@ -143,7 +143,7 @@ class AzureRMStorageSyncServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.storage_sync_services.get(resource_group_name=self.resource_group,
-                                                                  storage_sync_service_name=self.storage_sync_service_name)
+                                                                  storage_sync_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StorageSyncServices.')

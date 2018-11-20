@@ -34,7 +34,7 @@ options:
     self.config.resource_name:
         description:
             - Parent resource name.
-    management_association_name:
+    name:
         description:
             - User ManagementAssociation Name.
 
@@ -53,7 +53,7 @@ EXAMPLES = '''
       self.config.provider_name: self.config.provider_name
       self.config.resource_type: self.config.resource_type
       self.config.resource_name: self.config.resource_name
-      management_association_name: management_association_name
+      name: management_association_name
 
   - name: List instances of Management Association
     azure_rm_operationsmanagementmanagementassociation_facts:
@@ -120,7 +120,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
             self.config.resource_name=dict(
                 type='str'
             ),
-            management_association_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -133,7 +133,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
         self.self.config.provider_name = None
         self.self.config.resource_type = None
         self.self.config.resource_name = None
-        self.management_association_name = None
+        self.name = None
         super(AzureRMManagementAssociationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -146,7 +146,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
                 self.self.config.provider_name is not None and
                 self.self.config.resource_type is not None and
                 self.self.config.resource_name is not None and
-                self.management_association_name is not None):
+                self.name is not None):
             self.results['management_associations'] = self.get()
         else:
             self.results['management_associations'] = self.list_by_subscription()
@@ -160,7 +160,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
                                                                     self.config.provider_name=self.self.config.provider_name,
                                                                     self.config.resource_type=self.self.config.resource_type,
                                                                     self.config.resource_name=self.self.config.resource_name,
-                                                                    management_association_name=self.management_association_name)
+                                                                    management_association_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagementAssociations.')

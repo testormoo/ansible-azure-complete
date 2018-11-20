@@ -30,7 +30,7 @@ options:
             location:
                 description:
                     - The Geo location of the Manager
-                required: True
+                    - Required when C(state) is I(present).
             cis_intrinsic_settings:
                 description:
                     - Specifies if the Manager is Garda or Helsinki
@@ -38,7 +38,7 @@ options:
                     type:
                         description:
                             - Refers to the type of the StorSimple Manager.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'garda_v1'
                             - 'helsinki_v1'
@@ -49,15 +49,12 @@ options:
                     name:
                         description:
                             - "Refers to the sku name which should be 'Standard'"
-                        required: True
-            etag:
-                description:
-                    - ETag of the Manager
+                            - Required when C(state) is I(present).
     resource_group:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The I(manager) name
         required: True
@@ -84,8 +81,12 @@ EXAMPLES = '''
     azure_rm_storsimplemanager:
       manager:
         location: westus
+        cis_intrinsic_settings:
+          type: HelsinkiV1
+        sku:
+          name: Standard
       resource_group: ResourceGroupForSDKTest
-      manager_name: hManagerForSDKTest
+      name: hManagerForSDKTest
 '''
 
 RETURN = '''
@@ -129,7 +130,7 @@ class AzureRMManagers(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,7 +143,7 @@ class AzureRMManagers(AzureRMModuleBase):
 
         self.manager = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -172,10 +173,7 @@ class AzureRMManagers(AzureRMModuleBase):
                     self.manager["cis_intrinsic_settings"] = ev
                 elif key == "sku":
                     self.manager["sku"] = kwargs[key]
-                elif key == "etag":
-                    self.manager["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -196,8 +194,8 @@ class AzureRMManagers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Manager instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Manager instance")
@@ -208,10 +206,7 @@ class AzureRMManagers(AzureRMModuleBase):
 
             response = self.create_update_manager()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Manager instance deleted")
@@ -240,12 +235,12 @@ class AzureRMManagers(AzureRMModuleBase):
 
         :return: deserialized Manager instance state dictionary
         '''
-        self.log("Creating / Updating the Manager instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Manager instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.managers.create_or_update(manager=self.manager,
                                                                   resource_group_name=self.resource_group,
-                                                                  manager_name=self.manager_name)
+                                                                  manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -260,10 +255,10 @@ class AzureRMManagers(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Manager instance {0}".format(self.manager_name))
+        self.log("Deleting the Manager instance {0}".format(self.name))
         try:
             response = self.mgmt_client.managers.delete(resource_group_name=self.resource_group,
-                                                        manager_name=self.manager_name)
+                                                        manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Manager instance.')
             self.fail("Error deleting the Manager instance: {0}".format(str(e)))
@@ -276,11 +271,11 @@ class AzureRMManagers(AzureRMModuleBase):
 
         :return: deserialized Manager instance state dictionary
         '''
-        self.log("Checking if the Manager instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Manager instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.managers.get(resource_group_name=self.resource_group,
-                                                     manager_name=self.manager_name)
+                                                     manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Manager instance : {0} found".format(response.name))
@@ -296,6 +291,38 @@ class AzureRMManagers(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

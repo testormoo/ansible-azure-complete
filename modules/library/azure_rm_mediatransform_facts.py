@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    transform_name:
+    name:
         description:
             - The Transform name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_mediatransform_facts:
       resource_group: resource_group_name
       account_name: account_name
-      transform_name: transform_name
+      name: transform_name
 '''
 
 RETURN = '''
@@ -114,7 +114,7 @@ class AzureRMTransformsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            transform_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -126,7 +126,7 @@ class AzureRMTransformsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.transform_name = None
+        self.name = None
         super(AzureRMTransformsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -144,7 +144,7 @@ class AzureRMTransformsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.transforms.get(resource_group_name=self.resource_group,
                                                        account_name=self.account_name,
-                                                       transform_name=self.transform_name)
+                                                       transform_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Transforms.')

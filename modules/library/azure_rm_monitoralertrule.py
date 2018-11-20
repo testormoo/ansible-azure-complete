@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    rule_name:
+    name:
         description:
             - The name of the rule.
         required: True
@@ -36,18 +36,18 @@ options:
     alert_rule_resource_name:
         description:
             - the name of the alert rule.
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - the description of the alert rule that will be included in the alert email.
     is_enabled:
         description:
             - the flag that indicates whether the alert rule is enabled.
-        required: True
+            - Required when C(state) is I(present).
     condition:
         description:
             - the condition that results in the alert rule being activated.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             data_source:
                 description:
@@ -59,11 +59,11 @@ options:
                     odatatype:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
             odatatype:
                 description:
                     - Constant filled by server.
-                required: True
+                    - Required when C(state) is I(present).
     actions:
         description:
             - the array of actions that are performed when the alert rule becomes active, and when an alert I(condition) is resolved.
@@ -72,7 +72,7 @@ options:
             odatatype:
                 description:
                     - Constant filled by server.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Alert Rule.
@@ -95,8 +95,14 @@ EXAMPLES = '''
   - name: Create (or update) Alert Rule
     azure_rm_monitoralertrule:
       resource_group: Rac46PostSwapRG
-      rule_name: chiricutin
+      name: chiricutin
       location: eastus
+      alert_rule_resource_name: chiricutin
+      description: Pura Vida
+      is_enabled: True
+      condition:
+        data_source:
+          resource_uri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/Rac46PostSwapRG/providers/Microsoft.Web/sites/leoalerttest
 '''
 
 RETURN = '''
@@ -135,7 +141,7 @@ class AzureRMAlertRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -143,19 +149,16 @@ class AzureRMAlertRules(AzureRMModuleBase):
                 type='str'
             ),
             alert_rule_resource_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
             ),
             is_enabled=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             condition=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             actions=dict(
                 type='list'
@@ -168,7 +171,7 @@ class AzureRMAlertRules(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -200,7 +203,6 @@ class AzureRMAlertRules(AzureRMModuleBase):
                 elif key == "actions":
                     self.parameters["actions"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
@@ -224,8 +226,8 @@ class AzureRMAlertRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Alert Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Alert Rule instance")
@@ -236,10 +238,7 @@ class AzureRMAlertRules(AzureRMModuleBase):
 
             response = self.create_update_alertrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Alert Rule instance deleted")
@@ -268,11 +267,11 @@ class AzureRMAlertRules(AzureRMModuleBase):
 
         :return: deserialized Alert Rule instance state dictionary
         '''
-        self.log("Creating / Updating the Alert Rule instance {0}".format(self.rule_name))
+        self.log("Creating / Updating the Alert Rule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.alert_rules.create_or_update(resource_group_name=self.resource_group,
-                                                                     rule_name=self.rule_name,
+                                                                     rule_name=self.name,
                                                                      parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -288,10 +287,10 @@ class AzureRMAlertRules(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Alert Rule instance {0}".format(self.rule_name))
+        self.log("Deleting the Alert Rule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.alert_rules.delete(resource_group_name=self.resource_group,
-                                                           rule_name=self.rule_name)
+                                                           rule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Alert Rule instance.')
             self.fail("Error deleting the Alert Rule instance: {0}".format(str(e)))
@@ -304,11 +303,11 @@ class AzureRMAlertRules(AzureRMModuleBase):
 
         :return: deserialized Alert Rule instance state dictionary
         '''
-        self.log("Checking if the Alert Rule instance {0} is present".format(self.rule_name))
+        self.log("Checking if the Alert Rule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.alert_rules.get(resource_group_name=self.resource_group,
-                                                        rule_name=self.rule_name)
+                                                        rule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Alert Rule instance : {0} found".format(response.name))
@@ -324,6 +323,38 @@ class AzureRMAlertRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the virtual network.
         required: True
-    subnet_name:
+    name:
         description:
             - The name of the subnet.
         required: True
@@ -65,7 +65,7 @@ options:
                         description:
                             - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*) C(*)valuesC(*)
                                C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'tcp'
                             - 'udp'
@@ -136,7 +136,7 @@ options:
                         description:
                             - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*)
                                C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'allow'
                             - 'deny'
@@ -152,23 +152,15 @@ options:
                             - "C(*)TheC(*) C(*)directionC(*) C(*)ofC(*) C(*)theC(*) C(*)ruleC(*). C(*)TheC(*) C(*)directionC(*) C(*)specifiesC(*) C(*)ifC(*)
                                C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*)
                                C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'inbound'
                             - 'outbound'
-                    provisioning_state:
-                        description:
-                            - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*).
-                               C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
                     name:
                         description:
                             - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*) C(*)withinC(*)
                                C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*) C(*)usedC(*) C(*)toC(*)
                                C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                    etag:
-                        description:
-                            - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*) C(*)theC(*)
-                               C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
             default_security_rules:
                 description:
                     - The default security rules of network security group.
@@ -184,7 +176,7 @@ options:
                         description:
                             - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*) C(*)valuesC(*)
                                C(*)areC(*) 'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'tcp'
                             - 'udp'
@@ -255,7 +247,7 @@ options:
                         description:
                             - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*)
                                C(*)valuesC(*) C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'allow'
                             - 'deny'
@@ -271,32 +263,18 @@ options:
                             - "C(*)TheC(*) C(*)directionC(*) C(*)ofC(*) C(*)theC(*) C(*)ruleC(*). C(*)TheC(*) C(*)directionC(*) C(*)specifiesC(*) C(*)ifC(*)
                                C(*)ruleC(*) C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*)
                                C(*)trafficC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'inbound'
                             - 'outbound'
-                    provisioning_state:
-                        description:
-                            - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*).
-                               C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
                     name:
                         description:
                             - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*) C(*)withinC(*)
                                C(*)aC(*) C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*) C(*)usedC(*) C(*)toC(*)
                                C(*)IC(*)(C(*)accessC(*)) C(*)theC(*) C(*)resourceC(*)."
-                    etag:
-                        description:
-                            - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*) C(*)theC(*)
-                               C(*)resourceC(*) C(*)isC(*) C(*)updatedC(*)."
             resource_guid:
                 description:
                     - The resource GUID property of the network security group resource.
-            provisioning_state:
-                description:
-                    - "The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-            etag:
-                description:
-                    - A unique read-only string that changes whenever the resource is updated.
     route_table:
         description:
             - The reference of the RouteTable resource.
@@ -322,7 +300,7 @@ options:
                         description:
                             - "The type of Azure hop the packet should be sent to. Possible values are: 'C(virtual_network_gateway)', 'C(vnet_local)',
                                'C(internet)', 'C(virtual_appliance)', and 'C(none)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'virtual_network_gateway'
                             - 'vnet_local'
@@ -333,24 +311,12 @@ options:
                         description:
                             - "The IP address packets should be forwarded to. Next hop values are only allowed in routes where the next hop type is
                                C(virtual_appliance)."
-                    provisioning_state:
-                        description:
-                            - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                     name:
                         description:
                             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-                    etag:
-                        description:
-                            - A unique read-only string that changes whenever the resource is updated.
             disable_bgp_route_propagation:
                 description:
                     - Gets or sets whether to disable the I(routes) learned by BGP on that route table. True means disable.
-            provisioning_state:
-                description:
-                    - "The provisioning state of the resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
-            etag:
-                description:
-                    - Gets a unique read-only string that changes whenever the resource is updated.
     service_endpoints:
         description:
             - An array of service endpoints.
@@ -363,9 +329,6 @@ options:
                 description:
                     - A list of locations.
                 type: list
-            provisioning_state:
-                description:
-                    - The provisioning state of the resource.
     resource_navigation_links:
         description:
             - Gets an array of references to the external resources using subnet.
@@ -383,15 +346,9 @@ options:
             name:
                 description:
                     - Name of the resource that is unique within a resource group. This name can be used to access the resource.
-    provisioning_state:
-        description:
-            - The provisioning state of the resource.
     name:
         description:
             - The name of the resource that is unique within a resource group. This name can be used to access the resource.
-    etag:
-        description:
-            - A unique read-only string that changes whenever the resource is updated.
     state:
       description:
         - Assert the state of the Subnet.
@@ -414,7 +371,8 @@ EXAMPLES = '''
     azure_rm_subnet:
       resource_group: subnet-test
       virtual_network_name: vnetname
-      subnet_name: subnet1
+      name: subnet1
+      address_prefix: 10.0.0.0/16
 '''
 
 RETURN = '''
@@ -457,7 +415,7 @@ class AzureRMSubnets(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            subnet_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -479,13 +437,7 @@ class AzureRMSubnets(AzureRMModuleBase):
             resource_navigation_links=dict(
                 type='list'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
             name=dict(
-                type='str'
-            ),
-            etag=dict(
                 type='str'
             ),
             state=dict(
@@ -497,7 +449,7 @@ class AzureRMSubnets(AzureRMModuleBase):
 
         self.resource_group = None
         self.virtual_network_name = None
-        self.subnet_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -528,14 +480,9 @@ class AzureRMSubnets(AzureRMModuleBase):
                     self.parameters["service_endpoints"] = kwargs[key]
                 elif key == "resource_navigation_links":
                     self.parameters["resource_navigation_links"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -556,8 +503,8 @@ class AzureRMSubnets(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Subnet instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Subnet instance")
@@ -568,10 +515,7 @@ class AzureRMSubnets(AzureRMModuleBase):
 
             response = self.create_update_subnet()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Subnet instance deleted")
@@ -600,12 +544,12 @@ class AzureRMSubnets(AzureRMModuleBase):
 
         :return: deserialized Subnet instance state dictionary
         '''
-        self.log("Creating / Updating the Subnet instance {0}".format(self.subnet_name))
+        self.log("Creating / Updating the Subnet instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.subnets.create_or_update(resource_group_name=self.resource_group,
                                                                  virtual_network_name=self.virtual_network_name,
-                                                                 subnet_name=self.subnet_name,
+                                                                 subnet_name=self.name,
                                                                  subnet_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -621,11 +565,11 @@ class AzureRMSubnets(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Subnet instance {0}".format(self.subnet_name))
+        self.log("Deleting the Subnet instance {0}".format(self.name))
         try:
             response = self.mgmt_client.subnets.delete(resource_group_name=self.resource_group,
                                                        virtual_network_name=self.virtual_network_name,
-                                                       subnet_name=self.subnet_name)
+                                                       subnet_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Subnet instance.')
             self.fail("Error deleting the Subnet instance: {0}".format(str(e)))
@@ -638,12 +582,12 @@ class AzureRMSubnets(AzureRMModuleBase):
 
         :return: deserialized Subnet instance state dictionary
         '''
-        self.log("Checking if the Subnet instance {0} is present".format(self.subnet_name))
+        self.log("Checking if the Subnet instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.subnets.get(resource_group_name=self.resource_group,
                                                     virtual_network_name=self.virtual_network_name,
-                                                    subnet_name=self.subnet_name)
+                                                    subnet_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Subnet instance : {0} found".format(response.name))
@@ -659,6 +603,38 @@ class AzureRMSubnets(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

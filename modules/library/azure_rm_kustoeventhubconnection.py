@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database in the Kusto cluster.
         required: True
-    event_hub_connection_name:
+    name:
         description:
             - The name of the event hub connection.
         required: True
@@ -44,11 +44,11 @@ options:
     event_hub_resource_id:
         description:
             - The resource ID of the event hub to be used to create a data connection.
-        required: True
+            - Required when C(state) is I(present).
     consumer_group:
         description:
             - The event hub consumer group.
-        required: True
+            - Required when C(state) is I(present).
     table_name:
         description:
             - The table where the data should be ingested. Optionally the table information can be added to each message.
@@ -85,8 +85,10 @@ EXAMPLES = '''
       resource_group: kustorptest
       cluster_name: KustoClusterRPTest4
       database_name: KustoDatabase8
-      event_hub_connection_name: kustoeventhubconnection1
+      name: kustoeventhubconnection1
       location: eastus
+      event_hub_resource_id: /subscriptions/12345678-1234-1234-1234-123456789098/resourceGroups/kustorptest/providers/Microsoft.EventHub/namespaces/eventhubTestns1/eventhubs/eventhubTest1
+      consumer_group: testConsumerGroup1
 '''
 
 RETURN = '''
@@ -135,7 +137,7 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_hub_connection_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -143,12 +145,10 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
                 type='str'
             ),
             event_hub_resource_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             consumer_group=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             table_name=dict(
                 type='str'
@@ -172,7 +172,7 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
         self.resource_group = None
         self.cluster_name = None
         self.database_name = None
-        self.event_hub_connection_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -211,7 +211,6 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
                         ev = 'CSV'
                     self.parameters["data_format"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(KustoManagementClient,
@@ -235,8 +234,8 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Event Hub Connection instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Event Hub Connection instance")
@@ -247,10 +246,7 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
 
             response = self.create_update_eventhubconnection()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Event Hub Connection instance deleted")
@@ -279,13 +275,13 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
 
         :return: deserialized Event Hub Connection instance state dictionary
         '''
-        self.log("Creating / Updating the Event Hub Connection instance {0}".format(self.event_hub_connection_name))
+        self.log("Creating / Updating the Event Hub Connection instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.event_hub_connections.create_or_update(resource_group_name=self.resource_group,
                                                                                cluster_name=self.cluster_name,
                                                                                database_name=self.database_name,
-                                                                               event_hub_connection_name=self.event_hub_connection_name,
+                                                                               event_hub_connection_name=self.name,
                                                                                parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -301,12 +297,12 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Event Hub Connection instance {0}".format(self.event_hub_connection_name))
+        self.log("Deleting the Event Hub Connection instance {0}".format(self.name))
         try:
             response = self.mgmt_client.event_hub_connections.delete(resource_group_name=self.resource_group,
                                                                      cluster_name=self.cluster_name,
                                                                      database_name=self.database_name,
-                                                                     event_hub_connection_name=self.event_hub_connection_name)
+                                                                     event_hub_connection_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Event Hub Connection instance.')
             self.fail("Error deleting the Event Hub Connection instance: {0}".format(str(e)))
@@ -319,13 +315,13 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
 
         :return: deserialized Event Hub Connection instance state dictionary
         '''
-        self.log("Checking if the Event Hub Connection instance {0} is present".format(self.event_hub_connection_name))
+        self.log("Checking if the Event Hub Connection instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.event_hub_connections.get(resource_group_name=self.resource_group,
                                                                   cluster_name=self.cluster_name,
                                                                   database_name=self.database_name,
-                                                                  event_hub_connection_name=self.event_hub_connection_name)
+                                                                  event_hub_connection_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Event Hub Connection instance : {0} found".format(response.name))
@@ -341,6 +337,38 @@ class AzureRMEventHubConnections(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    streaming_endpoint_name:
+    name:
         description:
             - The name of the StreamingEndpoint.
         required: True
@@ -46,7 +46,7 @@ options:
     scale_units:
         description:
             - The number of scale units.  Use the Scale operation to adjust this value.
-        required: True
+            - Required when C(state) is I(present).
     availability_set_name:
         description:
             - The name of the AvailabilitySet used with this StreamingEndpoint for high availability streaming.  This value can only be set at creation time.
@@ -139,9 +139,23 @@ EXAMPLES = '''
     azure_rm_mediastreamingendpoint:
       resource_group: mediaresources
       account_name: slitestmedia10
-      streaming_endpoint_name: myStreamingEndpoint1
+      name: myStreamingEndpoint1
       auto_start: NOT FOUND
       location: eastus
+      description: test event 1
+      scale_units: 1
+      availability_set_name: availableset
+      access_control:
+        akamai:
+          akamai_signature_header_authentication_key_list:
+            - identifier: id1
+              base64_key: dGVzdGlkMQ==
+              expiration: 2030-01-01T00:00:00+00:00
+        ip:
+          allow:
+            - name: AllowedIp
+              address: 192.168.1.1
+      cdn_enabled: False
 '''
 
 RETURN = '''
@@ -185,7 +199,7 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            streaming_endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -199,8 +213,7 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
                 type='str'
             ),
             scale_units=dict(
-                type='int',
-                required=True
+                type='int'
             ),
             availability_set_name=dict(
                 type='str'
@@ -235,7 +248,7 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
 
         self.resource_group = None
         self.account_name = None
-        self.streaming_endpoint_name = None
+        self.name = None
         self.auto_start = None
         self.parameters = dict()
 
@@ -278,7 +291,6 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
                 elif key == "cross_site_access_policies":
                     self.parameters["cross_site_access_policies"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMediaServices,
@@ -302,8 +314,8 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Streaming Endpoint instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Streaming Endpoint instance")
@@ -314,10 +326,7 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
 
             response = self.create_update_streamingendpoint()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Streaming Endpoint instance deleted")
@@ -346,18 +355,18 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
 
         :return: deserialized Streaming Endpoint instance state dictionary
         '''
-        self.log("Creating / Updating the Streaming Endpoint instance {0}".format(self.streaming_endpoint_name))
+        self.log("Creating / Updating the Streaming Endpoint instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.streaming_endpoints.create(resource_group_name=self.resource_group,
                                                                        account_name=self.account_name,
-                                                                       streaming_endpoint_name=self.streaming_endpoint_name,
+                                                                       streaming_endpoint_name=self.name,
                                                                        parameters=self.parameters)
             else:
                 response = self.mgmt_client.streaming_endpoints.update(resource_group_name=self.resource_group,
                                                                        account_name=self.account_name,
-                                                                       streaming_endpoint_name=self.streaming_endpoint_name,
+                                                                       streaming_endpoint_name=self.name,
                                                                        parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -373,11 +382,11 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Streaming Endpoint instance {0}".format(self.streaming_endpoint_name))
+        self.log("Deleting the Streaming Endpoint instance {0}".format(self.name))
         try:
             response = self.mgmt_client.streaming_endpoints.delete(resource_group_name=self.resource_group,
                                                                    account_name=self.account_name,
-                                                                   streaming_endpoint_name=self.streaming_endpoint_name)
+                                                                   streaming_endpoint_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Streaming Endpoint instance.')
             self.fail("Error deleting the Streaming Endpoint instance: {0}".format(str(e)))
@@ -390,12 +399,12 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
 
         :return: deserialized Streaming Endpoint instance state dictionary
         '''
-        self.log("Checking if the Streaming Endpoint instance {0} is present".format(self.streaming_endpoint_name))
+        self.log("Checking if the Streaming Endpoint instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.streaming_endpoints.get(resource_group_name=self.resource_group,
                                                                 account_name=self.account_name,
-                                                                streaming_endpoint_name=self.streaming_endpoint_name)
+                                                                streaming_endpoint_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Streaming Endpoint instance : {0} found".format(response.name))
@@ -411,6 +420,38 @@ class AzureRMStreamingEndpoints(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

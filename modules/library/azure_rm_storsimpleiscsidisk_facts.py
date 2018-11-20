@@ -36,7 +36,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -56,20 +56,20 @@ EXAMPLES = '''
       iscsi_server_name: iscsi_server_name
       disk_name: disk_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Iscsi Disk
     azure_rm_storsimpleiscsidisk_facts:
       device_name: device_name
       iscsi_server_name: iscsi_server_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Iscsi Disk
     azure_rm_storsimpleiscsidisk_facts:
       device_name: device_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -128,7 +128,7 @@ class AzureRMIscsiDisksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -142,7 +142,7 @@ class AzureRMIscsiDisksFacts(AzureRMModuleBase):
         self.iscsi_server_name = None
         self.disk_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMIscsiDisksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -168,7 +168,7 @@ class AzureRMIscsiDisksFacts(AzureRMModuleBase):
                                                         iscsi_server_name=self.iscsi_server_name,
                                                         disk_name=self.disk_name,
                                                         resource_group_name=self.resource_group,
-                                                        manager_name=self.manager_name)
+                                                        manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiDisks.')
@@ -185,7 +185,7 @@ class AzureRMIscsiDisksFacts(AzureRMModuleBase):
             response = self.mgmt_client.iscsi_disks.list_by_iscsi_server(device_name=self.device_name,
                                                                          iscsi_server_name=self.iscsi_server_name,
                                                                          resource_group_name=self.resource_group,
-                                                                         manager_name=self.manager_name)
+                                                                         manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiDisks.')
@@ -202,7 +202,7 @@ class AzureRMIscsiDisksFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.iscsi_disks.list_by_device(device_name=self.device_name,
                                                                    resource_group_name=self.resource_group,
-                                                                   manager_name=self.manager_name)
+                                                                   manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiDisks.')

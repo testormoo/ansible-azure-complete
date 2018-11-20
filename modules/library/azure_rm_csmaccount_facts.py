@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group within the Azure subscription.
         required: True
-    resource_name:
+    name:
         description:
             - Name of the resource.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Account
     azure_rm_csmaccount_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
 
   - name: List instances of Account
     azure_rm_csmaccount_facts:
@@ -109,7 +109,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -122,7 +122,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(VisualStudioResourceProviderClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.resource_name is not None:
+        if self.name is not None:
             self.results['accounts'] = self.get()
         else:
             self.results['accounts'] = self.list_by_resource_group()
@@ -143,7 +143,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.accounts.get(resource_group_name=self.resource_group,
-                                                     resource_name=self.resource_name)
+                                                     resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Accounts.')

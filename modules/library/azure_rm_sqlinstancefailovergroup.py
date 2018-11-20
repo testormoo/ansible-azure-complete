@@ -30,20 +30,20 @@ options:
         description:
             - The name of the region where the resource is located.
         required: True
-    failover_group_name:
+    name:
         description:
             - The name of the failover group.
         required: True
     read_write_endpoint:
         description:
             - Read-write endpoint of the failover group instance.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             failover_policy:
                 description:
                     - "Failover policy of the read-write endpoint for the failover group. If failoverPolicy is C(automatic) then
                        I(failover_with_data_loss_grace_period_minutes) is required."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'manual'
                     - 'automatic'
@@ -64,7 +64,7 @@ options:
     partner_regions:
         description:
             - Partner region information for the failover group.
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             location:
@@ -73,7 +73,7 @@ options:
     managed_instance_pairs:
         description:
             - List of managed instance pairs in the failover group.
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             primary_managed_instance_id:
@@ -104,7 +104,17 @@ EXAMPLES = '''
     azure_rm_sqlinstancefailovergroup:
       resource_group: Default
       location_name: Japan East
-      failover_group_name: failover-group-test-3
+      name: failover-group-test-3
+      read_write_endpoint:
+        failover_policy: Automatic
+        failover_with_data_loss_grace_period_minutes: 480
+      read_only_endpoint:
+        failover_policy: Disabled
+      partner_regions:
+        - location: Japan West
+      managed_instance_pairs:
+        - primary_managed_instance_id: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/managedInstances/failover-group-primary-mngdInstance
+          partner_managed_instance_id: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/managedInstances/failover-group-secondary-mngdInstance
 '''
 
 RETURN = '''
@@ -148,24 +158,21 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            failover_group_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             read_write_endpoint=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             read_only_endpoint=dict(
                 type='dict'
             ),
             partner_regions=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             managed_instance_pairs=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             state=dict(
                 type='str',
@@ -176,7 +183,7 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
 
         self.resource_group = None
         self.location_name = None
-        self.failover_group_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -216,7 +223,6 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
                 elif key == "managed_instance_pairs":
                     self.parameters["managed_instance_pairs"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -237,8 +243,8 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Instance Failover Group instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Instance Failover Group instance")
@@ -249,10 +255,7 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
 
             response = self.create_update_instancefailovergroup()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Instance Failover Group instance deleted")
@@ -281,12 +284,12 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
 
         :return: deserialized Instance Failover Group instance state dictionary
         '''
-        self.log("Creating / Updating the Instance Failover Group instance {0}".format(self.failover_group_name))
+        self.log("Creating / Updating the Instance Failover Group instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.instance_failover_groups.create_or_update(resource_group_name=self.resource_group,
                                                                                   location_name=self.location_name,
-                                                                                  failover_group_name=self.failover_group_name,
+                                                                                  failover_group_name=self.name,
                                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -302,11 +305,11 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Instance Failover Group instance {0}".format(self.failover_group_name))
+        self.log("Deleting the Instance Failover Group instance {0}".format(self.name))
         try:
             response = self.mgmt_client.instance_failover_groups.delete(resource_group_name=self.resource_group,
                                                                         location_name=self.location_name,
-                                                                        failover_group_name=self.failover_group_name)
+                                                                        failover_group_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Instance Failover Group instance.')
             self.fail("Error deleting the Instance Failover Group instance: {0}".format(str(e)))
@@ -319,12 +322,12 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
 
         :return: deserialized Instance Failover Group instance state dictionary
         '''
-        self.log("Checking if the Instance Failover Group instance {0} is present".format(self.failover_group_name))
+        self.log("Checking if the Instance Failover Group instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.instance_failover_groups.get(resource_group_name=self.resource_group,
                                                                      location_name=self.location_name,
-                                                                     failover_group_name=self.failover_group_name)
+                                                                     failover_group_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Instance Failover Group instance : {0} found".format(response.name))
@@ -340,6 +343,38 @@ class AzureRMInstanceFailoverGroups(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

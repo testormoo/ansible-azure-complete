@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Azure Migrate project.
         required: True
-    group_name:
+    name:
         description:
             - Unique name of a group within a project.
     self.config.accept_language:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_migrategroup_facts:
       resource_group: resource_group_name
       project_name: project_name
-      group_name: group_name
+      name: group_name
       self.config.accept_language: self.config.accept_language
 
   - name: List instances of Group
@@ -125,7 +125,7 @@ class AzureRMGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            group_name=dict(
+            name=dict(
                 type='str'
             ),
             self.config.accept_language=dict(
@@ -139,7 +139,7 @@ class AzureRMGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.project_name = None
-        self.group_name = None
+        self.name = None
         self.self.config.accept_language = None
         super(AzureRMGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -149,7 +149,7 @@ class AzureRMGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AzureMigrate,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.group_name is not None:
+        if self.name is not None:
             self.results['groups'] = self.get()
         else:
             self.results['groups'] = self.list_by_project()
@@ -161,7 +161,7 @@ class AzureRMGroupsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.groups.get(resource_group_name=self.resource_group,
                                                    project_name=self.project_name,
-                                                   group_name=self.group_name)
+                                                   group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Groups.')

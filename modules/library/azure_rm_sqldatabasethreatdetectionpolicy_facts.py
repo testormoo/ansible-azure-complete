@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database for which database Threat Detection policy is defined.
         required: True
-    security_alert_policy_name:
+    name:
         description:
             - The name of the security alert policy.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      security_alert_policy_name: security_alert_policy_name
+      name: security_alert_policy_name
 '''
 
 RETURN = '''
@@ -123,7 +123,7 @@ class AzureRMDatabaseThreatDetectionPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            security_alert_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -136,7 +136,7 @@ class AzureRMDatabaseThreatDetectionPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.security_alert_policy_name = None
+        self.name = None
         super(AzureRMDatabaseThreatDetectionPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -155,7 +155,7 @@ class AzureRMDatabaseThreatDetectionPoliciesFacts(AzureRMModuleBase):
             response = self.mgmt_client.database_threat_detection_policies.get(resource_group_name=self.resource_group,
                                                                                server_name=self.server_name,
                                                                                database_name=self.database_name,
-                                                                               security_alert_policy_name=self.security_alert_policy_name)
+                                                                               security_alert_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DatabaseThreatDetectionPolicies.')

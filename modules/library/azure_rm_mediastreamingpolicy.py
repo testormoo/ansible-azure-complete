@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    streaming_policy_name:
+    name:
         description:
             - The Streaming Policy name.
         required: True
@@ -48,19 +48,19 @@ options:
                     download:
                         description:
                             - Enable Download protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     dash:
                         description:
                             - Enable DASH protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     hls:
                         description:
                             - Enable HLS protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     smooth_streaming:
                         description:
                             - Enable SmoothStreaming protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
             clear_tracks:
                 description:
                     - Representing which tracks should not be encrypted
@@ -74,14 +74,14 @@ options:
                             property:
                                 description:
                                     - Track property type.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'four_cc'
                             operation:
                                 description:
                                     - Track I(property) condition operation.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'equal'
@@ -136,19 +136,19 @@ options:
                     download:
                         description:
                             - Enable Download protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     dash:
                         description:
                             - Enable DASH protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     hls:
                         description:
                             - Enable HLS protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     smooth_streaming:
                         description:
                             - Enable SmoothStreaming protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
             clear_tracks:
                 description:
                     - Representing which tracks should not be encrypted
@@ -162,14 +162,14 @@ options:
                             property:
                                 description:
                                     - Track property type.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'four_cc'
                             operation:
                                 description:
                                     - Track I(property) condition operation.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'equal'
@@ -244,19 +244,19 @@ options:
                     download:
                         description:
                             - Enable Download protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     dash:
                         description:
                             - Enable DASH protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     hls:
                         description:
                             - Enable HLS protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     smooth_streaming:
                         description:
                             - Enable SmoothStreaming protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
             clear_tracks:
                 description:
                     - Representing which tracks should not be encrypted
@@ -270,14 +270,14 @@ options:
                             property:
                                 description:
                                     - Track property type.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'four_cc'
                             operation:
                                 description:
                                     - Track I(property) condition operation.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'unknown'
                                     - 'equal'
@@ -333,7 +333,7 @@ options:
                             allow_persistent_license:
                                 description:
                                     - All license to be persistent or not
-                                required: True
+                                    - Required when C(state) is I(present).
                     play_ready:
                         description:
                             - PlayReady configurations
@@ -364,19 +364,19 @@ options:
                     download:
                         description:
                             - Enable Download protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     dash:
                         description:
                             - Enable DASH protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     hls:
                         description:
                             - Enable HLS protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
                     smooth_streaming:
                         description:
                             - Enable SmoothStreaming protocol or not
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Streaming Policy.
@@ -399,7 +399,13 @@ EXAMPLES = '''
     azure_rm_mediastreamingpolicy:
       resource_group: contoso
       account_name: contosomedia
-      streaming_policy_name: UserCreatedClearStreamingPolicy
+      name: UserCreatedClearStreamingPolicy
+      no_encryption:
+        enabled_protocols:
+          download: True
+          dash: True
+          hls: True
+          smooth_streaming: True
 '''
 
 RETURN = '''
@@ -442,7 +448,7 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            streaming_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -470,7 +476,7 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
 
         self.resource_group = None
         self.account_name = None
-        self.streaming_policy_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -500,7 +506,6 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
                 elif key == "no_encryption":
                     self.parameters["no_encryption"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMediaServices,
@@ -521,8 +526,8 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Streaming Policy instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Streaming Policy instance")
@@ -533,10 +538,7 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
 
             response = self.create_update_streamingpolicy()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Streaming Policy instance deleted")
@@ -565,13 +567,13 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
 
         :return: deserialized Streaming Policy instance state dictionary
         '''
-        self.log("Creating / Updating the Streaming Policy instance {0}".format(self.streaming_policy_name))
+        self.log("Creating / Updating the Streaming Policy instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.streaming_policies.create(resource_group_name=self.resource_group,
                                                                       account_name=self.account_name,
-                                                                      streaming_policy_name=self.streaming_policy_name,
+                                                                      streaming_policy_name=self.name,
                                                                       parameters=self.parameters)
             else:
                 response = self.mgmt_client.streaming_policies.update()
@@ -589,11 +591,11 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Streaming Policy instance {0}".format(self.streaming_policy_name))
+        self.log("Deleting the Streaming Policy instance {0}".format(self.name))
         try:
             response = self.mgmt_client.streaming_policies.delete(resource_group_name=self.resource_group,
                                                                   account_name=self.account_name,
-                                                                  streaming_policy_name=self.streaming_policy_name)
+                                                                  streaming_policy_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Streaming Policy instance.')
             self.fail("Error deleting the Streaming Policy instance: {0}".format(str(e)))
@@ -606,12 +608,12 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
 
         :return: deserialized Streaming Policy instance state dictionary
         '''
-        self.log("Checking if the Streaming Policy instance {0} is present".format(self.streaming_policy_name))
+        self.log("Checking if the Streaming Policy instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.streaming_policies.get(resource_group_name=self.resource_group,
                                                                account_name=self.account_name,
-                                                               streaming_policy_name=self.streaming_policy_name)
+                                                               streaming_policy_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Streaming Policy instance : {0} found".format(response.name))
@@ -627,6 +629,38 @@ class AzureRMStreamingPolicies(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

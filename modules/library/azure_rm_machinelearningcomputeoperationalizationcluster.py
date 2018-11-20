@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group in which the cluster is located.
         required: True
-    cluster_name:
+    name:
         description:
             - The name of the cluster.
         required: True
@@ -39,7 +39,7 @@ options:
     cluster_type:
         description:
             - The cluster type.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'acs'
             - 'local'
@@ -66,7 +66,7 @@ options:
             orchestrator_type:
                 description:
                     - Type of orchestrator. It cannot be changed once the cluster is created.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'kubernetes'
                     - 'none'
@@ -81,12 +81,12 @@ options:
                             client_id:
                                 description:
                                     - The service principal client ID
-                                required: True
+                                    - Required when C(state) is I(present).
                             secret:
                                 description:
                                     - "The service principal secret. This is not returned in response of GET/PUT on the resource. To see this please call
                                        listKeys."
-                                required: True
+                                    - Required when C(state) is I(present).
             system_services:
                 description:
                     - The system services deployed to the cluster
@@ -95,7 +95,7 @@ options:
                     system_service_type:
                         description:
                             - The system service type.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'scoring_front_end'
@@ -172,9 +172,6 @@ options:
             additional_properties:
                 description:
                     - Unmatched properties from the message are deserialized this collection
-            etag:
-                description:
-                    - The configuartion ETag for updates.
             ssl:
                 description:
                     - The SSL configuration properties
@@ -201,11 +198,11 @@ options:
                     primary_auth_key_hash:
                         description:
                             - The primary auth key hash. This is not returned in response of GET/PUT on the resource.. To see this please call listKeys API.
-                        required: True
+                            - Required when C(state) is I(present).
                     secondary_auth_key_hash:
                         description:
                             - The secondary auth key hash. This is not returned in response of GET/PUT on the resource.. To see this please call listKeys API.
-                        required: True
+                            - Required when C(state) is I(present).
             auto_scale:
                 description:
                     - The auto-scale configuration
@@ -250,8 +247,22 @@ EXAMPLES = '''
   - name: Create (or update) Operationalization Cluster
     azure_rm_machinelearningcomputeoperationalizationcluster:
       resource_group: myResourceGroup
-      cluster_name: myCluster
+      name: myCluster
       location: eastus
+      description: My Operationalization Cluster
+      cluster_type: ACS
+      container_service:
+        orchestrator_type: Kubernetes
+        orchestrator_properties:
+          service_principal:
+            client_id: abcdefghijklmnopqrt
+            secret: uiuiwueiwuewiue
+      global_service_configuration:
+        ssl:
+          status: Enabled
+          cert: afjdklq2131casfakld=
+          key: flksdafkldsajf=
+          cname: foo.bar.com
 '''
 
 RETURN = '''
@@ -291,7 +302,7 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -304,8 +315,7 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
             cluster_type=dict(
                 type='str',
                 choices=['acs',
-                         'local'],
-                required=True
+                         'local']
             ),
             storage_account=dict(
                 type='dict'
@@ -330,7 +340,7 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -470,7 +480,6 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
                 elif key == "global_service_configuration":
                     self.parameters["global_service_configuration"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MachineLearningComputeManagementClient,
@@ -494,8 +503,8 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Operationalization Cluster instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Operationalization Cluster instance")
@@ -506,10 +515,7 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
 
             response = self.create_update_operationalizationcluster()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Operationalization Cluster instance deleted")
@@ -538,11 +544,11 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
 
         :return: deserialized Operationalization Cluster instance state dictionary
         '''
-        self.log("Creating / Updating the Operationalization Cluster instance {0}".format(self.cluster_name))
+        self.log("Creating / Updating the Operationalization Cluster instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.operationalization_clusters.create_or_update(resource_group_name=self.resource_group,
-                                                                                     cluster_name=self.cluster_name,
+                                                                                     cluster_name=self.name,
                                                                                      parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -558,10 +564,10 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Operationalization Cluster instance {0}".format(self.cluster_name))
+        self.log("Deleting the Operationalization Cluster instance {0}".format(self.name))
         try:
             response = self.mgmt_client.operationalization_clusters.delete(resource_group_name=self.resource_group,
-                                                                           cluster_name=self.cluster_name)
+                                                                           cluster_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Operationalization Cluster instance.')
             self.fail("Error deleting the Operationalization Cluster instance: {0}".format(str(e)))
@@ -574,11 +580,11 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
 
         :return: deserialized Operationalization Cluster instance state dictionary
         '''
-        self.log("Checking if the Operationalization Cluster instance {0} is present".format(self.cluster_name))
+        self.log("Checking if the Operationalization Cluster instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.operationalization_clusters.get(resource_group_name=self.resource_group,
-                                                                        cluster_name=self.cluster_name)
+                                                                        cluster_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Operationalization Cluster instance : {0} found".format(response.name))
@@ -594,6 +600,38 @@ class AzureRMOperationalizationClusters(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

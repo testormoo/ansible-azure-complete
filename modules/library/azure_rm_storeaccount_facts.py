@@ -46,7 +46,7 @@ options:
         description:
             - "A Boolean value of true or false to request a count of the matching resources included with the resources in the response, e.g.
                Categories?$count=true. Optional."
-    account_name:
+    name:
         description:
             - The name of the Data Lake Store account.
     tags:
@@ -75,7 +75,7 @@ EXAMPLES = '''
   - name: Get instance of Account
     azure_rm_storeaccount_facts:
       resource_group: resource_group_name
-      account_name: account_name
+      name: account_name
 '''
 
 RETURN = '''
@@ -101,7 +101,7 @@ accounts:
                 - The resource location.
             returned: always
             type: str
-            sample: test_location
+            sample: eastus2
         tags:
             description:
                 - The resource tags.
@@ -172,7 +172,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
             count=dict(
                 type='str'
             ),
-            account_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -191,7 +191,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         self.select = None
         self.orderby = None
         self.count = None
-        self.account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -203,7 +203,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
 
         else:
             self.results['accounts'] = self.list_by_resource_group()
-        elif self.account_name is not None:
+        elif self.name is not None:
             self.results['accounts'] = self.get()
         return self.results
 
@@ -228,7 +228,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.accounts.get(resource_group_name=self.resource_group,
-                                                     account_name=self.account_name)
+                                                     account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Accounts.')

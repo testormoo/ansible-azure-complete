@@ -34,7 +34,7 @@ options:
         description:
             - The identity of the service.
         required: True
-    replica_name:
+    name:
         description:
             - Service Fabric replica name.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       application_resource_name: application_resource_name
       service_resource_name: service_resource_name
-      replica_name: replica_name
+      name: replica_name
 '''
 
 RETURN = '''
@@ -91,7 +91,7 @@ class AzureRMServiceReplicaFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            replica_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -104,7 +104,7 @@ class AzureRMServiceReplicaFacts(AzureRMModuleBase):
         self.resource_group = None
         self.application_resource_name = None
         self.service_resource_name = None
-        self.replica_name = None
+        self.name = None
         super(AzureRMServiceReplicaFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -123,7 +123,7 @@ class AzureRMServiceReplicaFacts(AzureRMModuleBase):
             response = self.mgmt_client.service_replica.get(resource_group_name=self.resource_group,
                                                             application_resource_name=self.application_resource_name,
                                                             service_resource_name=self.service_resource_name,
-                                                            replica_name=self.replica_name)
+                                                            replica_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceReplica.')

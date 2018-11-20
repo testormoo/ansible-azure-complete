@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    managed_instance_name:
+    name:
         description:
             - The name of the managed instance.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Managed Instance
     azure_rm_sqlmanagedinstance_facts:
       resource_group: resource_group_name
-      managed_instance_name: managed_instance_name
+      name: managed_instance_name
 
   - name: List instances of Managed Instance
     azure_rm_sqlmanagedinstance_facts:
@@ -153,7 +153,7 @@ class AzureRMManagedInstancesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            managed_instance_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -166,7 +166,7 @@ class AzureRMManagedInstancesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.managed_instance_name = None
+        self.name = None
         self.tags = None
         super(AzureRMManagedInstancesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -176,7 +176,7 @@ class AzureRMManagedInstancesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.managed_instance_name is not None:
+        if self.name is not None:
             self.results['managed_instances'] = self.get()
         else:
             self.results['managed_instances'] = self.list_by_resource_group()
@@ -187,7 +187,7 @@ class AzureRMManagedInstancesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.managed_instances.get(resource_group_name=self.resource_group,
-                                                              managed_instance_name=self.managed_instance_name)
+                                                              managed_instance_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagedInstances.')

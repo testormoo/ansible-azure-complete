@@ -32,7 +32,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -51,18 +51,18 @@ EXAMPLES = '''
       device_name: device_name
       iscsi_server_name: iscsi_server_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Iscsi Server
     azure_rm_storsimpleiscsiserver_facts:
       device_name: device_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Iscsi Server
     azure_rm_storsimpleiscsiserver_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMIscsiServersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -124,7 +124,7 @@ class AzureRMIscsiServersFacts(AzureRMModuleBase):
         self.device_name = None
         self.iscsi_server_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         super(AzureRMIscsiServersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -149,7 +149,7 @@ class AzureRMIscsiServersFacts(AzureRMModuleBase):
             response = self.mgmt_client.iscsi_servers.get(device_name=self.device_name,
                                                           iscsi_server_name=self.iscsi_server_name,
                                                           resource_group_name=self.resource_group,
-                                                          manager_name=self.manager_name)
+                                                          manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiServers.')
@@ -165,7 +165,7 @@ class AzureRMIscsiServersFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.iscsi_servers.list_by_device(device_name=self.device_name,
                                                                      resource_group_name=self.resource_group,
-                                                                     manager_name=self.manager_name)
+                                                                     manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiServers.')
@@ -181,7 +181,7 @@ class AzureRMIscsiServersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.iscsi_servers.list_by_manager(resource_group_name=self.resource_group,
-                                                                      manager_name=self.manager_name)
+                                                                      manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IscsiServers.')

@@ -31,7 +31,7 @@ options:
             - "The name of the storage account within the specified resource group. Storage account names must be between 3 and 24 characters in length and
                use numbers and lower-case letters only."
         required: True
-    management_policy_name:
+    name:
         description:
             - "The name of the Storage Account Management Policy. It should always be 'default'"
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
     azure_rm_storagemanagementpolicy_facts:
       resource_group: resource_group_name
       account_name: account_name
-      management_policy_name: management_policy_name
+      name: management_policy_name
 '''
 
 RETURN = '''
@@ -109,7 +109,7 @@ class AzureRMManagementPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            management_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -121,7 +121,7 @@ class AzureRMManagementPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.management_policy_name = None
+        self.name = None
         super(AzureRMManagementPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -139,7 +139,7 @@ class AzureRMManagementPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.management_policies.get(resource_group_name=self.resource_group,
                                                                 account_name=self.account_name,
-                                                                management_policy_name=self.management_policy_name)
+                                                                management_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ManagementPolicies.')

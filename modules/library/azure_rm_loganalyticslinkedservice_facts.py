@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Log Analytics Workspace that contains the linkedServices resource
         required: True
-    linked_service_name:
+    name:
         description:
             - Name of the linked service.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_loganalyticslinkedservice_facts:
       resource_group: resource_group_name
       workspace_name: workspace_name
-      linked_service_name: linked_service_name
+      name: linked_service_name
 
   - name: List instances of Linked Service
     azure_rm_loganalyticslinkedservice_facts:
@@ -108,7 +108,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            linked_service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -122,7 +122,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workspace_name = None
-        self.linked_service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMLinkedServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(OperationalInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.linked_service_name is not None:
+        if self.name is not None:
             self.results['linked_services'] = self.get()
         else:
             self.results['linked_services'] = self.list_by_workspace()
@@ -144,7 +144,7 @@ class AzureRMLinkedServicesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.linked_services.get(resource_group_name=self.resource_group,
                                                             workspace_name=self.workspace_name,
-                                                            linked_service_name=self.linked_service_name)
+                                                            linked_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LinkedServices.')

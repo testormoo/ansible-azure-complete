@@ -34,7 +34,7 @@ options:
         description:
             - The name of module.
         required: True
-    activity_name:
+    name:
         description:
             - The name of activity.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       automation_account_name: automation_account_name
       module_name: module_name
-      activity_name: activity_name
+      name: activity_name
 
   - name: List instances of Activity
     azure_rm_automationactivity_facts:
@@ -123,7 +123,7 @@ class AzureRMActivityFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            activity_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -135,7 +135,7 @@ class AzureRMActivityFacts(AzureRMModuleBase):
         self.resource_group = None
         self.automation_account_name = None
         self.module_name = None
-        self.activity_name = None
+        self.name = None
         super(AzureRMActivityFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -144,7 +144,7 @@ class AzureRMActivityFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.activity_name is not None:
+        if self.name is not None:
             self.results['activity'] = self.get()
         else:
             self.results['activity'] = self.list_by_module()
@@ -157,7 +157,7 @@ class AzureRMActivityFacts(AzureRMModuleBase):
             response = self.mgmt_client.activity.get(resource_group_name=self.resource_group,
                                                      automation_account_name=self.automation_account_name,
                                                      module_name=self.module_name,
-                                                     activity_name=self.activity_name)
+                                                     activity_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Activity.')

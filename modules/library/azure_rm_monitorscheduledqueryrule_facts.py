@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    rule_name:
+    name:
         description:
             - The name of the rule.
     filter:
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Scheduled Query Rule
     azure_rm_monitorscheduledqueryrule_facts:
       resource_group: resource_group_name
-      rule_name: rule_name
+      name: rule_name
 
   - name: List instances of Scheduled Query Rule
     azure_rm_monitorscheduledqueryrule_facts:
@@ -151,7 +151,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            rule_name=dict(
+            name=dict(
                 type='str'
             ),
             filter=dict(
@@ -167,7 +167,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.rule_name = None
+        self.name = None
         self.filter = None
         self.tags = None
         super(AzureRMScheduledQueryRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -179,7 +179,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.rule_name is not None):
+                self.name is not None):
             self.results['scheduled_query_rules'] = self.get()
         elif self.resource_group is not None:
             self.results['scheduled_query_rules'] = self.list_by_resource_group()
@@ -192,7 +192,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.scheduled_query_rules.get(resource_group_name=self.resource_group,
-                                                                  rule_name=self.rule_name)
+                                                                  rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ScheduledQueryRules.')

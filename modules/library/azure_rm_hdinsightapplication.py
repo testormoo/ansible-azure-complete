@@ -30,13 +30,10 @@ options:
         description:
             - The name of the cluster.
         required: True
-    application_name:
+    name:
         description:
             - The constant value for the application name.
         required: True
-    etag:
-        description:
-            - The ETag for the application
     compute_profile:
         description:
             - The list of roles in the cluster.
@@ -95,15 +92,15 @@ options:
                             name:
                                 description:
                                     - The name of the script action.
-                                required: True
+                                    - Required when C(state) is I(present).
                             uri:
                                 description:
                                     - The URI to the script.
-                                required: True
+                                    - Required when C(state) is I(present).
                             parameters:
                                 description:
                                     - The parameters for the script provided.
-                                required: True
+                                    - Required when C(state) is I(present).
     install_script_actions:
         description:
             - The list of install script actions.
@@ -112,18 +109,18 @@ options:
             name:
                 description:
                     - The name of the script action.
-                required: True
+                    - Required when C(state) is I(present).
             uri:
                 description:
                     - The URI to the script.
-                required: True
+                    - Required when C(state) is I(present).
             parameters:
                 description:
                     - The parameters for the script
             roles:
                 description:
                     - The list of roles where script will be executed.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
     uninstall_script_actions:
         description:
@@ -133,24 +130,27 @@ options:
             name:
                 description:
                     - The name of the script action.
-                required: True
+                    - Required when C(state) is I(present).
             uri:
                 description:
                     - The URI to the script.
-                required: True
+                    - Required when C(state) is I(present).
             parameters:
                 description:
                     - The parameters for the script
             roles:
                 description:
                     - The list of roles where script will be executed.
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
     https_endpoints:
         description:
             - The list of application HTTPS endpoints.
         type: list
         suboptions:
+            additional_properties:
+                description:
+                    - Unmatched properties from the message are deserialized this collection
             access_modes:
                 description:
                     - The list of access modes for the application.
@@ -192,6 +192,9 @@ options:
             message:
                 description:
                     - The error message.
+    additional_properties:
+        description:
+            - The additional properties for application.
     state:
       description:
         - Assert the state of the Application.
@@ -215,7 +218,27 @@ EXAMPLES = '''
     azure_rm_hdinsightapplication:
       resource_group: rg1
       cluster_name: cluster1
-      application_name: hue
+      name: hue
+      compute_profile:
+        roles:
+          - name: edgenode
+            target_instance_count: 1
+            hardware_profile:
+              vm_size: Standard_D12_v2
+      install_script_actions:
+        - name: app-install-app1
+          uri: https://.../install.sh
+          parameters: -version latest -port 20000
+          roles:
+            - [
+  "edgenode"
+]
+      https_endpoints:
+        - access_modes:
+            - [
+  "WebPage"
+]
+          destination_port: 20000
       application_type: CustomApplication
 '''
 
@@ -259,12 +282,9 @@ class AzureRMApplications(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            application_name=dict(
+            name=dict(
                 type='str',
                 required=True
-            ),
-            etag=dict(
-                type='str'
             ),
             compute_profile=dict(
                 type='dict'
@@ -287,6 +307,9 @@ class AzureRMApplications(AzureRMModuleBase):
             errors=dict(
                 type='list'
             ),
+            additional_properties=dict(
+                type='str'
+            ),
             state=dict(
                 type='str',
                 default='present',
@@ -296,7 +319,7 @@ class AzureRMApplications(AzureRMModuleBase):
 
         self.resource_group = None
         self.cluster_name = None
-        self.application_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -315,9 +338,7 @@ class AzureRMApplications(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "etag":
-                    self.parameters["etag"] = kwargs[key]
-                elif key == "compute_profile":
+                if key == "compute_profile":
                     self.parameters.setdefault("properties", {})["compute_profile"] = kwargs[key]
                 elif key == "install_script_actions":
                     self.parameters.setdefault("properties", {})["install_script_actions"] = kwargs[key]
@@ -331,8 +352,9 @@ class AzureRMApplications(AzureRMModuleBase):
                     self.parameters.setdefault("properties", {})["application_type"] = kwargs[key]
                 elif key == "errors":
                     self.parameters.setdefault("properties", {})["errors"] = kwargs[key]
+                elif key == "additional_properties":
+                    self.parameters.setdefault("properties", {})["additional_properties"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(HDInsightManagementClient,
@@ -353,8 +375,8 @@ class AzureRMApplications(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Application instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Application instance")
@@ -365,10 +387,7 @@ class AzureRMApplications(AzureRMModuleBase):
 
             response = self.create_update_application()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Application instance deleted")
@@ -397,13 +416,13 @@ class AzureRMApplications(AzureRMModuleBase):
 
         :return: deserialized Application instance state dictionary
         '''
-        self.log("Creating / Updating the Application instance {0}".format(self.application_name))
+        self.log("Creating / Updating the Application instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.applications.create(resource_group_name=self.resource_group,
                                                                 cluster_name=self.cluster_name,
-                                                                application_name=self.application_name,
+                                                                application_name=self.name,
                                                                 parameters=self.parameters)
             else:
                 response = self.mgmt_client.applications.update()
@@ -421,11 +440,11 @@ class AzureRMApplications(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Application instance {0}".format(self.application_name))
+        self.log("Deleting the Application instance {0}".format(self.name))
         try:
             response = self.mgmt_client.applications.delete(resource_group_name=self.resource_group,
                                                             cluster_name=self.cluster_name,
-                                                            application_name=self.application_name)
+                                                            application_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Application instance.')
             self.fail("Error deleting the Application instance: {0}".format(str(e)))
@@ -438,12 +457,12 @@ class AzureRMApplications(AzureRMModuleBase):
 
         :return: deserialized Application instance state dictionary
         '''
-        self.log("Checking if the Application instance {0} is present".format(self.application_name))
+        self.log("Checking if the Application instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.applications.get(resource_group_name=self.resource_group,
                                                          cluster_name=self.cluster_name,
-                                                         application_name=self.application_name)
+                                                         application_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Application instance : {0} found".format(response.name))
@@ -459,6 +478,38 @@ class AzureRMApplications(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

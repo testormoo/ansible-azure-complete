@@ -34,7 +34,7 @@ options:
         description:
             - Fabric name associated with the backup item.
         required: True
-    intent_object_name:
+    name:
         description:
             - Intent object name.
         required: True
@@ -78,7 +78,7 @@ options:
     protection_intent_item_type:
         description:
             - Constant filled by server.
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Protection Intent.
@@ -103,7 +103,7 @@ EXAMPLES = '''
       vault_name: myVault
       resource_group: myRG
       fabric_name: Azure
-      intent_object_name: vm;iaasvmcontainerv2;chamsrgtest;chamscandel
+      name: vm;iaasvmcontainerv2;chamsrgtest;chamscandel
       location: eastus
       source_resource_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/chamsrgtest/providers/Microsoft.Compute/virtualMachines/chamscandel
       policy_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRG/providers/Microsoft.RecoveryServices/vaults/myVault/backupPolicies/myPolicy
@@ -154,7 +154,7 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            intent_object_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -194,8 +194,7 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
                          'protection_failed']
             ),
             protection_intent_item_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -207,7 +206,7 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
         self.vault_name = None
         self.resource_group = None
         self.fabric_name = None
-        self.intent_object_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -250,7 +249,6 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
                 elif key == "protection_intent_item_type":
                     self.parameters.setdefault("properties", {})["protection_intent_item_type"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(RecoveryServicesBackupClient,
@@ -274,8 +272,8 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Protection Intent instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Protection Intent instance")
@@ -286,10 +284,7 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
 
             response = self.create_update_protectionintent()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Protection Intent instance deleted")
@@ -318,13 +313,13 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
 
         :return: deserialized Protection Intent instance state dictionary
         '''
-        self.log("Creating / Updating the Protection Intent instance {0}".format(self.intent_object_name))
+        self.log("Creating / Updating the Protection Intent instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.protection_intent.create_or_update(vault_name=self.vault_name,
                                                                            resource_group_name=self.resource_group,
                                                                            fabric_name=self.fabric_name,
-                                                                           intent_object_name=self.intent_object_name,
+                                                                           intent_object_name=self.name,
                                                                            parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -340,12 +335,12 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Protection Intent instance {0}".format(self.intent_object_name))
+        self.log("Deleting the Protection Intent instance {0}".format(self.name))
         try:
             response = self.mgmt_client.protection_intent.delete(vault_name=self.vault_name,
                                                                  resource_group_name=self.resource_group,
                                                                  fabric_name=self.fabric_name,
-                                                                 intent_object_name=self.intent_object_name)
+                                                                 intent_object_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Protection Intent instance.')
             self.fail("Error deleting the Protection Intent instance: {0}".format(str(e)))
@@ -358,13 +353,13 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
 
         :return: deserialized Protection Intent instance state dictionary
         '''
-        self.log("Checking if the Protection Intent instance {0} is present".format(self.intent_object_name))
+        self.log("Checking if the Protection Intent instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.protection_intent.get(vault_name=self.vault_name,
                                                               resource_group_name=self.resource_group,
                                                               fabric_name=self.fabric_name,
-                                                              intent_object_name=self.intent_object_name)
+                                                              intent_object_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Protection Intent instance : {0} found".format(response.name))
@@ -380,6 +375,38 @@ class AzureRMProtectionIntent(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

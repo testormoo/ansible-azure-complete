@@ -30,11 +30,11 @@ options:
         description:
             - The name of the lab.
         required: True
-    user_name:
+    name:
         description:
             - The name of the user profile.
         required: True
-    name:
+    lab_name:
         description:
             - The name of the disk.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
     azure_rm_devtestlabsdisk_facts:
       resource_group: resource_group_name
       lab_name: lab_name
-      user_name: user_name
+      name: user_name
       name: name
       expand: expand
 '''
@@ -106,11 +106,11 @@ class AzureRMDisksFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            user_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
-            name=dict(
+            user_name=dict(
                 type='str',
                 required=True
             ),
@@ -128,8 +128,8 @@ class AzureRMDisksFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.lab_name = None
-        self.user_name = None
         self.name = None
+        self.lab_name = None
         self.expand = None
         self.tags = None
         super(AzureRMDisksFacts, self).__init__(self.module_arg_spec, supports_tags=False)

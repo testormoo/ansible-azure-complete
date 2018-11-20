@@ -35,7 +35,7 @@ options:
     can_fetch_content:
         description:
             - Flag indicating whether or not to return the full content for each applicable workbook. If false, only return summary content for workbooks.
-    resource_name:
+    name:
         description:
             - The name of the Application Insights component resource.
     tags:
@@ -61,7 +61,7 @@ EXAMPLES = '''
   - name: Get instance of Workbook
     azure_rm_applicationinsightsworkbook_facts:
       resource_group: resource_group_name
-      resource_name: resource_name
+      name: resource_name
 '''
 
 RETURN = '''
@@ -142,7 +142,7 @@ class AzureRMWorkbooksFacts(AzureRMModuleBase):
             can_fetch_content=dict(
                 type='str'
             ),
-            resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -158,7 +158,7 @@ class AzureRMWorkbooksFacts(AzureRMModuleBase):
         self.category = None
         self.tags = None
         self.can_fetch_content = None
-        self.resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkbooksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -170,7 +170,7 @@ class AzureRMWorkbooksFacts(AzureRMModuleBase):
 
         if self.category is not None:
             self.results['workbooks'] = self.list_by_resource_group()
-        elif self.resource_name is not None:
+        elif self.name is not None:
             self.results['workbooks'] = self.get()
         return self.results
 
@@ -196,7 +196,7 @@ class AzureRMWorkbooksFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workbooks.get(resource_group_name=self.resource_group,
-                                                      resource_name=self.resource_name)
+                                                      resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workbooks.')

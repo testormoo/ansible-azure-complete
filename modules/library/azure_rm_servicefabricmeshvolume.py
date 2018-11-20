@@ -26,7 +26,7 @@ options:
         description:
             - Azure resource group name
         required: True
-    volume_resource_name:
+    name:
         description:
             - The identity of the volume.
         required: True
@@ -38,14 +38,14 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - User readable description of the volume.
             provider:
                 description:
                     - Provider of the volume.
-                required: True
+                    - Required when C(state) is I(present).
             azure_file_parameters:
                 description:
                     - This type describes a volume provided by an Azure Files file share.
@@ -53,14 +53,14 @@ options:
                     account_name:
                         description:
                             - Name of the Azure storage account for the File Share.
-                        required: True
+                            - Required when C(state) is I(present).
                     account_key:
                         description:
                             - Access key of the Azure storage account for the File Share.
                     share_name:
                         description:
                             - Name of the Azure Files file share that provides storage for the volume.
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Volume.
@@ -83,9 +83,15 @@ EXAMPLES = '''
   - name: Create (or update) Volume
     azure_rm_servicefabricmeshvolume:
       resource_group: sbz_demo
-      volume_resource_name: sampleVolume
+      name: sampleVolume
       volume_resource_description:
         location: EastUS
+        description: Service Fabric Mesh sample volume.
+        provider: SFAzureFile
+        azure_file_parameters:
+          account_name: sbzdemoaccount
+          account_key: provide-account-key-here
+          share_name: sharel
 '''
 
 RETURN = '''
@@ -131,7 +137,7 @@ class AzureRMVolume(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            volume_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -147,7 +153,7 @@ class AzureRMVolume(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.volume_resource_name = None
+        self.name = None
         self.volume_resource_description = dict()
 
         self.results = dict(changed=False)
@@ -175,7 +181,6 @@ class AzureRMVolume(AzureRMModuleBase):
                 elif key == "azure_file_parameters":
                     self.volume_resource_description["azure_file_parameters"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ServiceFabricMeshManagementClient,
@@ -196,8 +201,8 @@ class AzureRMVolume(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Volume instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Volume instance")
@@ -208,10 +213,7 @@ class AzureRMVolume(AzureRMModuleBase):
 
             response = self.create_update_volume()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Volume instance deleted")
@@ -240,12 +242,12 @@ class AzureRMVolume(AzureRMModuleBase):
 
         :return: deserialized Volume instance state dictionary
         '''
-        self.log("Creating / Updating the Volume instance {0}".format(self.volume_resource_name))
+        self.log("Creating / Updating the Volume instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.volume.create(resource_group_name=self.resource_group,
-                                                          volume_resource_name=self.volume_resource_name,
+                                                          volume_resource_name=self.name,
                                                           volume_resource_description=self.volume_resource_description)
             else:
                 response = self.mgmt_client.volume.update()
@@ -263,10 +265,10 @@ class AzureRMVolume(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Volume instance {0}".format(self.volume_resource_name))
+        self.log("Deleting the Volume instance {0}".format(self.name))
         try:
             response = self.mgmt_client.volume.delete(resource_group_name=self.resource_group,
-                                                      volume_resource_name=self.volume_resource_name)
+                                                      volume_resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Volume instance.')
             self.fail("Error deleting the Volume instance: {0}".format(str(e)))
@@ -279,11 +281,11 @@ class AzureRMVolume(AzureRMModuleBase):
 
         :return: deserialized Volume instance state dictionary
         '''
-        self.log("Checking if the Volume instance {0} is present".format(self.volume_resource_name))
+        self.log("Checking if the Volume instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.volume.get(resource_group_name=self.resource_group,
-                                                   volume_resource_name=self.volume_resource_name)
+                                                   volume_resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Volume instance : {0} found".format(response.name))
@@ -300,6 +302,38 @@ class AzureRMVolume(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

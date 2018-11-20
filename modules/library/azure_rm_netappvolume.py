@@ -30,18 +30,18 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             name1:
                 description:
                     - FileSystem name
             creation_token:
                 description:
                     - A unique file path for the volume. Used when creating mount targets
-                required: True
+                    - Required when C(state) is I(present).
             service_level:
                 description:
                     - The service level of the file system.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'basic'
                     - 'standard'
@@ -64,7 +64,7 @@ options:
         description:
             - The name of the capacity pool
         required: True
-    volume_name:
+    name:
         description:
             - The name of the volume
         required: True
@@ -92,7 +92,7 @@ EXAMPLES = '''
       resource_group: resourceGroup
       account_name: accountName
       pool_name: poolName
-      volume_name: volumeName
+      name: volumeName
 '''
 
 RETURN = '''
@@ -143,7 +143,7 @@ class AzureRMVolumes(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            volume_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -158,7 +158,7 @@ class AzureRMVolumes(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.pool_name = None
-        self.volume_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -189,7 +189,6 @@ class AzureRMVolumes(AzureRMModuleBase):
                 elif key == "subnet_id":
                     self.body["subnet_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureNetAppFilesManagementClient,
@@ -208,8 +207,8 @@ class AzureRMVolumes(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Volume instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Volume instance")
@@ -220,10 +219,7 @@ class AzureRMVolumes(AzureRMModuleBase):
 
             response = self.create_update_volume()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Volume instance deleted")
@@ -252,14 +248,14 @@ class AzureRMVolumes(AzureRMModuleBase):
 
         :return: deserialized Volume instance state dictionary
         '''
-        self.log("Creating / Updating the Volume instance {0}".format(self.volume_name))
+        self.log("Creating / Updating the Volume instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.volumes.create_or_update(body=self.body,
                                                                  resource_group=self.resource_group,
                                                                  account_name=self.account_name,
                                                                  pool_name=self.pool_name,
-                                                                 volume_name=self.volume_name)
+                                                                 volume_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -274,12 +270,12 @@ class AzureRMVolumes(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Volume instance {0}".format(self.volume_name))
+        self.log("Deleting the Volume instance {0}".format(self.name))
         try:
             response = self.mgmt_client.volumes.delete(resource_group=self.resource_group,
                                                        account_name=self.account_name,
                                                        pool_name=self.pool_name,
-                                                       volume_name=self.volume_name)
+                                                       volume_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Volume instance.')
             self.fail("Error deleting the Volume instance: {0}".format(str(e)))
@@ -292,13 +288,13 @@ class AzureRMVolumes(AzureRMModuleBase):
 
         :return: deserialized Volume instance state dictionary
         '''
-        self.log("Checking if the Volume instance {0} is present".format(self.volume_name))
+        self.log("Checking if the Volume instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.volumes.get(resource_group=self.resource_group,
                                                     account_name=self.account_name,
                                                     pool_name=self.pool_name,
-                                                    volume_name=self.volume_name)
+                                                    volume_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Volume instance : {0} found".format(response.name))
@@ -314,6 +310,38 @@ class AzureRMVolumes(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

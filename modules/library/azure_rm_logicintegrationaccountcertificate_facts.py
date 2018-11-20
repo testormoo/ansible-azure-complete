@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    certificate_name:
+    name:
         description:
             - The integration account certificate name.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountcertificate_facts:
       resource_group: resource_group_name
       integration_account_name: integration_account_name
-      certificate_name: certificate_name
+      name: certificate_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMIntegrationAccountCertificatesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            certificate_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -126,7 +126,7 @@ class AzureRMIntegrationAccountCertificatesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.integration_account_name = None
-        self.certificate_name = None
+        self.name = None
         self.tags = None
         super(AzureRMIntegrationAccountCertificatesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -145,7 +145,7 @@ class AzureRMIntegrationAccountCertificatesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.integration_account_certificates.get(resource_group_name=self.resource_group,
                                                                              integration_account_name=self.integration_account_name,
-                                                                             certificate_name=self.certificate_name)
+                                                                             certificate_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IntegrationAccountCertificates.')

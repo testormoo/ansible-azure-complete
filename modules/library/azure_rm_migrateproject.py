@@ -26,7 +26,7 @@ options:
         description:
             - Name of the Azure Resource Group that I(project) is part of.
         required: True
-    project_name:
+    name:
         description:
             - Name of the Azure Migrate I(project).
         required: True
@@ -49,16 +49,6 @@ options:
             customer_workspace_location:
                 description:
                     - Location of the Service Map workspace created by user.
-            provisioning_state:
-                description:
-                    - Provisioning state of the project.
-                choices:
-                    - 'accepted'
-                    - 'creating'
-                    - 'deleting'
-                    - 'failed'
-                    - 'moving'
-                    - 'succeeded'
     state:
       description:
         - Assert the state of the Project.
@@ -81,11 +71,13 @@ EXAMPLES = '''
   - name: Create (or update) Project
     azure_rm_migrateproject:
       resource_group: myResourceGroup
-      project_name: project01
+      name: project01
       self.config.accept_language: NOT FOUND
       project:
         e_tag: "b701c73a-0000-0000-0000-59c12ff00000"
         location: West Us
+        customer_workspace_id: url-to-customers-service-map
+        customer_workspace_location: West Us
 '''
 
 RETURN = '''
@@ -124,7 +116,7 @@ class AzureRMProjects(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            project_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,7 +134,7 @@ class AzureRMProjects(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.project_name = None
+        self.name = None
         self.self.config.accept_language = None
         self.project = dict()
 
@@ -170,10 +162,7 @@ class AzureRMProjects(AzureRMModuleBase):
                     self.project["customer_workspace_id"] = kwargs[key]
                 elif key == "customer_workspace_location":
                     self.project["customer_workspace_location"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.project["provisioning_state"] = _snake_to_camel(kwargs[key], True)
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMigrate,
@@ -194,8 +183,8 @@ class AzureRMProjects(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Project instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Project instance")
@@ -206,10 +195,7 @@ class AzureRMProjects(AzureRMModuleBase):
 
             response = self.create_update_project()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Project instance deleted")
@@ -243,10 +229,10 @@ class AzureRMProjects(AzureRMModuleBase):
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.projects.create(resource_group_name=self.resource_group,
-                                                            project_name=self.project_name)
+                                                            project_name=self.name)
             else:
                 response = self.mgmt_client.projects.update(resource_group_name=self.resource_group,
-                                                            project_name=self.project_name)
+                                                            project_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -264,7 +250,7 @@ class AzureRMProjects(AzureRMModuleBase):
         self.log("Deleting the Project instance {0}".format(self.self.config.accept_language))
         try:
             response = self.mgmt_client.projects.delete(resource_group_name=self.resource_group,
-                                                        project_name=self.project_name)
+                                                        project_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Project instance.')
             self.fail("Error deleting the Project instance: {0}".format(str(e)))
@@ -281,7 +267,7 @@ class AzureRMProjects(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.projects.get(resource_group_name=self.resource_group,
-                                                     project_name=self.project_name)
+                                                     project_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Project instance : {0} found".format(response.name))
@@ -299,11 +285,36 @@ class AzureRMProjects(AzureRMModuleBase):
         return d
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
     else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+        return new == old
 
 
 def main():

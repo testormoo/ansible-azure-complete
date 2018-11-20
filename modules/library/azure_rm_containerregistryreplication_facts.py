@@ -30,7 +30,7 @@ options:
         description:
             - The name of the container registry.
         required: True
-    replication_name:
+    name:
         description:
             - The name of the replication.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_containerregistryreplication_facts:
       resource_group: resource_group_name
       registry_name: registry_name
-      replication_name: replication_name
+      name: replication_name
 '''
 
 RETURN = '''
@@ -129,7 +129,7 @@ class AzureRMReplicationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            replication_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -144,7 +144,7 @@ class AzureRMReplicationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.registry_name = None
-        self.replication_name = None
+        self.name = None
         self.tags = None
         super(AzureRMReplicationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -163,7 +163,7 @@ class AzureRMReplicationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.replications.get(resource_group_name=self.resource_group,
                                                          registry_name=self.registry_name,
-                                                         replication_name=self.replication_name)
+                                                         replication_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Replications.')

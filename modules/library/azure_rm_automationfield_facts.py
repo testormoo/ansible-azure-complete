@@ -34,7 +34,7 @@ options:
         description:
             - The name of module.
         required: True
-    type_name:
+    name:
         description:
             - The name of type.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       automation_account_name: automation_account_name
       module_name: module_name
-      type_name: type_name
+      name: type_name
 '''
 
 RETURN = '''
@@ -91,7 +91,7 @@ class AzureRMFieldsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            type_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -104,7 +104,7 @@ class AzureRMFieldsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.automation_account_name = None
         self.module_name = None
-        self.type_name = None
+        self.name = None
         super(AzureRMFieldsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -123,7 +123,7 @@ class AzureRMFieldsFacts(AzureRMModuleBase):
             response = self.mgmt_client.fields.list_by_type(resource_group_name=self.resource_group,
                                                             automation_account_name=self.automation_account_name,
                                                             module_name=self.module_name,
-                                                            type_name=self.type_name)
+                                                            type_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Fields.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
   - name: Get instance of Api Release
     azure_rm_apimanagementapirelease_facts:
       resource_group: resource_group_name
-      service_name: service_name
+      name: service_name
       api_id: api_id
       release_id: release_id
 '''
@@ -101,7 +101,7 @@ class AzureRMApiReleaseFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -120,7 +120,7 @@ class AzureRMApiReleaseFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.release_id = None
         super(AzureRMApiReleaseFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -139,7 +139,7 @@ class AzureRMApiReleaseFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.api_release.get(resource_group_name=self.resource_group,
-                                                        service_name=self.service_name,
+                                                        service_name=self.name,
                                                         api_id=self.api_id,
                                                         release_id=self.release_id)
             self.log("Response : {0}".format(response))

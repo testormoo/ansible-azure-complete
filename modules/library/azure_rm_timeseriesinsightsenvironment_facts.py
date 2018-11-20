@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - Name of an Azure Resource group.
-    environment_name:
+    name:
         description:
             - The name of the Time Series Insights environment associated with the specified resource group.
     expand:
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Environment
     azure_rm_timeseriesinsightsenvironment_facts:
       resource_group: resource_group_name
-      environment_name: environment_name
+      name: environment_name
       expand: expand
 
   - name: List instances of Environment
@@ -134,7 +134,7 @@ class AzureRMEnvironmentsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            environment_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -150,7 +150,7 @@ class AzureRMEnvironmentsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.environment_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMEnvironmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -162,7 +162,7 @@ class AzureRMEnvironmentsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.environment_name is not None):
+                self.name is not None):
             self.results['environments'] = self.get()
         elif self.resource_group is not None:
             self.results['environments'] = self.list_by_resource_group()
@@ -175,7 +175,7 @@ class AzureRMEnvironmentsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.environments.get(resource_group_name=self.resource_group,
-                                                         environment_name=self.environment_name)
+                                                         environment_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Environments.')

@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name of the workspace.
         required: True
-    workspace_name:
+    name:
         description:
             - Name of the Log Analytics Workspace.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Workspace
     azure_rm_loganalyticsworkspace_facts:
       resource_group: resource_group_name
-      workspace_name: workspace_name
+      name: workspace_name
 
   - name: List instances of Workspace
     azure_rm_loganalyticsworkspace_facts:
@@ -91,7 +91,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workspace_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -104,7 +104,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.workspace_name = None
+        self.name = None
         self.tags = None
         super(AzureRMWorkspacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -114,7 +114,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(OperationalInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.workspace_name is not None:
+        if self.name is not None:
             self.results['workspaces'] = self.get()
         else:
             self.results['workspaces'] = self.list_by_resource_group()
@@ -125,7 +125,7 @@ class AzureRMWorkspacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workspaces.get(resource_group_name=self.resource_group,
-                                                       workspace_name=self.workspace_name)
+                                                       workspace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Workspaces.')

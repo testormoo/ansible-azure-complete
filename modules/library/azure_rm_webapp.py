@@ -41,7 +41,7 @@ options:
             location:
                 description:
                     - Resource Location.
-                required: True
+                    - Required when C(state) is I(present).
             enabled:
                 description:
                     - "<code>true</code> if the app is enabled; otherwise, <code>false</code>. Setting this value to false disables the app (takes the app
@@ -461,7 +461,7 @@ options:
                             ip_address:
                                 description:
                                     - IP address the security restriction is valid for.
-                                required: True
+                                    - Required when C(state) is I(present).
                             subnet_mask:
                                 description:
                                     - Subnet mask for the range of IP addresses the restriction is valid for.
@@ -526,7 +526,7 @@ options:
                             - /subscriptions/{subId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{siteName} for production slots and
                             - "/subscriptions/{subId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{siteName}/slots/{slotName} for other
                                slots."
-                        required: True
+                            - Required when C(state) is I(present).
                     hosting_environment:
                         description:
                             - App Service Environment.
@@ -793,7 +793,6 @@ class AzureRMWebApps(AzureRMModuleBase):
                             ev['type'] = 'SystemAssigned'
                     self.site_envelope["identity"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(WebSiteManagementClient,
@@ -814,8 +813,8 @@ class AzureRMWebApps(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Web App instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Web App instance")
@@ -826,10 +825,7 @@ class AzureRMWebApps(AzureRMModuleBase):
 
             response = self.create_update_webapp()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Web App instance deleted")
@@ -915,6 +911,38 @@ class AzureRMWebApps(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

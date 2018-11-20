@@ -29,19 +29,19 @@ options:
                '/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/{resource-provider}/{resource-type}/{resource-name}' for a
                resource."
         required: True
-    role_assignment_name:
+    name:
         description:
             - The name of the role assignment to create. It can be any valid GUID.
         required: True
     role_definition_id:
         description:
             - The role definition ID used in the role assignment.
-        required: True
+            - Required when C(state) is I(present).
     principal_id:
         description:
             - "The principal ID assigned to the role. This maps to the ID inside the Active Directory. It can point to a user, service principal, or
                security group."
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Role Assignment.
@@ -63,7 +63,7 @@ EXAMPLES = '''
   - name: Create (or update) Role Assignment
     azure_rm_authorizationroleassignment:
       scope: scope
-      role_assignment_name: roleAssignmentName
+      name: roleAssignmentName
 '''
 
 RETURN = '''
@@ -102,17 +102,15 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            role_assignment_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             role_definition_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             principal_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -122,7 +120,7 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
         )
 
         self.scope = None
-        self.role_assignment_name = None
+        self.name = None
         self.properties = dict()
 
         self.results = dict(changed=False)
@@ -146,7 +144,6 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
                 elif key == "principal_id":
                     self.properties["principal_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AuthorizationManagementClient,
@@ -165,8 +162,8 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Role Assignment instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Role Assignment instance")
@@ -177,10 +174,7 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
 
             response = self.create_update_roleassignment()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Role Assignment instance deleted")
@@ -209,12 +203,12 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
 
         :return: deserialized Role Assignment instance state dictionary
         '''
-        self.log("Creating / Updating the Role Assignment instance {0}".format(self.role_assignment_name))
+        self.log("Creating / Updating the Role Assignment instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.role_assignments.create(scope=self.scope,
-                                                                    role_assignment_name=self.role_assignment_name,
+                                                                    role_assignment_name=self.name,
                                                                     properties=self.properties)
             else:
                 response = self.mgmt_client.role_assignments.update()
@@ -232,10 +226,10 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Role Assignment instance {0}".format(self.role_assignment_name))
+        self.log("Deleting the Role Assignment instance {0}".format(self.name))
         try:
             response = self.mgmt_client.role_assignments.delete(scope=self.scope,
-                                                                role_assignment_name=self.role_assignment_name)
+                                                                role_assignment_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Role Assignment instance.')
             self.fail("Error deleting the Role Assignment instance: {0}".format(str(e)))
@@ -248,11 +242,11 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
 
         :return: deserialized Role Assignment instance state dictionary
         '''
-        self.log("Checking if the Role Assignment instance {0} is present".format(self.role_assignment_name))
+        self.log("Checking if the Role Assignment instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.role_assignments.get(scope=self.scope,
-                                                             role_assignment_name=self.role_assignment_name)
+                                                             role_assignment_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Role Assignment instance : {0} found".format(response.name))
@@ -268,6 +262,38 @@ class AzureRMRoleAssignments(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

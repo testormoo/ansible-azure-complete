@@ -26,7 +26,7 @@ options:
         description:
             - Resource group identifier.
         required: True
-    provisioning_service_name:
+    name:
         description:
             - Name of provisioning service to create or update.
         required: True
@@ -38,11 +38,7 @@ options:
             location:
                 description:
                     - The resource location.
-                required: True
-            etag:
-                description:
-                    - "The Etag field is *not* required. If it is provided in the response body, it must also be provided as a header per the normal ETag
-                       convention."
+                    - Required when C(state) is I(present).
             state:
                 description:
                     - Current state of the provisioning service.
@@ -59,9 +55,6 @@ options:
                     - 'resuming'
                     - 'failing_over'
                     - 'failover_failed'
-            provisioning_state:
-                description:
-                    - The ARM provisioning I(state) of the provisioning service.
             iot_hubs:
                 description:
                     - List of IoT hubs assosciated with this provisioning service.
@@ -76,11 +69,11 @@ options:
                     connection_string:
                         description:
                             - Connection string og the IoT hub.
-                        required: True
+                            - Required when C(state) is I(present).
                     location:
                         description:
                             - ARM region of the IoT hub.
-                        required: True
+                            - Required when C(state) is I(present).
             allocation_policy:
                 description:
                     - Allocation policy to be used by this provisioning service.
@@ -96,7 +89,7 @@ options:
                     key_name:
                         description:
                             - Name of the key.
-                        required: True
+                            - Required when C(state) is I(present).
                     primary_key:
                         description:
                             - Primary SAS key value.
@@ -106,7 +99,7 @@ options:
                     rights:
                         description:
                             - Rights that this key has.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'service_config'
                             - 'enrollment_read'
@@ -117,7 +110,7 @@ options:
             sku:
                 description:
                     - Sku info for a provisioning Service.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
@@ -149,7 +142,7 @@ EXAMPLES = '''
   - name: Create (or update) Iot Dps Resource
     azure_rm_iothubprovisioningservicesiotdpsresource:
       resource_group: myResourceGroup
-      provisioning_service_name: myFirstProvisioningService
+      name: myFirstProvisioningService
       iot_dps_description:
         location: East US
         sku:
@@ -194,7 +187,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            provisioning_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -210,7 +203,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.provisioning_service_name = None
+        self.name = None
         self.iot_dps_description = dict()
 
         self.results = dict(changed=False)
@@ -231,12 +224,8 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 if key == "location":
                     self.iot_dps_description["location"] = kwargs[key]
-                elif key == "etag":
-                    self.iot_dps_description["etag"] = kwargs[key]
                 elif key == "state":
                     self.iot_dps_description.setdefault("properties", {})["state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioning_state":
-                    self.iot_dps_description.setdefault("properties", {})["provisioning_state"] = kwargs[key]
                 elif key == "iot_hubs":
                     self.iot_dps_description.setdefault("properties", {})["iot_hubs"] = kwargs[key]
                 elif key == "allocation_policy":
@@ -264,7 +253,6 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
                             ev['name'] = 'S1'
                     self.iot_dps_description["sku"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(IotDpsClient,
@@ -285,8 +273,8 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Iot Dps Resource instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Iot Dps Resource instance")
@@ -297,10 +285,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
 
             response = self.create_update_iotdpsresource()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Iot Dps Resource instance deleted")
@@ -333,7 +318,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.iot_dps_resource.create_or_update(resource_group_name=self.resource_group,
-                                                                          provisioning_service_name=self.provisioning_service_name,
+                                                                          provisioning_service_name=self.name,
                                                                           iot_dps_description=self.iot_dps_description)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -351,7 +336,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
         '''
         self.log("Deleting the Iot Dps Resource instance {0}".format(self.resource_group))
         try:
-            response = self.mgmt_client.iot_dps_resource.delete(provisioning_service_name=self.provisioning_service_name,
+            response = self.mgmt_client.iot_dps_resource.delete(provisioning_service_name=self.name,
                                                                 resource_group_name=self.resource_group)
         except CloudError as e:
             self.log('Error attempting to delete the Iot Dps Resource instance.')
@@ -368,7 +353,7 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
         self.log("Checking if the Iot Dps Resource instance {0} is present".format(self.resource_group))
         found = False
         try:
-            response = self.mgmt_client.iot_dps_resource.get(provisioning_service_name=self.provisioning_service_name,
+            response = self.mgmt_client.iot_dps_resource.get(provisioning_service_name=self.name,
                                                              resource_group_name=self.resource_group)
             found = True
             self.log("Response : {0}".format(response))
@@ -385,6 +370,38 @@ class AzureRMIotDpsResource(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

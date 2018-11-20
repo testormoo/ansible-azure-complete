@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    activity_log_alert_name:
+    name:
         description:
             - The name of the activity log alert.
         required: True
@@ -38,12 +38,12 @@ options:
             location:
                 description:
                     - Resource location
-                required: True
+                    - Required when C(state) is I(present).
             scopes:
                 description:
                     - "A list of resourceIds that will be used as prefixes. The alert will only apply to activityLogs with resourceIds that fall under one
                        of these prefixes. This list must include at least one item."
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
             enabled:
                 description:
@@ -52,12 +52,12 @@ options:
             condition:
                 description:
                     - The condition that will cause this alert to activate.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     all_of:
                         description:
                             - The list of activity log alert conditions.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             field:
@@ -65,15 +65,15 @@ options:
                                     - "The name of the field that this condition will examine. The possible values for this field are (case-insensitive):
                                        'resourceId', 'category', 'caller', 'level', 'operationName', 'resourceGroup', 'resourceProvider', 'status',
                                        'subStatus', 'resourceType', or anything beginning with 'properties.'."
-                                required: True
+                                    - Required when C(state) is I(present).
                             equals:
                                 description:
                                     - The I(field) value will be compared to this value (case-insensitive) to determine if the condition is met.
-                                required: True
+                                    - Required when C(state) is I(present).
             actions:
                 description:
                     - The actions that will activate when the I(condition) is met.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     action_groups:
                         description:
@@ -83,7 +83,7 @@ options:
                             action_group_id:
                                 description:
                                     - The resourceId of the action group. This cannot be null or empty.
-                                required: True
+                                    - Required when C(state) is I(present).
                             webhook_properties:
                                 description:
                                     - the dictionary of custom properties to include with the post operation. These data are appended to the webhook payload.
@@ -112,9 +112,25 @@ EXAMPLES = '''
   - name: Create (or update) Activity Log Alert
     azure_rm_monitoractivitylogalert:
       resource_group: Default-ActivityLogAlerts
-      activity_log_alert_name: SampleActivityLogAlert
+      name: SampleActivityLogAlert
       activity_log_alert:
         location: Global
+        scopes:
+          - [
+  "subscriptions/187f412d-1758-44d9-b052-169e2564721d"
+]
+        enabled: True
+        condition:
+          all_of:
+            - field: Category
+              equals: Administrative
+        actions:
+          action_groups:
+            - action_group_id: /subscriptions/187f412d-1758-44d9-b052-169e2564721d/resourceGroups/Default-ActionGroups/providers/microsoft.insights/actionGroups/SampleActionGroup
+              webhook_properties: {
+  "sampleWebhookProperty": "samplePropertyValue"
+}
+        description: Sample activity log alert description
 '''
 
 RETURN = '''
@@ -154,7 +170,7 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            activity_log_alert_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -170,7 +186,7 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.activity_log_alert_name = None
+        self.name = None
         self.activity_log_alert = dict()
 
         self.results = dict(changed=False)
@@ -202,7 +218,6 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
                 elif key == "description":
                     self.activity_log_alert["description"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(MonitorManagementClient,
@@ -223,8 +238,8 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Activity Log Alert instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Activity Log Alert instance")
@@ -235,10 +250,7 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
 
             response = self.create_update_activitylogalert()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Activity Log Alert instance deleted")
@@ -267,11 +279,11 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
 
         :return: deserialized Activity Log Alert instance state dictionary
         '''
-        self.log("Creating / Updating the Activity Log Alert instance {0}".format(self.activity_log_alert_name))
+        self.log("Creating / Updating the Activity Log Alert instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.activity_log_alerts.create_or_update(resource_group_name=self.resource_group,
-                                                                             activity_log_alert_name=self.activity_log_alert_name,
+                                                                             activity_log_alert_name=self.name,
                                                                              activity_log_alert=self.activity_log_alert)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -287,10 +299,10 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Activity Log Alert instance {0}".format(self.activity_log_alert_name))
+        self.log("Deleting the Activity Log Alert instance {0}".format(self.name))
         try:
             response = self.mgmt_client.activity_log_alerts.delete(resource_group_name=self.resource_group,
-                                                                   activity_log_alert_name=self.activity_log_alert_name)
+                                                                   activity_log_alert_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Activity Log Alert instance.')
             self.fail("Error deleting the Activity Log Alert instance: {0}".format(str(e)))
@@ -303,11 +315,11 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
 
         :return: deserialized Activity Log Alert instance state dictionary
         '''
-        self.log("Checking if the Activity Log Alert instance {0} is present".format(self.activity_log_alert_name))
+        self.log("Checking if the Activity Log Alert instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.activity_log_alerts.get(resource_group_name=self.resource_group,
-                                                                activity_log_alert_name=self.activity_log_alert_name)
+                                                                activity_log_alert_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Activity Log Alert instance : {0} found".format(response.name))
@@ -323,6 +335,38 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

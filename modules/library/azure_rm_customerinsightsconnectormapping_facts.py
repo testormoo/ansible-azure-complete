@@ -34,7 +34,7 @@ options:
         description:
             - The name of the connector.
         required: True
-    mapping_name:
+    name:
         description:
             - The name of the connector mapping.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       hub_name: hub_name
       connector_name: connector_name
-      mapping_name: mapping_name
+      name: mapping_name
 
   - name: List instances of Connector Mapping
     azure_rm_customerinsightsconnectormapping_facts:
@@ -121,7 +121,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            mapping_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -133,7 +133,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.hub_name = None
         self.connector_name = None
-        self.mapping_name = None
+        self.name = None
         super(AzureRMConnectorMappingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -142,7 +142,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.mapping_name is not None:
+        if self.name is not None:
             self.results['connector_mappings'] = self.get()
         else:
             self.results['connector_mappings'] = self.list_by_connector()
@@ -155,7 +155,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
             response = self.mgmt_client.connector_mappings.get(resource_group_name=self.resource_group,
                                                                hub_name=self.hub_name,
                                                                connector_name=self.connector_name,
-                                                               mapping_name=self.mapping_name)
+                                                               mapping_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ConnectorMappings.')

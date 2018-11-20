@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group containing the Traffic Manager endpoint.
         required: True
-    profile_name:
+    name:
         description:
             - The name of the Traffic Manager profile.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
   - name: Get instance of Heat Map
     azure_rm_trafficmanagerheatmap_facts:
       resource_group: resource_group_name
-      profile_name: profile_name
+      name: profile_name
       heat_map_type: heat_map_type
       top_left: top_left
       bot_right: bot_right
@@ -107,7 +107,7 @@ class AzureRMHeatMapFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            profile_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMHeatMapFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.profile_name = None
+        self.name = None
         self.heat_map_type = None
         self.top_left = None
         self.bot_right = None
@@ -148,7 +148,7 @@ class AzureRMHeatMapFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.heat_map.get(resource_group_name=self.resource_group,
-                                                     profile_name=self.profile_name,
+                                                     profile_name=self.name,
                                                      heat_map_type=self.heat_map_type)
             self.log("Response : {0}".format(response))
         except CloudError as e:

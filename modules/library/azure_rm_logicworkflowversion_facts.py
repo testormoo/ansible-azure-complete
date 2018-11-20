@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name.
         required: True
-    workflow_name:
+    name:
         description:
             - The workflow name.
         required: True
@@ -50,7 +50,7 @@ EXAMPLES = '''
   - name: Get instance of Workflow Version
     azure_rm_logicworkflowversion_facts:
       resource_group: resource_group_name
-      workflow_name: workflow_name
+      name: workflow_name
       version_id: version_id
 '''
 
@@ -105,7 +105,7 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workflow_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -123,7 +123,7 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.workflow_name = None
+        self.name = None
         self.version_id = None
         self.tags = None
         super(AzureRMWorkflowVersionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -142,7 +142,7 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.workflow_versions.get(resource_group_name=self.resource_group,
-                                                              workflow_name=self.workflow_name,
+                                                              workflow_name=self.name,
                                                               version_id=self.version_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

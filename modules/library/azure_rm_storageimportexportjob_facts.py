@@ -34,7 +34,7 @@ options:
     self.config.accept_language:
         description:
             - Specifies the preferred language for the response.
-    job_name:
+    name:
         description:
             - The name of the import/export job.
     tags:
@@ -65,7 +65,7 @@ EXAMPLES = '''
 
   - name: Get instance of Job
     azure_rm_storageimportexportjob_facts:
-      job_name: job_name
+      name: job_name
       resource_group: resource_group_name
       self.config.accept_language: self.config.accept_language
 '''
@@ -142,7 +142,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
             self.config.accept_language=dict(
                 type='str'
             ),
-            job_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -158,7 +158,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         self.filter = None
         self.resource_group = None
         self.self.config.accept_language = None
-        self.job_name = None
+        self.name = None
         self.tags = None
         super(AzureRMJobsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -172,7 +172,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
             self.results['jobs'] = self.list_by_resource_group()
         else:
             self.results['jobs'] = self.list_by_subscription()
-        elif (self.job_name is not None and
+        elif (self.name is not None and
                 self.resource_group is not None):
             self.results['jobs'] = self.get()
         return self.results
@@ -213,7 +213,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.jobs.get(job_name=self.job_name,
+            response = self.mgmt_client.jobs.get(job_name=self.name,
                                                  resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:

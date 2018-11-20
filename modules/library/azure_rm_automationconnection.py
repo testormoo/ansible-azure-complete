@@ -30,21 +30,21 @@ options:
         description:
             - The name of the automation account.
         required: True
-    connection_name:
+    name:
         description:
             - The parameters supplied to the create or update connection operation.
         required: True
     name:
         description:
             - Gets or sets the name of the connection.
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - Gets or sets the description of the connection.
     connection_type:
         description:
             - Gets or sets the connectionType of the connection.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
@@ -74,8 +74,15 @@ EXAMPLES = '''
     azure_rm_automationconnection:
       resource_group: rg
       automation_account_name: myAutomationAccount28
-      connection_name: mysConnection
       name: mysConnection
+      name: mysConnection
+      description: my description goes here
+      connection_type:
+        name: Azure
+      field_definition_values: {
+  "AutomationCertificateName": "mysCertificateName",
+  "SubscriptionID": "subid"
+}
 '''
 
 RETURN = '''
@@ -118,20 +125,18 @@ class AzureRMConnection(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
             ),
             connection_type=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             field_definition_values=dict(
                 type='dict'
@@ -145,7 +150,7 @@ class AzureRMConnection(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.connection_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -173,7 +178,6 @@ class AzureRMConnection(AzureRMModuleBase):
                 elif key == "field_definition_values":
                     self.parameters["field_definition_values"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -194,8 +198,8 @@ class AzureRMConnection(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Connection instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Connection instance")
@@ -206,10 +210,7 @@ class AzureRMConnection(AzureRMModuleBase):
 
             response = self.create_update_connection()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Connection instance deleted")
@@ -238,12 +239,12 @@ class AzureRMConnection(AzureRMModuleBase):
 
         :return: deserialized Connection instance state dictionary
         '''
-        self.log("Creating / Updating the Connection instance {0}".format(self.connection_name))
+        self.log("Creating / Updating the Connection instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.connection.create_or_update(resource_group_name=self.resource_group,
                                                                     automation_account_name=self.automation_account_name,
-                                                                    connection_name=self.connection_name,
+                                                                    connection_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -259,11 +260,11 @@ class AzureRMConnection(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Connection instance {0}".format(self.connection_name))
+        self.log("Deleting the Connection instance {0}".format(self.name))
         try:
             response = self.mgmt_client.connection.delete(resource_group_name=self.resource_group,
                                                           automation_account_name=self.automation_account_name,
-                                                          connection_name=self.connection_name)
+                                                          connection_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Connection instance.')
             self.fail("Error deleting the Connection instance: {0}".format(str(e)))
@@ -276,12 +277,12 @@ class AzureRMConnection(AzureRMModuleBase):
 
         :return: deserialized Connection instance state dictionary
         '''
-        self.log("Checking if the Connection instance {0} is present".format(self.connection_name))
+        self.log("Checking if the Connection instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.connection.get(resource_group_name=self.resource_group,
                                                        automation_account_name=self.automation_account_name,
-                                                       connection_name=self.connection_name)
+                                                       connection_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Connection instance : {0} found".format(response.name))
@@ -297,6 +298,38 @@ class AzureRMConnection(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

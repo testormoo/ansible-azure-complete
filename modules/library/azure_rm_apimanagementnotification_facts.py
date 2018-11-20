@@ -36,7 +36,7 @@ options:
     skip:
         description:
             - Number of records to skip.
-    notification_name:
+    name:
         description:
             - Notification Name Identifier.
 
@@ -60,7 +60,7 @@ EXAMPLES = '''
     azure_rm_apimanagementnotification_facts:
       resource_group: resource_group_name
       service_name: service_name
-      notification_name: notification_name
+      name: notification_name
 '''
 
 RETURN = '''
@@ -151,7 +151,7 @@ class AzureRMNotificationFacts(AzureRMModuleBase):
             skip=dict(
                 type='int'
             ),
-            notification_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -164,7 +164,7 @@ class AzureRMNotificationFacts(AzureRMModuleBase):
         self.service_name = None
         self.top = None
         self.skip = None
-        self.notification_name = None
+        self.name = None
         super(AzureRMNotificationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -175,7 +175,7 @@ class AzureRMNotificationFacts(AzureRMModuleBase):
 
         else:
             self.results['notification'] = self.list_by_service()
-        elif self.notification_name is not None:
+        elif self.name is not None:
             self.results['notification'] = self.get()
         return self.results
 
@@ -201,7 +201,7 @@ class AzureRMNotificationFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.notification.get(resource_group_name=self.resource_group,
                                                          service_name=self.service_name,
-                                                         notification_name=self.notification_name)
+                                                         notification_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Notification.')

@@ -29,7 +29,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -50,13 +50,13 @@ EXAMPLES = '''
     azure_rm_storsimpledevice_facts:
       device_name: device_name
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
       expand: expand
 
   - name: List instances of Device
     azure_rm_storsimpledevice_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
       expand: expand
 '''
 
@@ -116,7 +116,7 @@ class AzureRMDevicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -131,7 +131,7 @@ class AzureRMDevicesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.device_name = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         self.expand = None
         super(AzureRMDevicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMDevicesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.devices.get(device_name=self.device_name,
                                                     resource_group_name=self.resource_group,
-                                                    manager_name=self.manager_name)
+                                                    manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Devices.')
@@ -168,7 +168,7 @@ class AzureRMDevicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.devices.list_by_manager(resource_group_name=self.resource_group,
-                                                                manager_name=self.manager_name)
+                                                                manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Devices.')

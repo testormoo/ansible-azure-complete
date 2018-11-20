@@ -34,7 +34,7 @@ options:
         description:
             - The Transform name.
         required: True
-    job_name:
+    name:
         description:
             - The Job name.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       account_name: account_name
       transform_name: transform_name
-      job_name: job_name
+      name: job_name
 '''
 
 RETURN = '''
@@ -137,7 +137,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -150,7 +150,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.transform_name = None
-        self.job_name = None
+        self.name = None
         super(AzureRMJobsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -169,7 +169,7 @@ class AzureRMJobsFacts(AzureRMModuleBase):
             response = self.mgmt_client.jobs.get(resource_group_name=self.resource_group,
                                                  account_name=self.account_name,
                                                  transform_name=self.transform_name,
-                                                 job_name=self.job_name)
+                                                 job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Jobs.')

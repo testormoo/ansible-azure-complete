@@ -30,14 +30,14 @@ options:
         description:
             - The name of the hub.
         required: True
-    kpi_name:
+    name:
         description:
             - The name of the KPI.
         required: True
     entity_type:
         description:
             - The mapping entity type.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'none'
             - 'profile'
@@ -46,7 +46,7 @@ options:
     entity_type_name:
         description:
             - The mapping entity name.
-        required: True
+            - Required when C(state) is I(present).
     display_name:
         description:
             - Localized display name for the KPI.
@@ -56,7 +56,7 @@ options:
     calculation_window:
         description:
             - The calculation window.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'lifetime'
             - 'hour'
@@ -69,7 +69,7 @@ options:
     function:
         description:
             - The computation function for the KPI.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'sum'
             - 'avg'
@@ -82,7 +82,7 @@ options:
     expression:
         description:
             - The computation expression for the KPI.
-        required: True
+            - Required when C(state) is I(present).
     unit:
         description:
             - The unit of measurement for the KPI.
@@ -100,15 +100,15 @@ options:
             lower_limit:
                 description:
                     - The lower threshold limit.
-                required: True
+                    - Required when C(state) is I(present).
             upper_limit:
                 description:
                     - The upper threshold limit.
-                required: True
+                    - Required when C(state) is I(present).
             increasing_kpi:
                 description:
                     - Whether or not the KPI is an increasing KPI.
-                required: True
+                    - Required when C(state) is I(present).
     aliases:
         description:
             - The aliases.
@@ -117,11 +117,11 @@ options:
             alias_name:
                 description:
                     - KPI alias name.
-                required: True
+                    - Required when C(state) is I(present).
             expression:
                 description:
                     - The expression.
-                required: True
+                    - Required when C(state) is I(present).
     extracts:
         description:
             - The KPI extracts.
@@ -130,11 +130,11 @@ options:
             extract_name:
                 description:
                     - KPI extract name.
-                required: True
+                    - Required when C(state) is I(present).
             expression:
                 description:
                     - The expression.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Kpi.
@@ -157,7 +157,30 @@ EXAMPLES = '''
     azure_rm_customerinsightskpi:
       resource_group: TestHubRG
       hub_name: sdkTestHub
-      kpi_name: kpiTest45453647
+      name: kpiTest45453647
+      entity_type: Profile
+      entity_type_name: testProfile2327128
+      display_name: {
+  "en-us": "Kpi DisplayName"
+}
+      description: {
+  "en-us": "Kpi Description"
+}
+      calculation_window: Day
+      function: Sum
+      expression: SavingAccountBalance
+      unit: unit
+      group_by:
+        - [
+  "SavingAccountBalance"
+]
+      thres_holds:
+        lower_limit: 5
+        upper_limit: 50
+        increasing_kpi: True
+      aliases:
+        - alias_name: alias
+          expression: Id+4
 '''
 
 RETURN = '''
@@ -201,7 +224,7 @@ class AzureRMKpi(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            kpi_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -210,12 +233,10 @@ class AzureRMKpi(AzureRMModuleBase):
                 choices=['none',
                          'profile',
                          'interaction',
-                         'relationship'],
-                required=True
+                         'relationship']
             ),
             entity_type_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             display_name=dict(
                 type='dict'
@@ -229,8 +250,7 @@ class AzureRMKpi(AzureRMModuleBase):
                          'hour',
                          'day',
                          'week',
-                         'month'],
-                required=True
+                         'month']
             ),
             calculation_window_field_name=dict(
                 type='str'
@@ -244,12 +264,10 @@ class AzureRMKpi(AzureRMModuleBase):
                          'last',
                          'count',
                          'none',
-                         'count_distinct'],
-                required=True
+                         'count_distinct']
             ),
             expression=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             unit=dict(
                 type='str'
@@ -278,7 +296,7 @@ class AzureRMKpi(AzureRMModuleBase):
 
         self.resource_group = None
         self.hub_name = None
-        self.kpi_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -326,7 +344,6 @@ class AzureRMKpi(AzureRMModuleBase):
                 elif key == "extracts":
                     self.parameters["extracts"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
@@ -347,8 +364,8 @@ class AzureRMKpi(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Kpi instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Kpi instance")
@@ -359,10 +376,7 @@ class AzureRMKpi(AzureRMModuleBase):
 
             response = self.create_update_kpi()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Kpi instance deleted")
@@ -391,12 +405,12 @@ class AzureRMKpi(AzureRMModuleBase):
 
         :return: deserialized Kpi instance state dictionary
         '''
-        self.log("Creating / Updating the Kpi instance {0}".format(self.kpi_name))
+        self.log("Creating / Updating the Kpi instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.kpi.create_or_update(resource_group_name=self.resource_group,
                                                              hub_name=self.hub_name,
-                                                             kpi_name=self.kpi_name,
+                                                             kpi_name=self.name,
                                                              parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -412,11 +426,11 @@ class AzureRMKpi(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Kpi instance {0}".format(self.kpi_name))
+        self.log("Deleting the Kpi instance {0}".format(self.name))
         try:
             response = self.mgmt_client.kpi.delete(resource_group_name=self.resource_group,
                                                    hub_name=self.hub_name,
-                                                   kpi_name=self.kpi_name)
+                                                   kpi_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Kpi instance.')
             self.fail("Error deleting the Kpi instance: {0}".format(str(e)))
@@ -429,12 +443,12 @@ class AzureRMKpi(AzureRMModuleBase):
 
         :return: deserialized Kpi instance state dictionary
         '''
-        self.log("Checking if the Kpi instance {0} is present".format(self.kpi_name))
+        self.log("Checking if the Kpi instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.kpi.get(resource_group_name=self.resource_group,
                                                 hub_name=self.hub_name,
-                                                kpi_name=self.kpi_name)
+                                                kpi_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Kpi instance : {0} found".format(response.name))
@@ -450,6 +464,38 @@ class AzureRMKpi(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

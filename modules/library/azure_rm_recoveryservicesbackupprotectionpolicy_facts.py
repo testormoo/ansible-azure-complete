@@ -30,7 +30,7 @@ options:
         description:
             - The name of the resource group where the recovery services vault is present.
         required: True
-    policy_name:
+    name:
         description:
             - Backup policy information to be fetched.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_recoveryservicesbackupprotectionpolicy_facts:
       vault_name: vault_name
       resource_group: resource_group_name
-      policy_name: policy_name
+      name: policy_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMProtectionPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -126,7 +126,7 @@ class AzureRMProtectionPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        self.policy_name = None
+        self.name = None
         self.tags = None
         super(AzureRMProtectionPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -145,7 +145,7 @@ class AzureRMProtectionPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.protection_policies.get(vault_name=self.vault_name,
                                                                 resource_group_name=self.resource_group,
-                                                                policy_name=self.policy_name)
+                                                                policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ProtectionPolicies.')

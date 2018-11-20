@@ -30,7 +30,7 @@ options:
         description:
             - The workflow name.
         required: True
-    run_name:
+    name:
         description:
             - The workflow run name.
         required: True
@@ -52,7 +52,7 @@ EXAMPLES = '''
     azure_rm_logicworkflowrunoperation_facts:
       resource_group: resource_group_name
       workflow_name: workflow_name
-      run_name: run_name
+      name: run_name
       operation_id: operation_id
 '''
 
@@ -179,7 +179,7 @@ class AzureRMWorkflowRunOperationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            run_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -195,7 +195,7 @@ class AzureRMWorkflowRunOperationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workflow_name = None
-        self.run_name = None
+        self.name = None
         self.operation_id = None
         super(AzureRMWorkflowRunOperationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -214,7 +214,7 @@ class AzureRMWorkflowRunOperationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.workflow_run_operations.get(resource_group_name=self.resource_group,
                                                                     workflow_name=self.workflow_name,
-                                                                    run_name=self.run_name,
+                                                                    run_name=self.name,
                                                                     operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

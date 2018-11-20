@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    route_table_name:
+    name:
         description:
             - The name of the route table.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Route Table
     azure_rm_routetable_facts:
       resource_group: resource_group_name
-      route_table_name: route_table_name
+      name: route_table_name
       expand: expand
 '''
 
@@ -111,7 +111,7 @@ class AzureRMRouteTablesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            route_table_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMRouteTablesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.route_table_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMRouteTablesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -147,7 +147,7 @@ class AzureRMRouteTablesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.route_tables.get(resource_group_name=self.resource_group,
-                                                         route_table_name=self.route_table_name)
+                                                         route_table_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RouteTables.')

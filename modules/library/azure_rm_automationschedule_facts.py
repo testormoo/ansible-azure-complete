@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    schedule_name:
+    name:
         description:
             - The schedule name.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_automationschedule_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      schedule_name: schedule_name
+      name: schedule_name
 
   - name: List instances of Schedule
     azure_rm_automationschedule_facts:
@@ -116,7 +116,7 @@ class AzureRMScheduleFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            schedule_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -127,7 +127,7 @@ class AzureRMScheduleFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.schedule_name = None
+        self.name = None
         super(AzureRMScheduleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -136,7 +136,7 @@ class AzureRMScheduleFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.schedule_name is not None:
+        if self.name is not None:
             self.results['schedule'] = self.get()
         else:
             self.results['schedule'] = self.list_by_automation_account()
@@ -148,7 +148,7 @@ class AzureRMScheduleFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.schedule.get(resource_group_name=self.resource_group,
                                                      automation_account_name=self.automation_account_name,
-                                                     schedule_name=self.schedule_name)
+                                                     schedule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Schedule.')

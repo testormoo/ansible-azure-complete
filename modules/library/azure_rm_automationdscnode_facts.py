@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
   - name: List instances of Dsc Node
     azure_rm_automationdscnode_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       filter: filter
       skip: skip
       top: top
@@ -67,7 +67,7 @@ EXAMPLES = '''
   - name: Get instance of Dsc Node
     azure_rm_automationdscnode_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       node_id: node_id
 '''
 
@@ -122,7 +122,7 @@ class AzureRMDscNodeFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -148,7 +148,7 @@ class AzureRMDscNodeFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.filter = None
         self.skip = None
         self.top = None
@@ -173,7 +173,7 @@ class AzureRMDscNodeFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.dsc_node.list_by_automation_account(resource_group_name=self.resource_group,
-                                                                            automation_account_name=self.automation_account_name)
+                                                                            automation_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DscNode.')
@@ -189,7 +189,7 @@ class AzureRMDscNodeFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.dsc_node.get(resource_group_name=self.resource_group,
-                                                     automation_account_name=self.automation_account_name,
+                                                     automation_account_name=self.name,
                                                      node_id=self.node_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

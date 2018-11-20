@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Front Door which is globally unique.
         required: True
-    routing_rule_name:
+    name:
         description:
             - Name of the Routing Rule which is unique within the Front Door.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_frontdoorroutingrule_facts:
       resource_group: resource_group_name
       front_door_name: front_door_name
-      routing_rule_name: routing_rule_name
+      name: routing_rule_name
 
   - name: List instances of Routing Rule
     azure_rm_frontdoorroutingrule_facts:
@@ -98,7 +98,7 @@ class AzureRMRoutingRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            routing_rule_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMRoutingRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.front_door_name = None
-        self.routing_rule_name = None
+        self.name = None
         super(AzureRMRoutingRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMRoutingRulesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.routing_rule_name is not None:
+        if self.name is not None:
             self.results['routing_rules'] = self.get()
         else:
             self.results['routing_rules'] = self.list_by_front_door()
@@ -130,7 +130,7 @@ class AzureRMRoutingRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.routing_rules.get(resource_group_name=self.resource_group,
                                                           front_door_name=self.front_door_name,
-                                                          routing_rule_name=self.routing_rule_name)
+                                                          routing_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RoutingRules.')

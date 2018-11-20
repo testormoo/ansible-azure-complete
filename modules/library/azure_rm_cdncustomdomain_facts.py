@@ -34,7 +34,7 @@ options:
         description:
             - Name of the endpoint under the profile which is unique globally.
         required: True
-    custom_domain_name:
+    name:
         description:
             - Name of the custom domain within an endpoint.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       profile_name: profile_name
       endpoint_name: endpoint_name
-      custom_domain_name: custom_domain_name
+      name: custom_domain_name
 
   - name: List instances of Custom Domain
     azure_rm_cdncustomdomain_facts:
@@ -108,7 +108,7 @@ class AzureRMCustomDomainsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            custom_domain_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -120,7 +120,7 @@ class AzureRMCustomDomainsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.profile_name = None
         self.endpoint_name = None
-        self.custom_domain_name = None
+        self.name = None
         super(AzureRMCustomDomainsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -129,7 +129,7 @@ class AzureRMCustomDomainsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CdnManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.custom_domain_name is not None:
+        if self.name is not None:
             self.results['custom_domains'] = self.get()
         else:
             self.results['custom_domains'] = self.list_by_endpoint()
@@ -142,7 +142,7 @@ class AzureRMCustomDomainsFacts(AzureRMModuleBase):
             response = self.mgmt_client.custom_domains.get(resource_group_name=self.resource_group,
                                                            profile_name=self.profile_name,
                                                            endpoint_name=self.endpoint_name,
-                                                           custom_domain_name=self.custom_domain_name)
+                                                           custom_domain_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for CustomDomains.')

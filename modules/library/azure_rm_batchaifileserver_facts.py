@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group to which the resource belongs.
         required: True
-    file_server_name:
+    name:
         description:
             - "The name of the file server within the specified resource group. File server names can only contain a combination of alphanumeric characters
                along with dash (-) and underscore (_). The name must be from 1 through 64 characters long."
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of File Server
     azure_rm_batchaifileserver_facts:
       resource_group: resource_group_name
-      file_server_name: file_server_name
+      name: file_server_name
 
   - name: List instances of File Server
     azure_rm_batchaifileserver_facts:
@@ -123,7 +123,7 @@ class AzureRMFileServersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            file_server_name=dict(
+            name=dict(
                 type='str'
             ),
             file_servers_list_by_resource_group_options=dict(
@@ -139,7 +139,7 @@ class AzureRMFileServersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.file_server_name = None
+        self.name = None
         self.file_servers_list_by_resource_group_options = None
         self.tags = None
         super(AzureRMFileServersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -150,7 +150,7 @@ class AzureRMFileServersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(BatchAIManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.file_server_name is not None:
+        if self.name is not None:
             self.results['file_servers'] = self.get()
         else:
             self.results['file_servers'] = self.list_by_resource_group()
@@ -161,7 +161,7 @@ class AzureRMFileServersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.file_servers.get(resource_group_name=self.resource_group,
-                                                         file_server_name=self.file_server_name)
+                                                         file_server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FileServers.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    container_service_name:
+    name:
         description:
             - The name of the container service in the specified subscription and resource group.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Container Service
     azure_rm_computecontainerservice_facts:
       resource_group: resource_group_name
-      container_service_name: container_service_name
+      name: container_service_name
 
   - name: List instances of Container Service
     azure_rm_computecontainerservice_facts:
@@ -103,7 +103,7 @@ class AzureRMContainerServicesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_service_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -116,7 +116,7 @@ class AzureRMContainerServicesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.container_service_name = None
+        self.name = None
         self.tags = None
         super(AzureRMContainerServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -126,7 +126,7 @@ class AzureRMContainerServicesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.container_service_name is not None:
+        if self.name is not None:
             self.results['container_services'] = self.get()
         else:
             self.results['container_services'] = self.list_by_resource_group()
@@ -137,7 +137,7 @@ class AzureRMContainerServicesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.container_services.get(resource_group_name=self.resource_group,
-                                                               container_service_name=self.container_service_name)
+                                                               container_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ContainerServices.')

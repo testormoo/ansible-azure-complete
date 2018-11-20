@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - "The name of the resource group within the user's subscription."
-    topic_name:
+    name:
         description:
             - Name of the topic
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Topic
     azure_rm_eventgridtopic_facts:
       resource_group: resource_group_name
-      topic_name: topic_name
+      name: topic_name
 
   - name: List instances of Topic
     azure_rm_eventgridtopic_facts:
@@ -110,7 +110,7 @@ class AzureRMTopicsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            topic_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -123,7 +123,7 @@ class AzureRMTopicsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.topic_name = None
+        self.name = None
         self.tags = None
         super(AzureRMTopicsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -134,7 +134,7 @@ class AzureRMTopicsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.topic_name is not None):
+                self.name is not None):
             self.results['topics'] = self.get()
         elif self.resource_group is not None:
             self.results['topics'] = self.list_by_resource_group()
@@ -147,7 +147,7 @@ class AzureRMTopicsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.topics.get(resource_group_name=self.resource_group,
-                                                   topic_name=self.topic_name)
+                                                   topic_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Topics.')

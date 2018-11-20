@@ -26,23 +26,13 @@ options:
         description:
             - The resource group name of the workspace.
         required: True
-    workspace_name:
+    name:
         description:
             - The name of the workspace.
         required: True
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
-    provisioning_state:
-        description:
-            - The provisioning state of the workspace.
-        choices:
-            - 'creating'
-            - 'succeeded'
-            - 'failed'
-            - 'canceled'
-            - 'deleting'
-            - 'provisioning_account'
     source:
         description:
             - "The source of the workspace.  Source defines where the workspace was created. 'Azure' implies it was created in Azure.  'External' implies it
@@ -61,7 +51,7 @@ options:
             name:
                 description:
                     - The name of the SKU.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'free'
                     - 'standard'
@@ -98,8 +88,11 @@ EXAMPLES = '''
   - name: Create (or update) Workspace
     azure_rm_loganalyticsworkspace:
       resource_group: oiautorest6685
-      workspace_name: oiautorest6685
+      name: oiautorest6685
       location: eastus
+      sku:
+        name: PerNode
+      retention_in_days: 30
 '''
 
 RETURN = '''
@@ -138,21 +131,12 @@ class AzureRMWorkspaces(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workspace_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             location=dict(
                 type='str'
-            ),
-            provisioning_state=dict(
-                type='str',
-                choices=['creating',
-                         'succeeded',
-                         'failed',
-                         'canceled',
-                         'deleting',
-                         'provisioning_account']
             ),
             source=dict(
                 type='str'
@@ -180,7 +164,7 @@ class AzureRMWorkspaces(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.workspace_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -201,8 +185,6 @@ class AzureRMWorkspaces(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 if key == "location":
                     self.parameters["location"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = _snake_to_camel(kwargs[key], True)
                 elif key == "source":
                     self.parameters["source"] = kwargs[key]
                 elif key == "customer_id":
@@ -232,7 +214,6 @@ class AzureRMWorkspaces(AzureRMModuleBase):
                 elif key == "e_tag":
                     self.parameters["e_tag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(OperationalInsightsManagementClient,
@@ -256,8 +237,8 @@ class AzureRMWorkspaces(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Workspace instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Workspace instance")
@@ -268,10 +249,7 @@ class AzureRMWorkspaces(AzureRMModuleBase):
 
             response = self.create_update_workspace()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Workspace instance deleted")
@@ -300,11 +278,11 @@ class AzureRMWorkspaces(AzureRMModuleBase):
 
         :return: deserialized Workspace instance state dictionary
         '''
-        self.log("Creating / Updating the Workspace instance {0}".format(self.workspace_name))
+        self.log("Creating / Updating the Workspace instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.workspaces.create_or_update(resource_group_name=self.resource_group,
-                                                                    workspace_name=self.workspace_name,
+                                                                    workspace_name=self.name,
                                                                     parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -320,10 +298,10 @@ class AzureRMWorkspaces(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Workspace instance {0}".format(self.workspace_name))
+        self.log("Deleting the Workspace instance {0}".format(self.name))
         try:
             response = self.mgmt_client.workspaces.delete(resource_group_name=self.resource_group,
-                                                          workspace_name=self.workspace_name)
+                                                          workspace_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Workspace instance.')
             self.fail("Error deleting the Workspace instance: {0}".format(str(e)))
@@ -336,11 +314,11 @@ class AzureRMWorkspaces(AzureRMModuleBase):
 
         :return: deserialized Workspace instance state dictionary
         '''
-        self.log("Checking if the Workspace instance {0} is present".format(self.workspace_name))
+        self.log("Checking if the Workspace instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.workspaces.get(resource_group_name=self.resource_group,
-                                                       workspace_name=self.workspace_name)
+                                                       workspace_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Workspace instance : {0} found".format(response.name))
@@ -358,11 +336,36 @@ class AzureRMWorkspaces(AzureRMModuleBase):
         return d
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
     else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+        return new == old
 
 
 def main():

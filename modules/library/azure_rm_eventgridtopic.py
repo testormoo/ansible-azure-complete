@@ -26,7 +26,7 @@ options:
         description:
             - "The name of the resource group within the user's subscription."
         required: True
-    topic_name:
+    name:
         description:
             - Name of the topic
         required: True
@@ -38,7 +38,7 @@ options:
             location:
                 description:
                     - Location of the resource
-                required: True
+                    - Required when C(state) is I(present).
             input_schema:
                 description:
                     - This determines the format that Event Grid should expect for incoming events published to the topic.
@@ -54,7 +54,7 @@ options:
                     input_schema_mapping_type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Topic.
@@ -77,7 +77,7 @@ EXAMPLES = '''
   - name: Create (or update) Topic
     azure_rm_eventgridtopic:
       resource_group: examplerg
-      topic_name: exampletopic1
+      name: exampletopic1
       topic_info:
         location: westus2
 '''
@@ -118,7 +118,7 @@ class AzureRMTopics(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            topic_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -134,7 +134,7 @@ class AzureRMTopics(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.topic_name = None
+        self.name = None
         self.topic_info = dict()
 
         self.results = dict(changed=False)
@@ -160,7 +160,6 @@ class AzureRMTopics(AzureRMModuleBase):
                 elif key == "input_schema_mapping":
                     self.topic_info["input_schema_mapping"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(EventGridManagementClient,
@@ -181,8 +180,8 @@ class AzureRMTopics(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Topic instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Topic instance")
@@ -193,10 +192,7 @@ class AzureRMTopics(AzureRMModuleBase):
 
             response = self.create_update_topic()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Topic instance deleted")
@@ -225,11 +221,11 @@ class AzureRMTopics(AzureRMModuleBase):
 
         :return: deserialized Topic instance state dictionary
         '''
-        self.log("Creating / Updating the Topic instance {0}".format(self.topic_name))
+        self.log("Creating / Updating the Topic instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.topics.create_or_update(resource_group_name=self.resource_group,
-                                                                topic_name=self.topic_name,
+                                                                topic_name=self.name,
                                                                 topic_info=self.topic_info)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -245,10 +241,10 @@ class AzureRMTopics(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Topic instance {0}".format(self.topic_name))
+        self.log("Deleting the Topic instance {0}".format(self.name))
         try:
             response = self.mgmt_client.topics.delete(resource_group_name=self.resource_group,
-                                                      topic_name=self.topic_name)
+                                                      topic_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Topic instance.')
             self.fail("Error deleting the Topic instance: {0}".format(str(e)))
@@ -261,11 +257,11 @@ class AzureRMTopics(AzureRMModuleBase):
 
         :return: deserialized Topic instance state dictionary
         '''
-        self.log("Checking if the Topic instance {0} is present".format(self.topic_name))
+        self.log("Checking if the Topic instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.topics.get(resource_group_name=self.resource_group,
-                                                   topic_name=self.topic_name)
+                                                   topic_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Topic instance : {0} found".format(response.name))
@@ -281,6 +277,38 @@ class AzureRMTopics(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

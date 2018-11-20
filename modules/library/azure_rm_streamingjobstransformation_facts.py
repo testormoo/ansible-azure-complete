@@ -30,7 +30,7 @@ options:
         description:
             - The name of the streaming job.
         required: True
-    transformation_name:
+    name:
         description:
             - The name of the transformation.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_streamingjobstransformation_facts:
       resource_group: resource_group_name
       job_name: job_name
-      transformation_name: transformation_name
+      name: transformation_name
 '''
 
 RETURN = '''
@@ -102,7 +102,7 @@ class AzureRMTransformationsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            transformation_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -114,7 +114,7 @@ class AzureRMTransformationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.job_name = None
-        self.transformation_name = None
+        self.name = None
         super(AzureRMTransformationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -132,7 +132,7 @@ class AzureRMTransformationsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.transformations.get(resource_group_name=self.resource_group,
                                                             job_name=self.job_name,
-                                                            transformation_name=self.transformation_name)
+                                                            transformation_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Transformations.')

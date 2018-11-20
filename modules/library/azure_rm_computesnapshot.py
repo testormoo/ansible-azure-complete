@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    snapshot_name:
+    name:
         description:
             - "The name of the snapshot that is being created. The name can't be changed after the snapshot is created. Supported characters for the name
                are a-z, A-Z, 0-9 and _. The max name length is 80 characters."
@@ -34,7 +34,7 @@ options:
     location:
         description:
             - Resource location
-        required: True
+            - Required when C(state) is I(present).
     sku:
         description:
         suboptions:
@@ -54,12 +54,12 @@ options:
     creation_data:
         description:
             - Disk source information. CreationData information cannot be changed after the disk has been created.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             create_option:
                 description:
                     - "This enumerates the possible sources of a disk's creation."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'empty'
                     - 'attach'
@@ -78,7 +78,7 @@ options:
                     id:
                         description:
                             - A relative uri containing either a Platform Image Repository or user image reference.
-                        required: True
+                            - Required when C(state) is I(present).
                     lun:
                         description:
                             - "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the image to
@@ -110,7 +110,7 @@ options:
                     source_vault:
                         description:
                             - Resource id of the KeyVault containing the key or secret
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             id:
                                 description:
@@ -118,7 +118,7 @@ options:
                     secret_url:
                         description:
                             - Url pointing to a key or secret in KeyVault
-                        required: True
+                            - Required when C(state) is I(present).
             key_encryption_key:
                 description:
                     - Key Vault Key Url and vault id of the key encryption key
@@ -126,7 +126,7 @@ options:
                     source_vault:
                         description:
                             - Resource id of the KeyVault containing the key or secret
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             id:
                                 description:
@@ -134,7 +134,7 @@ options:
                     key_url:
                         description:
                             - Url pointing to a key or secret in KeyVault
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Snapshot.
@@ -157,8 +157,11 @@ EXAMPLES = '''
   - name: Create (or update) Snapshot
     azure_rm_computesnapshot:
       resource_group: myResourceGroup
-      snapshot_name: mySnapshot2
+      name: mySnapshot2
       location: West US
+      creation_data:
+        create_option: Copy
+        source_resource_id: subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/snapshots/mySnapshot1
 '''
 
 RETURN = '''
@@ -197,13 +200,12 @@ class AzureRMSnapshots(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            snapshot_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             location=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             sku=dict(
                 type='dict'
@@ -214,8 +216,7 @@ class AzureRMSnapshots(AzureRMModuleBase):
                          'linux']
             ),
             creation_data=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             disk_size_gb=dict(
                 type='int'
@@ -231,7 +232,7 @@ class AzureRMSnapshots(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.snapshot_name = None
+        self.name = None
         self.snapshot = dict()
 
         self.results = dict(changed=False)
@@ -285,7 +286,6 @@ class AzureRMSnapshots(AzureRMModuleBase):
                 elif key == "encryption_settings":
                     self.snapshot["encryption_settings"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
@@ -306,8 +306,8 @@ class AzureRMSnapshots(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Snapshot instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Snapshot instance")
@@ -318,10 +318,7 @@ class AzureRMSnapshots(AzureRMModuleBase):
 
             response = self.create_update_snapshot()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Snapshot instance deleted")
@@ -350,11 +347,11 @@ class AzureRMSnapshots(AzureRMModuleBase):
 
         :return: deserialized Snapshot instance state dictionary
         '''
-        self.log("Creating / Updating the Snapshot instance {0}".format(self.snapshot_name))
+        self.log("Creating / Updating the Snapshot instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.snapshots.create_or_update(resource_group_name=self.resource_group,
-                                                                   snapshot_name=self.snapshot_name,
+                                                                   snapshot_name=self.name,
                                                                    snapshot=self.snapshot)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -370,10 +367,10 @@ class AzureRMSnapshots(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Snapshot instance {0}".format(self.snapshot_name))
+        self.log("Deleting the Snapshot instance {0}".format(self.name))
         try:
             response = self.mgmt_client.snapshots.delete(resource_group_name=self.resource_group,
-                                                         snapshot_name=self.snapshot_name)
+                                                         snapshot_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Snapshot instance.')
             self.fail("Error deleting the Snapshot instance: {0}".format(str(e)))
@@ -386,11 +383,11 @@ class AzureRMSnapshots(AzureRMModuleBase):
 
         :return: deserialized Snapshot instance state dictionary
         '''
-        self.log("Checking if the Snapshot instance {0} is present".format(self.snapshot_name))
+        self.log("Checking if the Snapshot instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.snapshots.get(resource_group_name=self.resource_group,
-                                                      snapshot_name=self.snapshot_name)
+                                                      snapshot_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Snapshot instance : {0} found".format(response.name))
@@ -406,6 +403,38 @@ class AzureRMSnapshots(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

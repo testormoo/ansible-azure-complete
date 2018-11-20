@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    automation_account_name:
+    name:
         description:
             - The name of the automation account.
         required: True
@@ -53,14 +53,14 @@ EXAMPLES = '''
   - name: List instances of Node Report
     azure_rm_automationnodereport_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       node_id: node_id
       filter: filter
 
   - name: Get instance of Node Report
     azure_rm_automationnodereport_facts:
       resource_group: resource_group_name
-      automation_account_name: automation_account_name
+      name: automation_account_name
       node_id: node_id
       report_id: report_id
 '''
@@ -119,7 +119,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            automation_account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -140,7 +140,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.automation_account_name = None
+        self.name = None
         self.node_id = None
         self.filter = None
         self.report_id = None
@@ -163,7 +163,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.node_reports.list_by_node(resource_group_name=self.resource_group,
-                                                                  automation_account_name=self.automation_account_name,
+                                                                  automation_account_name=self.name,
                                                                   node_id=self.node_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
@@ -180,7 +180,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.node_reports.get(resource_group_name=self.resource_group,
-                                                         automation_account_name=self.automation_account_name,
+                                                         automation_account_name=self.name,
                                                          node_id=self.node_id,
                                                          report_id=self.report_id)
             self.log("Response : {0}".format(response))

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the hub.
         required: True
-    kpi_name:
+    name:
         description:
             - The name of the KPI.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_customerinsightskpi_facts:
       resource_group: resource_group_name
       hub_name: hub_name
-      kpi_name: kpi_name
+      name: kpi_name
 
   - name: List instances of Kpi
     azure_rm_customerinsightskpi_facts:
@@ -130,7 +130,7 @@ class AzureRMKpiFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            kpi_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -141,7 +141,7 @@ class AzureRMKpiFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.hub_name = None
-        self.kpi_name = None
+        self.name = None
         super(AzureRMKpiFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -150,7 +150,7 @@ class AzureRMKpiFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.kpi_name is not None:
+        if self.name is not None:
             self.results['kpi'] = self.get()
         else:
             self.results['kpi'] = self.list_by_hub()
@@ -162,7 +162,7 @@ class AzureRMKpiFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.kpi.get(resource_group_name=self.resource_group,
                                                 hub_name=self.hub_name,
-                                                kpi_name=self.kpi_name)
+                                                kpi_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Kpi.')

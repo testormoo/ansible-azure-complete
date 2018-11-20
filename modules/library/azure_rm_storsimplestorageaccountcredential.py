@@ -34,7 +34,7 @@ options:
             cloud_type:
                 description:
                     - The cloud service provider.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'azure'
                     - 's3'
@@ -44,18 +44,18 @@ options:
             end_point:
                 description:
                     - The storage endpoint
-                required: True
+                    - Required when C(state) is I(present).
             login:
                 description:
                     - The storage account login
-                required: True
+                    - Required when C(state) is I(present).
             location:
                 description:
                     - "The storage account's geo location"
             enable_ssl:
                 description:
                     - SSL needs to be C(enabled) or not.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'enabled'
                     - 'disabled'
@@ -67,14 +67,14 @@ options:
                         description:
                             - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
                                EncryptionCertThumbprint will be null."
-                        required: True
+                            - Required when C(state) is I(present).
                     encryption_certificate_thumbprint:
                         description:
                             - "Thumbprint certificate that was used to encrypt 'I(value)'"
                     encryption_algorithm:
                         description:
                             - "Algorithm used to encrypt 'I(value)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'aes256'
@@ -83,7 +83,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
         required: True
@@ -108,8 +108,18 @@ EXAMPLES = '''
   - name: Create (or update) Storage Account Credential
     azure_rm_storsimplestorageaccountcredential:
       credential_name: DummySacForSDKTest
+      storage_account:
+        cloud_type: Azure
+        end_point: blob.core.windows.net
+        login: SacForSDKTest
+        location: West US
+        enable_ssl: Enabled
+        access_key:
+          value: Ev1tm0QBmpGGm4a58GkqLqx8veJEEgQtg5K3Jizpmy7JdSv9dlcRwk59THw6KIdMDlEHcS8mPyneBtOEQsh4wkcFB7qrmQz+KsRAyIhEm6bwPEm3qN8+aDDzNcXn/6vu/sqV0AP7zit9/s7SxXGxjKrz4zKnOy16/DbzRRmUHNO+HO6JUM0cUfHXTX0mEecbsXqBq0A8IEG8z+bJgXX1EhoGkzE6yVsObm4S1AcKrLiwWjqmSLji5Q8gGO+y4KTTmC3p45h5GHHXjJyOccHhySWDAffxnTzUD/sOoh+aD2VkAYrL3DdnkVzhAdfcZfVI4soONx7tYMloZIVsfW1M2Q==
+          encryption_certificate_thumbprint: D73DB57C4CDD6761E159F8D1E8A7D759424983FD
+          encryption_algorithm: RSAES_PKCS1_v_1_5
       resource_group: ResourceGroupForSDKTest
-      manager_name: hAzureSDKOperations
+      name: hAzureSDKOperations
 '''
 
 RETURN = '''
@@ -157,7 +167,7 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -171,7 +181,7 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
         self.credential_name = None
         self.storage_account = dict()
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -215,7 +225,6 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
                             ev['encryption_algorithm'] = 'RSAES_PKCS1_v_1_5'
                     self.storage_account["access_key"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
@@ -236,8 +245,8 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Storage Account Credential instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Storage Account Credential instance")
@@ -248,10 +257,7 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
 
             response = self.create_update_storageaccountcredential()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Storage Account Credential instance deleted")
@@ -280,13 +286,13 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
 
         :return: deserialized Storage Account Credential instance state dictionary
         '''
-        self.log("Creating / Updating the Storage Account Credential instance {0}".format(self.manager_name))
+        self.log("Creating / Updating the Storage Account Credential instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.storage_account_credentials.create_or_update(credential_name=self.credential_name,
                                                                                      storage_account=self.storage_account,
                                                                                      resource_group_name=self.resource_group,
-                                                                                     manager_name=self.manager_name)
+                                                                                     manager_name=self.name)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
@@ -301,11 +307,11 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Storage Account Credential instance {0}".format(self.manager_name))
+        self.log("Deleting the Storage Account Credential instance {0}".format(self.name))
         try:
             response = self.mgmt_client.storage_account_credentials.delete(credential_name=self.credential_name,
                                                                            resource_group_name=self.resource_group,
-                                                                           manager_name=self.manager_name)
+                                                                           manager_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Storage Account Credential instance.')
             self.fail("Error deleting the Storage Account Credential instance: {0}".format(str(e)))
@@ -318,12 +324,12 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
 
         :return: deserialized Storage Account Credential instance state dictionary
         '''
-        self.log("Checking if the Storage Account Credential instance {0} is present".format(self.manager_name))
+        self.log("Checking if the Storage Account Credential instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.storage_account_credentials.get(credential_name=self.credential_name,
                                                                         resource_group_name=self.resource_group,
-                                                                        manager_name=self.manager_name)
+                                                                        manager_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Storage Account Credential instance : {0} found".format(response.name))
@@ -339,6 +345,38 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

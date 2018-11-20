@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group to which the container registry belongs.
         required: True
-    registry_name:
+    name:
         description:
             - The name of the container registry.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Registry
     azure_rm_containerregistry_facts:
       resource_group: resource_group_name
-      registry_name: registry_name
+      name: registry_name
 
   - name: List instances of Registry
     azure_rm_containerregistry_facts:
@@ -143,7 +143,7 @@ class AzureRMRegistriesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            registry_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -156,7 +156,7 @@ class AzureRMRegistriesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.registry_name = None
+        self.name = None
         self.tags = None
         super(AzureRMRegistriesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -166,7 +166,7 @@ class AzureRMRegistriesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ContainerRegistryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.registry_name is not None:
+        if self.name is not None:
             self.results['registries'] = self.get()
         else:
             self.results['registries'] = self.list_by_resource_group()
@@ -177,7 +177,7 @@ class AzureRMRegistriesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.registries.get(resource_group_name=self.resource_group,
-                                                       registry_name=self.registry_name)
+                                                       registry_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Registries.')

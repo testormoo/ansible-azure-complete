@@ -30,7 +30,7 @@ options:
         description:
             - The name of the streaming job.
         required: True
-    output_name:
+    name:
         description:
             - The name of the output.
     select:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_streamingjobsoutput_facts:
       resource_group: resource_group_name
       job_name: job_name
-      output_name: output_name
+      name: output_name
 
   - name: List instances of Output
     azure_rm_streamingjobsoutput_facts:
@@ -117,7 +117,7 @@ class AzureRMOutputsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            output_name=dict(
+            name=dict(
                 type='str'
             ),
             select=dict(
@@ -131,7 +131,7 @@ class AzureRMOutputsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.job_name = None
-        self.output_name = None
+        self.name = None
         self.select = None
         super(AzureRMOutputsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -141,7 +141,7 @@ class AzureRMOutputsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(StreamAnalyticsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.output_name is not None:
+        if self.name is not None:
             self.results['outputs'] = self.get()
         else:
             self.results['outputs'] = self.list_by_streaming_job()
@@ -153,7 +153,7 @@ class AzureRMOutputsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.outputs.get(resource_group_name=self.resource_group,
                                                     job_name=self.job_name,
-                                                    output_name=self.output_name)
+                                                    output_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Outputs.')

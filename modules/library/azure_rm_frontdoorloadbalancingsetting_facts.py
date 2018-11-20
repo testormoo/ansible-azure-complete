@@ -30,7 +30,7 @@ options:
         description:
             - Name of the Front Door which is globally unique.
         required: True
-    load_balancing_settings_name:
+    name:
         description:
             - Name of the load balancing settings which is unique within the Front Door.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_frontdoorloadbalancingsetting_facts:
       resource_group: resource_group_name
       front_door_name: front_door_name
-      load_balancing_settings_name: load_balancing_settings_name
+      name: load_balancing_settings_name
 
   - name: List instances of Load Balancing Setting
     azure_rm_frontdoorloadbalancingsetting_facts:
@@ -98,7 +98,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            load_balancing_settings_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.front_door_name = None
-        self.load_balancing_settings_name = None
+        self.name = None
         super(AzureRMLoadBalancingSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.load_balancing_settings_name is not None:
+        if self.name is not None:
             self.results['load_balancing_settings'] = self.get()
         else:
             self.results['load_balancing_settings'] = self.list_by_front_door()
@@ -130,7 +130,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.load_balancing_settings.get(resource_group_name=self.resource_group,
                                                                     front_door_name=self.front_door_name,
-                                                                    load_balancing_settings_name=self.load_balancing_settings_name)
+                                                                    load_balancing_settings_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for LoadBalancingSettings.')

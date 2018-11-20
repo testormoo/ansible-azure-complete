@@ -34,7 +34,7 @@ options:
         description:
             - Machine resource name.
         required: True
-    process_name:
+    name:
         description:
             - Process resource name.
         required: True
@@ -56,7 +56,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       workspace_name: workspace_name
       machine_name: machine_name
-      process_name: process_name
+      name: process_name
       timestamp: timestamp
 '''
 
@@ -199,7 +199,7 @@ class AzureRMProcessesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            process_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -215,7 +215,7 @@ class AzureRMProcessesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.workspace_name = None
         self.machine_name = None
-        self.process_name = None
+        self.name = None
         self.timestamp = None
         super(AzureRMProcessesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -235,7 +235,7 @@ class AzureRMProcessesFacts(AzureRMModuleBase):
             response = self.mgmt_client.processes.get(resource_group_name=self.resource_group,
                                                       workspace_name=self.workspace_name,
                                                       machine_name=self.machine_name,
-                                                      process_name=self.process_name)
+                                                      process_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Processes.')

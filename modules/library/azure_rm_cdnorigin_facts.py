@@ -34,7 +34,7 @@ options:
         description:
             - Name of the endpoint under the profile which is unique globally.
         required: True
-    origin_name:
+    name:
         description:
             - Name of the origin which is unique within the endpoint.
     tags:
@@ -55,7 +55,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       profile_name: profile_name
       endpoint_name: endpoint_name
-      origin_name: origin_name
+      name: origin_name
 
   - name: List instances of Origin
     azure_rm_cdnorigin_facts:
@@ -117,7 +117,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            origin_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -132,7 +132,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.profile_name = None
         self.endpoint_name = None
-        self.origin_name = None
+        self.name = None
         self.tags = None
         super(AzureRMOriginsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -142,7 +142,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CdnManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.origin_name is not None:
+        if self.name is not None:
             self.results['origins'] = self.get()
         else:
             self.results['origins'] = self.list_by_endpoint()
@@ -155,7 +155,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
             response = self.mgmt_client.origins.get(resource_group_name=self.resource_group,
                                                     profile_name=self.profile_name,
                                                     endpoint_name=self.endpoint_name,
-                                                    origin_name=self.origin_name)
+                                                    origin_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Origins.')

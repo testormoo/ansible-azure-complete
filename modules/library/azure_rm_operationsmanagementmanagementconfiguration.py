@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group to get. The name is case insensitive.
         required: True
-    management_configuration_name:
+    name:
         description:
             - User Management Configuration Name.
         required: True
@@ -39,11 +39,11 @@ options:
     parent_resource_type:
         description:
             - The type of the parent resource.
-        required: True
+            - Required when C(state) is I(present).
     parameters:
         description:
             - Parameters to run the ARM I(template)
-        required: True
+            - Required when C(state) is I(present).
         type: list
         suboptions:
             name:
@@ -55,7 +55,7 @@ options:
     template:
         description:
             - The Json object containing the ARM template to deploy
-        required: True
+            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Management Configuration.
@@ -77,10 +77,16 @@ EXAMPLES = '''
   - name: Create (or update) Management Configuration
     azure_rm_operationsmanagementmanagementconfiguration:
       resource_group: rg1
-      management_configuration_name: managementConfiguration1
+      name: managementConfiguration1
       location: eastus
       application_id: /subscriptions/sub1/resourcegroups/rg1/providers/Microsoft.Appliance/Appliances/appliance1
       parent_resource_type: Microsoft.OperationalInsights/workspaces
+      parameters:
+        - name: jsonobject
+          value: {
+  "displayName": "abcde",
+  "query": "hello"
+}
       template: {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
@@ -150,7 +156,7 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            management_configuration_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -161,16 +167,13 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
                 type='str'
             ),
             parent_resource_type=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             parameters=dict(
-                type='list',
-                required=True
+                type='list'
             ),
             template=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -180,7 +183,7 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.management_configuration_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -210,7 +213,6 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
                 elif key == "template":
                     self.parameters.setdefault("properties", {})["template"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(OperationsManagementClient,
@@ -234,8 +236,8 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Management Configuration instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Management Configuration instance")
@@ -246,10 +248,7 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
 
             response = self.create_update_managementconfiguration()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Management Configuration instance deleted")
@@ -278,11 +277,11 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
 
         :return: deserialized Management Configuration instance state dictionary
         '''
-        self.log("Creating / Updating the Management Configuration instance {0}".format(self.management_configuration_name))
+        self.log("Creating / Updating the Management Configuration instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.management_configurations.create_or_update(resource_group_name=self.resource_group,
-                                                                                   management_configuration_name=self.management_configuration_name,
+                                                                                   management_configuration_name=self.name,
                                                                                    parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -298,10 +297,10 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Management Configuration instance {0}".format(self.management_configuration_name))
+        self.log("Deleting the Management Configuration instance {0}".format(self.name))
         try:
             response = self.mgmt_client.management_configurations.delete(resource_group_name=self.resource_group,
-                                                                         management_configuration_name=self.management_configuration_name)
+                                                                         management_configuration_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Management Configuration instance.')
             self.fail("Error deleting the Management Configuration instance: {0}".format(str(e)))
@@ -314,11 +313,11 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
 
         :return: deserialized Management Configuration instance state dictionary
         '''
-        self.log("Checking if the Management Configuration instance {0} is present".format(self.management_configuration_name))
+        self.log("Checking if the Management Configuration instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.management_configurations.get(resource_group_name=self.resource_group,
-                                                                      management_configuration_name=self.management_configuration_name)
+                                                                      management_configuration_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Management Configuration instance : {0} found".format(response.name))
@@ -334,6 +333,38 @@ class AzureRMManagementConfigurations(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

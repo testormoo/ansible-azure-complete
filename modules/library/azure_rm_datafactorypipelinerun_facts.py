@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name.
         required: True
-    factory_name:
+    name:
         description:
             - The factory name.
         required: True
@@ -47,7 +47,7 @@ EXAMPLES = '''
   - name: Get instance of Pipeline Run
     azure_rm_datafactorypipelinerun_facts:
       resource_group: resource_group_name
-      factory_name: factory_name
+      name: factory_name
       run_id: run_id
 '''
 
@@ -96,7 +96,7 @@ class AzureRMPipelineRunsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            factory_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -111,7 +111,7 @@ class AzureRMPipelineRunsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.factory_name = None
+        self.name = None
         self.run_id = None
         super(AzureRMPipelineRunsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -129,7 +129,7 @@ class AzureRMPipelineRunsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.pipeline_runs.get(resource_group_name=self.resource_group,
-                                                          factory_name=self.factory_name,
+                                                          factory_name=self.name,
                                                           run_id=self.run_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

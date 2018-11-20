@@ -26,7 +26,7 @@ options:
         description:
             - Name of the resource group in which the web service is located.
         required: True
-    web_service_name:
+    name:
         description:
             - The name of the web service.
         required: True
@@ -38,7 +38,7 @@ options:
             location:
                 description:
                     - Specifies the location of the resource.
-                required: True
+                    - Required when C(state) is I(present).
             title:
                 description:
                     - The title of the web service.
@@ -78,7 +78,7 @@ options:
                         description:
                             - "Specifies the verbosity of the diagnostic output. Valid values are: C(none) - disables tracing; C(error) - collects only
                                C(error) (stderr) traces; C(all) - collects C(all) traces (stdout and stderr)."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'none'
                             - 'error'
@@ -105,7 +105,7 @@ options:
                     id:
                         description:
                             - Specifies the workspace ID of the machine learning workspace associated with the web service
-                        required: True
+                            - Required when C(state) is I(present).
             commitment_plan:
                 description:
                     - "Contains the commitment plan associated with this web service. Set at creation time. Once set, this value cannot be changed. Note:
@@ -114,7 +114,7 @@ options:
                     id:
                         description:
                             - Specifies the Azure Resource Manager ID of the commitment plan associated with the web service.
-                        required: True
+                            - Required when C(state) is I(present).
             input:
                 description:
                     - "Contains the Swagger 2.0 schema describing one or more of the web service's inputs. For more information, see the Swagger
@@ -129,7 +129,7 @@ options:
                     type:
                         description:
                             - "The type of the entity described in swagger. Always 'object'."
-                        required: True
+                            - Required when C(state) is I(present).
             output:
                 description:
                     - "Contains the Swagger 2.0 schema describing one or more of the web service's outputs. For more information, see the Swagger
@@ -144,7 +144,7 @@ options:
                     type:
                         description:
                             - "The type of the entity described in swagger. Always 'object'."
-                        required: True
+                            - Required when C(state) is I(present).
             example_request:
                 description:
                     - "Defines sample I(input) data for one or more of the service's inputs."
@@ -177,14 +177,14 @@ options:
                         description:
                             - "The URI from which the blob is accessible from. For example, aml://abc for system assets or https://xyz for user assets or
                                payload."
-                        required: True
+                            - Required when C(state) is I(present).
                     credentials:
                         description:
                             - Access credentials for the blob, if applicable (e.g. blob specified by storage account connection string + blob I(uri))
             package_type:
                 description:
                     - Constant filled by server.
-                required: True
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Web Service.
@@ -207,7 +207,7 @@ EXAMPLES = '''
   - name: Create (or update) Web Service
     azure_rm_webservice:
       resource_group: OneResourceGroupName
-      web_service_name: TargetWebServiceName
+      name: TargetWebServiceName
       create_or_update_payload:
         location: West US
         title: Web Service Title
@@ -307,7 +307,7 @@ class AzureRMWebServices(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            web_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -323,7 +323,7 @@ class AzureRMWebServices(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.web_service_name = None
+        self.name = None
         self.create_or_update_payload = dict()
 
         self.results = dict(changed=False)
@@ -389,7 +389,6 @@ class AzureRMWebServices(AzureRMModuleBase):
                 elif key == "package_type":
                     self.create_or_update_payload.setdefault("properties", {})["package_type"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AzureMLWebServicesManagementClient,
@@ -410,8 +409,8 @@ class AzureRMWebServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Web Service instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Web Service instance")
@@ -422,10 +421,7 @@ class AzureRMWebServices(AzureRMModuleBase):
 
             response = self.create_update_webservice()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Web Service instance deleted")
@@ -458,7 +454,7 @@ class AzureRMWebServices(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.web_services.create_or_update(resource_group_name=self.resource_group,
-                                                                      web_service_name=self.web_service_name,
+                                                                      web_service_name=self.name,
                                                                       create_or_update_payload=self.create_or_update_payload)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -493,7 +489,7 @@ class AzureRMWebServices(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.web_services.get(resource_group_name=self.resource_group,
-                                                         web_service_name=self.web_service_name)
+                                                         web_service_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Web Service instance : {0} found".format(response.name))
@@ -509,6 +505,38 @@ class AzureRMWebServices(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

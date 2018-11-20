@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database.
         required: True
-    restore_point_name:
+    name:
         description:
             - The name of the restore point.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      restore_point_name: restore_point_name
+      name: restore_point_name
 
   - name: List instances of Restore Point
     azure_rm_sqlrestorepoint_facts:
@@ -115,7 +115,7 @@ class AzureRMRestorePointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            restore_point_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -127,7 +127,7 @@ class AzureRMRestorePointsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.restore_point_name = None
+        self.name = None
         super(AzureRMRestorePointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -136,7 +136,7 @@ class AzureRMRestorePointsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.restore_point_name is not None:
+        if self.name is not None:
             self.results['restore_points'] = self.get()
         else:
             self.results['restore_points'] = self.list_by_database()
@@ -149,7 +149,7 @@ class AzureRMRestorePointsFacts(AzureRMModuleBase):
             response = self.mgmt_client.restore_points.get(resource_group_name=self.resource_group,
                                                            server_name=self.server_name,
                                                            database_name=self.database_name,
-                                                           restore_point_name=self.restore_point_name)
+                                                           restore_point_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for RestorePoints.')

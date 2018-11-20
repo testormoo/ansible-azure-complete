@@ -26,7 +26,7 @@ options:
         description:
             - Name of an Azure Resource group.
         required: True
-    environment_name:
+    name:
         description:
             - Name of the environment
         required: True
@@ -36,23 +36,23 @@ options:
     sku:
         description:
             - The sku determines the capacity of the environment, the SLA (in queries-per-minute and total capacity), and the billing rate.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
                     - The name of this SKU.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 's1'
                     - 's2'
             capacity:
                 description:
                     - The capacity of the sku. This value can be changed to support scale out of environments after they have been created.
-                required: True
+                    - Required when C(state) is I(present).
     data_retention_time:
         description:
             - "ISO8601 timespan specifying the minimum number of days the environment's events will be available for query."
-        required: True
+            - Required when C(state) is I(present).
     storage_limit_exceeded_behavior:
         description:
             - "The behavior the Time Series Insights service should take when the environment's capacity has been exceeded. If 'C(pause_ingress)' is
@@ -96,11 +96,15 @@ EXAMPLES = '''
   - name: Create (or update) Environment
     azure_rm_timeseriesinsightsenvironment:
       resource_group: rg1
-      environment_name: env1
+      name: env1
       location: eastus
       sku:
         name: S1
         capacity: 1
+      data_retention_time: P31D
+      partition_key_properties:
+        - name: DeviceId1
+          type: String
 '''
 
 RETURN = '''
@@ -146,7 +150,7 @@ class AzureRMEnvironments(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            environment_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -154,12 +158,10 @@ class AzureRMEnvironments(AzureRMModuleBase):
                 type='str'
             ),
             sku=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             data_retention_time=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             storage_limit_exceeded_behavior=dict(
                 type='str',
@@ -177,7 +179,7 @@ class AzureRMEnvironments(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.environment_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -217,7 +219,6 @@ class AzureRMEnvironments(AzureRMModuleBase):
                             ev['type'] = 'String'
                     self.parameters["partition_key_properties"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(TimeSeriesInsightsClient,
@@ -241,8 +242,8 @@ class AzureRMEnvironments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Environment instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Environment instance")
@@ -253,10 +254,7 @@ class AzureRMEnvironments(AzureRMModuleBase):
 
             response = self.create_update_environment()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Environment instance deleted")
@@ -285,11 +283,11 @@ class AzureRMEnvironments(AzureRMModuleBase):
 
         :return: deserialized Environment instance state dictionary
         '''
-        self.log("Creating / Updating the Environment instance {0}".format(self.environment_name))
+        self.log("Creating / Updating the Environment instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.environments.create_or_update(resource_group_name=self.resource_group,
-                                                                      environment_name=self.environment_name,
+                                                                      environment_name=self.name,
                                                                       parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -305,10 +303,10 @@ class AzureRMEnvironments(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Environment instance {0}".format(self.environment_name))
+        self.log("Deleting the Environment instance {0}".format(self.name))
         try:
             response = self.mgmt_client.environments.delete(resource_group_name=self.resource_group,
-                                                            environment_name=self.environment_name)
+                                                            environment_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Environment instance.')
             self.fail("Error deleting the Environment instance: {0}".format(str(e)))
@@ -321,11 +319,11 @@ class AzureRMEnvironments(AzureRMModuleBase):
 
         :return: deserialized Environment instance state dictionary
         '''
-        self.log("Checking if the Environment instance {0} is present".format(self.environment_name))
+        self.log("Checking if the Environment instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.environments.get(resource_group_name=self.resource_group,
-                                                         environment_name=self.environment_name)
+                                                         environment_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Environment instance : {0} found".format(response.name))
@@ -343,6 +341,38 @@ class AzureRMEnvironments(AzureRMModuleBase):
             }
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -30,7 +30,7 @@ options:
         description:
             - The factory name.
         required: True
-    pipeline_name:
+    name:
         description:
             - The pipeline name.
     if_none_match:
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_datafactorypipeline_facts:
       resource_group: resource_group_name
       factory_name: factory_name
-      pipeline_name: pipeline_name
+      name: pipeline_name
       if_none_match: if_none_match
 
   - name: List instances of Pipeline
@@ -129,7 +129,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            pipeline_name=dict(
+            name=dict(
                 type='str'
             ),
             if_none_match=dict(
@@ -143,7 +143,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.factory_name = None
-        self.pipeline_name = None
+        self.name = None
         self.if_none_match = None
         super(AzureRMPipelinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -153,7 +153,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataFactoryManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.pipeline_name is not None:
+        if self.name is not None:
             self.results['pipelines'] = self.get()
         else:
             self.results['pipelines'] = self.list_by_factory()
@@ -165,7 +165,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.pipelines.get(resource_group_name=self.resource_group,
                                                       factory_name=self.factory_name,
-                                                      pipeline_name=self.pipeline_name)
+                                                      pipeline_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Pipelines.')

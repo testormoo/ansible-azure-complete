@@ -42,7 +42,7 @@ options:
     inlinecount:
         description:
             - Return total rows.
-    configuration_name:
+    name:
         description:
             - The configuration name.
     tags:
@@ -71,7 +71,7 @@ EXAMPLES = '''
     azure_rm_automationdscconfiguration_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      configuration_name: configuration_name
+      name: configuration_name
 '''
 
 RETURN = '''
@@ -165,7 +165,7 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
             inlinecount=dict(
                 type='str'
             ),
-            configuration_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -183,7 +183,7 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
         self.skip = None
         self.top = None
         self.inlinecount = None
-        self.configuration_name = None
+        self.name = None
         self.tags = None
         super(AzureRMDscConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -195,7 +195,7 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
 
         else:
             self.results['dsc_configuration'] = self.list_by_automation_account()
-        elif self.configuration_name is not None:
+        elif self.name is not None:
             self.results['dsc_configuration'] = self.get()
         return self.results
 
@@ -222,7 +222,7 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.dsc_configuration.get(resource_group_name=self.resource_group,
                                                               automation_account_name=self.automation_account_name,
-                                                              configuration_name=self.configuration_name)
+                                                              configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DscConfiguration.')

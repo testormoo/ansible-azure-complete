@@ -30,7 +30,7 @@ options:
         description:
             - The guest configuration assingment name.
         required: True
-    vm_name:
+    name:
         description:
             - The name of the virtual machine.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_guestconfigurationassignment_facts:
       resource_group: resource_group_name
       guest_configuration_assignment_name: guest_configuration_assignment_name
-      vm_name: vm_name
+      name: vm_name
 '''
 
 RETURN = '''
@@ -114,7 +114,7 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            vm_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -126,7 +126,7 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.guest_configuration_assignment_name = None
-        self.vm_name = None
+        self.name = None
         super(AzureRMGuestConfigurationAssignmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -144,7 +144,7 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.guest_configuration_assignments.get(resource_group_name=self.resource_group,
                                                                             guest_configuration_assignment_name=self.guest_configuration_assignment_name,
-                                                                            vm_name=self.vm_name)
+                                                                            vm_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for GuestConfigurationAssignments.')

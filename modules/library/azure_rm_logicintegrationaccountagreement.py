@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    agreement_name:
+    name:
         description:
             - The integration account I(agreement) name.
         required: True
@@ -48,7 +48,7 @@ options:
             agreement_type:
                 description:
                     - The agreement type.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'not_specified'
                     - 'as2'
@@ -57,41 +57,41 @@ options:
             host_partner:
                 description:
                     - The integration account partner that is set as host partner for this agreement.
-                required: True
+                    - Required when C(state) is I(present).
             guest_partner:
                 description:
                     - The integration account partner that is set as guest partner for this agreement.
-                required: True
+                    - Required when C(state) is I(present).
             host_identity:
                 description:
                     - The business identity of the host partner.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     qualifier:
                         description:
                             - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                        required: True
+                            - Required when C(state) is I(present).
                     value:
                         description:
                             - The user defined business identity value.
-                        required: True
+                            - Required when C(state) is I(present).
             guest_identity:
                 description:
                     - The business identity of the guest partner.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     qualifier:
                         description:
                             - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                        required: True
+                            - Required when C(state) is I(present).
                     value:
                         description:
                             - The user defined business identity value.
-                        required: True
+                            - Required when C(state) is I(present).
             content:
                 description:
                     - The agreement content.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     a_s2:
                         description:
@@ -100,131 +100,131 @@ options:
                             receive_agreement:
                                 description:
                                     - The AS2 one-way receive agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The AS2 protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             message_connection_settings:
                                                 description:
                                                     - The message connection settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_connection_settings:
                                                 description:
                                                     - The acknowledgement connection settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             mdn_settings:
                                                 description:
                                                     - The MDN settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             security_settings:
                                                 description:
                                                     - The security settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             validation_settings:
                                                 description:
                                                     - The validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             error_settings:
                                                 description:
                                                     - The error settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                             send_agreement:
                                 description:
                                     - The AS2 one-way send agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The AS2 protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             message_connection_settings:
                                                 description:
                                                     - The message connection settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_connection_settings:
                                                 description:
                                                     - The acknowledgement connection settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             mdn_settings:
                                                 description:
                                                     - The MDN settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             security_settings:
                                                 description:
                                                     - The security settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             validation_settings:
                                                 description:
                                                     - The validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             error_settings:
                                                 description:
                                                     - The error settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                     x12:
                         description:
                             - The X12 agreement content.
@@ -232,67 +232,67 @@ options:
                             receive_agreement:
                                 description:
                                     - The X12 one-way receive agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The X12 protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             validation_settings:
                                                 description:
                                                     - The X12 validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             framing_settings:
                                                 description:
                                                     - The X12 framing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The X12 envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_settings:
                                                 description:
                                                     - The X12 acknowledgment settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             message_filter:
                                                 description:
                                                     - The X12 message filter.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             security_settings:
                                                 description:
                                                     - The X12 security settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             processing_settings:
                                                 description:
                                                     - The X12 processing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_overrides:
                                                 description:
                                                     - The X12 envelope override settings.
@@ -308,7 +308,7 @@ options:
                                             schema_references:
                                                 description:
                                                     - The X12 schema references.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                                 type: list
                                             x12_delimiter_overrides:
                                                 description:
@@ -317,67 +317,67 @@ options:
                             send_agreement:
                                 description:
                                     - The X12 one-way send agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The X12 protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             validation_settings:
                                                 description:
                                                     - The X12 validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             framing_settings:
                                                 description:
                                                     - The X12 framing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The X12 envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_settings:
                                                 description:
                                                     - The X12 acknowledgment settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             message_filter:
                                                 description:
                                                     - The X12 message filter.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             security_settings:
                                                 description:
                                                     - The X12 security settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             processing_settings:
                                                 description:
                                                     - The X12 processing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_overrides:
                                                 description:
                                                     - The X12 envelope override settings.
@@ -393,7 +393,7 @@ options:
                                             schema_references:
                                                 description:
                                                     - The X12 schema references.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                                 type: list
                                             x12_delimiter_overrides:
                                                 description:
@@ -406,63 +406,63 @@ options:
                             receive_agreement:
                                 description:
                                     - The EDIFACT one-way receive agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The EDIFACT protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             validation_settings:
                                                 description:
                                                     - The EDIFACT validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             framing_settings:
                                                 description:
                                                     - The EDIFACT framing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The EDIFACT envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_settings:
                                                 description:
                                                     - The EDIFACT acknowledgement settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             message_filter:
                                                 description:
                                                     - The EDIFACT message filter.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             processing_settings:
                                                 description:
                                                     - The EDIFACT processing Settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_overrides:
                                                 description:
                                                     - The EDIFACT envelope override settings.
@@ -474,7 +474,7 @@ options:
                                             schema_references:
                                                 description:
                                                     - The EDIFACT schema references.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                                 type: list
                                             validation_overrides:
                                                 description:
@@ -487,63 +487,63 @@ options:
                             send_agreement:
                                 description:
                                     - The EDIFACT one-way send agreement.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     sender_business_identity:
                                         description:
                                             - The sender business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     receiver_business_identity:
                                         description:
                                             - The receiver business identity
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             qualifier:
                                                 description:
                                                     - The business identity qualifier e.g. as2identity, ZZ, ZZZ, 31, 32
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             value:
                                                 description:
                                                     - The user defined business identity value.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     protocol_settings:
                                         description:
                                             - The EDIFACT protocol settings.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             validation_settings:
                                                 description:
                                                     - The EDIFACT validation settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             framing_settings:
                                                 description:
                                                     - The EDIFACT framing settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_settings:
                                                 description:
                                                     - The EDIFACT envelope settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             acknowledgement_settings:
                                                 description:
                                                     - The EDIFACT acknowledgement settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             message_filter:
                                                 description:
                                                     - The EDIFACT message filter.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             processing_settings:
                                                 description:
                                                     - The EDIFACT processing Settings.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             envelope_overrides:
                                                 description:
                                                     - The EDIFACT envelope override settings.
@@ -555,7 +555,7 @@ options:
                                             schema_references:
                                                 description:
                                                     - The EDIFACT schema references.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                                 type: list
                                             validation_overrides:
                                                 description:
@@ -588,9 +588,145 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountagreement:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      agreement_name: testAgreement
+      name: testAgreement
       agreement:
         location: westus
+        metadata: {}
+        agreement_type: AS2
+        host_partner: HostPartner
+        guest_partner: GuestPartner
+        host_identity:
+          qualifier: ZZ
+          value: ZZ
+        guest_identity:
+          qualifier: AA
+          value: AA
+        content:
+          a_s2:
+            receive_agreement:
+              sender_business_identity:
+                qualifier: AA
+                value: AA
+              receiver_business_identity:
+                qualifier: ZZ
+                value: ZZ
+              protocol_settings:
+                message_connection_settings: {
+  "ignoreCertificateNameMismatch": true,
+  "supportHttpStatusCodeContinue": true,
+  "keepHttpConnectionAlive": true,
+  "unfoldHttpHeaders": true
+}
+                acknowledgement_connection_settings: {
+  "ignoreCertificateNameMismatch": true,
+  "supportHttpStatusCodeContinue": true,
+  "keepHttpConnectionAlive": true,
+  "unfoldHttpHeaders": true
+}
+                mdn_settings: {
+  "needMdn": true,
+  "signMdn": true,
+  "sendMdnAsynchronously": true,
+  "receiptDeliveryUrl": "http://tempuri.org",
+  "dispositionNotificationTo": "http://tempuri.org",
+  "signOutboundMdnIfOptional": true,
+  "mdnText": "Sample",
+  "sendInboundMdnToMessageBox": true,
+  "micHashingAlgorithm": "SHA1"
+}
+                security_settings: {
+  "overrideGroupSigningCertificate": false,
+  "enableNrrForInboundEncodedMessages": true,
+  "enableNrrForInboundDecodedMessages": true,
+  "enableNrrForOutboundMdn": true,
+  "enableNrrForOutboundEncodedMessages": true,
+  "enableNrrForOutboundDecodedMessages": true,
+  "enableNrrForInboundMdn": true
+}
+                validation_settings: {
+  "overrideMessageProperties": true,
+  "encryptMessage": false,
+  "signMessage": false,
+  "compressMessage": true,
+  "checkDuplicateMessage": true,
+  "interchangeDuplicatesValidityDays": "100",
+  "checkCertificateRevocationListOnSend": true,
+  "checkCertificateRevocationListOnReceive": true,
+  "encryptionAlgorithm": "AES128"
+}
+                envelope_settings: {
+  "messageContentType": "text/plain",
+  "transmitFileNameInMimeHeader": true,
+  "fileNameTemplate": "Test",
+  "suspendMessageOnFileNameGenerationError": true,
+  "autogenerateFileName": true
+}
+                error_settings: {
+  "suspendDuplicateMessage": true,
+  "resendIfMdnNotReceived": true
+}
+            send_agreement:
+              sender_business_identity:
+                qualifier: ZZ
+                value: ZZ
+              receiver_business_identity:
+                qualifier: AA
+                value: AA
+              protocol_settings:
+                message_connection_settings: {
+  "ignoreCertificateNameMismatch": true,
+  "supportHttpStatusCodeContinue": true,
+  "keepHttpConnectionAlive": true,
+  "unfoldHttpHeaders": true
+}
+                acknowledgement_connection_settings: {
+  "ignoreCertificateNameMismatch": true,
+  "supportHttpStatusCodeContinue": true,
+  "keepHttpConnectionAlive": true,
+  "unfoldHttpHeaders": true
+}
+                mdn_settings: {
+  "needMdn": true,
+  "signMdn": true,
+  "sendMdnAsynchronously": true,
+  "receiptDeliveryUrl": "http://tempuri.org",
+  "dispositionNotificationTo": "http://tempuri.org",
+  "signOutboundMdnIfOptional": true,
+  "mdnText": "Sample",
+  "sendInboundMdnToMessageBox": true,
+  "micHashingAlgorithm": "SHA1"
+}
+                security_settings: {
+  "overrideGroupSigningCertificate": false,
+  "enableNrrForInboundEncodedMessages": true,
+  "enableNrrForInboundDecodedMessages": true,
+  "enableNrrForOutboundMdn": true,
+  "enableNrrForOutboundEncodedMessages": true,
+  "enableNrrForOutboundDecodedMessages": true,
+  "enableNrrForInboundMdn": true
+}
+                validation_settings: {
+  "overrideMessageProperties": true,
+  "encryptMessage": false,
+  "signMessage": false,
+  "compressMessage": true,
+  "checkDuplicateMessage": true,
+  "interchangeDuplicatesValidityDays": "100",
+  "checkCertificateRevocationListOnSend": true,
+  "checkCertificateRevocationListOnReceive": true,
+  "encryptionAlgorithm": "AES128"
+}
+                envelope_settings: {
+  "messageContentType": "text/plain",
+  "transmitFileNameInMimeHeader": true,
+  "fileNameTemplate": "Test",
+  "suspendMessageOnFileNameGenerationError": true,
+  "autogenerateFileName": true
+}
+                error_settings: {
+  "suspendDuplicateMessage": true,
+  "resendIfMdnNotReceived": true
+}
 '''
 
 RETURN = '''
@@ -634,7 +770,7 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            agreement_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -651,7 +787,7 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.agreement_name = None
+        self.name = None
         self.agreement = dict()
 
         self.results = dict(changed=False)
@@ -690,7 +826,6 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
                 elif key == "content":
                     self.agreement["content"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -711,8 +846,8 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Agreement instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Agreement instance")
@@ -723,10 +858,7 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountagreement()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Agreement instance deleted")
@@ -755,12 +887,12 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
 
         :return: deserialized Integration Account Agreement instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Agreement instance {0}".format(self.agreement_name))
+        self.log("Creating / Updating the Integration Account Agreement instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_agreements.create_or_update(resource_group_name=self.resource_group,
                                                                                         integration_account_name=self.integration_account_name,
-                                                                                        agreement_name=self.agreement_name,
+                                                                                        agreement_name=self.name,
                                                                                         agreement=self.agreement)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -776,11 +908,11 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Agreement instance {0}".format(self.agreement_name))
+        self.log("Deleting the Integration Account Agreement instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_agreements.delete(resource_group_name=self.resource_group,
                                                                               integration_account_name=self.integration_account_name,
-                                                                              agreement_name=self.agreement_name)
+                                                                              agreement_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Agreement instance.')
             self.fail("Error deleting the Integration Account Agreement instance: {0}".format(str(e)))
@@ -793,12 +925,12 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
 
         :return: deserialized Integration Account Agreement instance state dictionary
         '''
-        self.log("Checking if the Integration Account Agreement instance {0} is present".format(self.agreement_name))
+        self.log("Checking if the Integration Account Agreement instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_agreements.get(resource_group_name=self.resource_group,
                                                                            integration_account_name=self.integration_account_name,
-                                                                           agreement_name=self.agreement_name)
+                                                                           agreement_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Agreement instance : {0} found".format(response.name))
@@ -814,6 +946,38 @@ class AzureRMIntegrationAccountAgreements(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

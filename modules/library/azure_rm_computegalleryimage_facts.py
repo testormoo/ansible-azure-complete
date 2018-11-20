@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Shared Image Gallery from which the Image Definitions are to be retrieved.
         required: True
-    gallery_image_name:
+    name:
         description:
             - The name of the gallery Image Definition to be retrieved.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_computegalleryimage_facts:
       resource_group: resource_group_name
       gallery_name: gallery_name
-      gallery_image_name: gallery_image_name
+      name: gallery_image_name
 
   - name: List instances of Gallery Image
     azure_rm_computegalleryimage_facts:
@@ -138,7 +138,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_image_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -152,7 +152,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.gallery_name = None
-        self.gallery_image_name = None
+        self.name = None
         self.tags = None
         super(AzureRMGalleryImagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -162,7 +162,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.gallery_image_name is not None:
+        if self.name is not None:
             self.results['gallery_images'] = self.get()
         else:
             self.results['gallery_images'] = self.list_by_gallery()
@@ -174,7 +174,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.gallery_images.get(resource_group_name=self.resource_group,
                                                            gallery_name=self.gallery_name,
-                                                           gallery_image_name=self.gallery_image_name)
+                                                           gallery_image_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for GalleryImages.')

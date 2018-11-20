@@ -26,7 +26,7 @@ options:
         description:
             - The name of the region where the resource is located.
         required: True
-    usage_name:
+    name:
         description:
             - Name of usage metric to return.
 
@@ -42,7 +42,7 @@ EXAMPLES = '''
   - name: Get instance of Subscription Usage
     azure_rm_sqlsubscriptionusage_facts:
       location_name: location_name
-      usage_name: usage_name
+      name: usage_name
 
   - name: List instances of Subscription Usage
     azure_rm_sqlsubscriptionusage_facts:
@@ -100,7 +100,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            usage_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -110,7 +110,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.location_name = None
-        self.usage_name = None
+        self.name = None
         super(AzureRMSubscriptionUsagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -119,7 +119,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.usage_name is not None:
+        if self.name is not None:
             self.results['subscription_usages'] = self.get()
         else:
             self.results['subscription_usages'] = self.list_by_location()
@@ -130,7 +130,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.subscription_usages.get(location_name=self.location_name,
-                                                                usage_name=self.usage_name)
+                                                                usage_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SubscriptionUsages.')

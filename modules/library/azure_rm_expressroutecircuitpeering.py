@@ -30,7 +30,7 @@ options:
         description:
             - The name of the express route circuit.
         required: True
-    peering_name:
+    name:
         description:
             - The name of the peering.
         required: True
@@ -120,9 +120,6 @@ options:
             secondarybytes_out:
                 description:
                     - Gets BytesOut of the peering.
-    provisioning_state:
-        description:
-            - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
     gateway_manager_etag:
         description:
             - The GatewayManager Etag.
@@ -150,18 +147,18 @@ options:
                     access:
                         description:
                             - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'allow'
                             - 'deny'
                     route_filter_rule_type:
                         description:
                             - "The rule type of the rule. Valid value is: 'Community'"
-                        required: True
+                            - Required when C(state) is I(present).
                     communities:
                         description:
                             - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                     name:
                         description:
@@ -260,9 +257,6 @@ options:
                             secondarybytes_out:
                                 description:
                                     - Gets BytesOut of the peering.
-                    provisioning_state:
-                        description:
-                            - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                     gateway_manager_etag:
                         description:
                             - The GatewayManager Etag.
@@ -290,18 +284,18 @@ options:
                                     access:
                                         description:
                                             - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
                                     route_filter_rule_type:
                                         description:
                                             - "The rule type of the rule. Valid value is: 'Community'"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     communities:
                                         description:
                                             - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         type: list
                                     name:
                                         description:
@@ -361,10 +355,6 @@ options:
                                     stats:
                                         description:
                                             - Gets peering stats.
-                                    provisioning_state:
-                                        description:
-                                            - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and
-                                               'Failed'."
                                     gateway_manager_etag:
                                         description:
                                             - The GatewayManager Etag.
@@ -508,18 +498,18 @@ options:
                             access:
                                 description:
                                     - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'allow'
                                     - 'deny'
                             route_filter_rule_type:
                                 description:
                                     - "The rule type of the rule. Valid value is: 'Community'"
-                                required: True
+                                    - Required when C(state) is I(present).
                             communities:
                                 description:
                                     - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             name:
                                 description:
@@ -619,9 +609,6 @@ options:
                                     secondarybytes_out:
                                         description:
                                             - Gets BytesOut of the peering.
-                            provisioning_state:
-                                description:
-                                    - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                             gateway_manager_etag:
                                 description:
                                     - The GatewayManager Etag.
@@ -702,7 +689,7 @@ EXAMPLES = '''
     azure_rm_expressroutecircuitpeering:
       resource_group: NOT FOUND
       circuit_name: NOT FOUND
-      peering_name: NOT FOUND
+      name: NOT FOUND
 '''
 
 RETURN = '''
@@ -751,7 +738,7 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            peering_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -799,9 +786,6 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
             stats=dict(
                 type='dict'
             ),
-            provisioning_state=dict(
-                type='str'
-            ),
             gateway_manager_etag=dict(
                 type='str'
             ),
@@ -826,7 +810,7 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
 
         self.resource_group = None
         self.circuit_name = None
-        self.peering_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -881,8 +865,6 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
                     self.parameters["microsoft_peering_config"] = ev
                 elif key == "stats":
                     self.parameters["stats"] = kwargs[key]
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
                 elif key == "gateway_manager_etag":
                     self.parameters["gateway_manager_etag"] = kwargs[key]
                 elif key == "last_modified_by":
@@ -900,7 +882,6 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -921,8 +902,8 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Express Route Circuit Peering instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Express Route Circuit Peering instance")
@@ -933,10 +914,7 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
 
             response = self.create_update_expressroutecircuitpeering()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Express Route Circuit Peering instance deleted")
@@ -965,12 +943,12 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
 
         :return: deserialized Express Route Circuit Peering instance state dictionary
         '''
-        self.log("Creating / Updating the Express Route Circuit Peering instance {0}".format(self.peering_name))
+        self.log("Creating / Updating the Express Route Circuit Peering instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.express_route_circuit_peerings.create_or_update(resource_group_name=self.resource_group,
                                                                                         circuit_name=self.circuit_name,
-                                                                                        peering_name=self.peering_name,
+                                                                                        peering_name=self.name,
                                                                                         peering_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -986,11 +964,11 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Express Route Circuit Peering instance {0}".format(self.peering_name))
+        self.log("Deleting the Express Route Circuit Peering instance {0}".format(self.name))
         try:
             response = self.mgmt_client.express_route_circuit_peerings.delete(resource_group_name=self.resource_group,
                                                                               circuit_name=self.circuit_name,
-                                                                              peering_name=self.peering_name)
+                                                                              peering_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Express Route Circuit Peering instance.')
             self.fail("Error deleting the Express Route Circuit Peering instance: {0}".format(str(e)))
@@ -1003,12 +981,12 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
 
         :return: deserialized Express Route Circuit Peering instance state dictionary
         '''
-        self.log("Checking if the Express Route Circuit Peering instance {0} is present".format(self.peering_name))
+        self.log("Checking if the Express Route Circuit Peering instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.express_route_circuit_peerings.get(resource_group_name=self.resource_group,
                                                                            circuit_name=self.circuit_name,
-                                                                           peering_name=self.peering_name)
+                                                                           peering_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Express Route Circuit Peering instance : {0} found".format(response.name))
@@ -1025,6 +1003,38 @@ class AzureRMExpressRouteCircuitPeerings(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    route_filter_name:
+    name:
         description:
             - The name of the route filter.
         required: True
@@ -47,18 +47,18 @@ options:
             access:
                 description:
                     - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'allow'
                     - 'deny'
             route_filter_rule_type:
                 description:
                     - "The rule type of the rule. Valid value is: 'Community'"
-                required: True
+                    - Required when C(state) is I(present).
             communities:
                 description:
                     - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                required: True
+                    - Required when C(state) is I(present).
                 type: list
             name:
                 description:
@@ -157,9 +157,6 @@ options:
                     secondarybytes_out:
                         description:
                             - Gets BytesOut of the peering.
-            provisioning_state:
-                description:
-                    - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
             gateway_manager_etag:
                 description:
                     - The GatewayManager Etag.
@@ -187,18 +184,18 @@ options:
                             access:
                                 description:
                                     - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                required: True
+                                    - Required when C(state) is I(present).
                                 choices:
                                     - 'allow'
                                     - 'deny'
                             route_filter_rule_type:
                                 description:
                                     - "The rule type of the rule. Valid value is: 'Community'"
-                                required: True
+                                    - Required when C(state) is I(present).
                             communities:
                                 description:
                                     - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             name:
                                 description:
@@ -298,9 +295,6 @@ options:
                                     secondarybytes_out:
                                         description:
                                             - Gets BytesOut of the peering.
-                            provisioning_state:
-                                description:
-                                    - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'."
                             gateway_manager_etag:
                                 description:
                                     - The GatewayManager Etag.
@@ -411,18 +405,18 @@ options:
                                     access:
                                         description:
                                             - "The access type of the rule. Valid values are: 'C(allow)', 'C(deny)'."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'allow'
                                             - 'deny'
                                     route_filter_rule_type:
                                         description:
                                             - "The rule type of the rule. Valid value is: 'Community'"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     communities:
                                         description:
                                             - "The collection for bgp community values to filter on. e.g. ['12076:5010','12076:5020']"
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         type: list
                                     name:
                                         description:
@@ -482,10 +476,6 @@ options:
                                     stats:
                                         description:
                                             - Gets peering stats.
-                                    provisioning_state:
-                                        description:
-                                            - "Gets the provisioning I(state) of the public IP resource. Possible values are: 'Updating', 'Deleting', and
-                                               'Failed'."
                                     gateway_manager_etag:
                                         description:
                                             - The GatewayManager Etag.
@@ -532,8 +522,17 @@ EXAMPLES = '''
   - name: Create (or update) Route Filter
     azure_rm_routefilter:
       resource_group: rg1
-      route_filter_name: filterName
+      name: filterName
       location: West US
+      rules:
+        - access: Allow
+          route_filter_rule_type: Community
+          communities:
+            - [
+  "12076:5030",
+  "12076:5040"
+]
+          name: ruleName
 '''
 
 RETURN = '''
@@ -572,7 +571,7 @@ class AzureRMRouteFilters(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            route_filter_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -596,7 +595,7 @@ class AzureRMRouteFilters(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.route_filter_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -643,7 +642,6 @@ class AzureRMRouteFilters(AzureRMModuleBase):
                             ev['state'] = 'Enabled'
                     self.parameters["peerings"] = ev
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -667,8 +665,8 @@ class AzureRMRouteFilters(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Route Filter instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Route Filter instance")
@@ -679,10 +677,7 @@ class AzureRMRouteFilters(AzureRMModuleBase):
 
             response = self.create_update_routefilter()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Route Filter instance deleted")
@@ -711,11 +706,11 @@ class AzureRMRouteFilters(AzureRMModuleBase):
 
         :return: deserialized Route Filter instance state dictionary
         '''
-        self.log("Creating / Updating the Route Filter instance {0}".format(self.route_filter_name))
+        self.log("Creating / Updating the Route Filter instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.route_filters.create_or_update(resource_group_name=self.resource_group,
-                                                                       route_filter_name=self.route_filter_name,
+                                                                       route_filter_name=self.name,
                                                                        route_filter_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -731,10 +726,10 @@ class AzureRMRouteFilters(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Route Filter instance {0}".format(self.route_filter_name))
+        self.log("Deleting the Route Filter instance {0}".format(self.name))
         try:
             response = self.mgmt_client.route_filters.delete(resource_group_name=self.resource_group,
-                                                             route_filter_name=self.route_filter_name)
+                                                             route_filter_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Route Filter instance.')
             self.fail("Error deleting the Route Filter instance: {0}".format(str(e)))
@@ -747,11 +742,11 @@ class AzureRMRouteFilters(AzureRMModuleBase):
 
         :return: deserialized Route Filter instance state dictionary
         '''
-        self.log("Checking if the Route Filter instance {0} is present".format(self.route_filter_name))
+        self.log("Checking if the Route Filter instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.route_filters.get(resource_group_name=self.resource_group,
-                                                          route_filter_name=self.route_filter_name)
+                                                          route_filter_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Route Filter instance : {0} found".format(response.name))
@@ -767,6 +762,38 @@ class AzureRMRouteFilters(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

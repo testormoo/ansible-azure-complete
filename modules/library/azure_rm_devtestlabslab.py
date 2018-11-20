@@ -30,34 +30,23 @@ options:
         description:
             - The name of the I(lab).
         required: True
-    lab:
+    location:
         description:
-            - A lab.
-        required: True
-        suboptions:
-            location:
-                description:
-                    - The location of the resource.
-            lab_storage_type:
-                description:
-                    - Type of storage used by the lab. It can be either C(premium) or C(standard). Default is C(premium).
-                choices:
-                    - 'standard'
-                    - 'premium'
-            premium_data_disks:
-                description:
-                    - "The setting to enable usage of C(premium) data disks.\n"
-                    - "When its value is 'C(enabled)', creation of C(standard) or C(premium) data disks is allowed.\n"
-                    - "When its value is 'C(disabled)', only creation of C(standard) data disks is allowed."
-                choices:
-                    - 'disabled'
-                    - 'enabled'
-            provisioning_state:
-                description:
-                    - The provisioning status of the resource.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
+            - The location of the resource.
+    lab_storage_type:
+        description:
+            - Type of storage used by the lab. It can be either C(premium) or C(standard). Default is C(premium).
+        choices:
+            - 'standard'
+            - 'premium'
+    premium_data_disks:
+        description:
+            - "The setting to enable usage of C(premium) data disks.\n"
+            - "When its value is 'C(enabled)', creation of C(standard) or C(premium) data disks is allowed.\n"
+            - "When its value is 'C(disabled)', only creation of C(standard) data disks is allowed."
+        choices:
+            - 'disabled'
+            - 'enabled'
     state:
       description:
         - Assert the state of the Lab.
@@ -123,9 +112,14 @@ class AzureRMLabs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            lab=dict(
-                type='dict',
-                required=True
+            lab_storage_type=dict(
+                type='str'
+            ),
+            premium_data_disks=dict(
+                type='str'
+            ),
+            location=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -160,12 +154,9 @@ class AzureRMLabs(AzureRMModuleBase):
                     self.lab["lab_storage_type"] = _snake_to_camel(kwargs[key], True)
                 elif key == "premium_data_disks":
                     self.lab["premium_data_disks"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioning_state":
-                    self.lab["provisioning_state"] = kwargs[key]
                 elif key == "unique_identifier":
                     self.lab["unique_identifier"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
@@ -186,8 +177,8 @@ class AzureRMLabs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Lab instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.lab, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Lab instance")
@@ -198,10 +189,7 @@ class AzureRMLabs(AzureRMModuleBase):
 
             response = self.create_update_lab()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Lab instance deleted")
@@ -286,6 +274,38 @@ class AzureRMLabs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

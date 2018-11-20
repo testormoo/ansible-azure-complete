@@ -26,7 +26,7 @@ options:
         description:
             - The resource group name
         required: True
-    manager_name:
+    name:
         description:
             - The manager name
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Manager
     azure_rm_storsimplemanager_facts:
       resource_group: resource_group_name
-      manager_name: manager_name
+      name: manager_name
 
   - name: List instances of Manager
     azure_rm_storsimplemanager_facts:
@@ -123,7 +123,7 @@ class AzureRMManagersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            manager_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -136,7 +136,7 @@ class AzureRMManagersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.manager_name = None
+        self.name = None
         self.tags = None
         super(AzureRMManagersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -146,7 +146,7 @@ class AzureRMManagersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(StorSimpleManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.manager_name is not None:
+        if self.name is not None:
             self.results['managers'] = self.get()
         else:
             self.results['managers'] = self.list_by_resource_group()
@@ -157,7 +157,7 @@ class AzureRMManagersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.managers.get(resource_group_name=self.resource_group,
-                                                     manager_name=self.manager_name)
+                                                     manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Managers.')

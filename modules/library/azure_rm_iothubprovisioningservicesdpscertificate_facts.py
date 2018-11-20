@@ -30,7 +30,7 @@ options:
         description:
             - Resource group identifier.
         required: True
-    provisioning_service_name:
+    name:
         description:
             - Name of the provisioning service the certificate is associated with.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_iothubprovisioningservicesdpscertificate_facts:
       certificate_name: certificate_name
       resource_group: resource_group_name
-      provisioning_service_name: provisioning_service_name
+      name: provisioning_service_name
       if_match: if_match
 '''
 
@@ -142,7 +142,7 @@ class AzureRMDpsCertificateFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            provisioning_service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -157,7 +157,7 @@ class AzureRMDpsCertificateFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.certificate_name = None
         self.resource_group = None
-        self.provisioning_service_name = None
+        self.name = None
         self.if_match = None
         super(AzureRMDpsCertificateFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -176,7 +176,7 @@ class AzureRMDpsCertificateFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.dps_certificate.get(certificate_name=self.certificate_name,
                                                             resource_group_name=self.resource_group,
-                                                            provisioning_service_name=self.provisioning_service_name)
+                                                            provisioning_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for DpsCertificate.')

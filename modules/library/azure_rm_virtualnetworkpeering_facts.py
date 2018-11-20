@@ -30,7 +30,7 @@ options:
         description:
             - The name of the virtual network.
         required: True
-    virtual_network_peering_name:
+    name:
         description:
             - The name of the virtual network peering.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_virtualnetworkpeering_facts:
       resource_group: resource_group_name
       virtual_network_name: virtual_network_name
-      virtual_network_peering_name: virtual_network_peering_name
+      name: virtual_network_peering_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            virtual_network_peering_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -106,7 +106,7 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.virtual_network_name = None
-        self.virtual_network_peering_name = None
+        self.name = None
         super(AzureRMVirtualNetworkPeeringsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,7 +124,7 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.virtual_network_peerings.get(resource_group_name=self.resource_group,
                                                                      virtual_network_name=self.virtual_network_name,
-                                                                     virtual_network_peering_name=self.virtual_network_peering_name)
+                                                                     virtual_network_peering_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for VirtualNetworkPeerings.')

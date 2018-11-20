@@ -30,14 +30,14 @@ options:
         description:
             - The name of the automation account.
         required: True
-    compilation_job_name:
+    name:
         description:
             - The the DSC I(configuration) Id.
         required: True
     configuration:
         description:
             - Gets or sets the configuration.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
@@ -76,7 +76,9 @@ EXAMPLES = '''
     azure_rm_automationdsccompilationjob:
       resource_group: rg
       automation_account_name: myAutomationAccount33
-      compilation_job_name: TestCompilationJob
+      name: TestCompilationJob
+      configuration:
+        name: SetupServer
       location: eastus
 '''
 
@@ -127,13 +129,12 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            compilation_job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
             configuration=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             parameters=dict(
                 type='dict'
@@ -156,7 +157,7 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
 
         self.resource_group = None
         self.automation_account_name = None
-        self.compilation_job_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -186,7 +187,6 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
                 elif key == "location":
                     self.parameters["location"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
@@ -210,8 +210,8 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Dsc Compilation Job instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Dsc Compilation Job instance")
@@ -222,10 +222,7 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
 
             response = self.create_update_dsccompilationjob()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Dsc Compilation Job instance deleted")
@@ -254,13 +251,13 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
 
         :return: deserialized Dsc Compilation Job instance state dictionary
         '''
-        self.log("Creating / Updating the Dsc Compilation Job instance {0}".format(self.compilation_job_name))
+        self.log("Creating / Updating the Dsc Compilation Job instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.dsc_compilation_job.create(resource_group_name=self.resource_group,
                                                                        automation_account_name=self.automation_account_name,
-                                                                       compilation_job_name=self.compilation_job_name,
+                                                                       compilation_job_name=self.name,
                                                                        parameters=self.parameters)
             else:
                 response = self.mgmt_client.dsc_compilation_job.update()
@@ -278,7 +275,7 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Dsc Compilation Job instance {0}".format(self.compilation_job_name))
+        self.log("Deleting the Dsc Compilation Job instance {0}".format(self.name))
         try:
             response = self.mgmt_client.dsc_compilation_job.delete()
         except CloudError as e:
@@ -293,12 +290,12 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
 
         :return: deserialized Dsc Compilation Job instance state dictionary
         '''
-        self.log("Checking if the Dsc Compilation Job instance {0} is present".format(self.compilation_job_name))
+        self.log("Checking if the Dsc Compilation Job instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.dsc_compilation_job.get(resource_group_name=self.resource_group,
                                                                 automation_account_name=self.automation_account_name,
-                                                                compilation_job_name=self.compilation_job_name)
+                                                                compilation_job_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Dsc Compilation Job instance : {0} found".format(response.name))
@@ -315,6 +312,38 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

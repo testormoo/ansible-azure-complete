@@ -26,7 +26,7 @@ options:
         description:
             - Name of the Resource group within the Azure subscription.
         required: True
-    front_door_name:
+    name:
         description:
             - Name of the Front Door which is globally unique.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Front Door
     azure_rm_frontdoor_facts:
       resource_group: resource_group_name
-      front_door_name: front_door_name
+      name: front_door_name
 
   - name: List instances of Front Door
     azure_rm_frontdoor_facts:
@@ -109,7 +109,7 @@ class AzureRMFrontDoorsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            front_door_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -122,7 +122,7 @@ class AzureRMFrontDoorsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.front_door_name = None
+        self.name = None
         self.tags = None
         super(AzureRMFrontDoorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMFrontDoorsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(FrontDoorManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.front_door_name is not None:
+        if self.name is not None:
             self.results['front_doors'] = self.get()
         else:
             self.results['front_doors'] = self.list_by_resource_group()
@@ -143,7 +143,7 @@ class AzureRMFrontDoorsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.front_doors.get(resource_group_name=self.resource_group,
-                                                        front_door_name=self.front_door_name)
+                                                        front_door_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FrontDoors.')

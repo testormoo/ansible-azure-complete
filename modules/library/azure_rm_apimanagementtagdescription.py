@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -72,9 +72,12 @@ EXAMPLES = '''
   - name: Create (or update) Tag Description
     azure_rm_apimanagementtagdescription:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       api_id: 5931a75ae4bbd512a88c680b
       tag_id: tagId1
+      description: Some description that will be displayed for operation's tag if the tag is assigned to operation of the API
+      external_docs_url: http://some.url/additionaldoc
+      external_docs_description: Description of the external docs resource
       if_match: NOT FOUND
 '''
 
@@ -114,7 +117,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -146,7 +149,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.api_id = None
         self.tag_id = None
         self.parameters = dict()
@@ -175,7 +178,6 @@ class AzureRMTagDescription(AzureRMModuleBase):
                 elif key == "external_docs_description":
                     self.parameters["external_docs_description"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -196,8 +198,8 @@ class AzureRMTagDescription(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Tag Description instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Tag Description instance")
@@ -208,10 +210,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
 
             response = self.create_update_tagdescription()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Tag Description instance deleted")
@@ -244,7 +243,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.tag_description.create_or_update(resource_group_name=self.resource_group,
-                                                                         service_name=self.service_name,
+                                                                         service_name=self.name,
                                                                          api_id=self.api_id,
                                                                          tag_id=self.tag_id,
                                                                          parameters=self.parameters)
@@ -265,7 +264,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
         self.log("Deleting the Tag Description instance {0}".format(self.tag_id))
         try:
             response = self.mgmt_client.tag_description.delete(resource_group_name=self.resource_group,
-                                                               service_name=self.service_name,
+                                                               service_name=self.name,
                                                                api_id=self.api_id,
                                                                tag_id=self.tag_id,
                                                                if_match=self.if_match)
@@ -285,7 +284,7 @@ class AzureRMTagDescription(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.tag_description.get(resource_group_name=self.resource_group,
-                                                            service_name=self.service_name,
+                                                            service_name=self.name,
                                                             api_id=self.api_id,
                                                             tag_id=self.tag_id)
             found = True
@@ -303,6 +302,38 @@ class AzureRMTagDescription(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

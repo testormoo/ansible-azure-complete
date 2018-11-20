@@ -34,7 +34,7 @@ options:
         description:
             - The name of the gallery Image Definition in which the Image Version resides.
         required: True
-    gallery_image_version_name:
+    name:
         description:
             - The name of the gallery Image Version to be retrieved.
     expand:
@@ -58,7 +58,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       gallery_name: gallery_name
       gallery_image_name: gallery_image_name
-      gallery_image_version_name: gallery_image_version_name
+      name: gallery_image_version_name
       expand: expand
 
   - name: List instances of Gallery Image Version
@@ -127,7 +127,7 @@ class AzureRMGalleryImageVersionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_image_version_name=dict(
+            name=dict(
                 type='str'
             ),
             expand=dict(
@@ -145,7 +145,7 @@ class AzureRMGalleryImageVersionsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.gallery_name = None
         self.gallery_image_name = None
-        self.gallery_image_version_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMGalleryImageVersionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -156,7 +156,7 @@ class AzureRMGalleryImageVersionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ComputeManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.gallery_image_version_name is not None:
+        if self.name is not None:
             self.results['gallery_image_versions'] = self.get()
         else:
             self.results['gallery_image_versions'] = self.list_by_gallery_image()
@@ -169,7 +169,7 @@ class AzureRMGalleryImageVersionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.gallery_image_versions.get(resource_group_name=self.resource_group,
                                                                    gallery_name=self.gallery_name,
                                                                    gallery_image_name=self.gallery_image_name,
-                                                                   gallery_image_version_name=self.gallery_image_version_name)
+                                                                   gallery_image_version_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for GalleryImageVersions.')

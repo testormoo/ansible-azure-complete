@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    service_name:
+    name:
         description:
             - The name of the API Management service.
         required: True
@@ -37,18 +37,18 @@ options:
     display_name:
         description:
             - User-friendly OpenID Connect Provider name.
-        required: True
+            - Required when C(state) is I(present).
     description:
         description:
             - User-friendly description of OpenID Connect Provider.
     metadata_endpoint:
         description:
             - Metadata endpoint URI.
-        required: True
+            - Required when C(state) is I(present).
     client_id:
         description:
             - Client ID of developer console which is the client application.
-        required: True
+            - Required when C(state) is I(present).
     client_secret:
         description:
             - Client Secret of developer console which is the client application.
@@ -76,8 +76,11 @@ EXAMPLES = '''
   - name: Create (or update) Open Id Connect Provider
     azure_rm_apimanagementopenidconnectprovider:
       resource_group: rg1
-      service_name: apimService1
+      name: apimService1
       opid: templateOpenIdConnect3
+      display_name: templateoidprovider3
+      metadata_endpoint: https://oidprovider-template3.net
+      client_id: oidprovidertemplate3
       if_match: NOT FOUND
 '''
 
@@ -111,7 +114,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -120,19 +123,16 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
                 required=True
             ),
             display_name=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             description=dict(
                 type='str'
             ),
             metadata_endpoint=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             client_id=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             client_secret=dict(
                 type='str'
@@ -148,7 +148,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.service_name = None
+        self.name = None
         self.opid = None
         self.parameters = dict()
         self.if_match = None
@@ -180,7 +180,6 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
                 elif key == "client_secret":
                     self.parameters["client_secret"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
@@ -201,8 +200,8 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Open Id Connect Provider instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Open Id Connect Provider instance")
@@ -213,10 +212,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
 
             response = self.create_update_openidconnectprovider()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Open Id Connect Provider instance deleted")
@@ -249,7 +245,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
 
         try:
             response = self.mgmt_client.open_id_connect_provider.create_or_update(resource_group_name=self.resource_group,
-                                                                                  service_name=self.service_name,
+                                                                                  service_name=self.name,
                                                                                   opid=self.opid,
                                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
@@ -269,7 +265,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
         self.log("Deleting the Open Id Connect Provider instance {0}".format(self.opid))
         try:
             response = self.mgmt_client.open_id_connect_provider.delete(resource_group_name=self.resource_group,
-                                                                        service_name=self.service_name,
+                                                                        service_name=self.name,
                                                                         opid=self.opid,
                                                                         if_match=self.if_match)
         except CloudError as e:
@@ -288,7 +284,7 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
         found = False
         try:
             response = self.mgmt_client.open_id_connect_provider.get(resource_group_name=self.resource_group,
-                                                                     service_name=self.service_name,
+                                                                     service_name=self.name,
                                                                      opid=self.opid)
             found = True
             self.log("Response : {0}".format(response))
@@ -304,6 +300,38 @@ class AzureRMOpenIdConnectProvider(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

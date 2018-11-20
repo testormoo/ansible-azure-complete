@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    namespace_name:
+    name:
         description:
             - The namespace name.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Namespace
     azure_rm_notificationhubsnamespace_facts:
       resource_group: resource_group_name
-      namespace_name: namespace_name
+      name: namespace_name
 '''
 
 RETURN = '''
@@ -131,7 +131,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            namespace_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -145,7 +145,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.namespace_name = None
+        self.name = None
         self.tags = None
         super(AzureRMNamespacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -163,7 +163,7 @@ class AzureRMNamespacesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.namespaces.get(resource_group_name=self.resource_group,
-                                                       namespace_name=self.namespace_name)
+                                                       namespace_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Namespaces.')

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group that contains the resource. You can obtain this value from the Azure Resource Manager API or the portal.
         required: True
-    server_name:
+    name:
         description:
             - The name of the server.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of SQL Server
     azure_rm_sqlserver_facts:
       resource_group: resource_group_name
-      server_name: server_name
+      name: server_name
 
   - name: List instances of SQL Server
     azure_rm_sqlserver_facts:
@@ -127,7 +127,7 @@ class AzureRMServersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            server_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -140,7 +140,7 @@ class AzureRMServersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.server_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -150,7 +150,7 @@ class AzureRMServersFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.server_name is not None:
+        if self.name is not None:
             self.results['servers'] = self.get()
         else:
             self.results['servers'] = self.list_by_resource_group()
@@ -161,7 +161,7 @@ class AzureRMServersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.servers.get(resource_group_name=self.resource_group,
-                                                    server_name=self.server_name)
+                                                    server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Servers.')

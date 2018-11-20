@@ -26,7 +26,7 @@ options:
         description:
             - The Resource Group Name
         required: True
-    job_name:
+    name:
         description:
             - "The name of the job Resource within the specified resource group. job names must be between 3 and 24 characters in length and use any
                alphanumeric and underscore only"
@@ -41,16 +41,16 @@ options:
                     - "The location of the resource. This will be one of the supported and registered Azure Regions (e.g. West US, East US, Southeast Asia,
                        etc.). The region of a resource cannot be changed once it is created, but if an identical region is specified on update the request
                        will succeed."
-                required: True
+                    - Required when C(state) is I(present).
             sku:
                 description:
                     - The sku type.
-                required: True
+                    - Required when C(state) is I(present).
                 suboptions:
                     name:
                         description:
                             - The sku name.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'data_box'
                             - 'data_box_disk'
@@ -71,16 +71,16 @@ options:
                     contact_details:
                         description:
                             - Contact details for notification and shipping.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             contact_name:
                                 description:
                                     - Contact name of the person.
-                                required: True
+                                    - Required when C(state) is I(present).
                             phone:
                                 description:
                                     - Phone number of the contact person.
-                                required: True
+                                    - Required when C(state) is I(present).
                             phone_extension:
                                 description:
                                     - I(phone) extension number of the contact person.
@@ -90,7 +90,7 @@ options:
                             email_list:
                                 description:
                                     - List of Email-ids to be notified about job progress.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 type: list
                             notification_preference:
                                 description:
@@ -100,7 +100,7 @@ options:
                                     stage_name:
                                         description:
                                             - Name of the stage.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         choices:
                                             - 'device_prepared'
                                             - 'dispatched'
@@ -111,16 +111,16 @@ options:
                                     send_notification:
                                         description:
                                             - Notification is required or not.
-                                        required: True
+                                            - Required when C(state) is I(present).
                     shipping_address:
                         description:
                             - Shipping address of the customer.
-                        required: True
+                            - Required when C(state) is I(present).
                         suboptions:
                             street_address1:
                                 description:
                                     - Street Address line 1.
-                                required: True
+                                    - Required when C(state) is I(present).
                             street_address2:
                                 description:
                                     - Street Address line 2.
@@ -136,11 +136,11 @@ options:
                             country:
                                 description:
                                     - Name of the Country.
-                                required: True
+                                    - Required when C(state) is I(present).
                             postal_code:
                                 description:
                                     - Postal code.
-                                required: True
+                                    - Required when C(state) is I(present).
                             zip_extended_code:
                                 description:
                                     - Extended Zip Code.
@@ -157,13 +157,13 @@ options:
                     destination_account_details:
                         description:
                             - Destination account details.
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             account_id:
                                 description:
                                     - Destination storage account id.
-                                required: True
+                                    - Required when C(state) is I(present).
                     preferences:
                         description:
                             - Preferences for the order.
@@ -174,7 +174,7 @@ options:
                     job_details_type:
                         description:
                             - Constant filled by server.
-                        required: True
+                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Job.
@@ -197,11 +197,31 @@ EXAMPLES = '''
   - name: Create (or update) Job
     azure_rm_databoxjob:
       resource_group: SdkRg8120
-      job_name: SdkJob7196
+      name: SdkJob7196
       job_resource:
         location: westus
         sku:
           name: DataBox
+        details:
+          contact_details:
+            contact_name: Public SDK Test
+            phone: 1234567890
+            phone_extension: 1234
+            email_list:
+              - [
+  "testing@microsoft.com"
+]
+          shipping_address:
+            street_address1: 16 TOWNSEND ST
+            street_address2: Unit 1
+            city: San Francisco
+            state_or_province: CA
+            country: US
+            postal_code: 94107
+            company_name: Microsoft
+            address_type: Commercial
+          destination_account_details:
+            - account_id: /subscriptions/fa68082f-8ff7-4a25-95c7-ce9da541242f/resourcegroups/databoxbvt/providers/Microsoft.Storage/storageAccounts/databoxbvttestaccount
 '''
 
 RETURN = '''
@@ -248,7 +268,7 @@ class AzureRMJobs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -264,7 +284,7 @@ class AzureRMJobs(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.job_name = None
+        self.name = None
         self.job_resource = dict()
 
         self.results = dict(changed=False)
@@ -298,7 +318,6 @@ class AzureRMJobs(AzureRMModuleBase):
                 elif key == "details":
                     self.job_resource["details"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(DataBoxManagementClient,
@@ -319,8 +338,8 @@ class AzureRMJobs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job instance")
@@ -331,10 +350,7 @@ class AzureRMJobs(AzureRMModuleBase):
 
             response = self.create_update_job()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job instance deleted")
@@ -363,16 +379,16 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: deserialized Job instance state dictionary
         '''
-        self.log("Creating / Updating the Job instance {0}".format(self.job_name))
+        self.log("Creating / Updating the Job instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.jobs.create(resource_group_name=self.resource_group,
-                                                        job_name=self.job_name,
+                                                        job_name=self.name,
                                                         job_resource=self.job_resource)
             else:
                 response = self.mgmt_client.jobs.update(resource_group_name=self.resource_group,
-                                                        job_name=self.job_name,
+                                                        job_name=self.name,
                                                         job_resource_update_parameter=self.job_resource_update_parameter)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -388,10 +404,10 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Job instance {0}".format(self.job_name))
+        self.log("Deleting the Job instance {0}".format(self.name))
         try:
             response = self.mgmt_client.jobs.delete(resource_group_name=self.resource_group,
-                                                    job_name=self.job_name)
+                                                    job_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Job instance.')
             self.fail("Error deleting the Job instance: {0}".format(str(e)))
@@ -404,11 +420,11 @@ class AzureRMJobs(AzureRMModuleBase):
 
         :return: deserialized Job instance state dictionary
         '''
-        self.log("Checking if the Job instance {0} is present".format(self.job_name))
+        self.log("Checking if the Job instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.jobs.get(resource_group_name=self.resource_group,
-                                                 job_name=self.job_name)
+                                                 job_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Job instance : {0} found".format(response.name))
@@ -425,6 +441,38 @@ class AzureRMJobs(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

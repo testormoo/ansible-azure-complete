@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database on which the sync group is hosted.
         required: True
-    sync_group_name:
+    name:
         description:
             - The name of the sync group.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      sync_group_name: sync_group_name
+      name: sync_group_name
 
   - name: List instances of Sync Group
     azure_rm_sqlsyncgroup_facts:
@@ -115,7 +115,7 @@ class AzureRMSyncGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            sync_group_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -127,7 +127,7 @@ class AzureRMSyncGroupsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.sync_group_name = None
+        self.name = None
         super(AzureRMSyncGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -136,7 +136,7 @@ class AzureRMSyncGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.sync_group_name is not None:
+        if self.name is not None:
             self.results['sync_groups'] = self.get()
         else:
             self.results['sync_groups'] = self.list_by_database()
@@ -149,7 +149,7 @@ class AzureRMSyncGroupsFacts(AzureRMModuleBase):
             response = self.mgmt_client.sync_groups.get(resource_group_name=self.resource_group,
                                                         server_name=self.server_name,
                                                         database_name=self.database_name,
-                                                        sync_group_name=self.sync_group_name)
+                                                        sync_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SyncGroups.')

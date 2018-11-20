@@ -30,7 +30,7 @@ options:
         description:
             - C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)networkC(*) C(*)securityC(*) C(*)groupC(*).
         required: True
-    security_rule_name:
+    name:
         description:
             - C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)securityC(*) C(*)ruleC(*).
         required: True
@@ -44,7 +44,7 @@ options:
         description:
             - "C(*)NetworkC(*) C(*)protocolC(*) C(*)thisC(*) C(*)ruleC(*) C(*)appliesC(*) C(*)toC(*). C(*)PossibleC(*) C(*)valuesC(*) C(*)areC(*)
                'C(*)CC(*)(C(*)tcpC(*))', 'C(*)CC(*)(C(*)udpC(*))', C(*)andC(*) '*'."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'tcp'
             - 'udp'
@@ -114,7 +114,7 @@ options:
         description:
             - "C(*)TheC(*) C(*)networkC(*) C(*)trafficC(*) C(*)isC(*) C(*)allowedC(*) C(*)orC(*) C(*)deniedC(*). C(*)PossibleC(*) C(*)valuesC(*)
                C(*)areC(*): 'C(*)AllowC(*)' C(*)andC(*) 'C(*)DenyC(*)'."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'allow'
             - 'deny'
@@ -129,23 +129,15 @@ options:
             - "C(*)TheC(*) C(*)directionC(*) C(*)ofC(*) C(*)theC(*) C(*)ruleC(*). C(*)TheC(*) C(*)directionC(*) C(*)specifiesC(*) C(*)ifC(*) C(*)ruleC(*)
                C(*)willC(*) C(*)beC(*) C(*)evaluatedC(*) C(*)onC(*) C(*)incomingC(*) C(*)orC(*) C(*)outcomingC(*) C(*)trafficC(*). C(*)PossibleC(*)
                C(*)valuesC(*) C(*)areC(*): 'C(*)InboundC(*)' C(*)andC(*) 'C(*)OutboundC(*)'."
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'inbound'
             - 'outbound'
-    provisioning_state:
-        description:
-            - "C(*)TheC(*) C(*)provisioningC(*) C(*)stateC(*) C(*)ofC(*) C(*)theC(*) C(*)publicC(*) C(*)IPC(*) C(*)resourceC(*). C(*)PossibleC(*)
-               C(*)valuesC(*) C(*)areC(*): 'C(*)UpdatingC(*)', 'C(*)DeletingC(*)', C(*)andC(*) 'C(*)FailedC(*)'."
     name:
         description:
             - "C(*)TheC(*) C(*)nameC(*) C(*)ofC(*) C(*)theC(*) C(*)resourceC(*) C(*)thatC(*) C(*)isC(*) C(*)uniqueC(*) C(*)withinC(*) C(*)aC(*)
                C(*)resourceC(*) C(*)groupC(*). C(*)ThisC(*) C(*)nameC(*) C(*)canC(*) C(*)beC(*) C(*)usedC(*) C(*)toC(*) C(*)IC(*)(C(*)accessC(*))
                C(*)theC(*) C(*)resourceC(*)."
-    etag:
-        description:
-            - "C(*)AC(*) C(*)uniqueC(*) C(*)readC(*)-C(*)onlyC(*) C(*)stringC(*) C(*)thatC(*) C(*)changesC(*) C(*)wheneverC(*) C(*)theC(*) C(*)resourceC(*)
-               C(*)isC(*) C(*)updatedC(*)."
     state:
       description:
         - Assert the state of the Security Rule.
@@ -168,7 +160,15 @@ EXAMPLES = '''
     azure_rm_securityrule:
       resource_group: rg1
       network_security_group_name: testnsg
-      security_rule_name: rule1
+      name: rule1
+      protocol: *
+      source_port_range: *
+      destination_port_range: 8080
+      source_address_prefix: 10.0.0.0/8
+      destination_address_prefix: 11.0.0.0/8
+      access: Deny
+      priority: 100
+      direction: Outbound
 '''
 
 RETURN = '''
@@ -211,7 +211,7 @@ class AzureRMSecurityRules(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            security_rule_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -225,8 +225,7 @@ class AzureRMSecurityRules(AzureRMModuleBase):
                 type='str',
                 choices=['tcp',
                          'udp',
-                         '*'],
-                required=True
+                         '*']
             ),
             source_port_range=dict(
                 type='str'
@@ -261,8 +260,7 @@ class AzureRMSecurityRules(AzureRMModuleBase):
             access=dict(
                 type='str',
                 choices=['allow',
-                         'deny'],
-                required=True
+                         'deny']
             ),
             priority=dict(
                 type='int'
@@ -270,16 +268,9 @@ class AzureRMSecurityRules(AzureRMModuleBase):
             direction=dict(
                 type='str',
                 choices=['inbound',
-                         'outbound'],
-                required=True
-            ),
-            provisioning_state=dict(
-                type='str'
+                         'outbound']
             ),
             name=dict(
-                type='str'
-            ),
-            etag=dict(
                 type='str'
             ),
             state=dict(
@@ -291,7 +282,7 @@ class AzureRMSecurityRules(AzureRMModuleBase):
 
         self.resource_group = None
         self.network_security_group_name = None
-        self.security_rule_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -342,14 +333,9 @@ class AzureRMSecurityRules(AzureRMModuleBase):
                     self.parameters["priority"] = kwargs[key]
                 elif key == "direction":
                     self.parameters["direction"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioning_state":
-                    self.parameters["provisioning_state"] = kwargs[key]
                 elif key == "name":
                     self.parameters["name"] = kwargs[key]
-                elif key == "etag":
-                    self.parameters["etag"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -370,8 +356,8 @@ class AzureRMSecurityRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Security Rule instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Security Rule instance")
@@ -382,10 +368,7 @@ class AzureRMSecurityRules(AzureRMModuleBase):
 
             response = self.create_update_securityrule()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Security Rule instance deleted")
@@ -414,12 +397,12 @@ class AzureRMSecurityRules(AzureRMModuleBase):
 
         :return: deserialized Security Rule instance state dictionary
         '''
-        self.log("Creating / Updating the Security Rule instance {0}".format(self.security_rule_name))
+        self.log("Creating / Updating the Security Rule instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.security_rules.create_or_update(resource_group_name=self.resource_group,
                                                                         network_security_group_name=self.network_security_group_name,
-                                                                        security_rule_name=self.security_rule_name,
+                                                                        security_rule_name=self.name,
                                                                         security_rule_parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -435,11 +418,11 @@ class AzureRMSecurityRules(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Security Rule instance {0}".format(self.security_rule_name))
+        self.log("Deleting the Security Rule instance {0}".format(self.name))
         try:
             response = self.mgmt_client.security_rules.delete(resource_group_name=self.resource_group,
                                                               network_security_group_name=self.network_security_group_name,
-                                                              security_rule_name=self.security_rule_name)
+                                                              security_rule_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Security Rule instance.')
             self.fail("Error deleting the Security Rule instance: {0}".format(str(e)))
@@ -452,12 +435,12 @@ class AzureRMSecurityRules(AzureRMModuleBase):
 
         :return: deserialized Security Rule instance state dictionary
         '''
-        self.log("Checking if the Security Rule instance {0} is present".format(self.security_rule_name))
+        self.log("Checking if the Security Rule instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.security_rules.get(resource_group_name=self.resource_group,
                                                            network_security_group_name=self.network_security_group_name,
-                                                           security_rule_name=self.security_rule_name)
+                                                           security_rule_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Security Rule instance : {0} found".format(response.name))
@@ -473,6 +456,38 @@ class AzureRMSecurityRules(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

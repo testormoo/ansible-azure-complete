@@ -160,11 +160,11 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
 
         if self.resource_group is not None:
             self.results['global_schedules'] = self.list_by_resource_group()
-        else:
-            self.results['global_schedules'] = self.list_by_subscription()
         elif (self.resource_group is not None and
                 self.name is not None):
             self.results['global_schedules'] = self.get()
+        else:
+            self.results['global_schedules'] = self.list_by_subscription()
         return self.results
 
     def list_by_resource_group(self):

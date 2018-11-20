@@ -22,7 +22,7 @@ description:
     - Create, update and delete instance of Budget.
 
 options:
-    budget_name:
+    name:
         description:
             - Budget Name.
         required: True
@@ -33,18 +33,18 @@ options:
     category:
         description:
             - The category of the budget, whether the budget tracks C(cost) or C(usage).
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'cost'
             - 'usage'
     amount:
         description:
             - The total amount of C(cost) to track with the budget
-        required: True
+            - Required when C(state) is I(present).
     time_grain:
         description:
             - The time covered by a budget. Tracking of the I(amount) will be reset based on the time grain.
-        required: True
+            - Required when C(state) is I(present).
         choices:
             - 'monthly'
             - 'quarterly'
@@ -54,12 +54,12 @@ options:
             - "Has start and end date of the budget. The start date must be first of the month and should be less than the end date. Budget start date must
                be on or after June 1, 2017. Future start date should not be more than three months. Past start date should  be selected within the
                I(time_grain) preiod. There are no restrictions on the end date."
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             start_date:
                 description:
                     - The start date for the budget.
-                required: True
+                    - Required when C(state) is I(present).
             end_date:
                 description:
                     - The end date for the budget. If not provided, we default this to 10 years from the start date.
@@ -102,8 +102,46 @@ author:
 EXAMPLES = '''
   - name: Create (or update) Budget
     azure_rm_consumptionbudget:
-      budget_name: TestBudget
+      name: TestBudget
       e_tag: "1d34d016a593709"
+      category: Cost
+      amount: 100.65
+      time_grain: Monthly
+      time_period:
+        start_date: 2017-10-01T00:00:00Z
+        end_date: 2018-10-31T00:00:00Z
+      filters:
+        resource_groups:
+          - [
+  "MYDEVTESTRG"
+]
+        resources:
+          - [
+  "/subscriptions/{subscription-id}/resourceGroups/MYDEVTESTRG/providers/Microsoft.Compute/virtualMachines/MYVM2",
+  "/subscriptions/{subscription-id}/resourceGroups/MYDEVTESTRG/providers/Microsoft.Compute/virtualMachines/platformcloudplatformGeneric1"
+]
+        meters:
+          - [
+  "00000000-0000-0000-0000-000000000000"
+]
+      notifications: {
+  "Actual_GreaterThan_80_Percent": {
+    "enabled": true,
+    "operator": "GreaterThan",
+    "threshold": "80",
+    "contactEmails": [
+      "johndoe@contoso.com",
+      "janesmith@contoso.com"
+    ],
+    "contactRoles": [
+      "Contributor",
+      "Reader"
+    ],
+    "contactGroups": [
+      "/subscriptions/{subscription-id}/resourceGroups/MYDEVTESTRG/providers/microsoft.insights/actionGroups/SampleActionGroup"
+    ]
+  }
+}
 '''
 
 RETURN = '''
@@ -138,7 +176,7 @@ class AzureRMBudgets(AzureRMModuleBase):
 
     def __init__(self):
         self.module_arg_spec = dict(
-            budget_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -148,23 +186,19 @@ class AzureRMBudgets(AzureRMModuleBase):
             category=dict(
                 type='str',
                 choices=['cost',
-                         'usage'],
-                required=True
+                         'usage']
             ),
             amount=dict(
-                type='str',
-                required=True
+                type='str'
             ),
             time_grain=dict(
                 type='str',
                 choices=['monthly',
                          'quarterly',
-                         'annually'],
-                required=True
+                         'annually']
             ),
             time_period=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             filters=dict(
                 type='dict'
@@ -179,7 +213,7 @@ class AzureRMBudgets(AzureRMModuleBase):
             )
         )
 
-        self.budget_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -213,7 +247,6 @@ class AzureRMBudgets(AzureRMModuleBase):
                 elif key == "notifications":
                     self.parameters["notifications"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ConsumptionManagementClient,
@@ -232,8 +265,8 @@ class AzureRMBudgets(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Budget instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Budget instance")
@@ -244,10 +277,7 @@ class AzureRMBudgets(AzureRMModuleBase):
 
             response = self.create_update_budget()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Budget instance deleted")
@@ -276,10 +306,10 @@ class AzureRMBudgets(AzureRMModuleBase):
 
         :return: deserialized Budget instance state dictionary
         '''
-        self.log("Creating / Updating the Budget instance {0}".format(self.budget_name))
+        self.log("Creating / Updating the Budget instance {0}".format(self.name))
 
         try:
-            response = self.mgmt_client.budgets.create_or_update(budget_name=self.budget_name,
+            response = self.mgmt_client.budgets.create_or_update(budget_name=self.name,
                                                                  parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -295,9 +325,9 @@ class AzureRMBudgets(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Budget instance {0}".format(self.budget_name))
+        self.log("Deleting the Budget instance {0}".format(self.name))
         try:
-            response = self.mgmt_client.budgets.delete(budget_name=self.budget_name)
+            response = self.mgmt_client.budgets.delete(budget_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Budget instance.')
             self.fail("Error deleting the Budget instance: {0}".format(str(e)))
@@ -310,10 +340,10 @@ class AzureRMBudgets(AzureRMModuleBase):
 
         :return: deserialized Budget instance state dictionary
         '''
-        self.log("Checking if the Budget instance {0} is present".format(self.budget_name))
+        self.log("Checking if the Budget instance {0} is present".format(self.name))
         found = False
         try:
-            response = self.mgmt_client.budgets.get(budget_name=self.budget_name)
+            response = self.mgmt_client.budgets.get(budget_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Budget instance : {0} found".format(response.name))
@@ -329,6 +359,38 @@ class AzureRMBudgets(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

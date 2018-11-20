@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    streaming_policy_name:
+    name:
         description:
             - The Streaming Policy name.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_mediastreamingpolicy_facts:
       resource_group: resource_group_name
       account_name: account_name
-      streaming_policy_name: streaming_policy_name
+      name: streaming_policy_name
 '''
 
 RETURN = '''
@@ -101,7 +101,7 @@ class AzureRMStreamingPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            streaming_policy_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -113,7 +113,7 @@ class AzureRMStreamingPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.streaming_policy_name = None
+        self.name = None
         super(AzureRMStreamingPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -131,7 +131,7 @@ class AzureRMStreamingPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.streaming_policies.get(resource_group_name=self.resource_group,
                                                                account_name=self.account_name,
-                                                               streaming_policy_name=self.streaming_policy_name)
+                                                               streaming_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StreamingPolicies.')

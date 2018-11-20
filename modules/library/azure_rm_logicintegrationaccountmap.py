@@ -30,7 +30,7 @@ options:
         description:
             - The integration account name.
         required: True
-    map_name:
+    name:
         description:
             - The integration account I(map) name.
         required: True
@@ -45,7 +45,7 @@ options:
             map_type:
                 description:
                     - The map type.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'not_specified'
                     - 'xslt'
@@ -91,9 +91,64 @@ EXAMPLES = '''
     azure_rm_logicintegrationaccountmap:
       resource_group: testResourceGroup
       integration_account_name: testIntegrationAccount
-      map_name: testMap
+      name: testMap
       map:
         location: westus
+        map_type: Xslt
+        content: <?xml version="1.0" encoding="UTF-16"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:var="http://schemas.microsoft.com/BizTalk/2003/var" exclude-result-prefixes="msxsl var s0 userCSharp" version="1.0" xmlns:ns0="http://BizTalk_Server_Project4.StringFunctoidsDestinationSchema" xmlns:s0="http://BizTalk_Server_Project4.StringFunctoidsSourceSchema" xmlns:userCSharp="http://schemas.microsoft.com/BizTalk/2003/userCSharp">
+  <xsl:import href="http://btsfunctoids.blob.core.windows.net/functoids/functoids.xslt" />
+  <xsl:output omit-xml-declaration="yes" method="xml" version="1.0" />
+  <xsl:template match="/">
+    <xsl:apply-templates select="/s0:Root" />
+  </xsl:template>
+  <xsl:template match="/s0:Root">
+    <xsl:variable name="var:v1" select="userCSharp:StringFind(string(StringFindSource/text()) , &quot;SearchString&quot;)" />
+    <xsl:variable name="var:v2" select="userCSharp:StringLeft(string(StringLeftSource/text()) , &quot;2&quot;)" />
+    <xsl:variable name="var:v3" select="userCSharp:StringRight(string(StringRightSource/text()) , &quot;2&quot;)" />
+    <xsl:variable name="var:v4" select="userCSharp:StringUpperCase(string(UppercaseSource/text()))" />
+    <xsl:variable name="var:v5" select="userCSharp:StringLowerCase(string(LowercaseSource/text()))" />
+    <xsl:variable name="var:v6" select="userCSharp:StringSize(string(SizeSource/text()))" />
+    <xsl:variable name="var:v7" select="userCSharp:StringSubstring(string(StringExtractSource/text()) , &quot;0&quot; , &quot;2&quot;)" />
+    <xsl:variable name="var:v8" select="userCSharp:StringConcat(string(StringConcatSource/text()))" />
+    <xsl:variable name="var:v9" select="userCSharp:StringTrimLeft(string(StringLeftTrimSource/text()))" />
+    <xsl:variable name="var:v10" select="userCSharp:StringTrimRight(string(StringRightTrimSource/text()))" />
+    <ns0:Root>
+      <StringFindDestination>
+        <xsl:value-of select="$var:v1" />
+      </StringFindDestination>
+      <StringLeftDestination>
+        <xsl:value-of select="$var:v2" />
+      </StringLeftDestination>
+      <StringRightDestination>
+        <xsl:value-of select="$var:v3" />
+      </StringRightDestination>
+      <UppercaseDestination>
+        <xsl:value-of select="$var:v4" />
+      </UppercaseDestination>
+      <LowercaseDestination>
+        <xsl:value-of select="$var:v5" />
+      </LowercaseDestination>
+      <SizeDestination>
+        <xsl:value-of select="$var:v6" />
+      </SizeDestination>
+      <StringExtractDestination>
+        <xsl:value-of select="$var:v7" />
+      </StringExtractDestination>
+      <StringConcatDestination>
+        <xsl:value-of select="$var:v8" />
+      </StringConcatDestination>
+      <StringLeftTrimDestination>
+        <xsl:value-of select="$var:v9" />
+      </StringLeftTrimDestination>
+      <StringRightTrimDestination>
+        <xsl:value-of select="$var:v10" />
+      </StringRightTrimDestination>
+    </ns0:Root>
+  </xsl:template>
+</xsl:stylesheet>
+        content_type: application/xml
+        metadata: {}
 '''
 
 RETURN = '''
@@ -137,7 +192,7 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            map_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -154,7 +209,7 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
 
         self.resource_group = None
         self.integration_account_name = None
-        self.map_name = None
+        self.name = None
         self.map = dict()
 
         self.results = dict(changed=False)
@@ -186,7 +241,6 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
                 elif key == "metadata":
                     self.map["metadata"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(LogicManagementClient,
@@ -207,8 +261,8 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Integration Account Map instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Integration Account Map instance")
@@ -219,10 +273,7 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
 
             response = self.create_update_integrationaccountmap()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Integration Account Map instance deleted")
@@ -251,12 +302,12 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
 
         :return: deserialized Integration Account Map instance state dictionary
         '''
-        self.log("Creating / Updating the Integration Account Map instance {0}".format(self.map_name))
+        self.log("Creating / Updating the Integration Account Map instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.integration_account_maps.create_or_update(resource_group_name=self.resource_group,
                                                                                   integration_account_name=self.integration_account_name,
-                                                                                  map_name=self.map_name,
+                                                                                  map_name=self.name,
                                                                                   map=self.map)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -272,11 +323,11 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Integration Account Map instance {0}".format(self.map_name))
+        self.log("Deleting the Integration Account Map instance {0}".format(self.name))
         try:
             response = self.mgmt_client.integration_account_maps.delete(resource_group_name=self.resource_group,
                                                                         integration_account_name=self.integration_account_name,
-                                                                        map_name=self.map_name)
+                                                                        map_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Integration Account Map instance.')
             self.fail("Error deleting the Integration Account Map instance: {0}".format(str(e)))
@@ -289,12 +340,12 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
 
         :return: deserialized Integration Account Map instance state dictionary
         '''
-        self.log("Checking if the Integration Account Map instance {0} is present".format(self.map_name))
+        self.log("Checking if the Integration Account Map instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.integration_account_maps.get(resource_group_name=self.resource_group,
                                                                      integration_account_name=self.integration_account_name,
-                                                                     map_name=self.map_name)
+                                                                     map_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Integration Account Map instance : {0} found".format(response.name))
@@ -310,6 +361,38 @@ class AzureRMIntegrationAccountMaps(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def _snake_to_camel(snake, capitalize_first=False):

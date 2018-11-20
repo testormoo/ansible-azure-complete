@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    source_control_name:
+    name:
         description:
             - The name of source control.
     filter:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationsourcecontrol_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      source_control_name: source_control_name
+      name: source_control_name
 
   - name: List instances of Source Control
     azure_rm_automationsourcecontrol_facts:
@@ -96,7 +96,7 @@ class AzureRMSourceControlFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            source_control_name=dict(
+            name=dict(
                 type='str'
             ),
             filter=dict(
@@ -110,7 +110,7 @@ class AzureRMSourceControlFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.source_control_name = None
+        self.name = None
         self.filter = None
         super(AzureRMSourceControlFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMSourceControlFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.source_control_name is not None:
+        if self.name is not None:
             self.results['source_control'] = self.get()
         else:
             self.results['source_control'] = self.list_by_automation_account()
@@ -132,7 +132,7 @@ class AzureRMSourceControlFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.source_control.get(resource_group_name=self.resource_group,
                                                            automation_account_name=self.automation_account_name,
-                                                           source_control_name=self.source_control_name)
+                                                           source_control_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SourceControl.')

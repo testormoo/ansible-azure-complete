@@ -25,7 +25,7 @@ options:
     resource_group:
         description:
             - The name of the resource group.
-    autoscale_setting_name:
+    name:
         description:
             - The autoscale setting name.
     tags:
@@ -44,7 +44,7 @@ EXAMPLES = '''
   - name: Get instance of Autoscale Setting
     azure_rm_monitorautoscalesetting_facts:
       resource_group: resource_group_name
-      autoscale_setting_name: autoscale_setting_name
+      name: autoscale_setting_name
 
   - name: List instances of Autoscale Setting
     azure_rm_monitorautoscalesetting_facts:
@@ -127,7 +127,7 @@ class AzureRMAutoscaleSettingsFacts(AzureRMModuleBase):
             resource_group=dict(
                 type='str'
             ),
-            autoscale_setting_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -140,7 +140,7 @@ class AzureRMAutoscaleSettingsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.autoscale_setting_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAutoscaleSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMAutoscaleSettingsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.resource_group is not None and
-                self.autoscale_setting_name is not None):
+                self.name is not None):
             self.results['autoscale_settings'] = self.get()
         elif self.resource_group is not None:
             self.results['autoscale_settings'] = self.list_by_resource_group()
@@ -164,7 +164,7 @@ class AzureRMAutoscaleSettingsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.autoscale_settings.get(resource_group_name=self.resource_group,
-                                                               autoscale_setting_name=self.autoscale_setting_name)
+                                                               autoscale_setting_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AutoscaleSettings.')

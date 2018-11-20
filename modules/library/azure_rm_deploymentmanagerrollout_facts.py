@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    rollout_name:
+    name:
         description:
             - The rollout name.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Rollout
     azure_rm_deploymentmanagerrollout_facts:
       resource_group: resource_group_name
-      rollout_name: rollout_name
+      name: rollout_name
       retry_attempt: retry_attempt
 '''
 
@@ -131,7 +131,7 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            rollout_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -148,7 +148,7 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.rollout_name = None
+        self.name = None
         self.retry_attempt = None
         self.tags = None
         super(AzureRMRolloutsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -167,7 +167,7 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.rollouts.get(resource_group_name=self.resource_group,
-                                                     rollout_name=self.rollout_name)
+                                                     rollout_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Rollouts.')

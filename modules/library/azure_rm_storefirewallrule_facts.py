@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Data Lake Store account.
         required: True
-    firewall_rule_name:
+    name:
         description:
             - The name of the firewall rule to retrieve.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_storefirewallrule_facts:
       resource_group: resource_group_name
       account_name: account_name
-      firewall_rule_name: firewall_rule_name
+      name: firewall_rule_name
 
   - name: List instances of Firewall Rule
     azure_rm_storefirewallrule_facts:
@@ -98,7 +98,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            firewall_rule_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.firewall_rule_name = None
+        self.name = None
         super(AzureRMFirewallRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeStoreAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.firewall_rule_name is not None:
+        if self.name is not None:
             self.results['firewall_rules'] = self.get()
         else:
             self.results['firewall_rules'] = self.list_by_account()
@@ -130,7 +130,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.firewall_rules.get(resource_group_name=self.resource_group,
                                                            account_name=self.account_name,
-                                                           firewall_rule_name=self.firewall_rule_name)
+                                                           firewall_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for FirewallRules.')

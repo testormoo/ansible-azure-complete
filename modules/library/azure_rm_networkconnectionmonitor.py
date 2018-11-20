@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Network Watcher resource.
         required: True
-    connection_monitor_name:
+    name:
         description:
             - The name of the connection monitor.
         required: True
@@ -39,18 +39,18 @@ options:
             - Resource location. If not set, location from the resource group will be used as default.
     source:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             resource_id:
                 description:
                     - The ID of the resource used as the source by connection monitor.
-                required: True
+                    - Required when C(state) is I(present).
             port:
                 description:
                     - The source port used by connection monitor.
     destination:
         description:
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             resource_id:
                 description:
@@ -90,7 +90,7 @@ EXAMPLES = '''
     azure_rm_networkconnectionmonitor:
       resource_group: NOT FOUND
       network_watcher_name: NOT FOUND
-      connection_monitor_name: NOT FOUND
+      name: NOT FOUND
       location: eastus
 '''
 
@@ -134,7 +134,7 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            connection_monitor_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,12 +142,10 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
                 type='str'
             ),
             source=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             destination=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             auto_start=dict(
                 type='str'
@@ -164,7 +162,7 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
 
         self.resource_group = None
         self.network_watcher_name = None
-        self.connection_monitor_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -194,7 +192,6 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
                 elif key == "monitoring_interval_in_seconds":
                     self.parameters["monitoring_interval_in_seconds"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
@@ -218,8 +215,8 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Connection Monitor instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Connection Monitor instance")
@@ -230,10 +227,7 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
 
             response = self.create_update_connectionmonitor()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Connection Monitor instance deleted")
@@ -262,12 +256,12 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
 
         :return: deserialized Connection Monitor instance state dictionary
         '''
-        self.log("Creating / Updating the Connection Monitor instance {0}".format(self.connection_monitor_name))
+        self.log("Creating / Updating the Connection Monitor instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.connection_monitors.create_or_update(resource_group_name=self.resource_group,
                                                                              network_watcher_name=self.network_watcher_name,
-                                                                             connection_monitor_name=self.connection_monitor_name,
+                                                                             connection_monitor_name=self.name,
                                                                              parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -283,11 +277,11 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Connection Monitor instance {0}".format(self.connection_monitor_name))
+        self.log("Deleting the Connection Monitor instance {0}".format(self.name))
         try:
             response = self.mgmt_client.connection_monitors.delete(resource_group_name=self.resource_group,
                                                                    network_watcher_name=self.network_watcher_name,
-                                                                   connection_monitor_name=self.connection_monitor_name)
+                                                                   connection_monitor_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Connection Monitor instance.')
             self.fail("Error deleting the Connection Monitor instance: {0}".format(str(e)))
@@ -300,12 +294,12 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
 
         :return: deserialized Connection Monitor instance state dictionary
         '''
-        self.log("Checking if the Connection Monitor instance {0} is present".format(self.connection_monitor_name))
+        self.log("Checking if the Connection Monitor instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.connection_monitors.get(resource_group_name=self.resource_group,
                                                                 network_watcher_name=self.network_watcher_name,
-                                                                connection_monitor_name=self.connection_monitor_name)
+                                                                connection_monitor_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Connection Monitor instance : {0} found".format(response.name))
@@ -321,6 +315,38 @@ class AzureRMConnectionMonitors(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

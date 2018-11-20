@@ -37,7 +37,7 @@ options:
     allow_updates:
         description:
             - A value indicating whether packages within the application may be overwritten using the same version string.
-    display_name:
+    name:
         description:
             - The display name for the application.
     state:
@@ -64,7 +64,7 @@ EXAMPLES = '''
       account_name: sampleacct
       application_id: app1
       allow_updates: NOT FOUND
-      display_name: NOT FOUND
+      name: NOT FOUND
 '''
 
 RETURN = '''
@@ -108,7 +108,7 @@ class AzureRMApplication(AzureRMModuleBase):
             allow_updates=dict(
                 type='str'
             ),
-            display_name=dict(
+            name=dict(
                 type='str'
             ),
             state=dict(
@@ -122,7 +122,7 @@ class AzureRMApplication(AzureRMModuleBase):
         self.account_name = None
         self.application_id = None
         self.allow_updates = None
-        self.display_name = None
+        self.name = None
 
         self.results = dict(changed=False)
         self.mgmt_client = None
@@ -140,7 +140,6 @@ class AzureRMApplication(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(BatchManagementClient,
@@ -161,8 +160,8 @@ class AzureRMApplication(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Application instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Application instance")
@@ -173,10 +172,7 @@ class AzureRMApplication(AzureRMModuleBase):
 
             response = self.create_update_application()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Application instance deleted")
@@ -268,6 +264,38 @@ class AzureRMApplication(AzureRMModuleBase):
         d = {
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

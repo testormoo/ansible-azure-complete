@@ -26,7 +26,7 @@ options:
         description:
             - Azure resource group name
         required: True
-    application_resource_name:
+    name:
         description:
             - The identity of the application.
         required: True
@@ -38,7 +38,7 @@ options:
             location:
                 description:
                     - The geo-location where the resource lives
-                required: True
+                    - Required when C(state) is I(present).
             description:
                 description:
                     - User readable description of the application.
@@ -54,7 +54,7 @@ options:
                     os_type:
                         description:
                             - The operation system required by the code in service.
-                        required: True
+                            - Required when C(state) is I(present).
                         choices:
                             - 'linux'
                             - 'windows'
@@ -62,17 +62,17 @@ options:
                         description:
                             - "Describes the set of code packages that forms the service. A code package describes the container and the properties for
                                running it. All the code packages are started together on the same host and share the same context (network, process etc.)."
-                        required: True
+                            - Required when C(state) is I(present).
                         type: list
                         suboptions:
                             name:
                                 description:
                                     - The name of the code package.
-                                required: True
+                                    - Required when C(state) is I(present).
                             image:
                                 description:
                                     - The Container image to use.
-                                required: True
+                                    - Required when C(state) is I(present).
                             image_registry_credential:
                                 description:
                                     - I(image) registry credential.
@@ -80,11 +80,11 @@ options:
                                     server:
                                         description:
                                             - Docker image registry server, without protocol such as `http` and `https`.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     username:
                                         description:
                                             - The username for the private registry.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     password:
                                         description:
                                             - "The password for the private registry. The password is required for create or update operations, however it
@@ -128,11 +128,11 @@ options:
                                     name:
                                         description:
                                             - The name of the container label.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     value:
                                         description:
                                             - The value of the container label.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             endpoints:
                                 description:
                                     - The endpoints exposed by this container.
@@ -141,28 +141,28 @@ options:
                                     name:
                                         description:
                                             - The name of the endpoint.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     port:
                                         description:
                                             - Port used by the container.
                             resources:
                                 description:
                                     - The resources required by this container.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     requests:
                                         description:
                                             - Describes the requested resources for a given container.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             memory_in_gb:
                                                 description:
                                                     - The memory request in GB for this container.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                             cpu:
                                                 description:
                                                     - Requested number of CPU cores. At present, only full cores are supported.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                                     limits:
                                         description:
                                             - Describes the maximum limits on the resources for a given container.
@@ -182,14 +182,14 @@ options:
                                     name:
                                         description:
                                             - Name of the volume being referenced.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     read_only:
                                         description:
                                             - "The flag indicating whether the volume is read only. Default is 'false'."
                                     destination_path:
                                         description:
                                             - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             volumes:
                                 description:
                                     - "Volumes to be attached to the container. The lifetime of these volumes is scoped to the application's lifetime."
@@ -198,18 +198,18 @@ options:
                                     name:
                                         description:
                                             - Name of the volume being referenced.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     read_only:
                                         description:
                                             - "The flag indicating whether the volume is read only. Default is 'false'."
                                     destination_path:
                                         description:
                                             - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     creation_parameters:
                                         description:
                                             - Describes parameters for creating application-scoped volumes.
-                                        required: True
+                                            - Required when C(state) is I(present).
                                         suboptions:
                                             description:
                                                 description:
@@ -217,7 +217,7 @@ options:
                                             kind:
                                                 description:
                                                     - Constant filled by server.
-                                                required: True
+                                                    - Required when C(state) is I(present).
                             diagnostics:
                                 description:
                                     - Reference to sinks in DiagnosticsDescription.
@@ -238,7 +238,7 @@ options:
                                     name:
                                         description:
                                             - "Name of ReliableCollection resource. Right now it's not used and you can use any string."
-                                        required: True
+                                            - Required when C(state) is I(present).
                                     do_not_persist_state:
                                         description:
                                             - "False (the default) if ReliableCollections state is persisted to disk as usual. True if you do not want to
@@ -285,25 +285,25 @@ options:
                             name:
                                 description:
                                     - The name of the auto scaling policy.
-                                required: True
+                                    - Required when C(state) is I(present).
                             trigger:
                                 description:
                                     - Determines when auto scaling operation will be invoked.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     kind:
                                         description:
                                             - Constant filled by server.
-                                        required: True
+                                            - Required when C(state) is I(present).
                             mechanism:
                                 description:
                                     - The mechanism that is used to scale when auto scaling operation is invoked.
-                                required: True
+                                    - Required when C(state) is I(present).
                                 suboptions:
                                     kind:
                                         description:
                                             - Constant filled by server.
-                                        required: True
+                                            - Required when C(state) is I(present).
             diagnostics:
                 description:
                     - Describes the diagnostics definition and usage for an application resource.
@@ -322,7 +322,7 @@ options:
                             kind:
                                 description:
                                     - Constant filled by server.
-                                required: True
+                                    - Required when C(state) is I(present).
                     enabled:
                         description:
                             - Status of whether or not I(sinks) are enabled.
@@ -355,9 +355,29 @@ EXAMPLES = '''
   - name: Create (or update) Application
     azure_rm_servicefabricmeshapplication:
       resource_group: sbz_demo
-      application_resource_name: sampleApplication
+      name: sampleApplication
       application_resource_description:
         location: EastUS
+        description: Service Fabric Mesh sample application.
+        services:
+          - name: helloWorldService
+            os_type: Linux
+            code_packages:
+              - name: helloWorldCode
+                image: seabreeze/sbz-helloworld:1.0-alpine
+                endpoints:
+                  - name: helloWorldListener
+                    port: 80
+                resources:
+                  requests:
+                    memory_in_gb: 1
+                    cpu: 1
+            network_refs:
+              - name: /subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/sbz_demo/providers/Microsoft.ServiceFabricMesh/networks/sampleNetwork
+                endpoint_refs:
+                  - name: helloWorldListener
+            description: SeaBreeze Hello World Service.
+            replica_count: 1
 '''
 
 RETURN = '''
@@ -403,7 +423,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            application_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -419,7 +439,7 @@ class AzureRMApplication(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.application_resource_name = None
+        self.name = None
         self.application_resource_description = dict()
 
         self.results = dict(changed=False)
@@ -455,7 +475,6 @@ class AzureRMApplication(AzureRMModuleBase):
                 elif key == "debug_params":
                     self.application_resource_description["debug_params"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(ServiceFabricMeshManagementClient,
@@ -476,8 +495,8 @@ class AzureRMApplication(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Application instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Application instance")
@@ -488,10 +507,7 @@ class AzureRMApplication(AzureRMModuleBase):
 
             response = self.create_update_application()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Application instance deleted")
@@ -520,12 +536,12 @@ class AzureRMApplication(AzureRMModuleBase):
 
         :return: deserialized Application instance state dictionary
         '''
-        self.log("Creating / Updating the Application instance {0}".format(self.application_resource_name))
+        self.log("Creating / Updating the Application instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.application.create(resource_group_name=self.resource_group,
-                                                               application_resource_name=self.application_resource_name,
+                                                               application_resource_name=self.name,
                                                                application_resource_description=self.application_resource_description)
             else:
                 response = self.mgmt_client.application.update()
@@ -543,10 +559,10 @@ class AzureRMApplication(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Application instance {0}".format(self.application_resource_name))
+        self.log("Deleting the Application instance {0}".format(self.name))
         try:
             response = self.mgmt_client.application.delete(resource_group_name=self.resource_group,
-                                                           application_resource_name=self.application_resource_name)
+                                                           application_resource_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Application instance.')
             self.fail("Error deleting the Application instance: {0}".format(str(e)))
@@ -559,11 +575,11 @@ class AzureRMApplication(AzureRMModuleBase):
 
         :return: deserialized Application instance state dictionary
         '''
-        self.log("Checking if the Application instance {0} is present".format(self.application_resource_name))
+        self.log("Checking if the Application instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.application.get(resource_group_name=self.resource_group,
-                                                        application_resource_name=self.application_resource_name)
+                                                        application_resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Application instance : {0} found".format(response.name))
@@ -580,6 +596,38 @@ class AzureRMApplication(AzureRMModuleBase):
             'status': d.get('status', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

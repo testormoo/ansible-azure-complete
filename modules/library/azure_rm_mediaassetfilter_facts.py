@@ -34,7 +34,7 @@ options:
         description:
             - The Asset name.
         required: True
-    filter_name:
+    name:
         description:
             - The Asset Filter name
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       account_name: account_name
       asset_name: asset_name
-      filter_name: filter_name
+      name: filter_name
 '''
 
 RETURN = '''
@@ -111,7 +111,7 @@ class AzureRMAssetFiltersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            filter_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -124,7 +124,7 @@ class AzureRMAssetFiltersFacts(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.asset_name = None
-        self.filter_name = None
+        self.name = None
         super(AzureRMAssetFiltersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -143,7 +143,7 @@ class AzureRMAssetFiltersFacts(AzureRMModuleBase):
             response = self.mgmt_client.asset_filters.get(resource_group_name=self.resource_group,
                                                           account_name=self.account_name,
                                                           asset_name=self.asset_name,
-                                                          filter_name=self.filter_name)
+                                                          filter_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AssetFilters.')

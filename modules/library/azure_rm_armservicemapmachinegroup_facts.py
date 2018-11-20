@@ -30,7 +30,7 @@ options:
         description:
             - OMS workspace containing the resources of interest.
         required: True
-    machine_group_name:
+    name:
         description:
             - Machine Group resource name.
     start_time:
@@ -53,7 +53,7 @@ EXAMPLES = '''
     azure_rm_armservicemapmachinegroup_facts:
       resource_group: resource_group_name
       workspace_name: workspace_name
-      machine_group_name: machine_group_name
+      name: machine_group_name
       start_time: start_time
       end_time: end_time
 
@@ -136,7 +136,7 @@ class AzureRMMachineGroupsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            machine_group_name=dict(
+            name=dict(
                 type='str'
             ),
             start_time=dict(
@@ -153,7 +153,7 @@ class AzureRMMachineGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.workspace_name = None
-        self.machine_group_name = None
+        self.name = None
         self.start_time = None
         self.end_time = None
         super(AzureRMMachineGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -164,7 +164,7 @@ class AzureRMMachineGroupsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ServiceMap,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.machine_group_name is not None:
+        if self.name is not None:
             self.results['machine_groups'] = self.get()
         else:
             self.results['machine_groups'] = self.list_by_workspace()
@@ -176,7 +176,7 @@ class AzureRMMachineGroupsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.machine_groups.get(resource_group_name=self.resource_group,
                                                            workspace_name=self.workspace_name,
-                                                           machine_group_name=self.machine_group_name)
+                                                           machine_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for MachineGroups.')

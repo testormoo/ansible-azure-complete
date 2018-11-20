@@ -34,7 +34,7 @@ options:
         description:
             - The name of the job agent.
         required: True
-    job_name:
+    name:
         description:
             - The name of the job to get.
         required: True
@@ -65,7 +65,7 @@ EXAMPLES = '''
       resource_group: group1
       server_name: server1
       job_agent_name: agent1
-      job_name: job1
+      name: job1
       job_execution_id: 5555-6666-7777-8888-999999999999
 '''
 
@@ -114,7 +114,7 @@ class AzureRMJobExecutions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -132,7 +132,7 @@ class AzureRMJobExecutions(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.job_agent_name = None
-        self.job_name = None
+        self.name = None
         self.job_execution_id = None
 
         self.results = dict(changed=False)
@@ -151,7 +151,6 @@ class AzureRMJobExecutions(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
@@ -172,8 +171,8 @@ class AzureRMJobExecutions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Job Execution instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Job Execution instance")
@@ -184,10 +183,7 @@ class AzureRMJobExecutions(AzureRMModuleBase):
 
             response = self.create_update_jobexecution()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Job Execution instance deleted")
@@ -222,7 +218,7 @@ class AzureRMJobExecutions(AzureRMModuleBase):
             response = self.mgmt_client.job_executions.create_or_update(resource_group_name=self.resource_group,
                                                                         server_name=self.server_name,
                                                                         job_agent_name=self.job_agent_name,
-                                                                        job_name=self.job_name,
+                                                                        job_name=self.name,
                                                                         job_execution_id=self.job_execution_id)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -259,7 +255,7 @@ class AzureRMJobExecutions(AzureRMModuleBase):
             response = self.mgmt_client.job_executions.get(resource_group_name=self.resource_group,
                                                            server_name=self.server_name,
                                                            job_agent_name=self.job_agent_name,
-                                                           job_name=self.job_name,
+                                                           job_name=self.name,
                                                            job_execution_id=self.job_execution_id)
             found = True
             self.log("Response : {0}".format(response))
@@ -276,6 +272,38 @@ class AzureRMJobExecutions(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

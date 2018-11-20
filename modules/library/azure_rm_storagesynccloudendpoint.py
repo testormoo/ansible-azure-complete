@@ -34,7 +34,7 @@ options:
         description:
             - Name of Sync Group resource.
         required: True
-    cloud_endpoint_name:
+    name:
         description:
             - Name of Cloud Endpoint object.
         required: True
@@ -70,7 +70,10 @@ EXAMPLES = '''
       resource_group: SampleResourceGroup_1
       storage_sync_service_name: SampleStorageSyncService_1
       sync_group_name: SampleSyncGroup_1
-      cloud_endpoint_name: SampleCloudEndpoint_1
+      name: SampleCloudEndpoint_1
+      storage_account_resource_id: /subscriptions/744f4d70-6d17-4921-8970-a765d14f763f/resourceGroups/tminienv59svc/providers/Microsoft.Storage/storageAccounts/tminienv59storage
+      storage_account_share_name: cvcloud-afscv-0719-058-a94a1354-a1fd-4e9a-9a50-919fad8c4ba4
+      storage_account_tenant_id: "72f988bf-86f1-41af-91ab-2d7cd011db47"
 '''
 
 RETURN = '''
@@ -119,7 +122,7 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cloud_endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -142,7 +145,7 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
         self.resource_group = None
         self.storage_sync_service_name = None
         self.sync_group_name = None
-        self.cloud_endpoint_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -168,7 +171,6 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
                 elif key == "storage_account_tenant_id":
                     self.parameters["storage_account_tenant_id"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(StorageSyncManagementClient,
@@ -189,8 +191,8 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Cloud Endpoint instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Cloud Endpoint instance")
@@ -201,10 +203,7 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
 
             response = self.create_update_cloudendpoint()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Cloud Endpoint instance deleted")
@@ -233,14 +232,14 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
 
         :return: deserialized Cloud Endpoint instance state dictionary
         '''
-        self.log("Creating / Updating the Cloud Endpoint instance {0}".format(self.cloud_endpoint_name))
+        self.log("Creating / Updating the Cloud Endpoint instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
                 response = self.mgmt_client.cloud_endpoints.create(resource_group_name=self.resource_group,
                                                                    storage_sync_service_name=self.storage_sync_service_name,
                                                                    sync_group_name=self.sync_group_name,
-                                                                   cloud_endpoint_name=self.cloud_endpoint_name,
+                                                                   cloud_endpoint_name=self.name,
                                                                    parameters=self.parameters)
             else:
                 response = self.mgmt_client.cloud_endpoints.update()
@@ -258,12 +257,12 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Cloud Endpoint instance {0}".format(self.cloud_endpoint_name))
+        self.log("Deleting the Cloud Endpoint instance {0}".format(self.name))
         try:
             response = self.mgmt_client.cloud_endpoints.delete(resource_group_name=self.resource_group,
                                                                storage_sync_service_name=self.storage_sync_service_name,
                                                                sync_group_name=self.sync_group_name,
-                                                               cloud_endpoint_name=self.cloud_endpoint_name)
+                                                               cloud_endpoint_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Cloud Endpoint instance.')
             self.fail("Error deleting the Cloud Endpoint instance: {0}".format(str(e)))
@@ -276,13 +275,13 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
 
         :return: deserialized Cloud Endpoint instance state dictionary
         '''
-        self.log("Checking if the Cloud Endpoint instance {0} is present".format(self.cloud_endpoint_name))
+        self.log("Checking if the Cloud Endpoint instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.cloud_endpoints.get(resource_group_name=self.resource_group,
                                                             storage_sync_service_name=self.storage_sync_service_name,
                                                             sync_group_name=self.sync_group_name,
-                                                            cloud_endpoint_name=self.cloud_endpoint_name)
+                                                            cloud_endpoint_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cloud Endpoint instance : {0} found".format(response.name))
@@ -298,6 +297,38 @@ class AzureRMCloudEndpoints(AzureRMModuleBase):
             'id': d.get('id', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

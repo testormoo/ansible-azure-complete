@@ -38,7 +38,7 @@ options:
         description:
             - Container name associated with the backup item.
         required: True
-    protected_item_name:
+    name:
         description:
             - Backup item name whose details are to be fetched.
         required: True
@@ -65,7 +65,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       fabric_name: fabric_name
       container_name: container_name
-      protected_item_name: protected_item_name
+      name: protected_item_name
       operation_id: operation_id
 '''
 
@@ -120,7 +120,7 @@ class AzureRMProtectedItemOperationResultsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            protected_item_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -141,7 +141,7 @@ class AzureRMProtectedItemOperationResultsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.fabric_name = None
         self.container_name = None
-        self.protected_item_name = None
+        self.name = None
         self.operation_id = None
         self.tags = None
         super(AzureRMProtectedItemOperationResultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -163,7 +163,7 @@ class AzureRMProtectedItemOperationResultsFacts(AzureRMModuleBase):
                                                                              resource_group_name=self.resource_group,
                                                                              fabric_name=self.fabric_name,
                                                                              container_name=self.container_name,
-                                                                             protected_item_name=self.protected_item_name,
+                                                                             protected_item_name=self.name,
                                                                              operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

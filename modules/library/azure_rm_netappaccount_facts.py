@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    account_name:
+    name:
         description:
             - The name of the NetApp account
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Account
     azure_rm_netappaccount_facts:
       resource_group: resource_group
-      account_name: account_name
+      name: account_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            account_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -108,7 +108,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.account_name = None
+        self.name = None
         self.tags = None
         super(AzureRMAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -126,7 +126,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.accounts.get(resource_group=self.resource_group,
-                                                     account_name=self.account_name)
+                                                     account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Accounts.')

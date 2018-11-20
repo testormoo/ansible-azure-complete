@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    module_name:
+    name:
         description:
             - The module name.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_automationmodule_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      module_name: module_name
+      name: module_name
 
   - name: List instances of Module
     azure_rm_automationmodule_facts:
@@ -144,7 +144,7 @@ class AzureRMModuleFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            module_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -158,7 +158,7 @@ class AzureRMModuleFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.module_name = None
+        self.name = None
         self.tags = None
         super(AzureRMModuleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -168,7 +168,7 @@ class AzureRMModuleFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.module_name is not None:
+        if self.name is not None:
             self.results['module'] = self.get()
         else:
             self.results['module'] = self.list_by_automation_account()
@@ -180,7 +180,7 @@ class AzureRMModuleFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.module.get(resource_group_name=self.resource_group,
                                                    automation_account_name=self.automation_account_name,
-                                                   module_name=self.module_name)
+                                                   module_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Module.')

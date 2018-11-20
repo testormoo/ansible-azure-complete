@@ -30,7 +30,7 @@ options:
         description:
             - The name of the Visual Studio Team Services account resource.
         required: True
-    extension_resource_name:
+    name:
         description:
             - The name of the extension.
     tags:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     azure_rm_csmextension_facts:
       resource_group: resource_group_name
       account_resource_name: account_resource_name
-      extension_resource_name: extension_resource_name
+      name: extension_resource_name
 
   - name: List instances of Extension
     azure_rm_csmextension_facts:
@@ -151,7 +151,7 @@ class AzureRMExtensionsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            extension_resource_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -165,7 +165,7 @@ class AzureRMExtensionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_resource_name = None
-        self.extension_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMExtensionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -175,7 +175,7 @@ class AzureRMExtensionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(VisualStudioResourceProviderClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.extension_resource_name is not None:
+        if self.name is not None:
             self.results['extensions'] = self.get()
         else:
             self.results['extensions'] = self.list_by_account()
@@ -187,7 +187,7 @@ class AzureRMExtensionsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.extensions.get(resource_group_name=self.resource_group,
                                                        account_resource_name=self.account_resource_name,
-                                                       extension_resource_name=self.extension_resource_name)
+                                                       extension_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Extensions.')

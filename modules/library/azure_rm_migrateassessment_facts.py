@@ -33,7 +33,7 @@ options:
     group_name:
         description:
             - Unique name of a group within a project.
-    assessment_name:
+    name:
         description:
             - Unique name of an assessment within a project.
     self.config.accept_language:
@@ -54,7 +54,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       project_name: project_name
       group_name: group_name
-      assessment_name: assessment_name
+      name: assessment_name
       self.config.accept_language: self.config.accept_language
 
   - name: List instances of Assessment
@@ -146,7 +146,7 @@ class AzureRMAssessmentsFacts(AzureRMModuleBase):
             group_name=dict(
                 type='str'
             ),
-            assessment_name=dict(
+            name=dict(
                 type='str'
             ),
             self.config.accept_language=dict(
@@ -161,7 +161,7 @@ class AzureRMAssessmentsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.project_name = None
         self.group_name = None
-        self.assessment_name = None
+        self.name = None
         self.self.config.accept_language = None
         super(AzureRMAssessmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -172,7 +172,7 @@ class AzureRMAssessmentsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.group_name is not None and
-                self.assessment_name is not None):
+                self.name is not None):
             self.results['assessments'] = self.get()
         elif self.group_name is not None:
             self.results['assessments'] = self.list_by_group()
@@ -187,7 +187,7 @@ class AzureRMAssessmentsFacts(AzureRMModuleBase):
             response = self.mgmt_client.assessments.get(resource_group_name=self.resource_group,
                                                         project_name=self.project_name,
                                                         group_name=self.group_name,
-                                                        assessment_name=self.assessment_name)
+                                                        assessment_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Assessments.')

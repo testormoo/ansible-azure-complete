@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Adds Service.
 
 options:
-    service_name:
+    name:
         description:
             - The name of the service.
         required: True
@@ -38,7 +38,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Adds Service
     azure_rm_adhybridhealthserviceaddsservice_facts:
-      service_name: service_name
+      name: service_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMAddsServicesFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             )
@@ -98,7 +98,7 @@ class AzureRMAddsServicesFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.service_name = None
+        self.name = None
         super(AzureRMAddsServicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -114,7 +114,7 @@ class AzureRMAddsServicesFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.adds_services.get(service_name=self.service_name)
+            response = self.mgmt_client.adds_services.get(service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for AddsServices.')

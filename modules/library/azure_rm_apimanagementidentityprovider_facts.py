@@ -30,7 +30,7 @@ options:
         description:
             - The name of the API Management service.
         required: True
-    identity_provider_name:
+    name:
         description:
             - Identity Provider Type identifier.
 
@@ -47,7 +47,7 @@ EXAMPLES = '''
     azure_rm_apimanagementidentityprovider_facts:
       resource_group: resource_group_name
       service_name: service_name
-      identity_provider_name: identity_provider_name
+      name: identity_provider_name
 
   - name: List instances of Identity Provider
     azure_rm_apimanagementidentityprovider_facts:
@@ -98,7 +98,7 @@ class AzureRMIdentityProviderFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            identity_provider_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -109,7 +109,7 @@ class AzureRMIdentityProviderFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.service_name = None
-        self.identity_provider_name = None
+        self.name = None
         super(AzureRMIdentityProviderFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -118,7 +118,7 @@ class AzureRMIdentityProviderFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.identity_provider_name is not None:
+        if self.name is not None:
             self.results['identity_provider'] = self.get()
         else:
             self.results['identity_provider'] = self.list_by_service()
@@ -130,7 +130,7 @@ class AzureRMIdentityProviderFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.identity_provider.get(resource_group_name=self.resource_group,
                                                               service_name=self.service_name,
-                                                              identity_provider_name=self.identity_provider_name)
+                                                              identity_provider_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for IdentityProvider.')

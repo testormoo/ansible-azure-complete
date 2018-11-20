@@ -30,7 +30,7 @@ options:
         description:
             - The name of the virtual network.
         required: True
-    subnet_name:
+    name:
         description:
             - The name of the subnet.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_subnet_facts:
       resource_group: resource_group_name
       virtual_network_name: virtual_network_name
-      subnet_name: subnet_name
+      name: subnet_name
       expand: expand
 '''
 
@@ -98,7 +98,7 @@ class AzureRMSubnetsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            subnet_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMSubnetsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.virtual_network_name = None
-        self.subnet_name = None
+        self.name = None
         self.expand = None
         super(AzureRMSubnetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -132,7 +132,7 @@ class AzureRMSubnetsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.subnets.get(resource_group_name=self.resource_group,
                                                     virtual_network_name=self.virtual_network_name,
-                                                    subnet_name=self.subnet_name)
+                                                    subnet_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Subnets.')

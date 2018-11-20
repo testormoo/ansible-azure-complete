@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group. The name is case insensitive.
         required: True
-    service_topology_name:
+    name:
         description:
             - The name of the service topology .
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Service Topology
     azure_rm_deploymentmanagerservicetopology_facts:
       resource_group: resource_group_name
-      service_topology_name: service_topology_name
+      name: service_topology_name
 '''
 
 RETURN = '''
@@ -101,7 +101,7 @@ class AzureRMServiceTopologiesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            service_topology_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -115,7 +115,7 @@ class AzureRMServiceTopologiesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.service_topology_name = None
+        self.name = None
         self.tags = None
         super(AzureRMServiceTopologiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -133,7 +133,7 @@ class AzureRMServiceTopologiesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.service_topologies.get(resource_group_name=self.resource_group,
-                                                               service_topology_name=self.service_topology_name)
+                                                               service_topology_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for ServiceTopologies.')

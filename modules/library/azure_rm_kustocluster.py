@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group containing the Kusto cluster.
         required: True
-    cluster_name:
+    name:
         description:
             - The name of the Kusto cluster.
         required: True
@@ -36,12 +36,12 @@ options:
     sku:
         description:
             - The SKU of the cluster.
-        required: True
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
                     - SKU name.
-                required: True
+                    - Required when C(state) is I(present).
                 choices:
                     - 'kc8'
                     - 'kc16'
@@ -57,7 +57,7 @@ options:
             tier:
                 description:
                     - SKU tier.
-                required: True
+                    - Required when C(state) is I(present).
     trusted_external_tenants:
         description:
             - "The cluster's external tenants."
@@ -88,7 +88,7 @@ EXAMPLES = '''
   - name: Create (or update) Cluster
     azure_rm_kustocluster:
       resource_group: kustorptest
-      cluster_name: KustoClusterRPTest4
+      name: KustoClusterRPTest4
       location: eastus
       sku:
         name: L8
@@ -140,7 +140,7 @@ class AzureRMClusters(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            cluster_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -148,8 +148,7 @@ class AzureRMClusters(AzureRMModuleBase):
                 type='str'
             ),
             sku=dict(
-                type='dict',
-                required=True
+                type='dict'
             ),
             trusted_external_tenants=dict(
                 type='list'
@@ -162,7 +161,7 @@ class AzureRMClusters(AzureRMModuleBase):
         )
 
         self.resource_group = None
-        self.cluster_name = None
+        self.name = None
         self.parameters = dict()
 
         self.results = dict(changed=False)
@@ -206,7 +205,6 @@ class AzureRMClusters(AzureRMModuleBase):
                 elif key == "trusted_external_tenants":
                     self.parameters["trusted_external_tenants"] = kwargs[key]
 
-        old_response = None
         response = None
 
         self.mgmt_client = self.get_mgmt_svc_client(KustoManagementClient,
@@ -230,8 +228,8 @@ class AzureRMClusters(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                self.log("Need to check if Cluster instance has to be deleted or may be updated")
-                self.to_do = Actions.Update
+                if (not default_compare(self.parameters, old_response, '')):
+                    self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
             self.log("Need to Create / Update the Cluster instance")
@@ -242,10 +240,7 @@ class AzureRMClusters(AzureRMModuleBase):
 
             response = self.create_update_cluster()
 
-            if not old_response:
-                self.results['changed'] = True
-            else:
-                self.results['changed'] = old_response.__ne__(response)
+            self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
             self.log("Cluster instance deleted")
@@ -274,11 +269,11 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: deserialized Cluster instance state dictionary
         '''
-        self.log("Creating / Updating the Cluster instance {0}".format(self.cluster_name))
+        self.log("Creating / Updating the Cluster instance {0}".format(self.name))
 
         try:
             response = self.mgmt_client.clusters.create_or_update(resource_group_name=self.resource_group,
-                                                                  cluster_name=self.cluster_name,
+                                                                  cluster_name=self.name,
                                                                   parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
@@ -294,10 +289,10 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: True
         '''
-        self.log("Deleting the Cluster instance {0}".format(self.cluster_name))
+        self.log("Deleting the Cluster instance {0}".format(self.name))
         try:
             response = self.mgmt_client.clusters.delete(resource_group_name=self.resource_group,
-                                                        cluster_name=self.cluster_name)
+                                                        cluster_name=self.name)
         except CloudError as e:
             self.log('Error attempting to delete the Cluster instance.')
             self.fail("Error deleting the Cluster instance: {0}".format(str(e)))
@@ -310,11 +305,11 @@ class AzureRMClusters(AzureRMModuleBase):
 
         :return: deserialized Cluster instance state dictionary
         '''
-        self.log("Checking if the Cluster instance {0} is present".format(self.cluster_name))
+        self.log("Checking if the Cluster instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.clusters.get(resource_group_name=self.resource_group,
-                                                     cluster_name=self.cluster_name)
+                                                     cluster_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cluster instance : {0} found".format(response.name))
@@ -331,6 +326,38 @@ class AzureRMClusters(AzureRMModuleBase):
             'state': d.get('state', None)
         }
         return d
+
+
+def default_compare(new, old, path):
+    if new is None:
+        return True
+    elif isinstance(new, dict):
+        if not isinstance(old, dict):
+            return False
+        for k in new.keys():
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+                return False
+        return True
+    elif isinstance(new, list):
+        if not isinstance(old, list) or len(new) != len(old):
+            return False
+        if isinstance(old[0], dict):
+            key = None
+            if 'id' in old[0] and 'id' in new[0]:
+                key = 'id'
+            elif 'name' in old[0] and 'name' in new[0]:
+                key = 'name'
+            new = sorted(new, key=lambda x: x.get(key, None))
+            old = sorted(old, key=lambda x: x.get(key, None))
+        else:
+            new = sorted(new)
+            old = sorted(old)
+        for i in range(len(new)):
+            if not default_compare(new[i], old[i], path + '/*'):
+                return False
+        return True
+    else:
+        return new == old
 
 
 def main():

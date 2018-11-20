@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    hub_name:
+    name:
         description:
             - The name of the hub.
     tags:
@@ -45,7 +45,7 @@ EXAMPLES = '''
   - name: Get instance of Hub
     azure_rm_customerinsightshub_facts:
       resource_group: resource_group_name
-      hub_name: hub_name
+      name: hub_name
 
   - name: List instances of Hub
     azure_rm_customerinsightshub_facts:
@@ -103,7 +103,7 @@ class AzureRMHubsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            hub_name=dict(
+            name=dict(
                 type='str'
             ),
             tags=dict(
@@ -116,7 +116,7 @@ class AzureRMHubsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.hub_name = None
+        self.name = None
         self.tags = None
         super(AzureRMHubsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -126,7 +126,7 @@ class AzureRMHubsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(CustomerInsightsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.hub_name is not None:
+        if self.name is not None:
             self.results['hubs'] = self.get()
         else:
             self.results['hubs'] = self.list_by_resource_group()
@@ -137,7 +137,7 @@ class AzureRMHubsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.hubs.get(resource_group_name=self.resource_group,
-                                                 hub_name=self.hub_name)
+                                                 hub_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Hubs.')

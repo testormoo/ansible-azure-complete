@@ -34,7 +34,7 @@ options:
         description:
             - The name of the database.
         required: True
-    geo_backup_policy_name:
+    name:
         description:
             - The name of the geo backup policy.
 
@@ -52,7 +52,7 @@ EXAMPLES = '''
       resource_group: resource_group_name
       server_name: server_name
       database_name: database_name
-      geo_backup_policy_name: geo_backup_policy_name
+      name: geo_backup_policy_name
 
   - name: List instances of Geo Backup Policy
     azure_rm_sqlgeobackuppolicy_facts:
@@ -127,7 +127,7 @@ class AzureRMGeoBackupPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            geo_backup_policy_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -139,7 +139,7 @@ class AzureRMGeoBackupPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.database_name = None
-        self.geo_backup_policy_name = None
+        self.name = None
         super(AzureRMGeoBackupPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -148,7 +148,7 @@ class AzureRMGeoBackupPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.geo_backup_policy_name is not None:
+        if self.name is not None:
             self.results['geo_backup_policies'] = self.get()
         else:
             self.results['geo_backup_policies'] = self.list_by_database()
@@ -161,7 +161,7 @@ class AzureRMGeoBackupPoliciesFacts(AzureRMModuleBase):
             response = self.mgmt_client.geo_backup_policies.get(resource_group_name=self.resource_group,
                                                                 server_name=self.server_name,
                                                                 database_name=self.database_name,
-                                                                geo_backup_policy_name=self.geo_backup_policy_name)
+                                                                geo_backup_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for GeoBackupPolicies.')

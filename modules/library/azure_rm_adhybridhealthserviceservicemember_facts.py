@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Service Member.
 
 options:
-    service_name:
+    name:
         description:
             - The name of the service.
         required: True
@@ -42,7 +42,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Service Member
     azure_rm_adhybridhealthserviceservicemember_facts:
-      service_name: service_name
+      name: service_name
       service_member_id: service_member_id
 '''
 
@@ -99,7 +99,7 @@ class AzureRMServiceMembersFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            service_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -113,7 +113,7 @@ class AzureRMServiceMembersFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.service_name = None
+        self.name = None
         self.service_member_id = None
         super(AzureRMServiceMembersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -130,7 +130,7 @@ class AzureRMServiceMembersFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.service_members.get(service_name=self.service_name,
+            response = self.mgmt_client.service_members.get(service_name=self.name,
                                                             service_member_id=self.service_member_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:

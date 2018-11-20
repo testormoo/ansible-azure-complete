@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    network_watcher_name:
+    name:
         description:
             - The name of the network watcher.
         required: True
@@ -46,7 +46,7 @@ EXAMPLES = '''
   - name: Get instance of Network Watcher
     azure_rm_networkwatcher_facts:
       resource_group: resource_group_name
-      network_watcher_name: network_watcher_name
+      name: network_watcher_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ class AzureRMNetworkWatchersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            network_watcher_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -102,7 +102,7 @@ class AzureRMNetworkWatchersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.network_watcher_name = None
+        self.name = None
         self.tags = None
         super(AzureRMNetworkWatchersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -120,7 +120,7 @@ class AzureRMNetworkWatchersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.network_watchers.get(resource_group_name=self.resource_group,
-                                                             network_watcher_name=self.network_watcher_name)
+                                                             network_watcher_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for NetworkWatchers.')

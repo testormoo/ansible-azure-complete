@@ -30,7 +30,7 @@ options:
         description:
             - The name of the secret resource.
         required: True
-    secret_value_resource_name:
+    name:
         description:
             - The name of the secret resource value which is typically the version identifier for the value.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_servicefabricmeshsecretvalue_facts:
       resource_group: resource_group_name
       secret_resource_name: secret_resource_name
-      secret_value_resource_name: secret_value_resource_name
+      name: secret_value_resource_name
 '''
 
 RETURN = '''
@@ -117,7 +117,7 @@ class AzureRMSecretValueFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            secret_value_resource_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -132,7 +132,7 @@ class AzureRMSecretValueFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.secret_resource_name = None
-        self.secret_value_resource_name = None
+        self.name = None
         self.tags = None
         super(AzureRMSecretValueFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -151,7 +151,7 @@ class AzureRMSecretValueFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.secret_value.get(resource_group_name=self.resource_group,
                                                          secret_resource_name=self.secret_resource_name,
-                                                         secret_value_resource_name=self.secret_value_resource_name)
+                                                         secret_value_resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for SecretValue.')

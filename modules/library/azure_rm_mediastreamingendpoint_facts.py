@@ -30,7 +30,7 @@ options:
         description:
             - The Media Services account name.
         required: True
-    streaming_endpoint_name:
+    name:
         description:
             - The name of the StreamingEndpoint.
         required: True
@@ -51,7 +51,7 @@ EXAMPLES = '''
     azure_rm_mediastreamingendpoint_facts:
       resource_group: resource_group_name
       account_name: account_name
-      streaming_endpoint_name: streaming_endpoint_name
+      name: streaming_endpoint_name
 '''
 
 RETURN = '''
@@ -122,7 +122,7 @@ class AzureRMStreamingEndpointsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            streaming_endpoint_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -137,7 +137,7 @@ class AzureRMStreamingEndpointsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.account_name = None
-        self.streaming_endpoint_name = None
+        self.name = None
         self.tags = None
         super(AzureRMStreamingEndpointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -156,7 +156,7 @@ class AzureRMStreamingEndpointsFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.streaming_endpoints.get(resource_group_name=self.resource_group,
                                                                 account_name=self.account_name,
-                                                                streaming_endpoint_name=self.streaming_endpoint_name)
+                                                                streaming_endpoint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for StreamingEndpoints.')

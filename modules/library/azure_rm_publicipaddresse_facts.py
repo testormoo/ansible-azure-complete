@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    public_ip_address_name:
+    name:
         description:
             - The name of the subnet.
         required: True
@@ -49,7 +49,7 @@ EXAMPLES = '''
   - name: Get instance of Public I P Addresse
     azure_rm_publicipaddresse_facts:
       resource_group: resource_group_name
-      public_ip_address_name: public_ip_address_name
+      name: public_ip_address_name
       expand: expand
 '''
 
@@ -104,7 +104,7 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            public_ip_address_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -121,7 +121,7 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.public_ip_address_name = None
+        self.name = None
         self.expand = None
         self.tags = None
         super(AzureRMPublicIPAddressesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -140,7 +140,7 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.public_ip_addresses.get(resource_group_name=self.resource_group,
-                                                                public_ip_address_name=self.public_ip_address_name)
+                                                                public_ip_address_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for PublicIPAddresses.')

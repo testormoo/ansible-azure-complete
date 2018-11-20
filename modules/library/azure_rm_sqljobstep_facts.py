@@ -41,7 +41,7 @@ options:
     job_version:
         description:
             - The version of the job to get.
-    step_name:
+    name:
         description:
             - The name of the job step.
 
@@ -68,7 +68,7 @@ EXAMPLES = '''
       server_name: server_name
       job_agent_name: job_agent_name
       job_name: job_name
-      step_name: step_name
+      name: step_name
 
   - name: List instances of Job Step
     azure_rm_sqljobstep_facts:
@@ -185,7 +185,7 @@ class AzureRMJobStepsFacts(AzureRMModuleBase):
             job_version=dict(
                 type='int'
             ),
-            step_name=dict(
+            name=dict(
                 type='str'
             )
         )
@@ -199,7 +199,7 @@ class AzureRMJobStepsFacts(AzureRMModuleBase):
         self.job_agent_name = None
         self.job_name = None
         self.job_version = None
-        self.step_name = None
+        self.name = None
         super(AzureRMJobStepsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -210,7 +210,7 @@ class AzureRMJobStepsFacts(AzureRMModuleBase):
 
         if self.job_version is not None:
             self.results['job_steps'] = self.list_by_version()
-        elif self.step_name is not None:
+        elif self.name is not None:
             self.results['job_steps'] = self.get()
         else:
             self.results['job_steps'] = self.list_by_job()
@@ -243,7 +243,7 @@ class AzureRMJobStepsFacts(AzureRMModuleBase):
                                                       server_name=self.server_name,
                                                       job_agent_name=self.job_agent_name,
                                                       job_name=self.job_name,
-                                                      step_name=self.step_name)
+                                                      step_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for JobSteps.')

@@ -30,7 +30,7 @@ options:
         description:
             - The name of the lab.
         required: True
-    artifact_source_name:
+    name:
         description:
             - The name of the artifact source.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
     azure_rm_devtestlabsarmtemplate_facts:
       resource_group: resource_group_name
       lab_name: lab_name
-      artifact_source_name: artifact_source_name
+      name: artifact_source_name
       name: name
       expand: expand
 '''
@@ -106,7 +106,7 @@ class AzureRMArmTemplatesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            artifact_source_name=dict(
+            name=dict(
                 type='str',
                 required=True
             ),
@@ -128,7 +128,7 @@ class AzureRMArmTemplatesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.lab_name = None
-        self.artifact_source_name = None
+        self.name = None
         self.name = None
         self.expand = None
         self.tags = None
@@ -149,7 +149,7 @@ class AzureRMArmTemplatesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.arm_templates.get(resource_group_name=self.resource_group,
                                                           lab_name=self.lab_name,
-                                                          artifact_source_name=self.artifact_source_name,
+                                                          artifact_source_name=self.name,
                                                           name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

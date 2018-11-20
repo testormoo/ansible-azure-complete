@@ -30,7 +30,7 @@ options:
         description:
             - The name of the automation account.
         required: True
-    watcher_name:
+    name:
         description:
             - The watcher name.
     filter:
@@ -53,7 +53,7 @@ EXAMPLES = '''
     azure_rm_automationwatcher_facts:
       resource_group: resource_group_name
       automation_account_name: automation_account_name
-      watcher_name: watcher_name
+      name: watcher_name
 
   - name: List instances of Watcher
     azure_rm_automationwatcher_facts:
@@ -135,7 +135,7 @@ class AzureRMWatcherFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            watcher_name=dict(
+            name=dict(
                 type='str'
             ),
             filter=dict(
@@ -152,7 +152,7 @@ class AzureRMWatcherFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.automation_account_name = None
-        self.watcher_name = None
+        self.name = None
         self.filter = None
         self.tags = None
         super(AzureRMWatcherFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -163,7 +163,7 @@ class AzureRMWatcherFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.watcher_name is not None:
+        if self.name is not None:
             self.results['watcher'] = self.get()
         else:
             self.results['watcher'] = self.list_by_automation_account()
@@ -175,7 +175,7 @@ class AzureRMWatcherFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.watcher.get(resource_group_name=self.resource_group,
                                                     automation_account_name=self.automation_account_name,
-                                                    watcher_name=self.watcher_name)
+                                                    watcher_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
             self.log('Could not get facts for Watcher.')
