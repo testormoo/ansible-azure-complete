@@ -437,6 +437,13 @@ def expand(d, path, **kwargs):
                 expand(sd, path[1:], **kwargs)
 
 
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+
+
 def main():
     """Main execution"""
     AzureRMVirtualMachineSchedules()

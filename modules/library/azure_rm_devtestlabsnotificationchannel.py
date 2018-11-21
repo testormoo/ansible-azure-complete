@@ -323,7 +323,7 @@ def default_compare(new, old, path):
 
 
 def expand(d, path, **kwargs):
-    expand = kwargs.get('expand', None)
+    expandx = kwargs.get('expand', None)
     rename = kwargs.get('rename', None)
     camelize = kwargs.get('camelize', False)
     camelize_lower = kwargs.get('camelize_lower', False)
@@ -347,20 +347,27 @@ def expand(d, path, **kwargs):
                     new_value = _snake_to_camel(old_value, False)
                 elif upper:
                     new_value = old_value.upper()
-            if expand is None:
+            if expandx is None:
                 # just rename
                 if new_name != old_name:
                     d.pop(old_name, None)
             else:
                 # expand and rename
-                d[expand] = d.get(expand, {})
+                d[expandx] = d.get(expandx, {})
                 d.pop(old_name, None)
-                d = d[expand]
+                d = d[expandx]
             d[new_name] = new_value
         else:
             sd = d.get(path[0], None)
             if sd is not None:
                 expand(sd, path[1:], **kwargs)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
