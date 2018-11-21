@@ -357,7 +357,7 @@ def default_compare(new, old, path):
 
 
 def expand(d, path, **kwargs):
-    expand = kwargs.get('expand', None)
+    expandx = kwargs.get('expand', None)
     rename = kwargs.get('rename', None)
     camelize = kwargs.get('camelize', False)
     camelize_lower = kwargs.get('camelize_lower', False)
@@ -372,24 +372,25 @@ def expand(d, path, **kwargs):
             new_name = old_name if rename is None else rename
             old_value = d.get(old_name, None)
             new_value = None
-            if map is not None:
-                new_value = map.get(old_value, None)
-            if new_value is None:
-                if camelize:
-                    new_value = _snake_to_camel(old_value, True)
-                elif camelize_lower:
-                    new_value = _snake_to_camel(old_value, False)
-                elif upper:
-                    new_value = old_value.upper()
-            if expand is None:
+            if old_value is not None:
+                if map is not None:
+                    new_value = map.get(old_value, None)
+                if new_value is None:
+                    if camelize:
+                        new_value = _snake_to_camel(old_value, True)
+                    elif camelize_lower:
+                        new_value = _snake_to_camel(old_value, False)
+                    elif upper:
+                        new_value = old_value.upper()
+            if expandx is None:
                 # just rename
                 if new_name != old_name:
                     d.pop(old_name, None)
             else:
                 # expand and rename
-                d[expand] = d.get(expand, {})
+                d[expandx] = d.get(expandx, {})
                 d.pop(old_name, None)
-                d = d[expand]
+                d = d[expandx]
             d[new_name] = new_value
         else:
             sd = d.get(path[0], None)

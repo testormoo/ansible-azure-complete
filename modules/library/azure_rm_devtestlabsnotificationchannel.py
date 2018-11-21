@@ -338,15 +338,16 @@ def expand(d, path, **kwargs):
             new_name = old_name if rename is None else rename
             old_value = d.get(old_name, None)
             new_value = None
-            if map is not None:
-                new_value = map.get(old_value, None)
-            if new_value is None:
-                if camelize:
-                    new_value = _snake_to_camel(old_value, True)
-                elif camelize_lower:
-                    new_value = _snake_to_camel(old_value, False)
-                elif upper:
-                    new_value = old_value.upper()
+            if old_value is not None:
+                if map is not None:
+                    new_value = map.get(old_value, None)
+                if new_value is None:
+                    if camelize:
+                        new_value = _snake_to_camel(old_value, True)
+                    elif camelize_lower:
+                        new_value = _snake_to_camel(old_value, False)
+                    elif upper:
+                        new_value = old_value.upper()
             if expandx is None:
                 # just rename
                 if new_name != old_name:
