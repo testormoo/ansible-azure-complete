@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabscustomimage
 version_added: "2.8"
-short_description: Manage Custom Image instance.
+short_description: Manage Azure Custom Image instance.
 description:
-    - Create, update and delete instance of Custom Image.
+    - Create, update and delete instance of Azure Custom Image.
 
 options:
     resource_group:
@@ -93,9 +93,6 @@ options:
     managed_image_id:
         description:
             - The Managed Image Id backing the custom image.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Custom Image.
@@ -184,9 +181,6 @@ class AzureRMCustomImages(AzureRMModuleBase):
             managed_image_id=dict(
                 type='str'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -215,28 +209,11 @@ class AzureRMCustomImages(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.custom_image["location"] = kwargs[key]
-                elif key == "vm":
-                    self.custom_image["vm"] = kwargs[key]
-                elif key == "vhd":
-                    ev = kwargs[key]
-                    if 'os_type' in ev:
-                        if ev['os_type'] == 'windows':
-                            ev['os_type'] = 'Windows'
-                        elif ev['os_type'] == 'linux':
-                            ev['os_type'] = 'Linux'
-                        elif ev['os_type'] == 'none':
-                            ev['os_type'] = 'None'
-                    self.custom_image["vhd"] = ev
-                elif key == "description":
-                    self.custom_image["description"] = kwargs[key]
-                elif key == "author":
-                    self.custom_image["author"] = kwargs[key]
-                elif key == "managed_image_id":
-                    self.custom_image["managed_image_id"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.custom_image["unique_identifier"] = kwargs[key]
+                self.custom_image[key] = kwargs[key]
+
+        expand(self.custom_image, ['vm', 'windows_os_info', 'windows_os_state'], camelize=True)
+        expand(self.custom_image, ['vm', 'linux_os_info', 'linux_os_state'], camelize=True)
+        expand(self.custom_image, ['vhd', 'os_type'], camelize=True)
 
         response = None
 
@@ -258,7 +235,7 @@ class AzureRMCustomImages(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.custom_image, old_response, '')):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -390,6 +367,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

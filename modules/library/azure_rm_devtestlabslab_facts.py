@@ -152,13 +152,13 @@ class AzureRMLabsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.resource_group is not None:
+        if (self.resource_group is not None and
+                self.name is not None):
+            self.results['labs'] = self.get()
+        elif self.resource_group is not None:
             self.results['labs'] = self.list_by_resource_group()
         else:
             self.results['labs'] = self.list_by_subscription()
-        elif (self.resource_group is not None and
-                self.name is not None):
-            self.results['labs'] = self.get()
         return self.results
 
     def list_by_resource_group(self):

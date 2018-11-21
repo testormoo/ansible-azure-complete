@@ -158,11 +158,11 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DevTestLabsClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.resource_group is not None:
-            self.results['global_schedules'] = self.list_by_resource_group()
-        elif (self.resource_group is not None and
+        if (self.resource_group is not None and
                 self.name is not None):
             self.results['global_schedules'] = self.get()
+        elif self.resource_group is not None:
+            self.results['global_schedules'] = self.list_by_resource_group()
         else:
             self.results['global_schedules'] = self.list_by_subscription()
         return self.results

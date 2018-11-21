@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    name:
+    lab_name:
         description:
             - The name of the lab.
         required: True
@@ -53,7 +53,7 @@ EXAMPLES = '''
   - name: Get instance of Artifact Source
     azure_rm_devtestlabsartifactsource_facts:
       resource_group: resource_group_name
-      name: lab_name
+      lab_name: lab_name
       name: name
       expand: expand
 '''
@@ -103,7 +103,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            lab_name=dict(
                 type='str',
                 required=True
             ),
@@ -124,7 +124,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.name = None
+        self.lab_name = None
         self.name = None
         self.expand = None
         self.tags = None
@@ -144,7 +144,7 @@ class AzureRMArtifactSourcesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.artifact_sources.get(resource_group_name=self.resource_group,
-                                                             lab_name=self.name,
+                                                             lab_name=self.lab_name,
                                                              name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

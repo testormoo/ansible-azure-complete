@@ -30,7 +30,7 @@ options:
         description:
             - The name of the lab.
         required: True
-    name:
+    virtual_machine_name:
         description:
             - The name of the virtual machine.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
     azure_rm_devtestlabsvirtualmachineschedule_facts:
       resource_group: resource_group_name
       lab_name: lab_name
-      name: virtual_machine_name
+      virtual_machine_name: virtual_machine_name
       name: name
       expand: expand
 '''
@@ -112,7 +112,7 @@ class AzureRMVirtualMachineSchedulesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            virtual_machine_name=dict(
                 type='str',
                 required=True
             ),
@@ -134,7 +134,7 @@ class AzureRMVirtualMachineSchedulesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.lab_name = None
-        self.name = None
+        self.virtual_machine_name = None
         self.name = None
         self.expand = None
         self.tags = None
@@ -155,7 +155,7 @@ class AzureRMVirtualMachineSchedulesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.virtual_machine_schedules.get(resource_group_name=self.resource_group,
                                                                       lab_name=self.lab_name,
-                                                                      virtual_machine_name=self.name,
+                                                                      virtual_machine_name=self.virtual_machine_name,
                                                                       name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

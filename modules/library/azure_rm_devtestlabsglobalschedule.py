@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsglobalschedule
 version_added: "2.8"
-short_description: Manage Global Schedule instance.
+short_description: Manage Azure Global Schedule instance.
 description:
-    - Create, update and delete instance of Global Schedule.
+    - Create, update and delete instance of Azure Global Schedule.
 
 options:
     resource_group:
@@ -35,10 +35,8 @@ options:
             - The location of the resource.
     status:
         description:
-            - The status of the schedule (i.e. C(enabled), C(disabled)).
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The status of the schedule (i.e. Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     task_type:
         description:
             - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
@@ -76,10 +74,8 @@ options:
         suboptions:
             status:
                 description:
-                    - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                choices:
-                    - 'disabled'
-                    - 'enabled'
+                    - "If notifications are enabled for this schedule (i.e. Enabled, Disabled). Possible values include: 'Disabled', 'Enabled'"
+                type: bool
             time_in_minutes:
                 description:
                     - Time in minutes before event at which notification will be sent.
@@ -89,9 +85,6 @@ options:
     target_resource_id:
         description:
             - The resource ID to which the schedule belongs
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Global Schedule.
@@ -115,6 +108,9 @@ EXAMPLES = '''
     azure_rm_devtestlabsglobalschedule:
       resource_group: NOT FOUND
       name: NOT FOUND
+      status: status
+      notification_settings:
+        status: status
 '''
 
 RETURN = '''
@@ -167,9 +163,7 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
                 type='str'
             ),
             status=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             task_type=dict(
                 type='str'
@@ -190,9 +184,6 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
                 type='dict'
             ),
             target_resource_id=dict(
-                type='str'
-            ),
-            unique_identifier=dict(
                 type='str'
             ),
             state=dict(
@@ -222,32 +213,10 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.schedule["location"] = kwargs[key]
-                elif key == "status":
-                    self.schedule["status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "task_type":
-                    self.schedule["task_type"] = kwargs[key]
-                elif key == "weekly_recurrence":
-                    self.schedule["weekly_recurrence"] = kwargs[key]
-                elif key == "daily_recurrence":
-                    self.schedule["daily_recurrence"] = kwargs[key]
-                elif key == "hourly_recurrence":
-                    self.schedule["hourly_recurrence"] = kwargs[key]
-                elif key == "time_zone_id":
-                    self.schedule["time_zone_id"] = kwargs[key]
-                elif key == "notification_settings":
-                    ev = kwargs[key]
-                    if 'status' in ev:
-                        if ev['status'] == 'disabled':
-                            ev['status'] = 'Disabled'
-                        elif ev['status'] == 'enabled':
-                            ev['status'] = 'Enabled'
-                    self.schedule["notification_settings"] = ev
-                elif key == "target_resource_id":
-                    self.schedule["target_resource_id"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.schedule["unique_identifier"] = kwargs[key]
+                self.schedule[key] = kwargs[key]
+
+        expand(self.schedule, ['status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.schedule, ['notification_settings', 'status'], map={True: 'Enabled', False: 'Disabled'})
 
         response = None
 
@@ -269,7 +238,7 @@ class AzureRMGlobalSchedules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.schedule, old_response, '')):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -401,11 +370,45 @@ def default_compare(new, old, path):
         return new == old
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

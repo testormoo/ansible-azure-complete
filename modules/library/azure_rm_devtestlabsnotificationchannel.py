@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsnotificationchannel
 version_added: "2.8"
-short_description: Manage Notification Channel instance.
+short_description: Manage Azure Notification Channel instance.
 description:
-    - Create, update and delete instance of Notification Channel.
+    - Create, update and delete instance of Azure Notification Channel.
 
 options:
     resource_group:
@@ -54,9 +54,6 @@ options:
                 choices:
                     - 'auto_shutdown'
                     - 'cost'
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Notification Channel.
@@ -139,9 +136,6 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
             events=dict(
                 type='list'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -170,22 +164,9 @@ class AzureRMNotificationChannels(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.notification_channel["location"] = kwargs[key]
-                elif key == "web_hook_url":
-                    self.notification_channel["web_hook_url"] = kwargs[key]
-                elif key == "description":
-                    self.notification_channel["description"] = kwargs[key]
-                elif key == "events":
-                    ev = kwargs[key]
-                    if 'event_name' in ev:
-                        if ev['event_name'] == 'auto_shutdown':
-                            ev['event_name'] = 'AutoShutdown'
-                        elif ev['event_name'] == 'cost':
-                            ev['event_name'] = 'Cost'
-                    self.notification_channel["events"] = ev
-                elif key == "unique_identifier":
-                    self.notification_channel["unique_identifier"] = kwargs[key]
+                self.notification_channel[key] = kwargs[key]
+
+        expand(self.notification_channel, ['events', 'event_name'], camelize=True)
 
         response = None
 
@@ -339,6 +320,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

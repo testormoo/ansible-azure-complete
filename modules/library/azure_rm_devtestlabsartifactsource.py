@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsartifactsource
 version_added: "2.8"
-short_description: Manage Artifact Source instance.
+short_description: Manage Azure Artifact Source instance.
 description:
-    - Create, update and delete instance of Artifact Source.
+    - Create, update and delete instance of Azure Artifact Source.
 
 options:
     resource_group:
@@ -63,13 +63,8 @@ options:
             - The security token to authenticate to the artifact source.
     status:
         description:
-            - "Indicates if the artifact source is C(enabled) (values: C(enabled), C(disabled))."
-        choices:
-            - 'enabled'
-            - 'disabled'
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
+            - "Indicates if the artifact source is enabled (values: Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     state:
       description:
         - Assert the state of the Artifact Source.
@@ -94,6 +89,7 @@ EXAMPLES = '''
       resource_group: NOT FOUND
       lab_name: NOT FOUND
       name: NOT FOUND
+      status: status
 '''
 
 RETURN = '''
@@ -173,12 +169,7 @@ class AzureRMArtifactSources(AzureRMModuleBase):
                 type='str'
             ),
             status=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
-            ),
-            unique_identifier=dict(
-                type='str'
+                type='bool'
             ),
             state=dict(
                 type='str',
@@ -208,26 +199,10 @@ class AzureRMArtifactSources(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.artifact_source["location"] = kwargs[key]
-                elif key == "display_name":
-                    self.artifact_source["display_name"] = kwargs[key]
-                elif key == "uri":
-                    self.artifact_source["uri"] = kwargs[key]
-                elif key == "source_type":
-                    self.artifact_source["source_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "folder_path":
-                    self.artifact_source["folder_path"] = kwargs[key]
-                elif key == "arm_template_folder_path":
-                    self.artifact_source["arm_template_folder_path"] = kwargs[key]
-                elif key == "branch_ref":
-                    self.artifact_source["branch_ref"] = kwargs[key]
-                elif key == "security_token":
-                    self.artifact_source["security_token"] = kwargs[key]
-                elif key == "status":
-                    self.artifact_source["status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "unique_identifier":
-                    self.artifact_source["unique_identifier"] = kwargs[key]
+                self.artifact_source[key] = kwargs[key]
+
+        expand(self.artifact_source, ['source_type'], camelize=True)
+        expand(self.artifact_source, ['status'], map={True: 'Enabled', False: 'Disabled'})
 
         response = None
 
@@ -384,11 +359,45 @@ def default_compare(new, old, path):
         return new == old
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

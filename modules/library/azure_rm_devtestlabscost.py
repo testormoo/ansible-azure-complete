@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabscost
 version_added: "2.8"
-short_description: Manage Cost instance.
+short_description: Manage Azure Cost instance.
 description:
-    - Create, update and delete instance of Cost.
+    - Create, update and delete instance of Azure Cost.
 
 options:
     resource_group:
@@ -43,10 +43,8 @@ options:
         suboptions:
             status:
                 description:
-                    - I(target) cost status.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "I(target) cost status. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             target:
                 description:
                     - Lab target cost
@@ -67,16 +65,12 @@ options:
                                     - The cost threshold value.
                     display_on_chart:
                         description:
-                            - Indicates whether this threshold will be displayed on cost charts.
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "Indicates whether this threshold will be displayed on cost charts. Possible values include: 'Enabled', 'Disabled'"
+                        type: bool
                     send_notification_when_exceeded:
                         description:
-                            - Indicates whether notifications will be sent when this threshold is exceeded.
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "Indicates whether notifications will be sent when this threshold is exceeded. Possible values include: 'Enabled', 'Disabled'"
+                        type: bool
                     notification_sent:
                         description:
                             - Indicates the datetime when notifications were last sent for this threshold.
@@ -104,9 +98,6 @@ options:
     created_date:
         description:
             - The creation date of the cost.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Cost.
@@ -131,6 +122,11 @@ EXAMPLES = '''
       resource_group: NOT FOUND
       lab_name: NOT FOUND
       name: NOT FOUND
+      target_cost:
+        status: status
+        cost_thresholds:
+          - display_on_chart: display_on_chart
+            send_notification_when_exceeded: send_notification_when_exceeded
 '''
 
 RETURN = '''
@@ -195,9 +191,6 @@ class AzureRMCosts(AzureRMModuleBase):
             created_date=dict(
                 type='datetime'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -226,31 +219,12 @@ class AzureRMCosts(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.lab_cost["location"] = kwargs[key]
-                elif key == "target_cost":
-                    ev = kwargs[key]
-                    if 'status' in ev:
-                        if ev['status'] == 'enabled':
-                            ev['status'] = 'Enabled'
-                        elif ev['status'] == 'disabled':
-                            ev['status'] = 'Disabled'
-                    if 'cycle_type' in ev:
-                        if ev['cycle_type'] == 'calendar_month':
-                            ev['cycle_type'] = 'CalendarMonth'
-                        elif ev['cycle_type'] == 'custom':
-                            ev['cycle_type'] = 'Custom'
-                    self.lab_cost["target_cost"] = ev
-                elif key == "currency_code":
-                    self.lab_cost["currency_code"] = kwargs[key]
-                elif key == "start_date_time":
-                    self.lab_cost["start_date_time"] = kwargs[key]
-                elif key == "end_date_time":
-                    self.lab_cost["end_date_time"] = kwargs[key]
-                elif key == "created_date":
-                    self.lab_cost["created_date"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.lab_cost["unique_identifier"] = kwargs[key]
+                self.lab_cost[key] = kwargs[key]
+
+        expand(self.lab_cost, ['target_cost', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_cost, ['target_cost', 'cost_thresholds', 'display_on_chart'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_cost, ['target_cost', 'cost_thresholds', 'send_notification_when_exceeded'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_cost, ['target_cost', 'cycle_type'], camelize=True)
 
         response = None
 
@@ -313,7 +287,7 @@ class AzureRMCosts(AzureRMModuleBase):
 
         :return: deserialized Cost instance state dictionary
         '''
-        #self.log("Creating / Updating the Cost instance {0}".format(self.))
+        self.log("Creating / Updating the Cost instance {0}".format(self.))
 
         try:
             response = self.mgmt_client.costs.create_or_update(resource_group_name=self.resource_group,
@@ -334,7 +308,7 @@ class AzureRMCosts(AzureRMModuleBase):
 
         :return: True
         '''
-        #self.log("Deleting the Cost instance {0}".format(self.))
+        self.log("Deleting the Cost instance {0}".format(self.))
         try:
             response = self.mgmt_client.costs.delete()
         except CloudError as e:
@@ -349,7 +323,7 @@ class AzureRMCosts(AzureRMModuleBase):
 
         :return: deserialized Cost instance state dictionary
         '''
-        #self.log("Checking if the Cost instance {0} is present".format(self.))
+        self.log("Checking if the Cost instance {0} is present".format(self.))
         found = False
         try:
             response = self.mgmt_client.costs.get(resource_group_name=self.resource_group,
@@ -402,6 +376,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

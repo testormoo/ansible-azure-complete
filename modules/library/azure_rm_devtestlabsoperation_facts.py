@@ -22,7 +22,7 @@ description:
     - Get facts of Azure Operation.
 
 options:
-    name:
+    location_name:
         description:
             - The name of the location.
         required: True
@@ -42,7 +42,7 @@ author:
 EXAMPLES = '''
   - name: Get instance of Operation
     azure_rm_devtestlabsoperation_facts:
-      name: location_name
+      location_name: location_name
       name: name
 '''
 
@@ -75,7 +75,7 @@ class AzureRMOperationsFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
-            name=dict(
+            location_name=dict(
                 type='str',
                 required=True
             ),
@@ -89,7 +89,7 @@ class AzureRMOperationsFacts(AzureRMModuleBase):
             changed=False
         )
         self.mgmt_client = None
-        self.name = None
+        self.location_name = None
         self.name = None
         super(AzureRMOperationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
@@ -106,7 +106,7 @@ class AzureRMOperationsFacts(AzureRMModuleBase):
         response = None
         results = []
         try:
-            response = self.mgmt_client.operations.get(location_name=self.name,
+            response = self.mgmt_client.operations.get(location_name=self.location_name,
                                                        name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

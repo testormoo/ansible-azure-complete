@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsdisk
 version_added: "2.8"
-short_description: Manage Disk instance.
+short_description: Manage Azure Disk instance.
 description:
-    - Create, update and delete instance of Disk.
+    - Create, update and delete instance of Azure Disk.
 
 options:
     resource_group:
@@ -65,9 +65,6 @@ options:
     managed_disk_id:
         description:
             - When backed by managed disk, this is the ID of the compute disk resource.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Disk.
@@ -169,9 +166,6 @@ class AzureRMDisks(AzureRMModuleBase):
             managed_disk_id=dict(
                 type='str'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -201,24 +195,9 @@ class AzureRMDisks(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.disk["location"] = kwargs[key]
-                elif key == "disk_type":
-                    self.disk["disk_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "disk_size_gi_b":
-                    self.disk["disk_size_gi_b"] = kwargs[key]
-                elif key == "leased_by_lab_vm_id":
-                    self.disk["leased_by_lab_vm_id"] = kwargs[key]
-                elif key == "disk_blob_name":
-                    self.disk["disk_blob_name"] = kwargs[key]
-                elif key == "disk_uri":
-                    self.disk["disk_uri"] = kwargs[key]
-                elif key == "host_caching":
-                    self.disk["host_caching"] = kwargs[key]
-                elif key == "managed_disk_id":
-                    self.disk["managed_disk_id"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.disk["unique_identifier"] = kwargs[key]
+                self.disk[key] = kwargs[key]
+
+        expand(self.disk, ['disk_type'], camelize=True)
 
         response = None
 
@@ -377,11 +356,45 @@ def default_compare(new, old, path):
         return new == old
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

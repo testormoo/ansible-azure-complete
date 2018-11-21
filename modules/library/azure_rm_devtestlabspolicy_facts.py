@@ -30,7 +30,7 @@ options:
         description:
             - The name of the lab.
         required: True
-    name:
+    policy_set_name:
         description:
             - The name of the policy set.
         required: True
@@ -58,7 +58,7 @@ EXAMPLES = '''
     azure_rm_devtestlabspolicy_facts:
       resource_group: resource_group_name
       lab_name: lab_name
-      name: policy_set_name
+      policy_set_name: policy_set_name
       name: name
       expand: expand
 '''
@@ -112,7 +112,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            policy_set_name=dict(
                 type='str',
                 required=True
             ),
@@ -134,7 +134,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.lab_name = None
-        self.name = None
+        self.policy_set_name = None
         self.name = None
         self.expand = None
         self.tags = None
@@ -155,7 +155,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.policies.get(resource_group_name=self.resource_group,
                                                      lab_name=self.lab_name,
-                                                     policy_set_name=self.name,
+                                                     policy_set_name=self.policy_set_name,
                                                      name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:

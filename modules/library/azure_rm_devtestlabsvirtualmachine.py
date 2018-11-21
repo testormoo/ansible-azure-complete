@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsvirtualmachine
 version_added: "2.8"
-short_description: Manage Virtual Machine instance.
+short_description: Manage Azure Virtual Machine instance.
 description:
-    - Create, update and delete instance of Virtual Machine.
+    - Create, update and delete instance of Azure Virtual Machine.
 
 options:
     resource_group:
@@ -268,10 +268,8 @@ options:
                             - The location of the resource.
                     status:
                         description:
-                            - The status of the schedule (i.e. C(enabled), C(disabled)).
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "The status of the schedule (i.e. Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+                        type: bool
                     task_type:
                         description:
                             - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
@@ -309,10 +307,9 @@ options:
                         suboptions:
                             status:
                                 description:
-                                    - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                                choices:
-                                    - 'disabled'
-                                    - 'enabled'
+                                    - "If notifications are enabled for this schedule (i.e. Enabled, Disabled). Possible values include: 'Disabled',
+                                       'Enabled'"
+                                type: bool
                             time_in_minutes:
                                 description:
                                     - Time in minutes before event at which notification will be sent.
@@ -322,9 +319,6 @@ options:
                     target_resource_id:
                         description:
                             - The resource ID to which the schedule belongs
-                    unique_identifier:
-                        description:
-                            - The unique immutable identifier of a resource (Guid).
             lab_vms_startup:
                 description:
                     - The auto-startup schedule, if one has been set at the lab or lab resource level.
@@ -334,10 +328,8 @@ options:
                             - The location of the resource.
                     status:
                         description:
-                            - The status of the schedule (i.e. C(enabled), C(disabled)).
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "The status of the schedule (i.e. Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+                        type: bool
                     task_type:
                         description:
                             - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
@@ -375,10 +367,9 @@ options:
                         suboptions:
                             status:
                                 description:
-                                    - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                                choices:
-                                    - 'disabled'
-                                    - 'enabled'
+                                    - "If notifications are enabled for this schedule (i.e. Enabled, Disabled). Possible values include: 'Disabled',
+                                       'Enabled'"
+                                type: bool
                             time_in_minutes:
                                 description:
                                     - Time in minutes before event at which notification will be sent.
@@ -388,9 +379,6 @@ options:
                     target_resource_id:
                         description:
                             - The resource ID to which the schedule belongs
-                    unique_identifier:
-                        description:
-                            - The unique immutable identifier of a resource (Guid).
     expiration_date:
         description:
             - The expiration date for VM.
@@ -409,9 +397,6 @@ options:
     environment_id:
         description:
             - The resource ID of the environment that contains this virtual machine, if any.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Virtual Machine.
@@ -436,6 +421,15 @@ EXAMPLES = '''
       resource_group: NOT FOUND
       lab_name: NOT FOUND
       name: NOT FOUND
+      applicable_schedule:
+        lab_vms_shutdown:
+          status: status
+          notification_settings:
+            status: status
+        lab_vms_startup:
+          status: status
+          notification_settings:
+            status: status
 '''
 
 RETURN = '''
@@ -572,9 +566,6 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             environment_id=dict(
                 type='str'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -603,66 +594,14 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.lab_virtual_machine["location"] = kwargs[key]
-                elif key == "notes":
-                    self.lab_virtual_machine["notes"] = kwargs[key]
-                elif key == "owner_object_id":
-                    self.lab_virtual_machine["owner_object_id"] = kwargs[key]
-                elif key == "owner_user_principal_name":
-                    self.lab_virtual_machine["owner_user_principal_name"] = kwargs[key]
-                elif key == "created_by_user_id":
-                    self.lab_virtual_machine["created_by_user_id"] = kwargs[key]
-                elif key == "created_by_user":
-                    self.lab_virtual_machine["created_by_user"] = kwargs[key]
-                elif key == "created_date":
-                    self.lab_virtual_machine["created_date"] = kwargs[key]
-                elif key == "custom_image_id":
-                    self.lab_virtual_machine["custom_image_id"] = kwargs[key]
-                elif key == "os_type":
-                    self.lab_virtual_machine["os_type"] = kwargs[key]
-                elif key == "size":
-                    self.lab_virtual_machine["size"] = kwargs[key]
-                elif key == "user_name":
-                    self.lab_virtual_machine["user_name"] = kwargs[key]
-                elif key == "password":
-                    self.lab_virtual_machine["password"] = kwargs[key]
-                elif key == "ssh_key":
-                    self.lab_virtual_machine["ssh_key"] = kwargs[key]
-                elif key == "is_authentication_with_ssh_key":
-                    self.lab_virtual_machine["is_authentication_with_ssh_key"] = kwargs[key]
-                elif key == "fqdn":
-                    self.lab_virtual_machine["fqdn"] = kwargs[key]
-                elif key == "lab_subnet_name":
-                    self.lab_virtual_machine["lab_subnet_name"] = kwargs[key]
-                elif key == "lab_virtual_network_id":
-                    self.lab_virtual_machine["lab_virtual_network_id"] = kwargs[key]
-                elif key == "disallow_public_ip_address":
-                    self.lab_virtual_machine["disallow_public_ip_address"] = kwargs[key]
-                elif key == "artifacts":
-                    self.lab_virtual_machine["artifacts"] = kwargs[key]
-                elif key == "artifact_deployment_status":
-                    self.lab_virtual_machine["artifact_deployment_status"] = kwargs[key]
-                elif key == "gallery_image_reference":
-                    self.lab_virtual_machine["gallery_image_reference"] = kwargs[key]
-                elif key == "compute_vm":
-                    self.lab_virtual_machine["compute_vm"] = kwargs[key]
-                elif key == "network_interface":
-                    self.lab_virtual_machine["network_interface"] = kwargs[key]
-                elif key == "applicable_schedule":
-                    self.lab_virtual_machine["applicable_schedule"] = kwargs[key]
-                elif key == "expiration_date":
-                    self.lab_virtual_machine["expiration_date"] = kwargs[key]
-                elif key == "allow_claim":
-                    self.lab_virtual_machine["allow_claim"] = kwargs[key]
-                elif key == "storage_type":
-                    self.lab_virtual_machine["storage_type"] = kwargs[key]
-                elif key == "virtual_machine_creation_source":
-                    self.lab_virtual_machine["virtual_machine_creation_source"] = _snake_to_camel(kwargs[key], True)
-                elif key == "environment_id":
-                    self.lab_virtual_machine["environment_id"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.lab_virtual_machine["unique_identifier"] = kwargs[key]
+                self.lab_virtual_machine[key] = kwargs[key]
+
+        expand(self.lab_virtual_machine, ['network_interface', 'shared_public_ip_address_configuration', 'inbound_nat_rules', 'transport_protocol'], camelize=True)
+        expand(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_shutdown', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_shutdown', 'notification_settings', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_startup', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_startup', 'notification_settings', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.lab_virtual_machine, ['virtual_machine_creation_source'], camelize=True)
 
         response = None
 
@@ -684,7 +623,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.lab_virtual_machine, old_response, '')):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -818,11 +757,45 @@ def default_compare(new, old, path):
         return new == old
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

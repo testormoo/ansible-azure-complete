@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsenvironment
 version_added: "2.8"
-short_description: Manage Environment instance.
+short_description: Manage Azure Environment instance.
 description:
-    - Create, update and delete instance of Environment.
+    - Create, update and delete instance of Azure Environment.
 
 options:
     resource_group:
@@ -62,9 +62,6 @@ options:
     arm_template_display_name:
         description:
             - The display name of the Azure Resource Manager template that produced the environment.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Environment.
@@ -149,9 +146,6 @@ class AzureRMEnvironments(AzureRMModuleBase):
             arm_template_display_name=dict(
                 type='str'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -181,14 +175,8 @@ class AzureRMEnvironments(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.dtl_environment["location"] = kwargs[key]
-                elif key == "deployment_properties":
-                    self.dtl_environment["deployment_properties"] = kwargs[key]
-                elif key == "arm_template_display_name":
-                    self.dtl_environment["arm_template_display_name"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.dtl_environment["unique_identifier"] = kwargs[key]
+                self.dtl_environment[key] = kwargs[key]
+
 
         response = None
 
@@ -210,7 +198,7 @@ class AzureRMEnvironments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.dtl_environment, old_response, '')):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -345,6 +333,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

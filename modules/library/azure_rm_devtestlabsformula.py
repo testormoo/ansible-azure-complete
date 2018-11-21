@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabsformula
 version_added: "2.8"
-short_description: Manage Formula instance.
+short_description: Manage Azure Formula instance.
 description:
-    - Create, update and delete instance of Formula.
+    - Create, update and delete instance of Azure Formula.
 
 options:
     resource_group:
@@ -289,10 +289,8 @@ options:
                                     - The location of the resource.
                             status:
                                 description:
-                                    - The status of the schedule (i.e. C(enabled), C(disabled)).
-                                choices:
-                                    - 'enabled'
-                                    - 'disabled'
+                                    - "The status of the schedule (i.e. Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+                                type: bool
                             task_type:
                                 description:
                                     - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
@@ -330,10 +328,9 @@ options:
                                 suboptions:
                                     status:
                                         description:
-                                            - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                                        choices:
-                                            - 'disabled'
-                                            - 'enabled'
+                                            - "If notifications are enabled for this schedule (i.e. Enabled, Disabled). Possible values include: 'Disabled',
+                                               'Enabled'"
+                                        type: bool
                                     time_in_minutes:
                                         description:
                                             - Time in minutes before event at which notification will be sent.
@@ -343,9 +340,6 @@ options:
                             target_resource_id:
                                 description:
                                     - The resource ID to which the schedule belongs
-                            unique_identifier:
-                                description:
-                                    - The unique immutable identifier of a resource (Guid).
                     lab_vms_startup:
                         description:
                             - The auto-startup schedule, if one has been set at the lab or lab resource level.
@@ -355,10 +349,8 @@ options:
                                     - The location of the resource.
                             status:
                                 description:
-                                    - The status of the schedule (i.e. C(enabled), C(disabled)).
-                                choices:
-                                    - 'enabled'
-                                    - 'disabled'
+                                    - "The status of the schedule (i.e. Enabled, Disabled). Possible values include: 'Enabled', 'Disabled'"
+                                type: bool
                             task_type:
                                 description:
                                     - The task type of the schedule (e.g. LabVmsShutdownTask, LabVmAutoStart).
@@ -396,10 +388,9 @@ options:
                                 suboptions:
                                     status:
                                         description:
-                                            - If notifications are C(enabled) for this schedule (i.e. C(enabled), C(disabled)).
-                                        choices:
-                                            - 'disabled'
-                                            - 'enabled'
+                                            - "If notifications are enabled for this schedule (i.e. Enabled, Disabled). Possible values include: 'Disabled',
+                                               'Enabled'"
+                                        type: bool
                                     time_in_minutes:
                                         description:
                                             - Time in minutes before event at which notification will be sent.
@@ -409,9 +400,6 @@ options:
                             target_resource_id:
                                 description:
                                     - The resource ID to which the schedule belongs
-                            unique_identifier:
-                                description:
-                                    - The unique immutable identifier of a resource (Guid).
             expiration_date:
                 description:
                     - The expiration date for VM.
@@ -430,9 +418,6 @@ options:
             environment_id:
                 description:
                     - The resource ID of the environment that contains this virtual machine, if any.
-            unique_identifier:
-                description:
-                    - The unique immutable identifier of a resource (Guid).
             name:
                 description:
                     - The name of the virtual machine or environment
@@ -446,9 +431,6 @@ options:
             lab_vm_id:
                 description:
                     - The identifier of the VM from which a formula is to be created.
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Formula.
@@ -473,6 +455,16 @@ EXAMPLES = '''
       resource_group: NOT FOUND
       lab_name: NOT FOUND
       name: NOT FOUND
+      formula_content:
+        applicable_schedule:
+          lab_vms_shutdown:
+            status: status
+            notification_settings:
+              status: status
+          lab_vms_startup:
+            status: status
+            notification_settings:
+              status: status
 '''
 
 RETURN = '''
@@ -537,9 +529,6 @@ class AzureRMFormulas(AzureRMModuleBase):
             vm=dict(
                 type='dict'
             ),
-            unique_identifier=dict(
-                type='str'
-            ),
             state=dict(
                 type='str',
                 default='present',
@@ -568,26 +557,14 @@ class AzureRMFormulas(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.formula["location"] = kwargs[key]
-                elif key == "description":
-                    self.formula["description"] = kwargs[key]
-                elif key == "author":
-                    self.formula["author"] = kwargs[key]
-                elif key == "os_type":
-                    self.formula["os_type"] = kwargs[key]
-                elif key == "formula_content":
-                    ev = kwargs[key]
-                    if 'virtual_machine_creation_source' in ev:
-                        if ev['virtual_machine_creation_source'] == 'from_custom_image':
-                            ev['virtual_machine_creation_source'] = 'FromCustomImage'
-                        elif ev['virtual_machine_creation_source'] == 'from_gallery_image':
-                            ev['virtual_machine_creation_source'] = 'FromGalleryImage'
-                    self.formula["formula_content"] = ev
-                elif key == "vm":
-                    self.formula["vm"] = kwargs[key]
-                elif key == "unique_identifier":
-                    self.formula["unique_identifier"] = kwargs[key]
+                self.formula[key] = kwargs[key]
+
+        expand(self.formula, ['formula_content', 'network_interface', 'shared_public_ip_address_configuration', 'inbound_nat_rules', 'transport_protocol'], camelize=True)
+        expand(self.formula, ['formula_content', 'applicable_schedule', 'lab_vms_shutdown', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.formula, ['formula_content', 'applicable_schedule', 'lab_vms_shutdown', 'notification_settings', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.formula, ['formula_content', 'applicable_schedule', 'lab_vms_startup', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.formula, ['formula_content', 'applicable_schedule', 'lab_vms_startup', 'notification_settings', 'status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.formula, ['formula_content', 'virtual_machine_creation_source'], camelize=True)
 
         response = None
 
@@ -741,6 +718,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

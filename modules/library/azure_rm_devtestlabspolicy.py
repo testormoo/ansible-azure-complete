@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabspolicy
 version_added: "2.8"
-short_description: Manage Policy instance.
+short_description: Manage Azure Policy instance.
 description:
-    - Create, update and delete instance of Policy.
+    - Create, update and delete instance of Azure Policy.
 
 options:
     resource_group:
@@ -46,10 +46,8 @@ options:
             - The description of the policy.
     status:
         description:
-            - The status of the policy.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The status of the policy. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     fact_name:
         description:
             - The fact name of the policy (e.g. C(lab_vm_count), C(lab_vm_size), MaxVmsAllowedPerLab, etc.
@@ -74,9 +72,6 @@ options:
         choices:
             - 'allowed_values_policy'
             - 'max_value_policy'
-    unique_identifier:
-        description:
-            - The unique immutable identifier of a resource (Guid).
     state:
       description:
         - Assert the state of the Policy.
@@ -102,6 +97,7 @@ EXAMPLES = '''
       lab_name: NOT FOUND
       policy_set_name: NOT FOUND
       name: NOT FOUND
+      status: status
 '''
 
 RETURN = '''
@@ -165,9 +161,7 @@ class AzureRMPolicies(AzureRMModuleBase):
                 type='str'
             ),
             status=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             fact_name=dict(
                 type='str',
@@ -190,9 +184,6 @@ class AzureRMPolicies(AzureRMModuleBase):
                 type='str',
                 choices=['allowed_values_policy',
                          'max_value_policy']
-            ),
-            unique_identifier=dict(
-                type='str'
             ),
             state=dict(
                 type='str',
@@ -223,22 +214,11 @@ class AzureRMPolicies(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.policy["location"] = kwargs[key]
-                elif key == "description":
-                    self.policy["description"] = kwargs[key]
-                elif key == "status":
-                    self.policy["status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "fact_name":
-                    self.policy["fact_name"] = _snake_to_camel(kwargs[key], True)
-                elif key == "fact_data":
-                    self.policy["fact_data"] = kwargs[key]
-                elif key == "threshold":
-                    self.policy["threshold"] = kwargs[key]
-                elif key == "evaluator_type":
-                    self.policy["evaluator_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "unique_identifier":
-                    self.policy["unique_identifier"] = kwargs[key]
+                self.policy[key] = kwargs[key]
+
+        expand(self.policy, ['status'], map={True: 'Enabled', False: 'Disabled'})
+        expand(self.policy, ['fact_name'], camelize=True)
+        expand(self.policy, ['evaluator_type'], camelize=True)
 
         response = None
 
@@ -260,7 +240,7 @@ class AzureRMPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.policy, old_response, '')):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -398,11 +378,45 @@ def default_compare(new, old, path):
         return new == old
 
 
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def main():

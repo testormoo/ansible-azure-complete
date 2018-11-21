@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_devtestlabslab
 version_added: "2.8"
-short_description: Manage Lab instance.
+short_description: Manage Azure Lab instance.
 description:
-    - Create, update and delete instance of Lab.
+    - Create, update and delete instance of Azure Lab.
 
 options:
     resource_group:
@@ -28,7 +28,7 @@ options:
         required: True
     name:
         description:
-            - The name of the I(lab).
+            - The name of the lab.
         required: True
     location:
         description:
@@ -42,11 +42,9 @@ options:
     premium_data_disks:
         description:
             - "The setting to enable usage of C(premium) data disks.\n"
-            - "When its value is 'C(enabled)', creation of C(standard) or C(premium) data disks is allowed.\n"
-            - "When its value is 'C(disabled)', only creation of C(standard) data disks is allowed."
-        choices:
-            - 'disabled'
-            - 'enabled'
+            - "When its value is 'Enabled', creation of C(standard) or C(premium) data disks is allowed.\n"
+            - "When its value is 'Disabled', only creation of C(standard) data disks is allowed. Possible values include: 'Disabled', 'Enabled'"
+        type: bool
     state:
       description:
         - Assert the state of the Lab.
@@ -70,6 +68,7 @@ EXAMPLES = '''
     azure_rm_devtestlabslab:
       resource_group: NOT FOUND
       name: NOT FOUND
+      premium_data_disks: premium_data_disks
 '''
 
 RETURN = '''
@@ -112,14 +111,16 @@ class AzureRMLabs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            lab_storage_type=dict(
-                type='str'
-            ),
-            premium_data_disks=dict(
-                type='str'
-            ),
             location=dict(
                 type='str'
+            ),
+            lab_storage_type=dict(
+                type='str',
+                choices=['standard',
+                         'premium']
+            ),
+            premium_data_disks=dict(
+                type='bool'
             ),
             state=dict(
                 type='str',
@@ -148,14 +149,10 @@ class AzureRMLabs(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.lab["location"] = kwargs[key]
-                elif key == "lab_storage_type":
-                    self.lab["lab_storage_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "premium_data_disks":
-                    self.lab["premium_data_disks"] = _snake_to_camel(kwargs[key], True)
-                elif key == "unique_identifier":
-                    self.lab["unique_identifier"] = kwargs[key]
+                self.lab[key] = kwargs[key]
+
+        expand(self.lab, ['lab_storage_type'], camelize=True)
+        expand(self.lab, ['premium_data_disks'], map={True: 'Enabled', False: 'Disabled'})
 
         response = None
 
@@ -306,6 +303,47 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expand = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if map is not None:
+                new_value = map.get(old_value, None)
+            if new_value is None:
+                if camelize:
+                    new_value = _snake_to_camel(old_value, True)
+                elif camelize_lower:
+                    new_value = _snake_to_camel(old_value, False)
+                elif upper:
+                    new_value = old_value.upper()
+            if expand is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expand] = d.get(expand, {})
+                d.pop(old_name, None)
+                d = d[expand]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
 
 
 def _snake_to_camel(snake, capitalize_first=False):

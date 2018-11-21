@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    name:
+    lab_name:
         description:
             - The name of the lab.
         required: True
@@ -50,7 +50,7 @@ EXAMPLES = '''
   - name: Get instance of Service Runner
     azure_rm_devtestlabsservicerunner_facts:
       resource_group: resource_group_name
-      name: lab_name
+      lab_name: lab_name
       name: name
 '''
 
@@ -93,7 +93,7 @@ class AzureRMServiceRunnersFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            lab_name=dict(
                 type='str',
                 required=True
             ),
@@ -111,7 +111,7 @@ class AzureRMServiceRunnersFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.name = None
+        self.lab_name = None
         self.name = None
         self.tags = None
         super(AzureRMServiceRunnersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
@@ -130,7 +130,7 @@ class AzureRMServiceRunnersFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.service_runners.get(resource_group_name=self.resource_group,
-                                                            lab_name=self.name,
+                                                            lab_name=self.lab_name,
                                                             name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
