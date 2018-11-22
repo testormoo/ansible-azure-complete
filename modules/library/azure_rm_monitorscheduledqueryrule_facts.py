@@ -144,7 +144,7 @@ except ImportError:
     pass
 
 
-class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
+class AzureRMScheduledQueryRuleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -170,7 +170,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
         self.name = None
         self.filter = None
         self.tags = None
-        super(AzureRMScheduledQueryRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMScheduledQueryRuleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -195,10 +195,10 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
                                                                   rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ScheduledQueryRules.')
+            self.log('Could not get facts for Scheduled Query Rule.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -209,12 +209,12 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
             response = self.mgmt_client.scheduled_query_rules.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ScheduledQueryRules.')
+            self.log('Could not get facts for Scheduled Query Rule.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -225,16 +225,16 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
             response = self.mgmt_client.scheduled_query_rules.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ScheduledQueryRules.')
+            self.log('Could not get facts for Scheduled Query Rule.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -256,7 +256,7 @@ class AzureRMScheduledQueryRulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMScheduledQueryRulesFacts()
+    AzureRMScheduledQueryRuleFacts()
 
 
 if __name__ == '__main__':

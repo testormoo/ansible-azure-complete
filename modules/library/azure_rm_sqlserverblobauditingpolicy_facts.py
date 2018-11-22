@@ -90,7 +90,7 @@ except ImportError:
     pass
 
 
-class AzureRMServerBlobAuditingPoliciesFacts(AzureRMModuleBase):
+class AzureRMServerBlobAuditingPolicyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -115,7 +115,7 @@ class AzureRMServerBlobAuditingPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.name = None
-        super(AzureRMServerBlobAuditingPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMServerBlobAuditingPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -135,14 +135,14 @@ class AzureRMServerBlobAuditingPoliciesFacts(AzureRMModuleBase):
                                                                           blob_auditing_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ServerBlobAuditingPolicies.')
+            self.log('Could not get facts for Server Blob Auditing Policy.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -154,7 +154,7 @@ class AzureRMServerBlobAuditingPoliciesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMServerBlobAuditingPoliciesFacts()
+    AzureRMServerBlobAuditingPolicyFacts()
 
 
 if __name__ == '__main__':

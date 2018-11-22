@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_frontdoor
 version_added: "2.8"
-short_description: Manage Front Door instance.
+short_description: Manage Azure Front Door instance.
 description:
-    - Create, update and delete instance of Front Door.
+    - Create, update and delete instance of Azure Front Door.
 
 options:
     resource_group:
@@ -82,10 +82,8 @@ options:
                             - 'strip_all'
                     dynamic_compression:
                         description:
-                            - Whether to use dynamic compression for cached content.
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "Whether to use dynamic compression for cached content. Possible values include: 'Enabled', 'Disabled'"
+                        type: bool
             backend_pool:
                 description:
                     - A reference to the BackendPool which this rule routes to.
@@ -95,10 +93,9 @@ options:
                             - Resource ID.
             enabled_state:
                 description:
-                    - "Whether to enable use of this rule. Permitted values are 'C(C(enabled))' or 'C(C(disabled))'."
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Whether to enable use of this rule. Permitted values are 'C(enabled)' or 'C(disabled)'. Possible values include: 'C(enabled)',
+                       'C(disabled)'"
+                type: bool
             resource_state:
                 description:
                     - Resource status.
@@ -199,10 +196,9 @@ options:
                             - The HTTPS TCP port number. Must be between 1 and 65535.
                     enabled_state:
                         description:
-                            - "Whether to enable use of this backend. Permitted values are 'C(enabled)' or 'C(disabled)'."
-                        choices:
-                            - 'enabled'
-                            - 'disabled'
+                            - "Whether to enable use of this backend. Permitted values are 'Enabled' or 'Disabled'. Possible values include: 'Enabled',
+                               'Disabled'"
+                        type: bool
                     priority:
                         description:
                             - "Priority to use for load balancing. Higher priorities will not be used for load balancing if any lower priority backend is
@@ -253,10 +249,9 @@ options:
                     - The host name of the frontendEndpoint. Must be a domain name.
             session_affinity_enabled_state:
                 description:
-                    - "Whether to allow session affinity on this host. Valid options are 'C(C(enabled))' or 'C(C(disabled))'."
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Whether to allow session affinity on this host. Valid options are 'C(enabled)' or 'C(disabled)'. Possible values include:
+                       'C(enabled)', 'C(disabled)'"
+                type: bool
             session_affinity_ttl_seconds:
                 description:
                     - UNUSED. This field will be ignored. The TTL to use in seconds for session affinity, if applicable.
@@ -282,10 +277,9 @@ options:
                     - Resource name.
     enabled_state:
         description:
-            - "Operational status of the Front Door load balancer. Permitted values are 'C(C(enabled))' or 'C(C(disabled))'."
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Operational status of the Front Door load balancer. Permitted values are 'C(enabled)' or 'C(disabled)'. Possible values include:
+               'C(enabled)', 'C(disabled)'"
+        type: bool
     resource_state:
         description:
             - Resource status of the Front Door.
@@ -331,9 +325,11 @@ EXAMPLES = '''
             - [
   "/*"
 ]
+          cache_configuration:
+            dynamic_compression: dynamic_compression
           backend_pool:
             id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoors/frontDoor1/backendPools/backendPool1
-          enabled_state: Enabled
+          enabled_state: enabled_state
           name: routingRule1
       load_balancing_settings:
         - sample_size: 4
@@ -349,6 +345,7 @@ EXAMPLES = '''
             - address: w3.contoso.com
               http_port: 80
               https_port: 443
+              enabled_state: enabled_state
               priority: 2
               weight: 1
           load_balancing_settings:
@@ -358,12 +355,12 @@ EXAMPLES = '''
           name: backendPool1
       frontend_endpoints:
         - host_name: www.contoso.com
-          session_affinity_enabled_state: Enabled
+          session_affinity_enabled_state: session_affinity_enabled_state
           session_affinity_ttl_seconds: 60
           web_application_firewall_policy_link:
             id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/frontDoorWebApplicationFirewallPolicies/policy1
           name: frontendEndpoint1
-      enabled_state: Enabled
+      enabled_state: enabled_state
 '''
 
 RETURN = '''
@@ -393,7 +390,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMFrontDoors(AzureRMModuleBase):
+class AzureRMFrontDoor(AzureRMModuleBase):
     """Configuration class for an Azure RM Front Door resource"""
 
     def __init__(self):
@@ -428,9 +425,7 @@ class AzureRMFrontDoors(AzureRMModuleBase):
                 type='list'
             ),
             enabled_state=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             resource_state=dict(
                 type='str',
@@ -457,7 +452,7 @@ class AzureRMFrontDoors(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMFrontDoors, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMFrontDoor, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
                                                 supports_tags=True)
 
@@ -468,116 +463,22 @@ class AzureRMFrontDoors(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "friendly_name":
-                    self.parameters["friendly_name"] = kwargs[key]
-                elif key == "routing_rules":
-                    ev = kwargs[key]
-                    if 'forwarding_protocol' in ev:
-                        if ev['forwarding_protocol'] == 'http_only':
-                            ev['forwarding_protocol'] = 'HttpOnly'
-                        elif ev['forwarding_protocol'] == 'https_only':
-                            ev['forwarding_protocol'] = 'HttpsOnly'
-                        elif ev['forwarding_protocol'] == 'match_request':
-                            ev['forwarding_protocol'] = 'MatchRequest'
-                    if 'enabled_state' in ev:
-                        if ev['enabled_state'] == 'enabled':
-                            ev['enabled_state'] = 'Enabled'
-                        elif ev['enabled_state'] == 'disabled':
-                            ev['enabled_state'] = 'Disabled'
-                    if 'resource_state' in ev:
-                        if ev['resource_state'] == 'creating':
-                            ev['resource_state'] = 'Creating'
-                        elif ev['resource_state'] == 'enabling':
-                            ev['resource_state'] = 'Enabling'
-                        elif ev['resource_state'] == 'enabled':
-                            ev['resource_state'] = 'Enabled'
-                        elif ev['resource_state'] == 'disabling':
-                            ev['resource_state'] = 'Disabling'
-                        elif ev['resource_state'] == 'disabled':
-                            ev['resource_state'] = 'Disabled'
-                        elif ev['resource_state'] == 'deleting':
-                            ev['resource_state'] = 'Deleting'
-                    self.parameters["routing_rules"] = ev
-                elif key == "load_balancing_settings":
-                    ev = kwargs[key]
-                    if 'resource_state' in ev:
-                        if ev['resource_state'] == 'creating':
-                            ev['resource_state'] = 'Creating'
-                        elif ev['resource_state'] == 'enabling':
-                            ev['resource_state'] = 'Enabling'
-                        elif ev['resource_state'] == 'enabled':
-                            ev['resource_state'] = 'Enabled'
-                        elif ev['resource_state'] == 'disabling':
-                            ev['resource_state'] = 'Disabling'
-                        elif ev['resource_state'] == 'disabled':
-                            ev['resource_state'] = 'Disabled'
-                        elif ev['resource_state'] == 'deleting':
-                            ev['resource_state'] = 'Deleting'
-                    self.parameters["load_balancing_settings"] = ev
-                elif key == "health_probe_settings":
-                    ev = kwargs[key]
-                    if 'protocol' in ev:
-                        if ev['protocol'] == 'http':
-                            ev['protocol'] = 'Http'
-                        elif ev['protocol'] == 'https':
-                            ev['protocol'] = 'Https'
-                    if 'resource_state' in ev:
-                        if ev['resource_state'] == 'creating':
-                            ev['resource_state'] = 'Creating'
-                        elif ev['resource_state'] == 'enabling':
-                            ev['resource_state'] = 'Enabling'
-                        elif ev['resource_state'] == 'enabled':
-                            ev['resource_state'] = 'Enabled'
-                        elif ev['resource_state'] == 'disabling':
-                            ev['resource_state'] = 'Disabling'
-                        elif ev['resource_state'] == 'disabled':
-                            ev['resource_state'] = 'Disabled'
-                        elif ev['resource_state'] == 'deleting':
-                            ev['resource_state'] = 'Deleting'
-                    self.parameters["health_probe_settings"] = ev
-                elif key == "backend_pools":
-                    ev = kwargs[key]
-                    if 'resource_state' in ev:
-                        if ev['resource_state'] == 'creating':
-                            ev['resource_state'] = 'Creating'
-                        elif ev['resource_state'] == 'enabling':
-                            ev['resource_state'] = 'Enabling'
-                        elif ev['resource_state'] == 'enabled':
-                            ev['resource_state'] = 'Enabled'
-                        elif ev['resource_state'] == 'disabling':
-                            ev['resource_state'] = 'Disabling'
-                        elif ev['resource_state'] == 'disabled':
-                            ev['resource_state'] = 'Disabled'
-                        elif ev['resource_state'] == 'deleting':
-                            ev['resource_state'] = 'Deleting'
-                    self.parameters["backend_pools"] = ev
-                elif key == "frontend_endpoints":
-                    ev = kwargs[key]
-                    if 'session_affinity_enabled_state' in ev:
-                        if ev['session_affinity_enabled_state'] == 'enabled':
-                            ev['session_affinity_enabled_state'] = 'Enabled'
-                        elif ev['session_affinity_enabled_state'] == 'disabled':
-                            ev['session_affinity_enabled_state'] = 'Disabled'
-                    if 'resource_state' in ev:
-                        if ev['resource_state'] == 'creating':
-                            ev['resource_state'] = 'Creating'
-                        elif ev['resource_state'] == 'enabling':
-                            ev['resource_state'] = 'Enabling'
-                        elif ev['resource_state'] == 'enabled':
-                            ev['resource_state'] = 'Enabled'
-                        elif ev['resource_state'] == 'disabling':
-                            ev['resource_state'] = 'Disabling'
-                        elif ev['resource_state'] == 'disabled':
-                            ev['resource_state'] = 'Disabled'
-                        elif ev['resource_state'] == 'deleting':
-                            ev['resource_state'] = 'Deleting'
-                    self.parameters["frontend_endpoints"] = ev
-                elif key == "enabled_state":
-                    self.parameters["enabled_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "resource_state":
-                    self.parameters["resource_state"] = _snake_to_camel(kwargs[key], True)
+                self.front_door_parameters[key] = kwargs[key]
+
+        dict_camelize(self.front_door_parameters, ['routing_rules', 'forwarding_protocol'], True)
+        dict_camelize(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'query_parameter_strip_directive'], True)
+        dict_map(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'dynamic_compression'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.front_door_parameters, ['routing_rules', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.front_door_parameters, ['routing_rules', 'resource_state'], True)
+        dict_camelize(self.front_door_parameters, ['load_balancing_settings', 'resource_state'], True)
+        dict_camelize(self.front_door_parameters, ['health_probe_settings', 'protocol'], True)
+        dict_camelize(self.front_door_parameters, ['health_probe_settings', 'resource_state'], True)
+        dict_map(self.front_door_parameters, ['backend_pools', 'backends', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.front_door_parameters, ['backend_pools', 'resource_state'], True)
+        dict_map(self.front_door_parameters, ['frontend_endpoints', 'session_affinity_enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.front_door_parameters, ['frontend_endpoints', 'resource_state'], True)
+        dict_map(self.front_door_parameters, ['enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.front_door_parameters, ['resource_state'], True)
 
         response = None
 
@@ -602,7 +503,7 @@ class AzureRMFrontDoors(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.front_door_parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -634,7 +535,7 @@ class AzureRMFrontDoors(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_frontdoor(self):
@@ -694,25 +595,27 @@ class AzureRMFrontDoors(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -726,11 +629,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -742,7 +728,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMFrontDoors()
+    AzureRMFrontDoor()
 
 
 if __name__ == '__main__':

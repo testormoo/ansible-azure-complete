@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_servicefabricmeshapplication
 version_added: "2.8"
-short_description: Manage Application instance.
+short_description: Manage Azure Application instance.
 description:
-    - Create, update and delete instance of Application.
+    - Create, update and delete instance of Azure Application.
 
 options:
     resource_group:
@@ -30,236 +30,187 @@ options:
         description:
             - The identity of the application.
         required: True
-    application_resource_description:
+    location:
         description:
-            - Description for creating a Application resource.
-        required: True
+            - The geo-location where the resource lives
+            - Required when C(state) is I(present).
+    description:
+        description:
+            - User readable description of the application.
+    services:
+        description:
+            - "Describes the services in the application. This property is used to create or modify services of the application. On get only the name of the
+               service is returned. The service I(description) can be obtained by querying for the service resource."
+        type: list
         suboptions:
-            location:
+            name:
                 description:
-                    - The geo-location where the resource lives
+                    - The name of the resource
+            os_type:
+                description:
+                    - The operation system required by the code in service.
                     - Required when C(state) is I(present).
-            description:
+                choices:
+                    - 'linux'
+                    - 'windows'
+            code_packages:
                 description:
-                    - User readable description of the application.
-            services:
-                description:
-                    - "Describes the services in the application. This property is used to create or modify services of the application. On get only the
-                       name of the service is returned. The service I(description) can be obtained by querying for the service resource."
+                    - "Describes the set of code packages that forms the service. A code package describes the container and the properties for running it.
+                       All the code packages are started together on the same host and share the same context (network, process etc.)."
+                    - Required when C(state) is I(present).
                 type: list
                 suboptions:
                     name:
                         description:
-                            - The name of the resource
-                    os_type:
-                        description:
-                            - The operation system required by the code in service.
+                            - The name of the code package.
                             - Required when C(state) is I(present).
-                        choices:
-                            - 'linux'
-                            - 'windows'
-                    code_packages:
+                    image:
                         description:
-                            - "Describes the set of code packages that forms the service. A code package describes the container and the properties for
-                               running it. All the code packages are started together on the same host and share the same context (network, process etc.)."
+                            - The Container image to use.
                             - Required when C(state) is I(present).
+                    image_registry_credential:
+                        description:
+                            - I(image) registry credential.
+                        suboptions:
+                            server:
+                                description:
+                                    - Docker image registry server, without protocol such as `http` and `https`.
+                                    - Required when C(state) is I(present).
+                            username:
+                                description:
+                                    - The username for the private registry.
+                                    - Required when C(state) is I(present).
+                            password:
+                                description:
+                                    - "The password for the private registry. The password is required for create or update operations, however it is not
+                                       returned in the get or list operations."
+                    entrypoint:
+                        description:
+                            - Override for the default entry point in the container.
+                    commands:
+                        description:
+                            - Command array to execute within the container in exec form.
+                        type: list
+                    environment_variables:
+                        description:
+                            - The environment variables to set in this container
                         type: list
                         suboptions:
                             name:
                                 description:
-                                    - The name of the code package.
-                                    - Required when C(state) is I(present).
-                            image:
+                                    - The name of the environment variable.
+                            value:
                                 description:
-                                    - The Container image to use.
-                                    - Required when C(state) is I(present).
-                            image_registry_credential:
-                                description:
-                                    - I(image) registry credential.
-                                suboptions:
-                                    server:
-                                        description:
-                                            - Docker image registry server, without protocol such as `http` and `https`.
-                                            - Required when C(state) is I(present).
-                                    username:
-                                        description:
-                                            - The username for the private registry.
-                                            - Required when C(state) is I(present).
-                                    password:
-                                        description:
-                                            - "The password for the private registry. The password is required for create or update operations, however it
-                                               is not returned in the get or list operations."
-                            entrypoint:
-                                description:
-                                    - Override for the default entry point in the container.
-                            commands:
-                                description:
-                                    - Command array to execute within the container in exec form.
-                                type: list
-                            environment_variables:
-                                description:
-                                    - The environment variables to set in this container
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - The name of the environment variable.
-                                    value:
-                                        description:
-                                            - The value of the environment variable.
-                            settings:
-                                description:
-                                    - "The settings to set in this container. The setting file path can be fetched from environment variable
-                                       'Fabric_SettingPath'. The path for Windows container is 'C:\\secrets'. The path for Linux container is
-                                       '/var/secrets'."
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - The name of the setting.
-                                    value:
-                                        description:
-                                            - The value of the setting.
-                            labels:
-                                description:
-                                    - The labels to set in this container.
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - The name of the container label.
-                                            - Required when C(state) is I(present).
-                                    value:
-                                        description:
-                                            - The value of the container label.
-                                            - Required when C(state) is I(present).
-                            endpoints:
-                                description:
-                                    - The endpoints exposed by this container.
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - The name of the endpoint.
-                                            - Required when C(state) is I(present).
-                                    port:
-                                        description:
-                                            - Port used by the container.
-                            resources:
-                                description:
-                                    - The resources required by this container.
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    requests:
-                                        description:
-                                            - Describes the requested resources for a given container.
-                                            - Required when C(state) is I(present).
-                                        suboptions:
-                                            memory_in_gb:
-                                                description:
-                                                    - The memory request in GB for this container.
-                                                    - Required when C(state) is I(present).
-                                            cpu:
-                                                description:
-                                                    - Requested number of CPU cores. At present, only full cores are supported.
-                                                    - Required when C(state) is I(present).
-                                    limits:
-                                        description:
-                                            - Describes the maximum limits on the resources for a given container.
-                                        suboptions:
-                                            memory_in_gb:
-                                                description:
-                                                    - The memory limit in GB.
-                                            cpu:
-                                                description:
-                                                    - CPU limits in cores. At present, only full cores are supported.
-                            volume_refs:
-                                description:
-                                    - "I(volumes) to be attached to the container. The lifetime of these I(volumes) is independent of the application's
-                                       lifetime."
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - Name of the volume being referenced.
-                                            - Required when C(state) is I(present).
-                                    read_only:
-                                        description:
-                                            - "The flag indicating whether the volume is read only. Default is 'false'."
-                                    destination_path:
-                                        description:
-                                            - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
-                                            - Required when C(state) is I(present).
-                            volumes:
-                                description:
-                                    - "Volumes to be attached to the container. The lifetime of these volumes is scoped to the application's lifetime."
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - Name of the volume being referenced.
-                                            - Required when C(state) is I(present).
-                                    read_only:
-                                        description:
-                                            - "The flag indicating whether the volume is read only. Default is 'false'."
-                                    destination_path:
-                                        description:
-                                            - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
-                                            - Required when C(state) is I(present).
-                                    creation_parameters:
-                                        description:
-                                            - Describes parameters for creating application-scoped volumes.
-                                            - Required when C(state) is I(present).
-                                        suboptions:
-                                            description:
-                                                description:
-                                                    - User readable description of the volume.
-                                            kind:
-                                                description:
-                                                    - Constant filled by server.
-                                                    - Required when C(state) is I(present).
-                            diagnostics:
-                                description:
-                                    - Reference to sinks in DiagnosticsDescription.
-                                suboptions:
-                                    enabled:
-                                        description:
-                                            - Status of whether or not sinks are enabled.
-                                    sink_refs:
-                                        description:
-                                            - List of sinks to be used if I(enabled). References the list of sinks in DiagnosticsDescription.
-                                        type: list
-                            reliable_collections_refs:
-                                description:
-                                    - "A list of ReliableCollection I(resources) used by this particular code package. Please refer to
-                                       ReliablecollectionsRef for more details."
-                                type: list
-                                suboptions:
-                                    name:
-                                        description:
-                                            - "Name of ReliableCollection resource. Right now it's not used and you can use any string."
-                                            - Required when C(state) is I(present).
-                                    do_not_persist_state:
-                                        description:
-                                            - "False (the default) if ReliableCollections state is persisted to disk as usual. True if you do not want to
-                                               persist state, in which case replication is still enabled and you can use ReliableCollections as distributed
-                                               cache."
-                    network_refs:
+                                    - The value of the environment variable.
+                    settings:
                         description:
-                            - The names of the private networks that this service needs to be part of.
+                            - "The settings to set in this container. The setting file path can be fetched from environment variable 'Fabric_SettingPath'.
+                               The path for Windows container is 'C:\\secrets'. The path for Linux container is '/var/secrets'."
                         type: list
                         suboptions:
                             name:
                                 description:
-                                    - Name of the network
-                            endpoint_refs:
+                                    - The name of the setting.
+                            value:
                                 description:
-                                    - A list of endpoints that are exposed on this network.
-                                type: list
+                                    - The value of the setting.
+                    labels:
+                        description:
+                            - The labels to set in this container.
+                        type: list
+                        suboptions:
+                            name:
+                                description:
+                                    - The name of the container label.
+                                    - Required when C(state) is I(present).
+                            value:
+                                description:
+                                    - The value of the container label.
+                                    - Required when C(state) is I(present).
+                    endpoints:
+                        description:
+                            - The endpoints exposed by this container.
+                        type: list
+                        suboptions:
+                            name:
+                                description:
+                                    - The name of the endpoint.
+                                    - Required when C(state) is I(present).
+                            port:
+                                description:
+                                    - Port used by the container.
+                    resources:
+                        description:
+                            - The resources required by this container.
+                            - Required when C(state) is I(present).
+                        suboptions:
+                            requests:
+                                description:
+                                    - Describes the requested resources for a given container.
+                                    - Required when C(state) is I(present).
                                 suboptions:
-                                    name:
+                                    memory_in_gb:
                                         description:
-                                            - Name of the endpoint.
+                                            - The memory request in GB for this container.
+                                            - Required when C(state) is I(present).
+                                    cpu:
+                                        description:
+                                            - Requested number of CPU cores. At present, only full cores are supported.
+                                            - Required when C(state) is I(present).
+                            limits:
+                                description:
+                                    - Describes the maximum limits on the resources for a given container.
+                                suboptions:
+                                    memory_in_gb:
+                                        description:
+                                            - The memory limit in GB.
+                                    cpu:
+                                        description:
+                                            - CPU limits in cores. At present, only full cores are supported.
+                    volume_refs:
+                        description:
+                            - "I(volumes) to be attached to the container. The lifetime of these I(volumes) is independent of the application's lifetime."
+                        type: list
+                        suboptions:
+                            name:
+                                description:
+                                    - Name of the volume being referenced.
+                                    - Required when C(state) is I(present).
+                            read_only:
+                                description:
+                                    - "The flag indicating whether the volume is read only. Default is 'false'."
+                            destination_path:
+                                description:
+                                    - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
+                                    - Required when C(state) is I(present).
+                    volumes:
+                        description:
+                            - "Volumes to be attached to the container. The lifetime of these volumes is scoped to the application's lifetime."
+                        type: list
+                        suboptions:
+                            name:
+                                description:
+                                    - Name of the volume being referenced.
+                                    - Required when C(state) is I(present).
+                            read_only:
+                                description:
+                                    - "The flag indicating whether the volume is read only. Default is 'false'."
+                            destination_path:
+                                description:
+                                    - The path within the container at which the volume should be mounted. Only valid path characters are allowed.
+                                    - Required when C(state) is I(present).
+                            creation_parameters:
+                                description:
+                                    - Describes parameters for creating application-scoped volumes.
+                                    - Required when C(state) is I(present).
+                                suboptions:
+                                    description:
+                                        description:
+                                            - User readable description of the volume.
+                                    kind:
+                                        description:
+                                            - Constant filled by server.
+                                            - Required when C(state) is I(present).
                     diagnostics:
                         description:
                             - Reference to sinks in DiagnosticsDescription.
@@ -271,68 +222,109 @@ options:
                                 description:
                                     - List of sinks to be used if I(enabled). References the list of sinks in DiagnosticsDescription.
                                 type: list
-                    description:
+                    reliable_collections_refs:
                         description:
-                            - User readable description of the service.
-                    replica_count:
-                        description:
-                            - The number of replicas of the service to create. Defaults to 1 if not specified.
-                    auto_scaling_policies:
-                        description:
-                            - Auto scaling policies
+                            - "A list of ReliableCollection I(resources) used by this particular code package. Please refer to ReliablecollectionsRef for
+                               more details."
                         type: list
                         suboptions:
                             name:
                                 description:
-                                    - The name of the auto scaling policy.
+                                    - "Name of ReliableCollection resource. Right now it's not used and you can use any string."
                                     - Required when C(state) is I(present).
-                            trigger:
+                            do_not_persist_state:
                                 description:
-                                    - Determines when auto scaling operation will be invoked.
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    kind:
-                                        description:
-                                            - Constant filled by server.
-                                            - Required when C(state) is I(present).
-                            mechanism:
+                                    - "False (the default) if ReliableCollections state is persisted to disk as usual. True if you do not want to persist
+                                       state, in which case replication is still enabled and you can use ReliableCollections as distributed cache."
+            network_refs:
+                description:
+                    - The names of the private networks that this service needs to be part of.
+                type: list
+                suboptions:
+                    name:
+                        description:
+                            - Name of the network
+                    endpoint_refs:
+                        description:
+                            - A list of endpoints that are exposed on this network.
+                        type: list
+                        suboptions:
+                            name:
                                 description:
-                                    - The mechanism that is used to scale when auto scaling operation is invoked.
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    kind:
-                                        description:
-                                            - Constant filled by server.
-                                            - Required when C(state) is I(present).
+                                    - Name of the endpoint.
             diagnostics:
                 description:
-                    - Describes the diagnostics definition and usage for an application resource.
+                    - Reference to sinks in DiagnosticsDescription.
                 suboptions:
-                    sinks:
+                    enabled:
                         description:
-                            - List of supported sinks that can be referenced.
+                            - Status of whether or not sinks are enabled.
+                    sink_refs:
+                        description:
+                            - List of sinks to be used if I(enabled). References the list of sinks in DiagnosticsDescription.
                         type: list
+            description:
+                description:
+                    - User readable description of the service.
+            replica_count:
+                description:
+                    - The number of replicas of the service to create. Defaults to 1 if not specified.
+            auto_scaling_policies:
+                description:
+                    - Auto scaling policies
+                type: list
+                suboptions:
+                    name:
+                        description:
+                            - The name of the auto scaling policy.
+                            - Required when C(state) is I(present).
+                    trigger:
+                        description:
+                            - Determines when auto scaling operation will be invoked.
+                            - Required when C(state) is I(present).
                         suboptions:
-                            name:
-                                description:
-                                    - Name of the sink. This value is referenced by DiagnosticsReferenceDescription
-                            description:
-                                description:
-                                    - A description of the sink.
                             kind:
                                 description:
                                     - Constant filled by server.
                                     - Required when C(state) is I(present).
-                    enabled:
+                    mechanism:
                         description:
-                            - Status of whether or not I(sinks) are enabled.
-                    default_sink_refs:
-                        description:
-                            - The I(sinks) to be used if diagnostics is I(enabled). Sink choices can be overridden at the service and code package level.
-                        type: list
-            debug_params:
+                            - The mechanism that is used to scale when auto scaling operation is invoked.
+                            - Required when C(state) is I(present).
+                        suboptions:
+                            kind:
+                                description:
+                                    - Constant filled by server.
+                                    - Required when C(state) is I(present).
+    diagnostics:
+        description:
+            - Describes the diagnostics definition and usage for an application resource.
+        suboptions:
+            sinks:
                 description:
-                    - Internal - used by Visual Studio to setup the debugging session on the local development environment.
+                    - List of supported sinks that can be referenced.
+                type: list
+                suboptions:
+                    name:
+                        description:
+                            - Name of the sink. This value is referenced by DiagnosticsReferenceDescription
+                    description:
+                        description:
+                            - A description of the sink.
+                    kind:
+                        description:
+                            - Constant filled by server.
+                            - Required when C(state) is I(present).
+            enabled:
+                description:
+                    - Status of whether or not I(sinks) are enabled.
+            default_sink_refs:
+                description:
+                    - The I(sinks) to be used if diagnostics is I(enabled). Sink choices can be overridden at the service and code package level.
+                type: list
+    debug_params:
+        description:
+            - Internal - used by Visual Studio to setup the debugging session on the local development environment.
     state:
       description:
         - Assert the state of the Application.
@@ -356,28 +348,27 @@ EXAMPLES = '''
     azure_rm_servicefabricmeshapplication:
       resource_group: sbz_demo
       name: sampleApplication
-      application_resource_description:
-        location: EastUS
-        description: Service Fabric Mesh sample application.
-        services:
-          - name: helloWorldService
-            os_type: Linux
-            code_packages:
-              - name: helloWorldCode
-                image: seabreeze/sbz-helloworld:1.0-alpine
-                endpoints:
-                  - name: helloWorldListener
-                    port: 80
-                resources:
-                  requests:
-                    memory_in_gb: 1
-                    cpu: 1
-            network_refs:
-              - name: /subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/sbz_demo/providers/Microsoft.ServiceFabricMesh/networks/sampleNetwork
-                endpoint_refs:
-                  - name: helloWorldListener
-            description: SeaBreeze Hello World Service.
-            replica_count: 1
+      location: EastUS
+      description: Service Fabric Mesh sample application.
+      services:
+        - name: helloWorldService
+          os_type: Linux
+          code_packages:
+            - name: helloWorldCode
+              image: seabreeze/sbz-helloworld:1.0-alpine
+              endpoints:
+                - name: helloWorldListener
+                  port: 80
+              resources:
+                requests:
+                  memory_in_gb: 1
+                  cpu: 1
+          network_refs:
+            - name: /subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/sbz_demo/providers/Microsoft.ServiceFabricMesh/networks/sampleNetwork
+              endpoint_refs:
+                - name: helloWorldListener
+          description: SeaBreeze Hello World Service.
+          replica_count: 1
 '''
 
 RETURN = '''
@@ -427,9 +418,20 @@ class AzureRMApplication(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            application_resource_description=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            services=dict(
+                type='list'
+            ),
+            diagnostics=dict(
+                type='dict'
+            ),
+            debug_params=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -458,22 +460,9 @@ class AzureRMApplication(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.application_resource_description["location"] = kwargs[key]
-                elif key == "description":
-                    self.application_resource_description["description"] = kwargs[key]
-                elif key == "services":
-                    ev = kwargs[key]
-                    if 'os_type' in ev:
-                        if ev['os_type'] == 'linux':
-                            ev['os_type'] = 'Linux'
-                        elif ev['os_type'] == 'windows':
-                            ev['os_type'] = 'Windows'
-                    self.application_resource_description["services"] = ev
-                elif key == "diagnostics":
-                    self.application_resource_description["diagnostics"] = kwargs[key]
-                elif key == "debug_params":
-                    self.application_resource_description["debug_params"] = kwargs[key]
+                self.application_resource_description[key] = kwargs[key]
+
+        dict_camelize(self.application_resource_description, ['services', 'os_type'], True)
 
         response = None
 
@@ -495,7 +484,7 @@ class AzureRMApplication(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.application_resource_description, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -527,7 +516,7 @@ class AzureRMApplication(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_application(self):
@@ -590,7 +579,7 @@ class AzureRMApplication(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'status': d.get('status', None)
@@ -598,18 +587,20 @@ class AzureRMApplication(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -623,11 +614,101 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

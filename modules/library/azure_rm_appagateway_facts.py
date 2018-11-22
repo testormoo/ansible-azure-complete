@@ -80,7 +80,7 @@ except ImportError:
     pass
 
 
-class AzureRMApplicationGatewaysFacts(AzureRMModuleBase):
+class AzureRMApplicationGatewayFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -104,7 +104,7 @@ class AzureRMApplicationGatewaysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.tags = None
-        super(AzureRMApplicationGatewaysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMApplicationGatewayFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -123,14 +123,14 @@ class AzureRMApplicationGatewaysFacts(AzureRMModuleBase):
                                                                  application_gateway_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApplicationGateways.')
+            self.log('Could not get facts for Application Gateway.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -141,7 +141,7 @@ class AzureRMApplicationGatewaysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMApplicationGatewaysFacts()
+    AzureRMApplicationGatewayFacts()
 
 
 if __name__ == '__main__':

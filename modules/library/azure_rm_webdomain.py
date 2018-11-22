@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_webdomain
 version_added: "2.8"
-short_description: Manage Domain instance.
+short_description: Manage Azure Domain instance.
 description:
-    - Create, update and delete instance of Domain.
+    - Create, update and delete instance of Azure Domain.
 
 options:
     resource_group:
@@ -28,294 +28,289 @@ options:
         required: True
     name:
         description:
-            - Name of the I(domain).
+            - Name of the domain.
         required: True
-    domain:
+    kind:
         description:
-            - Domain registration information.
-        required: True
+            - Kind of resource.
+    location:
+        description:
+            - Resource Location.
+            - Required when C(state) is I(present).
+    contact_admin:
+        description:
+            - Administrative contact.
         suboptions:
-            kind:
+            address_mailing:
                 description:
-                    - Kind of resource.
-            location:
+                    - Mailing address.
+                suboptions:
+                    address1:
+                        description:
+                            - First line of an Address.
+                            - Required when C(state) is I(present).
+                    address2:
+                        description:
+                            - The second line of the Address. Optional.
+                    city:
+                        description:
+                            - The city for the address.
+                            - Required when C(state) is I(present).
+                    country:
+                        description:
+                            - The country for the address.
+                            - Required when C(state) is I(present).
+                    postal_code:
+                        description:
+                            - The postal code for the address.
+                            - Required when C(state) is I(present).
+                    state:
+                        description:
+                            - The state or province for the address.
+                            - Required when C(state) is I(present).
+            email:
                 description:
-                    - Resource Location.
+                    - Email address.
                     - Required when C(state) is I(present).
-            contact_admin:
+            fax:
                 description:
-                    - Administrative contact.
+                    - Fax number.
+            job_title:
+                description:
+                    - Job title.
+            name_first:
+                description:
+                    - First name.
+                    - Required when C(state) is I(present).
+            name_last:
+                description:
+                    - Last name.
+                    - Required when C(state) is I(present).
+            name_middle:
+                description:
+                    - Middle name.
+            organization:
+                description:
+                    - Organization contact belongs to.
+            phone:
+                description:
+                    - Phone number.
+                    - Required when C(state) is I(present).
+    contact_billing:
+        description:
+            - Billing contact.
+        suboptions:
+            address_mailing:
+                description:
+                    - Mailing address.
                 suboptions:
-                    address_mailing:
+                    address1:
                         description:
-                            - Mailing address.
-                        suboptions:
-                            address1:
-                                description:
-                                    - First line of an Address.
-                                    - Required when C(state) is I(present).
-                            address2:
-                                description:
-                                    - The second line of the Address. Optional.
-                            city:
-                                description:
-                                    - The city for the address.
-                                    - Required when C(state) is I(present).
-                            country:
-                                description:
-                                    - The country for the address.
-                                    - Required when C(state) is I(present).
-                            postal_code:
-                                description:
-                                    - The postal code for the address.
-                                    - Required when C(state) is I(present).
-                            state:
-                                description:
-                                    - The state or province for the address.
-                                    - Required when C(state) is I(present).
-                    email:
-                        description:
-                            - Email address.
+                            - First line of an Address.
                             - Required when C(state) is I(present).
-                    fax:
+                    address2:
                         description:
-                            - Fax number.
-                    job_title:
+                            - The second line of the Address. Optional.
+                    city:
                         description:
-                            - Job title.
-                    name_first:
-                        description:
-                            - First name.
+                            - The city for the address.
                             - Required when C(state) is I(present).
-                    name_last:
+                    country:
                         description:
-                            - Last name.
+                            - The country for the address.
                             - Required when C(state) is I(present).
-                    name_middle:
+                    postal_code:
                         description:
-                            - Middle name.
-                    organization:
-                        description:
-                            - Organization contact belongs to.
-                    phone:
-                        description:
-                            - Phone number.
+                            - The postal code for the address.
                             - Required when C(state) is I(present).
-            contact_billing:
+                    state:
+                        description:
+                            - The state or province for the address.
+                            - Required when C(state) is I(present).
+            email:
                 description:
-                    - Billing contact.
+                    - Email address.
+                    - Required when C(state) is I(present).
+            fax:
+                description:
+                    - Fax number.
+            job_title:
+                description:
+                    - Job title.
+            name_first:
+                description:
+                    - First name.
+                    - Required when C(state) is I(present).
+            name_last:
+                description:
+                    - Last name.
+                    - Required when C(state) is I(present).
+            name_middle:
+                description:
+                    - Middle name.
+            organization:
+                description:
+                    - Organization contact belongs to.
+            phone:
+                description:
+                    - Phone number.
+                    - Required when C(state) is I(present).
+    contact_registrant:
+        description:
+            - Registrant contact.
+        suboptions:
+            address_mailing:
+                description:
+                    - Mailing address.
                 suboptions:
-                    address_mailing:
+                    address1:
                         description:
-                            - Mailing address.
-                        suboptions:
-                            address1:
-                                description:
-                                    - First line of an Address.
-                                    - Required when C(state) is I(present).
-                            address2:
-                                description:
-                                    - The second line of the Address. Optional.
-                            city:
-                                description:
-                                    - The city for the address.
-                                    - Required when C(state) is I(present).
-                            country:
-                                description:
-                                    - The country for the address.
-                                    - Required when C(state) is I(present).
-                            postal_code:
-                                description:
-                                    - The postal code for the address.
-                                    - Required when C(state) is I(present).
-                            state:
-                                description:
-                                    - The state or province for the address.
-                                    - Required when C(state) is I(present).
-                    email:
-                        description:
-                            - Email address.
+                            - First line of an Address.
                             - Required when C(state) is I(present).
-                    fax:
+                    address2:
                         description:
-                            - Fax number.
-                    job_title:
+                            - The second line of the Address. Optional.
+                    city:
                         description:
-                            - Job title.
-                    name_first:
-                        description:
-                            - First name.
+                            - The city for the address.
                             - Required when C(state) is I(present).
-                    name_last:
+                    country:
                         description:
-                            - Last name.
+                            - The country for the address.
                             - Required when C(state) is I(present).
-                    name_middle:
+                    postal_code:
                         description:
-                            - Middle name.
-                    organization:
-                        description:
-                            - Organization contact belongs to.
-                    phone:
-                        description:
-                            - Phone number.
+                            - The postal code for the address.
                             - Required when C(state) is I(present).
-            contact_registrant:
+                    state:
+                        description:
+                            - The state or province for the address.
+                            - Required when C(state) is I(present).
+            email:
                 description:
-                    - Registrant contact.
+                    - Email address.
+                    - Required when C(state) is I(present).
+            fax:
+                description:
+                    - Fax number.
+            job_title:
+                description:
+                    - Job title.
+            name_first:
+                description:
+                    - First name.
+                    - Required when C(state) is I(present).
+            name_last:
+                description:
+                    - Last name.
+                    - Required when C(state) is I(present).
+            name_middle:
+                description:
+                    - Middle name.
+            organization:
+                description:
+                    - Organization contact belongs to.
+            phone:
+                description:
+                    - Phone number.
+                    - Required when C(state) is I(present).
+    contact_tech:
+        description:
+            - Technical contact.
+        suboptions:
+            address_mailing:
+                description:
+                    - Mailing address.
                 suboptions:
-                    address_mailing:
+                    address1:
                         description:
-                            - Mailing address.
-                        suboptions:
-                            address1:
-                                description:
-                                    - First line of an Address.
-                                    - Required when C(state) is I(present).
-                            address2:
-                                description:
-                                    - The second line of the Address. Optional.
-                            city:
-                                description:
-                                    - The city for the address.
-                                    - Required when C(state) is I(present).
-                            country:
-                                description:
-                                    - The country for the address.
-                                    - Required when C(state) is I(present).
-                            postal_code:
-                                description:
-                                    - The postal code for the address.
-                                    - Required when C(state) is I(present).
-                            state:
-                                description:
-                                    - The state or province for the address.
-                                    - Required when C(state) is I(present).
-                    email:
-                        description:
-                            - Email address.
+                            - First line of an Address.
                             - Required when C(state) is I(present).
-                    fax:
+                    address2:
                         description:
-                            - Fax number.
-                    job_title:
+                            - The second line of the Address. Optional.
+                    city:
                         description:
-                            - Job title.
-                    name_first:
-                        description:
-                            - First name.
+                            - The city for the address.
                             - Required when C(state) is I(present).
-                    name_last:
+                    country:
                         description:
-                            - Last name.
+                            - The country for the address.
                             - Required when C(state) is I(present).
-                    name_middle:
+                    postal_code:
                         description:
-                            - Middle name.
-                    organization:
-                        description:
-                            - Organization contact belongs to.
-                    phone:
-                        description:
-                            - Phone number.
+                            - The postal code for the address.
                             - Required when C(state) is I(present).
-            contact_tech:
-                description:
-                    - Technical contact.
-                suboptions:
-                    address_mailing:
+                    state:
                         description:
-                            - Mailing address.
-                        suboptions:
-                            address1:
-                                description:
-                                    - First line of an Address.
-                                    - Required when C(state) is I(present).
-                            address2:
-                                description:
-                                    - The second line of the Address. Optional.
-                            city:
-                                description:
-                                    - The city for the address.
-                                    - Required when C(state) is I(present).
-                            country:
-                                description:
-                                    - The country for the address.
-                                    - Required when C(state) is I(present).
-                            postal_code:
-                                description:
-                                    - The postal code for the address.
-                                    - Required when C(state) is I(present).
-                            state:
-                                description:
-                                    - The state or province for the address.
-                                    - Required when C(state) is I(present).
-                    email:
-                        description:
-                            - Email address.
+                            - The state or province for the address.
                             - Required when C(state) is I(present).
-                    fax:
-                        description:
-                            - Fax number.
-                    job_title:
-                        description:
-                            - Job title.
-                    name_first:
-                        description:
-                            - First name.
-                            - Required when C(state) is I(present).
-                    name_last:
-                        description:
-                            - Last name.
-                            - Required when C(state) is I(present).
-                    name_middle:
-                        description:
-                            - Middle name.
-                    organization:
-                        description:
-                            - Organization contact belongs to.
-                    phone:
-                        description:
-                            - Phone number.
-                            - Required when C(state) is I(present).
-            privacy:
+            email:
                 description:
-                    - <code>true</code> if domain privacy is enabled for this domain; otherwise, <code>false</code>.
-            auto_renew:
+                    - Email address.
+                    - Required when C(state) is I(present).
+            fax:
                 description:
-                    - <code>true</code> if the domain should be automatically renewed; otherwise, <code>false</code>.
-            consent:
+                    - Fax number.
+            job_title:
                 description:
-                    - Legal agreement consent.
-                suboptions:
-                    agreement_keys:
-                        description:
-                            - "List of applicable legal agreement keys. This list can be retrieved using ListLegalAgreements API under
-                               <code>TopLevelDomain</code> resource."
-                        type: list
-                    agreed_by:
-                        description:
-                            - Client IP address.
-                    agreed_at:
-                        description:
-                            - Timestamp when the agreements were accepted.
-            dns_type:
+                    - Job title.
+            name_first:
                 description:
-                    - Current DNS type.
-                choices:
-                    - 'azure_dns'
-                    - 'default_domain_registrar_dns'
-            dns_zone_id:
+                    - First name.
+                    - Required when C(state) is I(present).
+            name_last:
                 description:
-                    - Azure DNS Zone to use
-            target_dns_type:
+                    - Last name.
+                    - Required when C(state) is I(present).
+            name_middle:
                 description:
-                    - Target DNS type (would be used for migration).
-                choices:
-                    - 'azure_dns'
-                    - 'default_domain_registrar_dns'
-            auth_code:
+                    - Middle name.
+            organization:
                 description:
+                    - Organization contact belongs to.
+            phone:
+                description:
+                    - Phone number.
+                    - Required when C(state) is I(present).
+    privacy:
+        description:
+            - <code>true</code> if domain privacy is enabled for this domain; otherwise, <code>false</code>.
+    auto_renew:
+        description:
+            - <code>true</code> if the domain should be automatically renewed; otherwise, <code>false</code>.
+    consent:
+        description:
+            - Legal agreement consent.
+        suboptions:
+            agreement_keys:
+                description:
+                    - "List of applicable legal agreement keys. This list can be retrieved using ListLegalAgreements API under <code>TopLevelDomain</code>
+                       resource."
+                type: list
+            agreed_by:
+                description:
+                    - Client IP address.
+            agreed_at:
+                description:
+                    - Timestamp when the agreements were accepted.
+    dns_type:
+        description:
+            - Current DNS type.
+        choices:
+            - 'azure_dns'
+            - 'default_domain_registrar_dns'
+    dns_zone_id:
+        description:
+            - Azure DNS Zone to use
+    target_dns_type:
+        description:
+            - Target DNS type (would be used for migration).
+        choices:
+            - 'azure_dns'
+            - 'default_domain_registrar_dns'
+    auth_code:
+        description:
     state:
       description:
         - Assert the state of the Domain.
@@ -368,7 +363,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDomains(AzureRMModuleBase):
+class AzureRMDomain(AzureRMModuleBase):
     """Configuration class for an Azure RM Domain resource"""
 
     def __init__(self):
@@ -381,9 +376,48 @@ class AzureRMDomains(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            domain=dict(
-                type='dict',
-                required=True
+            kind=dict(
+                type='str'
+            ),
+            location=dict(
+                type='str'
+            ),
+            contact_admin=dict(
+                type='dict'
+            ),
+            contact_billing=dict(
+                type='dict'
+            ),
+            contact_registrant=dict(
+                type='dict'
+            ),
+            contact_tech=dict(
+                type='dict'
+            ),
+            privacy=dict(
+                type='str'
+            ),
+            auto_renew=dict(
+                type='str'
+            ),
+            consent=dict(
+                type='dict'
+            ),
+            dns_type=dict(
+                type='str',
+                choices=['azure_dns',
+                         'default_domain_registrar_dns']
+            ),
+            dns_zone_id=dict(
+                type='str'
+            ),
+            target_dns_type=dict(
+                type='str',
+                choices=['azure_dns',
+                         'default_domain_registrar_dns']
+            ),
+            auth_code=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -401,9 +435,9 @@ class AzureRMDomains(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDomains, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                             supports_check_mode=True,
-                                             supports_tags=True)
+        super(AzureRMDomain, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                            supports_check_mode=True,
+                                            supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -412,32 +446,10 @@ class AzureRMDomains(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "kind":
-                    self.domain["kind"] = kwargs[key]
-                elif key == "location":
-                    self.domain["location"] = kwargs[key]
-                elif key == "contact_admin":
-                    self.domain["contact_admin"] = kwargs[key]
-                elif key == "contact_billing":
-                    self.domain["contact_billing"] = kwargs[key]
-                elif key == "contact_registrant":
-                    self.domain["contact_registrant"] = kwargs[key]
-                elif key == "contact_tech":
-                    self.domain["contact_tech"] = kwargs[key]
-                elif key == "privacy":
-                    self.domain["privacy"] = kwargs[key]
-                elif key == "auto_renew":
-                    self.domain["auto_renew"] = kwargs[key]
-                elif key == "consent":
-                    self.domain["consent"] = kwargs[key]
-                elif key == "dns_type":
-                    self.domain["dns_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "dns_zone_id":
-                    self.domain["dns_zone_id"] = kwargs[key]
-                elif key == "target_dns_type":
-                    self.domain["target_dns_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "auth_code":
-                    self.domain["auth_code"] = kwargs[key]
+                self.domain[key] = kwargs[key]
+
+        dict_camelize(self.domain, ['dns_type'], True)
+        dict_camelize(self.domain, ['target_dns_type'], True)
 
         response = None
 
@@ -459,7 +471,7 @@ class AzureRMDomains(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.domain, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -491,7 +503,7 @@ class AzureRMDomains(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_domain(self):
@@ -551,25 +563,27 @@ class AzureRMDomains(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -583,11 +597,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -599,7 +696,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDomains()
+    AzureRMDomain()
 
 
 if __name__ == '__main__':

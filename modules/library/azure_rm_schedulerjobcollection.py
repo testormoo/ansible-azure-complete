@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_schedulerjobcollection
 version_added: "2.8"
-short_description: Manage Job Collection instance.
+short_description: Manage Azure Job Collection instance.
 description:
-    - Create, update and delete instance of Job Collection.
+    - Create, update and delete instance of Azure Job Collection.
 
 options:
     resource_group:
@@ -30,63 +30,58 @@ options:
         description:
             - The job collection name.
         required: True
-    job_collection:
+    name:
         description:
-            - The job collection definition.
-        required: True
+            - Gets or sets the job collection resource name.
+    location:
+        description:
+            - Gets or sets the storage account location.
+    sku:
+        description:
+            - Gets or sets the SKU.
         suboptions:
             name:
                 description:
-                    - Gets or sets the job collection resource name.
-            location:
-                description:
-                    - Gets or sets the storage account location.
-            sku:
-                description:
-                    - Gets or sets the SKU.
-                suboptions:
-                    name:
-                        description:
-                            - Gets or set the SKU.
-                        choices:
-                            - 'standard'
-                            - 'free'
-                            - 'p10_premium'
-                            - 'p20_premium'
-            state:
-                description:
-                    - Gets or sets the state.
+                    - Gets or set the SKU.
                 choices:
-                    - 'enabled'
-                    - 'disabled'
-                    - 'suspended'
-                    - 'deleted'
-            quota:
+                    - 'standard'
+                    - 'free'
+                    - 'p10_premium'
+                    - 'p20_premium'
+    state:
+        description:
+            - Gets or sets the state.
+        choices:
+            - 'enabled'
+            - 'disabled'
+            - 'suspended'
+            - 'deleted'
+    quota:
+        description:
+            - Gets or sets the job collection quota.
+        suboptions:
+            max_job_count:
                 description:
-                    - Gets or sets the job collection quota.
+                    - Gets or set the maximum job count.
+            max_job_occurrence:
+                description:
+                    - Gets or sets the maximum job occurrence.
+            max_recurrence:
+                description:
+                    - Gets or set the maximum recurrence.
                 suboptions:
-                    max_job_count:
+                    frequency:
                         description:
-                            - Gets or set the maximum job count.
-                    max_job_occurrence:
+                            - Gets or sets the frequency of recurrence (second, C(minute), C(hour), C(day), C(week), C(month)).
+                        choices:
+                            - 'minute'
+                            - 'hour'
+                            - 'day'
+                            - 'week'
+                            - 'month'
+                    interval:
                         description:
-                            - Gets or sets the maximum job occurrence.
-                    max_recurrence:
-                        description:
-                            - Gets or set the maximum recurrence.
-                        suboptions:
-                            frequency:
-                                description:
-                                    - Gets or sets the frequency of recurrence (second, C(minute), C(hour), C(day), C(week), C(month)).
-                                choices:
-                                    - 'minute'
-                                    - 'hour'
-                                    - 'day'
-                                    - 'week'
-                                    - 'month'
-                            interval:
-                                description:
-                                    - Gets or sets the interval between retries.
+                            - Gets or sets the interval between retries.
     state:
       description:
         - Assert the state of the Job Collection.
@@ -139,7 +134,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMJobCollections(AzureRMModuleBase):
+class AzureRMJobCollection(AzureRMModuleBase):
     """Configuration class for an Azure RM Job Collection resource"""
 
     def __init__(self):
@@ -152,9 +147,24 @@ class AzureRMJobCollections(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_collection=dict(
-                type='dict',
-                required=True
+            name=dict(
+                type='str'
+            ),
+            location=dict(
+                type='str'
+            ),
+            sku=dict(
+                type='dict'
+            ),
+            state=dict(
+                type='str',
+                choices=['enabled',
+                         'disabled',
+                         'suspended',
+                         'deleted']
+            ),
+            quota=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -172,7 +182,7 @@ class AzureRMJobCollections(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMJobCollections, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMJobCollection, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                     supports_check_mode=True,
                                                     supports_tags=True)
 
@@ -183,26 +193,14 @@ class AzureRMJobCollections(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "name":
-                    self.job_collection["name"] = kwargs[key]
-                elif key == "location":
-                    self.job_collection["location"] = kwargs[key]
-                elif key == "sku":
-                    ev = kwargs[key]
-                    if 'name' in ev:
-                        if ev['name'] == 'standard':
-                            ev['name'] = 'Standard'
-                        elif ev['name'] == 'free':
-                            ev['name'] = 'Free'
-                        elif ev['name'] == 'p10_premium':
-                            ev['name'] = 'P10Premium'
-                        elif ev['name'] == 'p20_premium':
-                            ev['name'] = 'P20Premium'
-                    self.job_collection.setdefault("properties", {})["sku"] = ev
-                elif key == "state":
-                    self.job_collection.setdefault("properties", {})["state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "quota":
-                    self.job_collection.setdefault("properties", {})["quota"] = kwargs[key]
+                self.job_collection[key] = kwargs[key]
+
+        dict_camelize(self.job_collection, ['sku', 'name'], True)
+        dict_expand(self.job_collection, ['sku'])
+        dict_expand(self.job_collection, ['state'])
+        dict_camelize(self.job_collection, ['state'], True)
+        dict_camelize(self.job_collection, ['quota', 'max_recurrence', 'frequency'], True)
+        dict_expand(self.job_collection, ['quota'])
 
         response = None
 
@@ -224,7 +222,7 @@ class AzureRMJobCollections(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.job_collection, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -256,7 +254,7 @@ class AzureRMJobCollections(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_jobcollection(self):
@@ -316,25 +314,27 @@ class AzureRMJobCollections(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -348,11 +348,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -364,7 +447,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMJobCollections()
+    AzureRMJobCollection()
 
 
 if __name__ == '__main__':

@@ -89,7 +89,7 @@ except ImportError:
     pass
 
 
-class AzureRMCustomImagesFacts(AzureRMModuleBase):
+class AzureRMCustomImageFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -122,7 +122,7 @@ class AzureRMCustomImagesFacts(AzureRMModuleBase):
         self.name = None
         self.expand = None
         self.tags = None
-        super(AzureRMCustomImagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMCustomImageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -142,14 +142,14 @@ class AzureRMCustomImagesFacts(AzureRMModuleBase):
                                                           name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for CustomImages.')
+            self.log('Could not get facts for Custom Image.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -160,7 +160,7 @@ class AzureRMCustomImagesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMCustomImagesFacts()
+    AzureRMCustomImageFacts()
 
 
 if __name__ == '__main__':

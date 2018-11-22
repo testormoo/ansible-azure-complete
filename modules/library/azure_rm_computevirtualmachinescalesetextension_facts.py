@@ -80,7 +80,7 @@ except ImportError:
     pass
 
 
-class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
+class AzureRMVirtualMachineScaleSetExtensionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -109,7 +109,7 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
         self.vm_scale_set_name = None
         self.name = None
         self.expand = None
-        super(AzureRMVirtualMachineScaleSetExtensionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMVirtualMachineScaleSetExtensionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -129,14 +129,14 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
                                                                                  vmss_extension_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for VirtualMachineScaleSetExtensions.')
+            self.log('Could not get facts for Virtual Machine Scale Set Extension.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -146,7 +146,7 @@ class AzureRMVirtualMachineScaleSetExtensionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMVirtualMachineScaleSetExtensionsFacts()
+    AzureRMVirtualMachineScaleSetExtensionFacts()
 
 
 if __name__ == '__main__':

@@ -124,7 +124,7 @@ except ImportError:
     pass
 
 
-class AzureRMMachinesFacts(AzureRMModuleBase):
+class AzureRMMachineFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -168,7 +168,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         self.timestamp = None
         self.top = None
         self.name = None
-        super(AzureRMMachinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMMachineFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -176,10 +176,10 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ServiceMap,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['machines'] = self.get()
         else:
             self.results['machines'] = self.list_by_workspace()
-        elif self.name is not None:
-            self.results['machines'] = self.get()
         return self.results
 
     def list_by_workspace(self):
@@ -190,11 +190,11 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
                                                                    workspace_name=self.workspace_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Machines.')
+            self.log('Could not get facts for Machine.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -207,14 +207,14 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
                                                      machine_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Machines.')
+            self.log('Could not get facts for Machine.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -227,7 +227,7 @@ class AzureRMMachinesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMMachinesFacts()
+    AzureRMMachineFacts()
 
 
 if __name__ == '__main__':

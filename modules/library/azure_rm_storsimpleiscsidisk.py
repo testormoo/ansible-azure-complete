@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_storsimpleiscsidisk
 version_added: "2.8"
-short_description: Manage Iscsi Disk instance.
+short_description: Manage Azure Iscsi Disk instance.
 description:
-    - Create, update and delete instance of Iscsi Disk.
+    - Create, update and delete instance of Azure Iscsi Disk.
 
 options:
     device_name:
@@ -34,46 +34,39 @@ options:
         description:
             - The disk name.
         required: True
-    iscsi_disk:
+    description:
         description:
-            - The iscsi disk.
-        required: True
-        suboptions:
-            description:
-                description:
-                    - The description.
-            disk_status:
-                description:
-                    - The disk status.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'online'
-                    - 'offline'
-            access_control_records:
-                description:
-                    - The access control records.
-                    - Required when C(state) is I(present).
-                type: list
-            data_policy:
-                description:
-                    - The data policy.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'invalid'
-                    - 'local'
-                    - 'tiered'
-                    - 'cloud'
-            provisioned_capacity_in_bytes:
-                description:
-                    - The provisioned capacity in bytes.
-                    - Required when C(state) is I(present).
-            monitoring_status:
-                description:
-                    - The monitoring.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+            - The description.
+    disk_status:
+        description:
+            - The disk status.
+            - Required when C(state) is I(present).
+        choices:
+            - 'online'
+            - 'offline'
+    access_control_records:
+        description:
+            - The access control records.
+            - Required when C(state) is I(present).
+        type: list
+    data_policy:
+        description:
+            - The data policy.
+            - Required when C(state) is I(present).
+        choices:
+            - 'invalid'
+            - 'local'
+            - 'tiered'
+            - 'cloud'
+    provisioned_capacity_in_bytes:
+        description:
+            - The provisioned capacity in bytes.
+            - Required when C(state) is I(present).
+    monitoring_status:
+        description:
+            - "The monitoring. Possible values include: 'Enabled', 'Disabled'"
+            - Required when C(state) is I(present).
+        type: bool
     resource_group:
         description:
             - The resource group name
@@ -105,14 +98,13 @@ EXAMPLES = '''
       device_name: HSDK-0NZI14MDTF
       iscsi_server_name: HSDK-0NZI14MDTF
       disk_name: Auto-TestIscsiDisk1
-      iscsi_disk:
-        description: Demo IscsiDisk for SDK Test Tiered
-        disk_status: Online
-        access_control_records:
-          - []
-        data_policy: Tiered
-        provisioned_capacity_in_bytes: 536870912000
-        monitoring_status: Enabled
+      description: Demo IscsiDisk for SDK Test Tiered
+      disk_status: Online
+      access_control_records:
+        - []
+      data_policy: Tiered
+      provisioned_capacity_in_bytes: 536870912000
+      monitoring_status: monitoring_status
       resource_group: ResourceGroupForSDKTest
       name: hAzureSDKOperations
 '''
@@ -145,7 +137,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMIscsiDisks(AzureRMModuleBase):
+class AzureRMIscsiDisk(AzureRMModuleBase):
     """Configuration class for an Azure RM Iscsi Disk resource"""
 
     def __init__(self):
@@ -162,9 +154,29 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            iscsi_disk=dict(
-                type='dict',
-                required=True
+            description=dict(
+                type='str'
+            ),
+            disk_status=dict(
+                type='str',
+                choices=['online',
+                         'offline']
+            ),
+            access_control_records=dict(
+                type='list'
+            ),
+            data_policy=dict(
+                type='str',
+                choices=['invalid',
+                         'local',
+                         'tiered',
+                         'cloud']
+            ),
+            provisioned_capacity_in_bytes=dict(
+                type='int'
+            ),
+            monitoring_status=dict(
+                type='bool'
             ),
             resource_group=dict(
                 type='str',
@@ -193,29 +205,22 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMIscsiDisks, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMIscsiDisk, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                 supports_check_mode=True,
                                                 supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "description":
-                    self.iscsi_disk["description"] = kwargs[key]
-                elif key == "disk_status":
-                    self.iscsi_disk["disk_status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "access_control_records":
-                    self.iscsi_disk["access_control_records"] = kwargs[key]
-                elif key == "data_policy":
-                    self.iscsi_disk["data_policy"] = _snake_to_camel(kwargs[key], True)
-                elif key == "provisioned_capacity_in_bytes":
-                    self.iscsi_disk["provisioned_capacity_in_bytes"] = kwargs[key]
-                elif key == "monitoring_status":
-                    self.iscsi_disk["monitoring_status"] = _snake_to_camel(kwargs[key], True)
+                self.iscsi_disk[key] = kwargs[key]
+
+        dict_camelize(self.iscsi_disk, ['disk_status'], True)
+        dict_camelize(self.iscsi_disk, ['data_policy'], True)
+        dict_map(self.iscsi_disk, ['monitoring_status'], '{True: 'Enabled', False: 'Disabled'}')
 
         response = None
 
@@ -237,7 +242,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.iscsi_disk, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -269,7 +274,7 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_iscsidisk(self):
@@ -338,25 +343,27 @@ class AzureRMIscsiDisks(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -370,11 +377,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -386,7 +476,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMIscsiDisks()
+    AzureRMIscsiDisk()
 
 
 if __name__ == '__main__':

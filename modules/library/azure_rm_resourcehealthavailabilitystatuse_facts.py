@@ -73,7 +73,7 @@ except ImportError:
     pass
 
 
-class AzureRMAvailabilityStatusesFacts(AzureRMModuleBase):
+class AzureRMAvailabilityStatuseFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -95,7 +95,7 @@ class AzureRMAvailabilityStatusesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.filter = None
         self.expand = None
-        super(AzureRMAvailabilityStatusesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMAvailabilityStatuseFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -116,11 +116,11 @@ class AzureRMAvailabilityStatusesFacts(AzureRMModuleBase):
             response = self.mgmt_client.availability_statuses.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for AvailabilityStatuses.')
+            self.log('Could not get facts for Availability Statuse.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -131,15 +131,15 @@ class AzureRMAvailabilityStatusesFacts(AzureRMModuleBase):
             response = self.mgmt_client.availability_statuses.list_by_subscription_id()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for AvailabilityStatuses.')
+            self.log('Could not get facts for Availability Statuse.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -148,7 +148,7 @@ class AzureRMAvailabilityStatusesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMAvailabilityStatusesFacts()
+    AzureRMAvailabilityStatuseFacts()
 
 
 if __name__ == '__main__':

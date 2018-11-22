@@ -126,7 +126,7 @@ except ImportError:
     pass
 
 
-class AzureRMGalleryImagesFacts(AzureRMModuleBase):
+class AzureRMGalleryImageFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -154,7 +154,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
         self.gallery_name = None
         self.name = None
         self.tags = None
-        super(AzureRMGalleryImagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMGalleryImageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -177,10 +177,10 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
                                                            gallery_image_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GalleryImages.')
+            self.log('Could not get facts for Gallery Image.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -192,16 +192,16 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
                                                                        gallery_name=self.gallery_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GalleryImages.')
+            self.log('Could not get facts for Gallery Image.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -219,7 +219,7 @@ class AzureRMGalleryImagesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMGalleryImagesFacts()
+    AzureRMGalleryImageFacts()
 
 
 if __name__ == '__main__':

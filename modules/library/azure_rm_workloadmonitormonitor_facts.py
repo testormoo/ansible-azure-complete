@@ -134,7 +134,7 @@ except ImportError:
     pass
 
 
-class AzureRMMonitorsFacts(AzureRMModuleBase):
+class AzureRMMonitorFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -176,7 +176,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
         self.filter = None
         self.skiptoken = None
         self.monitor_id = None
-        super(AzureRMMonitorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMMonitorFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -184,10 +184,10 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(WorkloadMonitorAPI,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.monitor_id is not None:
+            self.results['monitors'] = self.get()
         else:
             self.results['monitors'] = self.list_by_resource()
-        elif self.monitor_id is not None:
-            self.results['monitors'] = self.get()
         return self.results
 
     def list_by_resource(self):
@@ -200,11 +200,11 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
                                                                   resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Monitors.')
+            self.log('Could not get facts for Monitor.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -219,14 +219,14 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
                                                      monitor_id=self.monitor_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Monitors.')
+            self.log('Could not get facts for Monitor.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -242,7 +242,7 @@ class AzureRMMonitorsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMMonitorsFacts()
+    AzureRMMonitorFacts()
 
 
 if __name__ == '__main__':

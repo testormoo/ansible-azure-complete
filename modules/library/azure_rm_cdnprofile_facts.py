@@ -83,7 +83,7 @@ except ImportError:
     pass
 
 
-class AzureRMProfilesFacts(AzureRMModuleBase):
+class AzureRMProfileFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -106,7 +106,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.tags = None
-        super(AzureRMProfilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMProfileFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -128,10 +128,10 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
                                                      profile_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Profiles.')
+            self.log('Could not get facts for Profile.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -142,16 +142,16 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
             response = self.mgmt_client.profiles.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Profiles.')
+            self.log('Could not get facts for Profile.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -162,7 +162,7 @@ class AzureRMProfilesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMProfilesFacts()
+    AzureRMProfileFacts()
 
 
 if __name__ == '__main__':

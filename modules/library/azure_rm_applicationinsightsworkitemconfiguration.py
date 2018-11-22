@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_applicationinsightsworkitemconfiguration
 version_added: "2.8"
-short_description: Manage Work Item Configuration instance.
+short_description: Manage Azure Work Item Configuration instance.
 description:
-    - Create, update and delete instance of Work Item Configuration.
+    - Create, update and delete instance of Azure Work Item Configuration.
 
 options:
     resource_group:
@@ -30,23 +30,18 @@ options:
         description:
             - The name of the Application Insights component resource.
         required: True
-    work_item_configuration_properties:
+    connector_id:
         description:
-            - Properties that need to be specified to create a work item configuration of a Application Insights component.
-        required: True
-        suboptions:
-            connector_id:
-                description:
-                    - Unique connector id
-            connector_data_configuration:
-                description:
-                    - Serialized JSON object for detaile d properties
-            validate_only:
-                description:
-                    - Boolean indicating validate only
-            work_item_properties:
-                description:
-                    - Custom work item properties
+            - Unique connector id
+    connector_data_configuration:
+        description:
+            - Serialized JSON object for detaile d properties
+    validate_only:
+        description:
+            - Boolean indicating validate only
+    work_item_properties:
+        description:
+            - Custom work item properties
     state:
       description:
         - Assert the state of the Work Item Configuration.
@@ -69,17 +64,16 @@ EXAMPLES = '''
     azure_rm_applicationinsightsworkitemconfiguration:
       resource_group: my-resource-group
       name: my-component
-      work_item_configuration_properties:
-        connector_id: d334e2a4-6733-488e-8645-a9fdc1694f41
-        connector_data_configuration: {
+      connector_id: d334e2a4-6733-488e-8645-a9fdc1694f41
+      connector_data_configuration: {
   "VSOAccountBaseUrl": "https://testtodelete.visualstudio.com",
   "ProjectCollection": "DefaultCollection",
   "Project": "todeletefirst",
   "ResourceId": "d0662b05-439a-4a1b-840b-33a7f8b42ebf",
   "Custom": "{\"/fields/System.WorkItemType\":\"Bug\",\"/fields/System.AreaPath\":\"todeletefirst\",\"/fields/System.AssignedTo\":\"\"}"
 }
-        validate_only: true
-        work_item_properties: [
+      validate_only: true
+      work_item_properties: [
   {
     "name": "Title",
     "value": "Validate Only Title"
@@ -118,7 +112,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMWorkItemConfigurations(AzureRMModuleBase):
+class AzureRMWorkItemConfiguration(AzureRMModuleBase):
     """Configuration class for an Azure RM Work Item Configuration resource"""
 
     def __init__(self):
@@ -131,9 +125,17 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            work_item_configuration_properties=dict(
-                type='dict',
-                required=True
+            connector_id=dict(
+                type='str'
+            ),
+            connector_data_configuration=dict(
+                type='str'
+            ),
+            validate_only=dict(
+                type='str'
+            ),
+            work_item_properties=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -151,25 +153,19 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMWorkItemConfigurations, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                            supports_check_mode=True,
-                                                            supports_tags=False)
+        super(AzureRMWorkItemConfiguration, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                             supports_check_mode=True,
+                                                             supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "connector_id":
-                    self.work_item_configuration_properties["connector_id"] = kwargs[key]
-                elif key == "connector_data_configuration":
-                    self.work_item_configuration_properties["connector_data_configuration"] = kwargs[key]
-                elif key == "validate_only":
-                    self.work_item_configuration_properties["validate_only"] = kwargs[key]
-                elif key == "work_item_properties":
-                    self.work_item_configuration_properties["work_item_properties"] = kwargs[key]
+                self.work_item_configuration_properties[key] = kwargs[key]
+
 
         response = None
 
@@ -191,7 +187,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.work_item_configuration_properties, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -223,7 +219,7 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_workitemconfiguration(self):
@@ -286,25 +282,27 @@ class AzureRMWorkItemConfigurations(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -318,16 +316,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMWorkItemConfigurations()
+    AzureRMWorkItemConfiguration()
 
 
 if __name__ == '__main__':

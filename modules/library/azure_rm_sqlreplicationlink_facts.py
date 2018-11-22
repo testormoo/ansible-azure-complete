@@ -106,7 +106,7 @@ except ImportError:
     pass
 
 
-class AzureRMReplicationLinksFacts(AzureRMModuleBase):
+class AzureRMReplicationLinkFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -135,7 +135,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
         self.server_name = None
         self.name = None
         self.link_id = None
-        super(AzureRMReplicationLinksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMReplicationLinkFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -159,10 +159,10 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
                                                               link_id=self.link_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ReplicationLinks.')
+            self.log('Could not get facts for Replication Link.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -175,15 +175,15 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
                                                                            database_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ReplicationLinks.')
+            self.log('Could not get facts for Replication Link.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -196,7 +196,7 @@ class AzureRMReplicationLinksFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMReplicationLinksFacts()
+    AzureRMReplicationLinkFacts()
 
 
 if __name__ == '__main__':

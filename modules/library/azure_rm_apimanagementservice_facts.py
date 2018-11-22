@@ -165,10 +165,10 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
                                                                    service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiManagementService.')
+            self.log('Could not get facts for Api Management Service.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -179,16 +179,16 @@ class AzureRMApiManagementServiceFacts(AzureRMModuleBase):
             response = self.mgmt_client.api_management_service.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiManagementService.')
+            self.log('Could not get facts for Api Management Service.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

@@ -143,7 +143,7 @@ except ImportError:
     pass
 
 
-class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
+class AzureRMMonitorInstanceFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -205,7 +205,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
         self.top = None
         self.skiptoken = None
         self.monitor_instance_id = None
-        super(AzureRMMonitorInstancesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMMonitorInstanceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -213,10 +213,10 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(WorkloadMonitorAPI,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.monitor_instance_id is not None:
+            self.results['monitor_instances'] = self.get()
         else:
             self.results['monitor_instances'] = self.list_by_resource()
-        elif self.monitor_instance_id is not None:
-            self.results['monitor_instances'] = self.get()
         return self.results
 
     def list_by_resource(self):
@@ -229,11 +229,11 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
                                                                            resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for MonitorInstances.')
+            self.log('Could not get facts for Monitor Instance.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -248,14 +248,14 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
                                                               monitor_instance_id=self.monitor_instance_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for MonitorInstances.')
+            self.log('Could not get facts for Monitor Instance.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -269,7 +269,7 @@ class AzureRMMonitorInstancesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMMonitorInstancesFacts()
+    AzureRMMonitorInstanceFacts()
 
 
 if __name__ == '__main__':

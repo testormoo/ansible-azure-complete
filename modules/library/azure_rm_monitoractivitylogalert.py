@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_monitoractivitylogalert
 version_added: "2.8"
-short_description: Manage Activity Log Alert instance.
+short_description: Manage Azure Activity Log Alert instance.
 description:
-    - Create, update and delete instance of Activity Log Alert.
+    - Create, update and delete instance of Azure Activity Log Alert.
 
 options:
     resource_group:
@@ -30,66 +30,60 @@ options:
         description:
             - The name of the activity log alert.
         required: True
-    activity_log_alert:
+    location:
         description:
-            - The activity log alert to create or use for the update.
-        required: True
+            - Resource location
+            - Required when C(state) is I(present).
+    scopes:
+        description:
+            - "A list of resourceIds that will be used as prefixes. The alert will only apply to activityLogs with resourceIds that fall under one of these
+               prefixes. This list must include at least one item."
+            - Required when C(state) is I(present).
+        type: list
+    enabled:
+        description:
+            - Indicates whether this activity log alert is enabled. If an activity log alert is not enabled, then none of its I(actions) will be activated.
+    condition:
+        description:
+            - The condition that will cause this alert to activate.
+            - Required when C(state) is I(present).
         suboptions:
-            location:
+            all_of:
                 description:
-                    - Resource location
-                    - Required when C(state) is I(present).
-            scopes:
-                description:
-                    - "A list of resourceIds that will be used as prefixes. The alert will only apply to activityLogs with resourceIds that fall under one
-                       of these prefixes. This list must include at least one item."
+                    - The list of activity log alert conditions.
                     - Required when C(state) is I(present).
                 type: list
-            enabled:
-                description:
-                    - "Indicates whether this activity log alert is enabled. If an activity log alert is not enabled, then none of its I(actions) will be
-                       activated."
-            condition:
-                description:
-                    - The condition that will cause this alert to activate.
-                    - Required when C(state) is I(present).
                 suboptions:
-                    all_of:
+                    field:
                         description:
-                            - The list of activity log alert conditions.
+                            - "The name of the field that this condition will examine. The possible values for this field are (case-insensitive):
+                               'resourceId', 'category', 'caller', 'level', 'operationName', 'resourceGroup', 'resourceProvider', 'status', 'subStatus',
+                               'resourceType', or anything beginning with 'properties.'."
                             - Required when C(state) is I(present).
-                        type: list
-                        suboptions:
-                            field:
-                                description:
-                                    - "The name of the field that this condition will examine. The possible values for this field are (case-insensitive):
-                                       'resourceId', 'category', 'caller', 'level', 'operationName', 'resourceGroup', 'resourceProvider', 'status',
-                                       'subStatus', 'resourceType', or anything beginning with 'properties.'."
-                                    - Required when C(state) is I(present).
-                            equals:
-                                description:
-                                    - The I(field) value will be compared to this value (case-insensitive) to determine if the condition is met.
-                                    - Required when C(state) is I(present).
-            actions:
-                description:
-                    - The actions that will activate when the I(condition) is met.
-                    - Required when C(state) is I(present).
-                suboptions:
-                    action_groups:
+                    equals:
                         description:
-                            - The list of activity log alerts.
-                        type: list
-                        suboptions:
-                            action_group_id:
-                                description:
-                                    - The resourceId of the action group. This cannot be null or empty.
-                                    - Required when C(state) is I(present).
-                            webhook_properties:
-                                description:
-                                    - the dictionary of custom properties to include with the post operation. These data are appended to the webhook payload.
-            description:
+                            - The I(field) value will be compared to this value (case-insensitive) to determine if the condition is met.
+                            - Required when C(state) is I(present).
+    actions:
+        description:
+            - The actions that will activate when the I(condition) is met.
+            - Required when C(state) is I(present).
+        suboptions:
+            action_groups:
                 description:
-                    - A description of this activity log alert.
+                    - The list of activity log alerts.
+                type: list
+                suboptions:
+                    action_group_id:
+                        description:
+                            - The resourceId of the action group. This cannot be null or empty.
+                            - Required when C(state) is I(present).
+                    webhook_properties:
+                        description:
+                            - the dictionary of custom properties to include with the post operation. These data are appended to the webhook payload.
+    description:
+        description:
+            - A description of this activity log alert.
     state:
       description:
         - Assert the state of the Activity Log Alert.
@@ -113,24 +107,23 @@ EXAMPLES = '''
     azure_rm_monitoractivitylogalert:
       resource_group: Default-ActivityLogAlerts
       name: SampleActivityLogAlert
-      activity_log_alert:
-        location: Global
-        scopes:
-          - [
+      location: Global
+      scopes:
+        - [
   "subscriptions/187f412d-1758-44d9-b052-169e2564721d"
 ]
-        enabled: True
-        condition:
-          all_of:
-            - field: Category
-              equals: Administrative
-        actions:
-          action_groups:
-            - action_group_id: /subscriptions/187f412d-1758-44d9-b052-169e2564721d/resourceGroups/Default-ActionGroups/providers/microsoft.insights/actionGroups/SampleActionGroup
-              webhook_properties: {
+      enabled: True
+      condition:
+        all_of:
+          - field: Category
+            equals: Administrative
+      actions:
+        action_groups:
+          - action_group_id: /subscriptions/187f412d-1758-44d9-b052-169e2564721d/resourceGroups/Default-ActionGroups/providers/microsoft.insights/actionGroups/SampleActionGroup
+            webhook_properties: {
   "sampleWebhookProperty": "samplePropertyValue"
 }
-        description: Sample activity log alert description
+      description: Sample activity log alert description
 '''
 
 RETURN = '''
@@ -161,7 +154,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMActivityLogAlerts(AzureRMModuleBase):
+class AzureRMActivityLogAlert(AzureRMModuleBase):
     """Configuration class for an Azure RM Activity Log Alert resource"""
 
     def __init__(self):
@@ -174,9 +167,23 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            activity_log_alert=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            scopes=dict(
+                type='list'
+            ),
+            enabled=dict(
+                type='str'
+            ),
+            condition=dict(
+                type='dict'
+            ),
+            actions=dict(
+                type='dict'
+            ),
+            description=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -194,9 +201,9 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMActivityLogAlerts, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                       supports_check_mode=True,
-                                                       supports_tags=True)
+        super(AzureRMActivityLogAlert, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                        supports_check_mode=True,
+                                                        supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -205,18 +212,8 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.activity_log_alert["location"] = kwargs[key]
-                elif key == "scopes":
-                    self.activity_log_alert["scopes"] = kwargs[key]
-                elif key == "enabled":
-                    self.activity_log_alert["enabled"] = kwargs[key]
-                elif key == "condition":
-                    self.activity_log_alert["condition"] = kwargs[key]
-                elif key == "actions":
-                    self.activity_log_alert["actions"] = kwargs[key]
-                elif key == "description":
-                    self.activity_log_alert["description"] = kwargs[key]
+                self.activity_log_alert[key] = kwargs[key]
+
 
         response = None
 
@@ -238,7 +235,7 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.activity_log_alert, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -270,7 +267,7 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_activitylogalert(self):
@@ -330,25 +327,27 @@ class AzureRMActivityLogAlerts(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -362,16 +361,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMActivityLogAlerts()
+    AzureRMActivityLogAlert()
 
 
 if __name__ == '__main__':

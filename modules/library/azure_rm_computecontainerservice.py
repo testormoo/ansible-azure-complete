@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_computecontainerservice
 version_added: "2.8"
-short_description: Manage Container Service instance.
+short_description: Manage Azure Container Service instance.
 description:
-    - Create, update and delete instance of Container Service.
+    - Create, update and delete instance of Azure Container Service.
 
 options:
     resource_group:
@@ -251,7 +251,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMContainerServices(AzureRMModuleBase):
+class AzureRMContainerService(AzureRMModuleBase):
     """Configuration class for an Azure RM Container Service resource"""
 
     def __init__(self):
@@ -307,7 +307,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMContainerServices, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMContainerService, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                        supports_check_mode=True,
                                                        supports_tags=True)
 
@@ -318,130 +318,12 @@ class AzureRMContainerServices(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "orchestrator_profile":
-                    ev = kwargs[key]
-                    if 'orchestrator_type' in ev:
-                        if ev['orchestrator_type'] == 'swarm':
-                            ev['orchestrator_type'] = 'Swarm'
-                        elif ev['orchestrator_type'] == 'dcos':
-                            ev['orchestrator_type'] = 'DCOS'
-                        elif ev['orchestrator_type'] == 'custom':
-                            ev['orchestrator_type'] = 'Custom'
-                        elif ev['orchestrator_type'] == 'kubernetes':
-                            ev['orchestrator_type'] = 'Kubernetes'
-                    self.parameters["orchestrator_profile"] = ev
-                elif key == "custom_profile":
-                    self.parameters["custom_profile"] = kwargs[key]
-                elif key == "service_principal_profile":
-                    self.parameters["service_principal_profile"] = kwargs[key]
-                elif key == "master_profile":
-                    self.parameters["master_profile"] = kwargs[key]
-                elif key == "agent_pool_profiles":
-                    ev = kwargs[key]
-                    if 'vm_size' in ev:
-                        if ev['vm_size'] == 'standard_a0':
-                            ev['vm_size'] = 'Standard_A0'
-                        elif ev['vm_size'] == 'standard_a1':
-                            ev['vm_size'] = 'Standard_A1'
-                        elif ev['vm_size'] == 'standard_a2':
-                            ev['vm_size'] = 'Standard_A2'
-                        elif ev['vm_size'] == 'standard_a3':
-                            ev['vm_size'] = 'Standard_A3'
-                        elif ev['vm_size'] == 'standard_a4':
-                            ev['vm_size'] = 'Standard_A4'
-                        elif ev['vm_size'] == 'standard_a5':
-                            ev['vm_size'] = 'Standard_A5'
-                        elif ev['vm_size'] == 'standard_a6':
-                            ev['vm_size'] = 'Standard_A6'
-                        elif ev['vm_size'] == 'standard_a7':
-                            ev['vm_size'] = 'Standard_A7'
-                        elif ev['vm_size'] == 'standard_a8':
-                            ev['vm_size'] = 'Standard_A8'
-                        elif ev['vm_size'] == 'standard_a9':
-                            ev['vm_size'] = 'Standard_A9'
-                        elif ev['vm_size'] == 'standard_a10':
-                            ev['vm_size'] = 'Standard_A10'
-                        elif ev['vm_size'] == 'standard_a11':
-                            ev['vm_size'] = 'Standard_A11'
-                        elif ev['vm_size'] == 'standard_d1':
-                            ev['vm_size'] = 'Standard_D1'
-                        elif ev['vm_size'] == 'standard_d2':
-                            ev['vm_size'] = 'Standard_D2'
-                        elif ev['vm_size'] == 'standard_d3':
-                            ev['vm_size'] = 'Standard_D3'
-                        elif ev['vm_size'] == 'standard_d4':
-                            ev['vm_size'] = 'Standard_D4'
-                        elif ev['vm_size'] == 'standard_d11':
-                            ev['vm_size'] = 'Standard_D11'
-                        elif ev['vm_size'] == 'standard_d12':
-                            ev['vm_size'] = 'Standard_D12'
-                        elif ev['vm_size'] == 'standard_d13':
-                            ev['vm_size'] = 'Standard_D13'
-                        elif ev['vm_size'] == 'standard_d14':
-                            ev['vm_size'] = 'Standard_D14'
-                        elif ev['vm_size'] == 'standard_d1_v2':
-                            ev['vm_size'] = 'Standard_D1_v2'
-                        elif ev['vm_size'] == 'standard_d2_v2':
-                            ev['vm_size'] = 'Standard_D2_v2'
-                        elif ev['vm_size'] == 'standard_d3_v2':
-                            ev['vm_size'] = 'Standard_D3_v2'
-                        elif ev['vm_size'] == 'standard_d4_v2':
-                            ev['vm_size'] = 'Standard_D4_v2'
-                        elif ev['vm_size'] == 'standard_d5_v2':
-                            ev['vm_size'] = 'Standard_D5_v2'
-                        elif ev['vm_size'] == 'standard_d11_v2':
-                            ev['vm_size'] = 'Standard_D11_v2'
-                        elif ev['vm_size'] == 'standard_d12_v2':
-                            ev['vm_size'] = 'Standard_D12_v2'
-                        elif ev['vm_size'] == 'standard_d13_v2':
-                            ev['vm_size'] = 'Standard_D13_v2'
-                        elif ev['vm_size'] == 'standard_d14_v2':
-                            ev['vm_size'] = 'Standard_D14_v2'
-                        elif ev['vm_size'] == 'standard_g1':
-                            ev['vm_size'] = 'Standard_G1'
-                        elif ev['vm_size'] == 'standard_g2':
-                            ev['vm_size'] = 'Standard_G2'
-                        elif ev['vm_size'] == 'standard_g3':
-                            ev['vm_size'] = 'Standard_G3'
-                        elif ev['vm_size'] == 'standard_g4':
-                            ev['vm_size'] = 'Standard_G4'
-                        elif ev['vm_size'] == 'standard_g5':
-                            ev['vm_size'] = 'Standard_G5'
-                        elif ev['vm_size'] == 'standard_ds1':
-                            ev['vm_size'] = 'Standard_DS1'
-                        elif ev['vm_size'] == 'standard_ds2':
-                            ev['vm_size'] = 'Standard_DS2'
-                        elif ev['vm_size'] == 'standard_ds3':
-                            ev['vm_size'] = 'Standard_DS3'
-                        elif ev['vm_size'] == 'standard_ds4':
-                            ev['vm_size'] = 'Standard_DS4'
-                        elif ev['vm_size'] == 'standard_ds11':
-                            ev['vm_size'] = 'Standard_DS11'
-                        elif ev['vm_size'] == 'standard_ds12':
-                            ev['vm_size'] = 'Standard_DS12'
-                        elif ev['vm_size'] == 'standard_ds13':
-                            ev['vm_size'] = 'Standard_DS13'
-                        elif ev['vm_size'] == 'standard_ds14':
-                            ev['vm_size'] = 'Standard_DS14'
-                        elif ev['vm_size'] == 'standard_gs1':
-                            ev['vm_size'] = 'Standard_GS1'
-                        elif ev['vm_size'] == 'standard_gs2':
-                            ev['vm_size'] = 'Standard_GS2'
-                        elif ev['vm_size'] == 'standard_gs3':
-                            ev['vm_size'] = 'Standard_GS3'
-                        elif ev['vm_size'] == 'standard_gs4':
-                            ev['vm_size'] = 'Standard_GS4'
-                        elif ev['vm_size'] == 'standard_gs5':
-                            ev['vm_size'] = 'Standard_GS5'
-                    self.parameters["agent_pool_profiles"] = ev
-                elif key == "windows_profile":
-                    self.parameters["windows_profile"] = kwargs[key]
-                elif key == "linux_profile":
-                    self.parameters["linux_profile"] = kwargs[key]
-                elif key == "diagnostics_profile":
-                    self.parameters["diagnostics_profile"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['orchestrator_profile', 'orchestrator_type'], True)
+        dict_map(self.parameters, ['orchestrator_profile', 'orchestrator_type'], ''dcos': 'DCOS'')
+        dict_camelize(self.parameters, ['agent_pool_profiles', 'vm_size'], True)
+        dict_map(self.parameters, ['agent_pool_profiles', 'vm_size'], ''standard_a0': 'Standard_A0', 'standard_a1': 'Standard_A1', 'standard_a2': 'Standard_A2', 'standard_a3': 'Standard_A3', 'standard_a4': 'Standard_A4', 'standard_a5': 'Standard_A5', 'standard_a6': 'Standard_A6', 'standard_a7': 'Standard_A7', 'standard_a8': 'Standard_A8', 'standard_a9': 'Standard_A9', 'standard_a10': 'Standard_A10', 'standard_a11': 'Standard_A11', 'standard_d1': 'Standard_D1', 'standard_d2': 'Standard_D2', 'standard_d3': 'Standard_D3', 'standard_d4': 'Standard_D4', 'standard_d11': 'Standard_D11', 'standard_d12': 'Standard_D12', 'standard_d13': 'Standard_D13', 'standard_d14': 'Standard_D14', 'standard_d1_v2': 'Standard_D1_v2', 'standard_d2_v2': 'Standard_D2_v2', 'standard_d3_v2': 'Standard_D3_v2', 'standard_d4_v2': 'Standard_D4_v2', 'standard_d5_v2': 'Standard_D5_v2', 'standard_d11_v2': 'Standard_D11_v2', 'standard_d12_v2': 'Standard_D12_v2', 'standard_d13_v2': 'Standard_D13_v2', 'standard_d14_v2': 'Standard_D14_v2', 'standard_g1': 'Standard_G1', 'standard_g2': 'Standard_G2', 'standard_g3': 'Standard_G3', 'standard_g4': 'Standard_G4', 'standard_g5': 'Standard_G5', 'standard_ds1': 'Standard_DS1', 'standard_ds2': 'Standard_DS2', 'standard_ds3': 'Standard_DS3', 'standard_ds4': 'Standard_DS4', 'standard_ds11': 'Standard_DS11', 'standard_ds12': 'Standard_DS12', 'standard_ds13': 'Standard_DS13', 'standard_ds14': 'Standard_DS14', 'standard_gs1': 'Standard_GS1', 'standard_gs2': 'Standard_GS2', 'standard_gs3': 'Standard_GS3', 'standard_gs4': 'Standard_GS4', 'standard_gs5': 'Standard_GS5'')
 
         response = None
 
@@ -466,7 +348,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -498,7 +380,7 @@ class AzureRMContainerServices(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_containerservice(self):
@@ -558,25 +440,27 @@ class AzureRMContainerServices(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -590,16 +474,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMContainerServices()
+    AzureRMContainerService()
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_migrateassessment
 version_added: "2.8"
-short_description: Manage Assessment instance.
+short_description: Manage Azure Assessment instance.
 description:
-    - Create, update and delete instance of Assessment.
+    - Create, update and delete instance of Azure Assessment.
 
 options:
     resource_group:
@@ -36,194 +36,190 @@ options:
         required: True
     name:
         description:
-            - Unique name of an I(assessment) within a project.
+            - Unique name of an assessment within a project.
         required: True
     self.config.accept_language:
         description:
-            - Standard request header. Used by service to respond to client in appropriate language.
-    assessment:
+            - C(standard) request header. Used by service to respond to client in appropriate language.
+    e_tag:
         description:
-            - New or Updated Assessment object.
-        suboptions:
-            e_tag:
-                description:
-                    - For optimistic concurrency control.
-            azure_location:
-                description:
-                    - Target Azure location for which the machines should be assessed. These enums are the same as used by Compute API.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'unknown'
-                    - 'east_asia'
-                    - 'southeast_asia'
-                    - 'australia_east'
-                    - 'australia_southeast'
-                    - 'brazil_south'
-                    - 'canada_central'
-                    - 'canada_east'
-                    - 'west_europe'
-                    - 'north_europe'
-                    - 'central_india'
-                    - 'south_india'
-                    - 'west_india'
-                    - 'japan_east'
-                    - 'japan_west'
-                    - 'korea_central'
-                    - 'korea_south'
-                    - 'uk_west'
-                    - 'uk_south'
-                    - 'north_central_us'
-                    - 'east_us'
-                    - 'west_us2'
-                    - 'south_central_us'
-                    - 'central_us'
-                    - 'east_us2'
-                    - 'west_us'
-                    - 'west_central_us'
-                    - 'germany_central'
-                    - 'germany_northeast'
-                    - 'china_north'
-                    - 'china_east'
-            azure_offer_code:
-                description:
-                    - Offer code according to which cost estimation is done.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'unknown'
-                    - 'msazr0003_p'
-                    - 'msazr0044_p'
-                    - 'msazr0059_p'
-                    - 'msazr0060_p'
-                    - 'msazr0062_p'
-                    - 'msazr0063_p'
-                    - 'msazr0064_p'
-                    - 'msazr0029_p'
-                    - 'msazr0022_p'
-                    - 'msazr0023_p'
-                    - 'msazr0148_p'
-                    - 'msazr0025_p'
-                    - 'msazr0036_p'
-                    - 'msazr0120_p'
-                    - 'msazr0121_p'
-                    - 'msazr0122_p'
-                    - 'msazr0123_p'
-                    - 'msazr0124_p'
-                    - 'msazr0125_p'
-                    - 'msazr0126_p'
-                    - 'msazr0127_p'
-                    - 'msazr0128_p'
-                    - 'msazr0129_p'
-                    - 'msazr0130_p'
-                    - 'msazr0111_p'
-                    - 'msazr0144_p'
-                    - 'msazr0149_p'
-                    - 'msmcazr0044_p'
-                    - 'msmcazr0059_p'
-                    - 'msmcazr0060_p'
-                    - 'msmcazr0063_p'
-                    - 'msmcazr0120_p'
-                    - 'msmcazr0121_p'
-                    - 'msmcazr0125_p'
-                    - 'msmcazr0128_p'
-                    - 'msazrde0003_p'
-                    - 'msazrde0044_p'
-            azure_pricing_tier:
-                description:
-                    - Pricing tier for Size evaluation.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'standard'
-                    - 'basic'
-            azure_storage_redundancy:
-                description:
-                    - Storage Redundancy type offered by Azure.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'unknown'
-                    - 'locally_redundant'
-                    - 'zone_redundant'
-                    - 'geo_redundant'
-                    - 'read_access_geo_redundant'
-            scaling_factor:
-                description:
-                    - "Scaling factor used over utilization data to add a performance buffer for new machines to be created in Azure. Min Value = 1.0, Max
-                       value = 1.9, Default = 1.3."
-                    - Required when C(state) is I(present).
-            percentile:
-                description:
-                    - Percentile of performance data used to recommend Azure size.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'percentile50'
-                    - 'percentile90'
-                    - 'percentile95'
-                    - 'percentile99'
-            time_range:
-                description:
-                    - Time range of performance data used to recommend a size.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'day'
-                    - 'week'
-                    - 'month'
-            stage:
-                description:
-                    - User configurable setting that describes the status of the assessment.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'in_progress'
-                    - 'under_review'
-                    - 'approved'
-            currency:
-                description:
-                    - Currency to report prices in.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'unknown'
-                    - 'usd'
-                    - 'dkk'
-                    - 'cad'
-                    - 'idr'
-                    - 'jpy'
-                    - 'krw'
-                    - 'nzd'
-                    - 'nok'
-                    - 'rub'
-                    - 'sar'
-                    - 'zar'
-                    - 'sek'
-                    - 'try'
-                    - 'gbp'
-                    - 'mxn'
-                    - 'myr'
-                    - 'inr'
-                    - 'hkd'
-                    - 'brl'
-                    - 'twd'
-                    - 'eur'
-                    - 'chf'
-                    - 'ars'
-                    - 'aud'
-                    - 'cny'
-            azure_hybrid_use_benefit:
-                description:
-                    - AHUB discount on windows virtual machines.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'unknown'
-                    - 'yes'
-                    - 'no'
-            discount_percentage:
-                description:
-                    - Custom discount percentage to be applied on final costs. Can be in the range [0, 100].
-                    - Required when C(state) is I(present).
-            sizing_criterion:
-                description:
-                    - Assessment sizing criterion.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'performance_based'
-                    - 'as_on_premises'
+            - For optimistic concurrency control.
+    azure_location:
+        description:
+            - Target Azure location for which the machines should be assessed. These enums are the same as used by Compute API.
+            - Required when C(state) is I(present).
+        choices:
+            - 'unknown'
+            - 'east_asia'
+            - 'southeast_asia'
+            - 'australia_east'
+            - 'australia_southeast'
+            - 'brazil_south'
+            - 'canada_central'
+            - 'canada_east'
+            - 'west_europe'
+            - 'north_europe'
+            - 'central_india'
+            - 'south_india'
+            - 'west_india'
+            - 'japan_east'
+            - 'japan_west'
+            - 'korea_central'
+            - 'korea_south'
+            - 'uk_west'
+            - 'uk_south'
+            - 'north_central_us'
+            - 'east_us'
+            - 'west_us2'
+            - 'south_central_us'
+            - 'central_us'
+            - 'east_us2'
+            - 'west_us'
+            - 'west_central_us'
+            - 'germany_central'
+            - 'germany_northeast'
+            - 'china_north'
+            - 'china_east'
+    azure_offer_code:
+        description:
+            - Offer code according to which cost estimation is done.
+            - Required when C(state) is I(present).
+        choices:
+            - 'unknown'
+            - 'msazr0003_p'
+            - 'msazr0044_p'
+            - 'msazr0059_p'
+            - 'msazr0060_p'
+            - 'msazr0062_p'
+            - 'msazr0063_p'
+            - 'msazr0064_p'
+            - 'msazr0029_p'
+            - 'msazr0022_p'
+            - 'msazr0023_p'
+            - 'msazr0148_p'
+            - 'msazr0025_p'
+            - 'msazr0036_p'
+            - 'msazr0120_p'
+            - 'msazr0121_p'
+            - 'msazr0122_p'
+            - 'msazr0123_p'
+            - 'msazr0124_p'
+            - 'msazr0125_p'
+            - 'msazr0126_p'
+            - 'msazr0127_p'
+            - 'msazr0128_p'
+            - 'msazr0129_p'
+            - 'msazr0130_p'
+            - 'msazr0111_p'
+            - 'msazr0144_p'
+            - 'msazr0149_p'
+            - 'msmcazr0044_p'
+            - 'msmcazr0059_p'
+            - 'msmcazr0060_p'
+            - 'msmcazr0063_p'
+            - 'msmcazr0120_p'
+            - 'msmcazr0121_p'
+            - 'msmcazr0125_p'
+            - 'msmcazr0128_p'
+            - 'msazrde0003_p'
+            - 'msazrde0044_p'
+    azure_pricing_tier:
+        description:
+            - Pricing tier for Size evaluation.
+            - Required when C(state) is I(present).
+        choices:
+            - 'standard'
+            - 'basic'
+    azure_storage_redundancy:
+        description:
+            - Storage Redundancy type offered by Azure.
+            - Required when C(state) is I(present).
+        choices:
+            - 'unknown'
+            - 'locally_redundant'
+            - 'zone_redundant'
+            - 'geo_redundant'
+            - 'read_access_geo_redundant'
+    scaling_factor:
+        description:
+            - "Scaling factor used over utilization data to add a performance buffer for new machines to be created in Azure. Min Value = 1.0, Max value =
+               1.9, Default = 1.3."
+            - Required when C(state) is I(present).
+    percentile:
+        description:
+            - Percentile of performance data used to recommend Azure size.
+            - Required when C(state) is I(present).
+        choices:
+            - 'percentile50'
+            - 'percentile90'
+            - 'percentile95'
+            - 'percentile99'
+    time_range:
+        description:
+            - Time range of performance data used to recommend a size.
+            - Required when C(state) is I(present).
+        choices:
+            - 'day'
+            - 'week'
+            - 'month'
+    stage:
+        description:
+            - User configurable setting that describes the status of the assessment.
+            - Required when C(state) is I(present).
+        choices:
+            - 'in_progress'
+            - 'under_review'
+            - 'approved'
+    currency:
+        description:
+            - Currency to report prices in.
+            - Required when C(state) is I(present).
+        choices:
+            - 'unknown'
+            - 'usd'
+            - 'dkk'
+            - 'cad'
+            - 'idr'
+            - 'jpy'
+            - 'krw'
+            - 'nzd'
+            - 'nok'
+            - 'rub'
+            - 'sar'
+            - 'zar'
+            - 'sek'
+            - 'try'
+            - 'gbp'
+            - 'mxn'
+            - 'myr'
+            - 'inr'
+            - 'hkd'
+            - 'brl'
+            - 'twd'
+            - 'eur'
+            - 'chf'
+            - 'ars'
+            - 'aud'
+            - 'cny'
+    azure_hybrid_use_benefit:
+        description:
+            - AHUB discount on windows virtual machines.
+            - Required when C(state) is I(present).
+        choices:
+            - 'unknown'
+            - 'yes'
+            - 'no'
+    discount_percentage:
+        description:
+            - Custom discount percentage to be applied on final costs. Can be in the range [0, 100].
+            - Required when C(state) is I(present).
+    sizing_criterion:
+        description:
+            - Assessment sizing criterion.
+            - Required when C(state) is I(present).
+        choices:
+            - 'performance_based'
+            - 'as_on_premises'
     state:
       description:
         - Assert the state of the Assessment.
@@ -249,20 +245,19 @@ EXAMPLES = '''
       group_name: group01
       name: assessment01
       self.config.accept_language: NOT FOUND
-      assessment:
-        e_tag: "1100637e-0000-0000-0000-59f6ed1f0000"
-        azure_location: WestUs
-        azure_offer_code: MSAZR0003P
-        azure_pricing_tier: Standard
-        azure_storage_redundancy: LocallyRedundant
-        scaling_factor: 1.2
-        percentile: Percentile50
-        time_range: Day
-        stage: InProgress
-        currency: USD
-        azure_hybrid_use_benefit: Yes
-        discount_percentage: 100
-        sizing_criterion: PerformanceBased
+      e_tag: "1100637e-0000-0000-0000-59f6ed1f0000"
+      azure_location: WestUs
+      azure_offer_code: MSAZR0003P
+      azure_pricing_tier: Standard
+      azure_storage_redundancy: LocallyRedundant
+      scaling_factor: 1.2
+      percentile: Percentile50
+      time_range: Day
+      stage: InProgress
+      currency: USD
+      azure_hybrid_use_benefit: Yes
+      discount_percentage: 100
+      sizing_criterion: PerformanceBased
 '''
 
 RETURN = '''
@@ -301,7 +296,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMAssessments(AzureRMModuleBase):
+class AzureRMAssessment(AzureRMModuleBase):
     """Configuration class for an Azure RM Assessment resource"""
 
     def __init__(self):
@@ -325,8 +320,161 @@ class AzureRMAssessments(AzureRMModuleBase):
             self.config.accept_language=dict(
                 type='str'
             ),
-            assessment=dict(
-                type='dict'
+            e_tag=dict(
+                type='str'
+            ),
+            azure_location=dict(
+                type='str',
+                choices=['unknown',
+                         'east_asia',
+                         'southeast_asia',
+                         'australia_east',
+                         'australia_southeast',
+                         'brazil_south',
+                         'canada_central',
+                         'canada_east',
+                         'west_europe',
+                         'north_europe',
+                         'central_india',
+                         'south_india',
+                         'west_india',
+                         'japan_east',
+                         'japan_west',
+                         'korea_central',
+                         'korea_south',
+                         'uk_west',
+                         'uk_south',
+                         'north_central_us',
+                         'east_us',
+                         'west_us2',
+                         'south_central_us',
+                         'central_us',
+                         'east_us2',
+                         'west_us',
+                         'west_central_us',
+                         'germany_central',
+                         'germany_northeast',
+                         'china_north',
+                         'china_east']
+            ),
+            azure_offer_code=dict(
+                type='str',
+                choices=['unknown',
+                         'msazr0003_p',
+                         'msazr0044_p',
+                         'msazr0059_p',
+                         'msazr0060_p',
+                         'msazr0062_p',
+                         'msazr0063_p',
+                         'msazr0064_p',
+                         'msazr0029_p',
+                         'msazr0022_p',
+                         'msazr0023_p',
+                         'msazr0148_p',
+                         'msazr0025_p',
+                         'msazr0036_p',
+                         'msazr0120_p',
+                         'msazr0121_p',
+                         'msazr0122_p',
+                         'msazr0123_p',
+                         'msazr0124_p',
+                         'msazr0125_p',
+                         'msazr0126_p',
+                         'msazr0127_p',
+                         'msazr0128_p',
+                         'msazr0129_p',
+                         'msazr0130_p',
+                         'msazr0111_p',
+                         'msazr0144_p',
+                         'msazr0149_p',
+                         'msmcazr0044_p',
+                         'msmcazr0059_p',
+                         'msmcazr0060_p',
+                         'msmcazr0063_p',
+                         'msmcazr0120_p',
+                         'msmcazr0121_p',
+                         'msmcazr0125_p',
+                         'msmcazr0128_p',
+                         'msazrde0003_p',
+                         'msazrde0044_p']
+            ),
+            azure_pricing_tier=dict(
+                type='str',
+                choices=['standard',
+                         'basic']
+            ),
+            azure_storage_redundancy=dict(
+                type='str',
+                choices=['unknown',
+                         'locally_redundant',
+                         'zone_redundant',
+                         'geo_redundant',
+                         'read_access_geo_redundant']
+            ),
+            scaling_factor=dict(
+                type='float'
+            ),
+            percentile=dict(
+                type='str',
+                choices=['percentile50',
+                         'percentile90',
+                         'percentile95',
+                         'percentile99']
+            ),
+            time_range=dict(
+                type='str',
+                choices=['day',
+                         'week',
+                         'month']
+            ),
+            stage=dict(
+                type='str',
+                choices=['in_progress',
+                         'under_review',
+                         'approved']
+            ),
+            currency=dict(
+                type='str',
+                choices=['unknown',
+                         'usd',
+                         'dkk',
+                         'cad',
+                         'idr',
+                         'jpy',
+                         'krw',
+                         'nzd',
+                         'nok',
+                         'rub',
+                         'sar',
+                         'zar',
+                         'sek',
+                         'try',
+                         'gbp',
+                         'mxn',
+                         'myr',
+                         'inr',
+                         'hkd',
+                         'brl',
+                         'twd',
+                         'eur',
+                         'chf',
+                         'ars',
+                         'aud',
+                         'cny']
+            ),
+            azure_hybrid_use_benefit=dict(
+                type='str',
+                choices=['unknown',
+                         'yes',
+                         'no']
+            ),
+            discount_percentage=dict(
+                type='float'
+            ),
+            sizing_criterion=dict(
+                type='str',
+                choices=['performance_based',
+                         'as_on_premises']
             ),
             state=dict(
                 type='str',
@@ -347,169 +495,31 @@ class AzureRMAssessments(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMAssessments, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                 supports_check_mode=True,
-                                                 supports_tags=False)
+        super(AzureRMAssessment, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                supports_check_mode=True,
+                                                supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "e_tag":
-                    self.assessment["e_tag"] = kwargs[key]
-                elif key == "azure_location":
-                    self.assessment["azure_location"] = _snake_to_camel(kwargs[key], True)
-                elif key == "azure_offer_code":
-                    ev = kwargs[key]
-                    if ev == 'msazr0003_p':
-                        ev = 'MSAZR0003P'
-                    elif ev == 'msazr0044_p':
-                        ev = 'MSAZR0044P'
-                    elif ev == 'msazr0059_p':
-                        ev = 'MSAZR0059P'
-                    elif ev == 'msazr0060_p':
-                        ev = 'MSAZR0060P'
-                    elif ev == 'msazr0062_p':
-                        ev = 'MSAZR0062P'
-                    elif ev == 'msazr0063_p':
-                        ev = 'MSAZR0063P'
-                    elif ev == 'msazr0064_p':
-                        ev = 'MSAZR0064P'
-                    elif ev == 'msazr0029_p':
-                        ev = 'MSAZR0029P'
-                    elif ev == 'msazr0022_p':
-                        ev = 'MSAZR0022P'
-                    elif ev == 'msazr0023_p':
-                        ev = 'MSAZR0023P'
-                    elif ev == 'msazr0148_p':
-                        ev = 'MSAZR0148P'
-                    elif ev == 'msazr0025_p':
-                        ev = 'MSAZR0025P'
-                    elif ev == 'msazr0036_p':
-                        ev = 'MSAZR0036P'
-                    elif ev == 'msazr0120_p':
-                        ev = 'MSAZR0120P'
-                    elif ev == 'msazr0121_p':
-                        ev = 'MSAZR0121P'
-                    elif ev == 'msazr0122_p':
-                        ev = 'MSAZR0122P'
-                    elif ev == 'msazr0123_p':
-                        ev = 'MSAZR0123P'
-                    elif ev == 'msazr0124_p':
-                        ev = 'MSAZR0124P'
-                    elif ev == 'msazr0125_p':
-                        ev = 'MSAZR0125P'
-                    elif ev == 'msazr0126_p':
-                        ev = 'MSAZR0126P'
-                    elif ev == 'msazr0127_p':
-                        ev = 'MSAZR0127P'
-                    elif ev == 'msazr0128_p':
-                        ev = 'MSAZR0128P'
-                    elif ev == 'msazr0129_p':
-                        ev = 'MSAZR0129P'
-                    elif ev == 'msazr0130_p':
-                        ev = 'MSAZR0130P'
-                    elif ev == 'msazr0111_p':
-                        ev = 'MSAZR0111P'
-                    elif ev == 'msazr0144_p':
-                        ev = 'MSAZR0144P'
-                    elif ev == 'msazr0149_p':
-                        ev = 'MSAZR0149P'
-                    elif ev == 'msmcazr0044_p':
-                        ev = 'MSMCAZR0044P'
-                    elif ev == 'msmcazr0059_p':
-                        ev = 'MSMCAZR0059P'
-                    elif ev == 'msmcazr0060_p':
-                        ev = 'MSMCAZR0060P'
-                    elif ev == 'msmcazr0063_p':
-                        ev = 'MSMCAZR0063P'
-                    elif ev == 'msmcazr0120_p':
-                        ev = 'MSMCAZR0120P'
-                    elif ev == 'msmcazr0121_p':
-                        ev = 'MSMCAZR0121P'
-                    elif ev == 'msmcazr0125_p':
-                        ev = 'MSMCAZR0125P'
-                    elif ev == 'msmcazr0128_p':
-                        ev = 'MSMCAZR0128P'
-                    elif ev == 'msazrde0003_p':
-                        ev = 'MSAZRDE0003P'
-                    elif ev == 'msazrde0044_p':
-                        ev = 'MSAZRDE0044P'
-                    self.assessment["azure_offer_code"] = _snake_to_camel(ev, True)
-                elif key == "azure_pricing_tier":
-                    self.assessment["azure_pricing_tier"] = _snake_to_camel(kwargs[key], True)
-                elif key == "azure_storage_redundancy":
-                    self.assessment["azure_storage_redundancy"] = _snake_to_camel(kwargs[key], True)
-                elif key == "scaling_factor":
-                    self.assessment["scaling_factor"] = kwargs[key]
-                elif key == "percentile":
-                    self.assessment["percentile"] = _snake_to_camel(kwargs[key], True)
-                elif key == "time_range":
-                    self.assessment["time_range"] = _snake_to_camel(kwargs[key], True)
-                elif key == "stage":
-                    self.assessment["stage"] = _snake_to_camel(kwargs[key], True)
-                elif key == "currency":
-                    ev = kwargs[key]
-                    if ev == 'usd':
-                        ev = 'USD'
-                    elif ev == 'dkk':
-                        ev = 'DKK'
-                    elif ev == 'cad':
-                        ev = 'CAD'
-                    elif ev == 'idr':
-                        ev = 'IDR'
-                    elif ev == 'jpy':
-                        ev = 'JPY'
-                    elif ev == 'krw':
-                        ev = 'KRW'
-                    elif ev == 'nzd':
-                        ev = 'NZD'
-                    elif ev == 'nok':
-                        ev = 'NOK'
-                    elif ev == 'rub':
-                        ev = 'RUB'
-                    elif ev == 'sar':
-                        ev = 'SAR'
-                    elif ev == 'zar':
-                        ev = 'ZAR'
-                    elif ev == 'sek':
-                        ev = 'SEK'
-                    elif ev == 'try':
-                        ev = 'TRY'
-                    elif ev == 'gbp':
-                        ev = 'GBP'
-                    elif ev == 'mxn':
-                        ev = 'MXN'
-                    elif ev == 'myr':
-                        ev = 'MYR'
-                    elif ev == 'inr':
-                        ev = 'INR'
-                    elif ev == 'hkd':
-                        ev = 'HKD'
-                    elif ev == 'brl':
-                        ev = 'BRL'
-                    elif ev == 'twd':
-                        ev = 'TWD'
-                    elif ev == 'eur':
-                        ev = 'EUR'
-                    elif ev == 'chf':
-                        ev = 'CHF'
-                    elif ev == 'ars':
-                        ev = 'ARS'
-                    elif ev == 'aud':
-                        ev = 'AUD'
-                    elif ev == 'cny':
-                        ev = 'CNY'
-                    self.assessment["currency"] = _snake_to_camel(ev, True)
-                elif key == "azure_hybrid_use_benefit":
-                    self.assessment["azure_hybrid_use_benefit"] = _snake_to_camel(kwargs[key], True)
-                elif key == "discount_percentage":
-                    self.assessment["discount_percentage"] = kwargs[key]
-                elif key == "sizing_criterion":
-                    self.assessment["sizing_criterion"] = _snake_to_camel(kwargs[key], True)
+                self.assessment[key] = kwargs[key]
+
+        dict_camelize(self.assessment, ['azure_location'], True)
+        dict_camelize(self.assessment, ['azure_offer_code'], True)
+        dict_map(self.assessment, ['azure_offer_code'], ''msazr0003_p': 'MSAZR0003P', 'msazr0044_p': 'MSAZR0044P', 'msazr0059_p': 'MSAZR0059P', 'msazr0060_p': 'MSAZR0060P', 'msazr0062_p': 'MSAZR0062P', 'msazr0063_p': 'MSAZR0063P', 'msazr0064_p': 'MSAZR0064P', 'msazr0029_p': 'MSAZR0029P', 'msazr0022_p': 'MSAZR0022P', 'msazr0023_p': 'MSAZR0023P', 'msazr0148_p': 'MSAZR0148P', 'msazr0025_p': 'MSAZR0025P', 'msazr0036_p': 'MSAZR0036P', 'msazr0120_p': 'MSAZR0120P', 'msazr0121_p': 'MSAZR0121P', 'msazr0122_p': 'MSAZR0122P', 'msazr0123_p': 'MSAZR0123P', 'msazr0124_p': 'MSAZR0124P', 'msazr0125_p': 'MSAZR0125P', 'msazr0126_p': 'MSAZR0126P', 'msazr0127_p': 'MSAZR0127P', 'msazr0128_p': 'MSAZR0128P', 'msazr0129_p': 'MSAZR0129P', 'msazr0130_p': 'MSAZR0130P', 'msazr0111_p': 'MSAZR0111P', 'msazr0144_p': 'MSAZR0144P', 'msazr0149_p': 'MSAZR0149P', 'msmcazr0044_p': 'MSMCAZR0044P', 'msmcazr0059_p': 'MSMCAZR0059P', 'msmcazr0060_p': 'MSMCAZR0060P', 'msmcazr0063_p': 'MSMCAZR0063P', 'msmcazr0120_p': 'MSMCAZR0120P', 'msmcazr0121_p': 'MSMCAZR0121P', 'msmcazr0125_p': 'MSMCAZR0125P', 'msmcazr0128_p': 'MSMCAZR0128P', 'msazrde0003_p': 'MSAZRDE0003P', 'msazrde0044_p': 'MSAZRDE0044P'')
+        dict_camelize(self.assessment, ['azure_pricing_tier'], True)
+        dict_camelize(self.assessment, ['azure_storage_redundancy'], True)
+        dict_camelize(self.assessment, ['percentile'], True)
+        dict_camelize(self.assessment, ['time_range'], True)
+        dict_camelize(self.assessment, ['stage'], True)
+        dict_upper(self.assessment, ['currency'])
+        dict_map(self.assessment, ['currency'], ''unknown': 'Unknown'')
+        dict_camelize(self.assessment, ['azure_hybrid_use_benefit'], True)
+        dict_camelize(self.assessment, ['sizing_criterion'], True)
 
         response = None
 
@@ -531,7 +541,7 @@ class AzureRMAssessments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.assessment, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -563,7 +573,7 @@ class AzureRMAssessments(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_assessment(self):
@@ -631,7 +641,7 @@ class AzureRMAssessments(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'status': d.get('status', None)
@@ -639,18 +649,20 @@ class AzureRMAssessments(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -664,11 +676,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -680,7 +775,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMAssessments()
+    AzureRMAssessment()
 
 
 if __name__ == '__main__':

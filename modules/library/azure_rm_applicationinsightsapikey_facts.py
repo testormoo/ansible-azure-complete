@@ -83,7 +83,7 @@ except ImportError:
     pass
 
 
-class AzureRMAPIKeysFacts(AzureRMModuleBase):
+class AzureRMAPIKeyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -108,7 +108,7 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.key_id = None
-        super(AzureRMAPIKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMAPIKeyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -128,14 +128,14 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
                                                      key_id=self.key_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for APIKeys.')
+            self.log('Could not get facts for A P I Key.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -146,7 +146,7 @@ class AzureRMAPIKeysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMAPIKeysFacts()
+    AzureRMAPIKeyFacts()
 
 
 if __name__ == '__main__':

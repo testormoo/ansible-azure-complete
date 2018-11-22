@@ -131,7 +131,7 @@ except ImportError:
     pass
 
 
-class AzureRMUsageDetailsFacts(AzureRMModuleBase):
+class AzureRMUsageDetailFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -181,7 +181,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
         self.department_id = None
         self.enrollment_account_id = None
         self.management_group_id = None
-        super(AzureRMUsageDetailsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMUsageDetailFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -208,11 +208,11 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             response = self.mgmt_client.usage_details.list_by_billing_period(billing_period_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for UsageDetails.')
+            self.log('Could not get facts for Usage Detail.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -223,11 +223,11 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             response = self.mgmt_client.usage_details.list_by_billing_account(billing_account_id=self.billing_account_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for UsageDetails.')
+            self.log('Could not get facts for Usage Detail.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -238,11 +238,11 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             response = self.mgmt_client.usage_details.list_by_department(department_id=self.department_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for UsageDetails.')
+            self.log('Could not get facts for Usage Detail.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -253,11 +253,11 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             response = self.mgmt_client.usage_details.list_by_enrollment_account(enrollment_account_id=self.enrollment_account_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for UsageDetails.')
+            self.log('Could not get facts for Usage Detail.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -268,15 +268,15 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
             response = self.mgmt_client.usage_details.list_by_management_group(management_group_id=self.management_group_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for UsageDetails.')
+            self.log('Could not get facts for Usage Detail.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -285,7 +285,7 @@ class AzureRMUsageDetailsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMUsageDetailsFacts()
+    AzureRMUsageDetailFacts()
 
 
 if __name__ == '__main__':

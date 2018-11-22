@@ -200,10 +200,10 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.operation_id is not None:
+            self.results['api_operation'] = self.get()
         else:
             self.results['api_operation'] = self.list_by_api()
-        elif self.operation_id is not None:
-            self.results['api_operation'] = self.get()
         return self.results
 
     def list_by_api(self):
@@ -215,11 +215,11 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
                                                                   api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiOperation.')
+            self.log('Could not get facts for Api Operation.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -233,14 +233,14 @@ class AzureRMApiOperationFacts(AzureRMModuleBase):
                                                           operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiOperation.')
+            self.log('Could not get facts for Api Operation.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

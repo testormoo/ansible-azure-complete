@@ -98,7 +98,7 @@ except ImportError:
     pass
 
 
-class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
+class AzureRMIntegrationAccountSchemaFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -127,7 +127,7 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
         self.integration_account_name = None
         self.name = None
         self.tags = None
-        super(AzureRMIntegrationAccountSchemasFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMIntegrationAccountSchemaFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -147,14 +147,14 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
                                                                         schema_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for IntegrationAccountSchemas.')
+            self.log('Could not get facts for Integration Account Schema.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -167,7 +167,7 @@ class AzureRMIntegrationAccountSchemasFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMIntegrationAccountSchemasFacts()
+    AzureRMIntegrationAccountSchemaFacts()
 
 
 if __name__ == '__main__':

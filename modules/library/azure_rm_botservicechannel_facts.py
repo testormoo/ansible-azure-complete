@@ -102,7 +102,7 @@ except ImportError:
     pass
 
 
-class AzureRMChannelsFacts(AzureRMModuleBase):
+class AzureRMChannelFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -130,7 +130,7 @@ class AzureRMChannelsFacts(AzureRMModuleBase):
         self.resource_name = None
         self.name = None
         self.tags = None
-        super(AzureRMChannelsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMChannelFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -153,10 +153,10 @@ class AzureRMChannelsFacts(AzureRMModuleBase):
                                                      channel_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Channels.')
+            self.log('Could not get facts for Channel.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -168,16 +168,16 @@ class AzureRMChannelsFacts(AzureRMModuleBase):
                                                                         resource_name=self.resource_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Channels.')
+            self.log('Could not get facts for Channel.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -191,7 +191,7 @@ class AzureRMChannelsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMChannelsFacts()
+    AzureRMChannelFacts()
 
 
 if __name__ == '__main__':

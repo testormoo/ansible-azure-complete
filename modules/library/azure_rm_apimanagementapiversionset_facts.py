@@ -156,10 +156,10 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.version_set_id is not None:
+            self.results['api_version_set'] = self.get()
         else:
             self.results['api_version_set'] = self.list_by_service()
-        elif self.version_set_id is not None:
-            self.results['api_version_set'] = self.get()
         return self.results
 
     def list_by_service(self):
@@ -170,11 +170,11 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
                                                                         service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiVersionSet.')
+            self.log('Could not get facts for Api Version Set.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -187,14 +187,14 @@ class AzureRMApiVersionSetFacts(AzureRMModuleBase):
                                                             version_set_id=self.version_set_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiVersionSet.')
+            self.log('Could not get facts for Api Version Set.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

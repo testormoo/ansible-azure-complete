@@ -64,7 +64,7 @@ except ImportError:
     pass
 
 
-class AzureRMCapabilitiesFacts(AzureRMModuleBase):
+class AzureRMCapabilityFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -83,7 +83,7 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.name = None
         self.include = None
-        super(AzureRMCapabilitiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMCapabilityFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -101,15 +101,15 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
             response = self.mgmt_client.capabilities.list_by_location(location_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Capabilities.')
+            self.log('Could not get facts for Capability.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -118,7 +118,7 @@ class AzureRMCapabilitiesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMCapabilitiesFacts()
+    AzureRMCapabilityFacts()
 
 
 if __name__ == '__main__':

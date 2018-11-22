@@ -94,14 +94,14 @@ class AzureRMRateCardFacts(AzureRMModuleBase):
             response = self.mgmt_client.rate_card.get(filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RateCard.')
+            self.log('Could not get facts for Rate Card.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

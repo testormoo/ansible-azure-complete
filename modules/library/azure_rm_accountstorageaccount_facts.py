@@ -118,7 +118,7 @@ except ImportError:
     pass
 
 
-class AzureRMStorageAccountsFacts(AzureRMModuleBase):
+class AzureRMStorageAccountFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -166,7 +166,7 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
         self.orderby = None
         self.count = None
         self.name = None
-        super(AzureRMStorageAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMStorageAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -174,10 +174,10 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeAnalyticsAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['storage_accounts'] = self.get()
         else:
             self.results['storage_accounts'] = self.list_by_account()
-        elif self.name is not None:
-            self.results['storage_accounts'] = self.get()
         return self.results
 
     def list_by_account(self):
@@ -188,11 +188,11 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
                                                                          account_name=self.account_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for StorageAccounts.')
+            self.log('Could not get facts for Storage Account.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -205,14 +205,14 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
                                                              storage_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for StorageAccounts.')
+            self.log('Could not get facts for Storage Account.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -224,7 +224,7 @@ class AzureRMStorageAccountsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMStorageAccountsFacts()
+    AzureRMStorageAccountFacts()
 
 
 if __name__ == '__main__':

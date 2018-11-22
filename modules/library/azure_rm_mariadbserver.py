@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_mariadbserver
 version_added: "2.8"
-short_description: Manage Server instance.
+short_description: Manage Azure MariaDB Server instance.
 description:
-    - Create, update and delete instance of Server.
+    - Create, update and delete instance of Azure MariaDB Server.
 
 options:
     resource_group:
@@ -59,12 +59,10 @@ options:
         choices:
             - '5.6'
             - '5.7'
-    ssl_enforcement:
+    enforce_ssl:
         description:
-            - Enable ssl enforcement or not when connect to server.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Enable ssl enforcement or not when connect to server. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     storage_profile:
         description:
             - Storage profile of a server.
@@ -74,32 +72,24 @@ options:
                     - Backup retention days for the server.
             geo_redundant_backup:
                 description:
-                    - Enable Geo-redundant or not for server backup.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Enable Geo-redundant or not for server backup. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             storage_mb:
                 description:
                     - Max storage allowed for a server.
-    create_mode:
-        description:
-            - Constant filled by server.
-            - Required when C(state) is I(present).
-    administrator_login:
+    admin_username:
         description:
             - "The administrator's login name of a server. Can only be specified when the server is being created (and is required for creation)."
-            - Required when C(state) is I(present).
-    administrator_login_password:
+    admin_password:
         description:
             - The password of the administrator login.
-            - Required when C(state) is I(present).
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
     state:
       description:
-        - Assert the state of the Server.
-        - Use 'present' to create or update an Server and 'absent' to delete it.
+        - Assert the state of the MariaDB Server.
+        - Use 'present' to create or update an MariaDB Server and 'absent' to delete it.
       default: present
       choices:
         - absent
@@ -115,7 +105,7 @@ author:
 '''
 
 EXAMPLES = '''
-  - name: Create (or update) Server
+  - name: Create (or update) MariaDB Server
     azure_rm_mariadbserver:
       resource_group: testrg
       name: mariadbtestsvc4
@@ -124,13 +114,13 @@ EXAMPLES = '''
         tier: GeneralPurpose
         capacity: 2
         family: Gen5
-      ssl_enforcement: Enabled
+      enforce_ssl: True
       storage_profile:
         backup_retention_days: 7
-        geo_redundant_backup: Enabled
+        geo_redundant_backup: geo_redundant_backup
         storage_mb: 128000
-      administrator_login: cloudsa
-      administrator_login_password: pass$w0rd
+      admin_username: cloudsa
+      admin_password: pass$w0rd
       location: eastus
 '''
 
@@ -179,8 +169,8 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMServers(AzureRMModuleBase):
-    """Configuration class for an Azure RM Server resource"""
+class AzureRMMariaDBServer(AzureRMModuleBase):
+    """Configuration class for an Azure RM MariaDB Server resource"""
 
     def __init__(self):
         self.module_arg_spec = dict(
@@ -200,21 +190,20 @@ class AzureRMServers(AzureRMModuleBase):
                 choices=['5.6',
                          '5.7']
             ),
-            ssl_enforcement=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+            enforce_ssl=dict(
+                type='bool'
             ),
             storage_profile=dict(
                 type='dict'
             ),
             create_mode=dict(
+                type='str',
+                default='Default'
+            ),
+            admin_username=dict(
                 type='str'
             ),
-            administrator_login=dict(
-                type='str'
-            ),
-            administrator_login_password=dict(
+            admin_password=dict(
                 type='str',
                 no_log=True
             ),
@@ -237,9 +226,9 @@ class AzureRMServers(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMServers, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                             supports_check_mode=True,
-                                             supports_tags=True)
+        super(AzureRMMariaDBServer, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                    supports_check_mode=True,
+                                                    supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -248,36 +237,20 @@ class AzureRMServers(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "sku":
-                    ev = kwargs[key]
-                    if 'tier' in ev:
-                        if ev['tier'] == 'basic':
-                            ev['tier'] = 'Basic'
-                        elif ev['tier'] == 'general_purpose':
-                            ev['tier'] = 'GeneralPurpose'
-                        elif ev['tier'] == 'memory_optimized':
-                            ev['tier'] = 'MemoryOptimized'
-                    self.parameters["sku"] = ev
-                elif key == "version":
-                    self.parameters.setdefault("properties", {})["version"] = kwargs[key]
-                elif key == "ssl_enforcement":
-                    self.parameters.setdefault("properties", {})["ssl_enforcement"] = _snake_to_camel(kwargs[key], True)
-                elif key == "storage_profile":
-                    ev = kwargs[key]
-                    if 'geo_redundant_backup' in ev:
-                        if ev['geo_redundant_backup'] == 'enabled':
-                            ev['geo_redundant_backup'] = 'Enabled'
-                        elif ev['geo_redundant_backup'] == 'disabled':
-                            ev['geo_redundant_backup'] = 'Disabled'
-                    self.parameters.setdefault("properties", {})["storage_profile"] = ev
-                elif key == "create_mode":
-                    self.parameters.setdefault("properties", {})["create_mode"] = kwargs[key]
-                elif key == "administrator_login":
-                    self.parameters.setdefault("properties", {})["administrator_login"] = kwargs[key]
-                elif key == "administrator_login_password":
-                    self.parameters.setdefault("properties", {})["administrator_login_password"] = kwargs[key]
-                elif key == "location":
-                    self.parameters["location"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['sku', 'tier'], True)
+        dict_expand(self.parameters, ['version'])
+        dict_rename(self.parameters, ['enforce_ssl'], 'properties')
+        dict_expand(self.parameters, ['enforce_ssl'])
+        dict_map(self.parameters, ['enforce_ssl'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['storage_profile', 'geo_redundant_backup'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_expand(self.parameters, ['storage_profile'])
+        dict_expand(self.parameters, ['create_mode'])
+        dict_rename(self.parameters, ['admin_username'], 'properties')
+        dict_expand(self.parameters, ['admin_username'])
+        dict_rename(self.parameters, ['admin_password'], 'properties')
+        dict_expand(self.parameters, ['admin_password'])
 
         response = None
 
@@ -289,61 +262,61 @@ class AzureRMServers(AzureRMModuleBase):
         if "location" not in self.parameters:
             self.parameters["location"] = resource_group.location
 
-        old_response = self.get_server()
+        old_response = self.get_mariadbserver()
 
         if not old_response:
-            self.log("Server instance doesn't exist")
+            self.log("MariaDB Server instance doesn't exist")
             if self.state == 'absent':
                 self.log("Old instance didn't exist")
             else:
                 self.to_do = Actions.Create
         else:
-            self.log("Server instance already exists")
+            self.log("MariaDB Server instance already exists")
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
-            self.log("Need to Create / Update the Server instance")
+            self.log("Need to Create / Update the MariaDB Server instance")
 
             if self.check_mode:
                 self.results['changed'] = True
                 return self.results
 
-            response = self.create_update_server()
+            response = self.create_update_mariadbserver()
 
             self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
-            self.log("Server instance deleted")
+            self.log("MariaDB Server instance deleted")
             self.results['changed'] = True
 
             if self.check_mode:
                 return self.results
 
-            self.delete_server()
+            self.delete_mariadbserver()
             # make sure instance is actually deleted, for some Azure resources, instance is hanging around
             # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_server():
+            while self.get_mariadbserver():
                 time.sleep(20)
         else:
-            self.log("Server instance unchanged")
+            self.log("MariaDB Server instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
-    def create_update_server(self):
+    def create_update_mariadbserver(self):
         '''
-        Creates or updates Server with the specified configuration.
+        Creates or updates MariaDB Server with the specified configuration.
 
-        :return: deserialized Server instance state dictionary
+        :return: deserialized MariaDB Server instance state dictionary
         '''
-        self.log("Creating / Updating the Server instance {0}".format(self.name))
+        self.log("Creating / Updating the MariaDB Server instance {0}".format(self.name))
 
         try:
             if self.to_do == Actions.Create:
@@ -358,48 +331,48 @@ class AzureRMServers(AzureRMModuleBase):
                 response = self.get_poller_result(response)
 
         except CloudError as exc:
-            self.log('Error attempting to create the Server instance.')
-            self.fail("Error creating the Server instance: {0}".format(str(exc)))
+            self.log('Error attempting to create the MariaDB Server instance.')
+            self.fail("Error creating the MariaDB Server instance: {0}".format(str(exc)))
         return response.as_dict()
 
-    def delete_server(self):
+    def delete_mariadbserver(self):
         '''
-        Deletes specified Server instance in the specified subscription and resource group.
+        Deletes specified MariaDB Server instance in the specified subscription and resource group.
 
         :return: True
         '''
-        self.log("Deleting the Server instance {0}".format(self.name))
+        self.log("Deleting the MariaDB Server instance {0}".format(self.name))
         try:
             response = self.mgmt_client.servers.delete(resource_group_name=self.resource_group,
                                                        server_name=self.name)
         except CloudError as e:
-            self.log('Error attempting to delete the Server instance.')
-            self.fail("Error deleting the Server instance: {0}".format(str(e)))
+            self.log('Error attempting to delete the MariaDB Server instance.')
+            self.fail("Error deleting the MariaDB Server instance: {0}".format(str(e)))
 
         return True
 
-    def get_server(self):
+    def get_mariadbserver(self):
         '''
-        Gets the properties of the specified Server.
+        Gets the properties of the specified MariaDB Server.
 
-        :return: deserialized Server instance state dictionary
+        :return: deserialized MariaDB Server instance state dictionary
         '''
-        self.log("Checking if the Server instance {0} is present".format(self.name))
+        self.log("Checking if the MariaDB Server instance {0} is present".format(self.name))
         found = False
         try:
             response = self.mgmt_client.servers.get(resource_group_name=self.resource_group,
                                                     server_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
-            self.log("Server instance : {0} found".format(response.name))
+            self.log("MariaDB Server instance : {0} found".format(response.name))
         except CloudError as e:
-            self.log('Did not find the Server instance.')
+            self.log('Did not find the MariaDB Server instance.')
         if found is True:
             return response.as_dict()
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'version': d.get('version', None),
@@ -409,18 +382,20 @@ class AzureRMServers(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -434,11 +409,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -450,7 +508,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMServers()
+    AzureRMMariaDBServer()
 
 
 if __name__ == '__main__':

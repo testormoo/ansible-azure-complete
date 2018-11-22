@@ -108,7 +108,7 @@ except ImportError:
     pass
 
 
-class AzureRMWorkflowsFacts(AzureRMModuleBase):
+class AzureRMWorkflowFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -132,7 +132,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.workflow_id = None
-        super(AzureRMWorkflowsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMWorkflowFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -155,10 +155,10 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
                                                       workflow_id=self.workflow_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Workflows.')
+            self.log('Could not get facts for Workflow.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -170,15 +170,15 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
                                                                                storage_sync_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Workflows.')
+            self.log('Could not get facts for Workflow.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -192,7 +192,7 @@ class AzureRMWorkflowsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMWorkflowsFacts()
+    AzureRMWorkflowFacts()
 
 
 if __name__ == '__main__':

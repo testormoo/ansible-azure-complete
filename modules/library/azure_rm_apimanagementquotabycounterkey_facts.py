@@ -72,7 +72,7 @@ except ImportError:
     pass
 
 
-class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
+class AzureRMQuotaByCounterKeyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -97,7 +97,7 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.quota_counter_key = None
-        super(AzureRMQuotaByCounterKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMQuotaByCounterKeyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -117,15 +117,15 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
                                                                               quota_counter_key=self.quota_counter_key)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for QuotaByCounterKeys.')
+            self.log('Could not get facts for Quota By Counter Key.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -134,7 +134,7 @@ class AzureRMQuotaByCounterKeysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMQuotaByCounterKeysFacts()
+    AzureRMQuotaByCounterKeyFacts()
 
 
 if __name__ == '__main__':

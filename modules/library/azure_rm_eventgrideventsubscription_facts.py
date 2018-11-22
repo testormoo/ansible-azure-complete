@@ -138,7 +138,7 @@ except ImportError:
     pass
 
 
-class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
+class AzureRMEventSubscriptionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -180,7 +180,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
         self.topic_name = None
         self.scope = None
         self.name = None
-        super(AzureRMEventSubscriptionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMEventSubscriptionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -212,11 +212,11 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
                                                                              resource_name=self.resource_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EventSubscriptions.')
+            self.log('Could not get facts for Event Subscription.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -229,11 +229,11 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
                                                                                  topic_name=self.topic_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EventSubscriptions.')
+            self.log('Could not get facts for Event Subscription.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -245,14 +245,14 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
                                                                 event_subscription_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EventSubscriptions.')
+            self.log('Could not get facts for Event Subscription.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -269,7 +269,7 @@ class AzureRMEventSubscriptionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMEventSubscriptionsFacts()
+    AzureRMEventSubscriptionFacts()
 
 
 if __name__ == '__main__':

@@ -99,7 +99,7 @@ except ImportError:
     pass
 
 
-class AzureRMViewsFacts(AzureRMModuleBase):
+class AzureRMViewFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -128,7 +128,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
         self.hub_name = None
         self.name = None
         self.user_id = None
-        super(AzureRMViewsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMViewFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -152,10 +152,10 @@ class AzureRMViewsFacts(AzureRMModuleBase):
                                                   user_id=self.user_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Views.')
+            self.log('Could not get facts for View.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -168,15 +168,15 @@ class AzureRMViewsFacts(AzureRMModuleBase):
                                                           user_id=self.user_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Views.')
+            self.log('Could not get facts for View.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -188,7 +188,7 @@ class AzureRMViewsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMViewsFacts()
+    AzureRMViewFacts()
 
 
 if __name__ == '__main__':

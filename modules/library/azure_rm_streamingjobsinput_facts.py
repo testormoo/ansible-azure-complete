@@ -119,7 +119,7 @@ except ImportError:
     pass
 
 
-class AzureRMInputsFacts(AzureRMModuleBase):
+class AzureRMInputFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -147,7 +147,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
         self.job_name = None
         self.name = None
         self.select = None
-        super(AzureRMInputsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMInputFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -170,10 +170,10 @@ class AzureRMInputsFacts(AzureRMModuleBase):
                                                    input_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Inputs.')
+            self.log('Could not get facts for Input.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -185,15 +185,15 @@ class AzureRMInputsFacts(AzureRMModuleBase):
                                                                      job_name=self.job_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Inputs.')
+            self.log('Could not get facts for Input.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -210,7 +210,7 @@ class AzureRMInputsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMInputsFacts()
+    AzureRMInputFacts()
 
 
 if __name__ == '__main__':

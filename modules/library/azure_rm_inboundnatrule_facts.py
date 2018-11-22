@@ -92,7 +92,7 @@ except ImportError:
     pass
 
 
-class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
+class AzureRMInboundNatRuleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -121,7 +121,7 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
         self.load_balancer_name = None
         self.name = None
         self.expand = None
-        super(AzureRMInboundNatRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMInboundNatRuleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -141,14 +141,14 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
                                                               inbound_nat_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for InboundNatRules.')
+            self.log('Could not get facts for Inbound Nat Rule.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -160,7 +160,7 @@ class AzureRMInboundNatRulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMInboundNatRulesFacts()
+    AzureRMInboundNatRuleFacts()
 
 
 if __name__ == '__main__':

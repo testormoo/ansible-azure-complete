@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_computevirtualmachine
 version_added: "2.8"
-short_description: Manage Virtual Machine instance.
+short_description: Manage Azure Virtual Machine instance.
 description:
-    - Create, update and delete instance of Virtual Machine.
+    - Create, update and delete instance of Azure Virtual Machine.
 
 options:
     resource_group:
@@ -787,7 +787,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMVirtualMachines(AzureRMModuleBase):
+class AzureRMVirtualMachine(AzureRMModuleBase):
     """Configuration class for an Azure RM Virtual Machine resource"""
 
     def __init__(self):
@@ -852,7 +852,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMVirtualMachines, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMVirtualMachine, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                      supports_check_mode=True,
                                                      supports_tags=True)
 
@@ -863,374 +863,27 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "plan":
-                    self.parameters["plan"] = kwargs[key]
-                elif key == "hardware_profile":
-                    ev = kwargs[key]
-                    if 'vm_size' in ev:
-                        if ev['vm_size'] == 'basic_a0':
-                            ev['vm_size'] = 'Basic_A0'
-                        elif ev['vm_size'] == 'basic_a1':
-                            ev['vm_size'] = 'Basic_A1'
-                        elif ev['vm_size'] == 'basic_a2':
-                            ev['vm_size'] = 'Basic_A2'
-                        elif ev['vm_size'] == 'basic_a3':
-                            ev['vm_size'] = 'Basic_A3'
-                        elif ev['vm_size'] == 'basic_a4':
-                            ev['vm_size'] = 'Basic_A4'
-                        elif ev['vm_size'] == 'standard_a0':
-                            ev['vm_size'] = 'Standard_A0'
-                        elif ev['vm_size'] == 'standard_a1':
-                            ev['vm_size'] = 'Standard_A1'
-                        elif ev['vm_size'] == 'standard_a2':
-                            ev['vm_size'] = 'Standard_A2'
-                        elif ev['vm_size'] == 'standard_a3':
-                            ev['vm_size'] = 'Standard_A3'
-                        elif ev['vm_size'] == 'standard_a4':
-                            ev['vm_size'] = 'Standard_A4'
-                        elif ev['vm_size'] == 'standard_a5':
-                            ev['vm_size'] = 'Standard_A5'
-                        elif ev['vm_size'] == 'standard_a6':
-                            ev['vm_size'] = 'Standard_A6'
-                        elif ev['vm_size'] == 'standard_a7':
-                            ev['vm_size'] = 'Standard_A7'
-                        elif ev['vm_size'] == 'standard_a8':
-                            ev['vm_size'] = 'Standard_A8'
-                        elif ev['vm_size'] == 'standard_a9':
-                            ev['vm_size'] = 'Standard_A9'
-                        elif ev['vm_size'] == 'standard_a10':
-                            ev['vm_size'] = 'Standard_A10'
-                        elif ev['vm_size'] == 'standard_a11':
-                            ev['vm_size'] = 'Standard_A11'
-                        elif ev['vm_size'] == 'standard_a1_v2':
-                            ev['vm_size'] = 'Standard_A1_v2'
-                        elif ev['vm_size'] == 'standard_a2_v2':
-                            ev['vm_size'] = 'Standard_A2_v2'
-                        elif ev['vm_size'] == 'standard_a4_v2':
-                            ev['vm_size'] = 'Standard_A4_v2'
-                        elif ev['vm_size'] == 'standard_a8_v2':
-                            ev['vm_size'] = 'Standard_A8_v2'
-                        elif ev['vm_size'] == 'standard_a2m_v2':
-                            ev['vm_size'] = 'Standard_A2m_v2'
-                        elif ev['vm_size'] == 'standard_a4m_v2':
-                            ev['vm_size'] = 'Standard_A4m_v2'
-                        elif ev['vm_size'] == 'standard_a8m_v2':
-                            ev['vm_size'] = 'Standard_A8m_v2'
-                        elif ev['vm_size'] == 'standard_b1s':
-                            ev['vm_size'] = 'Standard_B1s'
-                        elif ev['vm_size'] == 'standard_b1ms':
-                            ev['vm_size'] = 'Standard_B1ms'
-                        elif ev['vm_size'] == 'standard_b2s':
-                            ev['vm_size'] = 'Standard_B2s'
-                        elif ev['vm_size'] == 'standard_b2ms':
-                            ev['vm_size'] = 'Standard_B2ms'
-                        elif ev['vm_size'] == 'standard_b4ms':
-                            ev['vm_size'] = 'Standard_B4ms'
-                        elif ev['vm_size'] == 'standard_b8ms':
-                            ev['vm_size'] = 'Standard_B8ms'
-                        elif ev['vm_size'] == 'standard_d1':
-                            ev['vm_size'] = 'Standard_D1'
-                        elif ev['vm_size'] == 'standard_d2':
-                            ev['vm_size'] = 'Standard_D2'
-                        elif ev['vm_size'] == 'standard_d3':
-                            ev['vm_size'] = 'Standard_D3'
-                        elif ev['vm_size'] == 'standard_d4':
-                            ev['vm_size'] = 'Standard_D4'
-                        elif ev['vm_size'] == 'standard_d11':
-                            ev['vm_size'] = 'Standard_D11'
-                        elif ev['vm_size'] == 'standard_d12':
-                            ev['vm_size'] = 'Standard_D12'
-                        elif ev['vm_size'] == 'standard_d13':
-                            ev['vm_size'] = 'Standard_D13'
-                        elif ev['vm_size'] == 'standard_d14':
-                            ev['vm_size'] = 'Standard_D14'
-                        elif ev['vm_size'] == 'standard_d1_v2':
-                            ev['vm_size'] = 'Standard_D1_v2'
-                        elif ev['vm_size'] == 'standard_d2_v2':
-                            ev['vm_size'] = 'Standard_D2_v2'
-                        elif ev['vm_size'] == 'standard_d3_v2':
-                            ev['vm_size'] = 'Standard_D3_v2'
-                        elif ev['vm_size'] == 'standard_d4_v2':
-                            ev['vm_size'] = 'Standard_D4_v2'
-                        elif ev['vm_size'] == 'standard_d5_v2':
-                            ev['vm_size'] = 'Standard_D5_v2'
-                        elif ev['vm_size'] == 'standard_d2_v3':
-                            ev['vm_size'] = 'Standard_D2_v3'
-                        elif ev['vm_size'] == 'standard_d4_v3':
-                            ev['vm_size'] = 'Standard_D4_v3'
-                        elif ev['vm_size'] == 'standard_d8_v3':
-                            ev['vm_size'] = 'Standard_D8_v3'
-                        elif ev['vm_size'] == 'standard_d16_v3':
-                            ev['vm_size'] = 'Standard_D16_v3'
-                        elif ev['vm_size'] == 'standard_d32_v3':
-                            ev['vm_size'] = 'Standard_D32_v3'
-                        elif ev['vm_size'] == 'standard_d64_v3':
-                            ev['vm_size'] = 'Standard_D64_v3'
-                        elif ev['vm_size'] == 'standard_d2s_v3':
-                            ev['vm_size'] = 'Standard_D2s_v3'
-                        elif ev['vm_size'] == 'standard_d4s_v3':
-                            ev['vm_size'] = 'Standard_D4s_v3'
-                        elif ev['vm_size'] == 'standard_d8s_v3':
-                            ev['vm_size'] = 'Standard_D8s_v3'
-                        elif ev['vm_size'] == 'standard_d16s_v3':
-                            ev['vm_size'] = 'Standard_D16s_v3'
-                        elif ev['vm_size'] == 'standard_d32s_v3':
-                            ev['vm_size'] = 'Standard_D32s_v3'
-                        elif ev['vm_size'] == 'standard_d64s_v3':
-                            ev['vm_size'] = 'Standard_D64s_v3'
-                        elif ev['vm_size'] == 'standard_d11_v2':
-                            ev['vm_size'] = 'Standard_D11_v2'
-                        elif ev['vm_size'] == 'standard_d12_v2':
-                            ev['vm_size'] = 'Standard_D12_v2'
-                        elif ev['vm_size'] == 'standard_d13_v2':
-                            ev['vm_size'] = 'Standard_D13_v2'
-                        elif ev['vm_size'] == 'standard_d14_v2':
-                            ev['vm_size'] = 'Standard_D14_v2'
-                        elif ev['vm_size'] == 'standard_d15_v2':
-                            ev['vm_size'] = 'Standard_D15_v2'
-                        elif ev['vm_size'] == 'standard_ds1':
-                            ev['vm_size'] = 'Standard_DS1'
-                        elif ev['vm_size'] == 'standard_ds2':
-                            ev['vm_size'] = 'Standard_DS2'
-                        elif ev['vm_size'] == 'standard_ds3':
-                            ev['vm_size'] = 'Standard_DS3'
-                        elif ev['vm_size'] == 'standard_ds4':
-                            ev['vm_size'] = 'Standard_DS4'
-                        elif ev['vm_size'] == 'standard_ds11':
-                            ev['vm_size'] = 'Standard_DS11'
-                        elif ev['vm_size'] == 'standard_ds12':
-                            ev['vm_size'] = 'Standard_DS12'
-                        elif ev['vm_size'] == 'standard_ds13':
-                            ev['vm_size'] = 'Standard_DS13'
-                        elif ev['vm_size'] == 'standard_ds14':
-                            ev['vm_size'] = 'Standard_DS14'
-                        elif ev['vm_size'] == 'standard_ds1_v2':
-                            ev['vm_size'] = 'Standard_DS1_v2'
-                        elif ev['vm_size'] == 'standard_ds2_v2':
-                            ev['vm_size'] = 'Standard_DS2_v2'
-                        elif ev['vm_size'] == 'standard_ds3_v2':
-                            ev['vm_size'] = 'Standard_DS3_v2'
-                        elif ev['vm_size'] == 'standard_ds4_v2':
-                            ev['vm_size'] = 'Standard_DS4_v2'
-                        elif ev['vm_size'] == 'standard_ds5_v2':
-                            ev['vm_size'] = 'Standard_DS5_v2'
-                        elif ev['vm_size'] == 'standard_ds11_v2':
-                            ev['vm_size'] = 'Standard_DS11_v2'
-                        elif ev['vm_size'] == 'standard_ds12_v2':
-                            ev['vm_size'] = 'Standard_DS12_v2'
-                        elif ev['vm_size'] == 'standard_ds13_v2':
-                            ev['vm_size'] = 'Standard_DS13_v2'
-                        elif ev['vm_size'] == 'standard_ds14_v2':
-                            ev['vm_size'] = 'Standard_DS14_v2'
-                        elif ev['vm_size'] == 'standard_ds15_v2':
-                            ev['vm_size'] = 'Standard_DS15_v2'
-                        elif ev['vm_size'] == 'standard_ds13-4_v2':
-                            ev['vm_size'] = 'Standard_DS13-4_v2'
-                        elif ev['vm_size'] == 'standard_ds13-2_v2':
-                            ev['vm_size'] = 'Standard_DS13-2_v2'
-                        elif ev['vm_size'] == 'standard_ds14-8_v2':
-                            ev['vm_size'] = 'Standard_DS14-8_v2'
-                        elif ev['vm_size'] == 'standard_ds14-4_v2':
-                            ev['vm_size'] = 'Standard_DS14-4_v2'
-                        elif ev['vm_size'] == 'standard_e2_v3':
-                            ev['vm_size'] = 'Standard_E2_v3'
-                        elif ev['vm_size'] == 'standard_e4_v3':
-                            ev['vm_size'] = 'Standard_E4_v3'
-                        elif ev['vm_size'] == 'standard_e8_v3':
-                            ev['vm_size'] = 'Standard_E8_v3'
-                        elif ev['vm_size'] == 'standard_e16_v3':
-                            ev['vm_size'] = 'Standard_E16_v3'
-                        elif ev['vm_size'] == 'standard_e32_v3':
-                            ev['vm_size'] = 'Standard_E32_v3'
-                        elif ev['vm_size'] == 'standard_e64_v3':
-                            ev['vm_size'] = 'Standard_E64_v3'
-                        elif ev['vm_size'] == 'standard_e2s_v3':
-                            ev['vm_size'] = 'Standard_E2s_v3'
-                        elif ev['vm_size'] == 'standard_e4s_v3':
-                            ev['vm_size'] = 'Standard_E4s_v3'
-                        elif ev['vm_size'] == 'standard_e8s_v3':
-                            ev['vm_size'] = 'Standard_E8s_v3'
-                        elif ev['vm_size'] == 'standard_e16s_v3':
-                            ev['vm_size'] = 'Standard_E16s_v3'
-                        elif ev['vm_size'] == 'standard_e32s_v3':
-                            ev['vm_size'] = 'Standard_E32s_v3'
-                        elif ev['vm_size'] == 'standard_e64s_v3':
-                            ev['vm_size'] = 'Standard_E64s_v3'
-                        elif ev['vm_size'] == 'standard_e32-16_v3':
-                            ev['vm_size'] = 'Standard_E32-16_v3'
-                        elif ev['vm_size'] == 'standard_e32-8s_v3':
-                            ev['vm_size'] = 'Standard_E32-8s_v3'
-                        elif ev['vm_size'] == 'standard_e64-32s_v3':
-                            ev['vm_size'] = 'Standard_E64-32s_v3'
-                        elif ev['vm_size'] == 'standard_e64-16s_v3':
-                            ev['vm_size'] = 'Standard_E64-16s_v3'
-                        elif ev['vm_size'] == 'standard_f1':
-                            ev['vm_size'] = 'Standard_F1'
-                        elif ev['vm_size'] == 'standard_f2':
-                            ev['vm_size'] = 'Standard_F2'
-                        elif ev['vm_size'] == 'standard_f4':
-                            ev['vm_size'] = 'Standard_F4'
-                        elif ev['vm_size'] == 'standard_f8':
-                            ev['vm_size'] = 'Standard_F8'
-                        elif ev['vm_size'] == 'standard_f16':
-                            ev['vm_size'] = 'Standard_F16'
-                        elif ev['vm_size'] == 'standard_f1s':
-                            ev['vm_size'] = 'Standard_F1s'
-                        elif ev['vm_size'] == 'standard_f2s':
-                            ev['vm_size'] = 'Standard_F2s'
-                        elif ev['vm_size'] == 'standard_f4s':
-                            ev['vm_size'] = 'Standard_F4s'
-                        elif ev['vm_size'] == 'standard_f8s':
-                            ev['vm_size'] = 'Standard_F8s'
-                        elif ev['vm_size'] == 'standard_f16s':
-                            ev['vm_size'] = 'Standard_F16s'
-                        elif ev['vm_size'] == 'standard_f2s_v2':
-                            ev['vm_size'] = 'Standard_F2s_v2'
-                        elif ev['vm_size'] == 'standard_f4s_v2':
-                            ev['vm_size'] = 'Standard_F4s_v2'
-                        elif ev['vm_size'] == 'standard_f8s_v2':
-                            ev['vm_size'] = 'Standard_F8s_v2'
-                        elif ev['vm_size'] == 'standard_f16s_v2':
-                            ev['vm_size'] = 'Standard_F16s_v2'
-                        elif ev['vm_size'] == 'standard_f32s_v2':
-                            ev['vm_size'] = 'Standard_F32s_v2'
-                        elif ev['vm_size'] == 'standard_f64s_v2':
-                            ev['vm_size'] = 'Standard_F64s_v2'
-                        elif ev['vm_size'] == 'standard_f72s_v2':
-                            ev['vm_size'] = 'Standard_F72s_v2'
-                        elif ev['vm_size'] == 'standard_g1':
-                            ev['vm_size'] = 'Standard_G1'
-                        elif ev['vm_size'] == 'standard_g2':
-                            ev['vm_size'] = 'Standard_G2'
-                        elif ev['vm_size'] == 'standard_g3':
-                            ev['vm_size'] = 'Standard_G3'
-                        elif ev['vm_size'] == 'standard_g4':
-                            ev['vm_size'] = 'Standard_G4'
-                        elif ev['vm_size'] == 'standard_g5':
-                            ev['vm_size'] = 'Standard_G5'
-                        elif ev['vm_size'] == 'standard_gs1':
-                            ev['vm_size'] = 'Standard_GS1'
-                        elif ev['vm_size'] == 'standard_gs2':
-                            ev['vm_size'] = 'Standard_GS2'
-                        elif ev['vm_size'] == 'standard_gs3':
-                            ev['vm_size'] = 'Standard_GS3'
-                        elif ev['vm_size'] == 'standard_gs4':
-                            ev['vm_size'] = 'Standard_GS4'
-                        elif ev['vm_size'] == 'standard_gs5':
-                            ev['vm_size'] = 'Standard_GS5'
-                        elif ev['vm_size'] == 'standard_gs4-8':
-                            ev['vm_size'] = 'Standard_GS4-8'
-                        elif ev['vm_size'] == 'standard_gs4-4':
-                            ev['vm_size'] = 'Standard_GS4-4'
-                        elif ev['vm_size'] == 'standard_gs5-16':
-                            ev['vm_size'] = 'Standard_GS5-16'
-                        elif ev['vm_size'] == 'standard_gs5-8':
-                            ev['vm_size'] = 'Standard_GS5-8'
-                        elif ev['vm_size'] == 'standard_h8':
-                            ev['vm_size'] = 'Standard_H8'
-                        elif ev['vm_size'] == 'standard_h16':
-                            ev['vm_size'] = 'Standard_H16'
-                        elif ev['vm_size'] == 'standard_h8m':
-                            ev['vm_size'] = 'Standard_H8m'
-                        elif ev['vm_size'] == 'standard_h16m':
-                            ev['vm_size'] = 'Standard_H16m'
-                        elif ev['vm_size'] == 'standard_h16r':
-                            ev['vm_size'] = 'Standard_H16r'
-                        elif ev['vm_size'] == 'standard_h16mr':
-                            ev['vm_size'] = 'Standard_H16mr'
-                        elif ev['vm_size'] == 'standard_l4s':
-                            ev['vm_size'] = 'Standard_L4s'
-                        elif ev['vm_size'] == 'standard_l8s':
-                            ev['vm_size'] = 'Standard_L8s'
-                        elif ev['vm_size'] == 'standard_l16s':
-                            ev['vm_size'] = 'Standard_L16s'
-                        elif ev['vm_size'] == 'standard_l32s':
-                            ev['vm_size'] = 'Standard_L32s'
-                        elif ev['vm_size'] == 'standard_m64s':
-                            ev['vm_size'] = 'Standard_M64s'
-                        elif ev['vm_size'] == 'standard_m64ms':
-                            ev['vm_size'] = 'Standard_M64ms'
-                        elif ev['vm_size'] == 'standard_m128s':
-                            ev['vm_size'] = 'Standard_M128s'
-                        elif ev['vm_size'] == 'standard_m128ms':
-                            ev['vm_size'] = 'Standard_M128ms'
-                        elif ev['vm_size'] == 'standard_m64-32ms':
-                            ev['vm_size'] = 'Standard_M64-32ms'
-                        elif ev['vm_size'] == 'standard_m64-16ms':
-                            ev['vm_size'] = 'Standard_M64-16ms'
-                        elif ev['vm_size'] == 'standard_m128-64ms':
-                            ev['vm_size'] = 'Standard_M128-64ms'
-                        elif ev['vm_size'] == 'standard_m128-32ms':
-                            ev['vm_size'] = 'Standard_M128-32ms'
-                        elif ev['vm_size'] == 'standard_nc6':
-                            ev['vm_size'] = 'Standard_NC6'
-                        elif ev['vm_size'] == 'standard_nc12':
-                            ev['vm_size'] = 'Standard_NC12'
-                        elif ev['vm_size'] == 'standard_nc24':
-                            ev['vm_size'] = 'Standard_NC24'
-                        elif ev['vm_size'] == 'standard_nc24r':
-                            ev['vm_size'] = 'Standard_NC24r'
-                        elif ev['vm_size'] == 'standard_nc6s_v2':
-                            ev['vm_size'] = 'Standard_NC6s_v2'
-                        elif ev['vm_size'] == 'standard_nc12s_v2':
-                            ev['vm_size'] = 'Standard_NC12s_v2'
-                        elif ev['vm_size'] == 'standard_nc24s_v2':
-                            ev['vm_size'] = 'Standard_NC24s_v2'
-                        elif ev['vm_size'] == 'standard_nc24rs_v2':
-                            ev['vm_size'] = 'Standard_NC24rs_v2'
-                        elif ev['vm_size'] == 'standard_nc6s_v3':
-                            ev['vm_size'] = 'Standard_NC6s_v3'
-                        elif ev['vm_size'] == 'standard_nc12s_v3':
-                            ev['vm_size'] = 'Standard_NC12s_v3'
-                        elif ev['vm_size'] == 'standard_nc24s_v3':
-                            ev['vm_size'] = 'Standard_NC24s_v3'
-                        elif ev['vm_size'] == 'standard_nc24rs_v3':
-                            ev['vm_size'] = 'Standard_NC24rs_v3'
-                        elif ev['vm_size'] == 'standard_nd6s':
-                            ev['vm_size'] = 'Standard_ND6s'
-                        elif ev['vm_size'] == 'standard_nd12s':
-                            ev['vm_size'] = 'Standard_ND12s'
-                        elif ev['vm_size'] == 'standard_nd24s':
-                            ev['vm_size'] = 'Standard_ND24s'
-                        elif ev['vm_size'] == 'standard_nd24rs':
-                            ev['vm_size'] = 'Standard_ND24rs'
-                        elif ev['vm_size'] == 'standard_nv6':
-                            ev['vm_size'] = 'Standard_NV6'
-                        elif ev['vm_size'] == 'standard_nv12':
-                            ev['vm_size'] = 'Standard_NV12'
-                        elif ev['vm_size'] == 'standard_nv24':
-                            ev['vm_size'] = 'Standard_NV24'
-                    self.parameters["hardware_profile"] = ev
-                elif key == "storage_profile":
-                    self.parameters["storage_profile"] = kwargs[key]
-                elif key == "additional_capabilities":
-                    self.parameters["additional_capabilities"] = kwargs[key]
-                elif key == "os_profile":
-                    self.parameters["os_profile"] = kwargs[key]
-                elif key == "network_profile":
-                    self.parameters["network_profile"] = kwargs[key]
-                elif key == "diagnostics_profile":
-                    self.parameters["diagnostics_profile"] = kwargs[key]
-                elif key == "availability_set":
-                    self.parameters["availability_set"] = kwargs[key]
-                elif key == "license_type":
-                    self.parameters["license_type"] = kwargs[key]
-                elif key == "identity":
-                    ev = kwargs[key]
-                    if 'type' in ev:
-                        if ev['type'] == 'system_assigned':
-                            ev['type'] = 'SystemAssigned'
-                        elif ev['type'] == 'user_assigned':
-                            ev['type'] = 'UserAssigned'
-                        elif ev['type'] == 'system_assigned, _user_assigned':
-                            ev['type'] = 'SystemAssigned, UserAssigned'
-                        elif ev['type'] == 'none':
-                            ev['type'] = 'None'
-                    self.parameters["identity"] = ev
-                elif key == "zones":
-                    self.parameters["zones"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['hardware_profile', 'vm_size'], True)
+        dict_map(self.parameters, ['hardware_profile', 'vm_size'], ''basic_a0': 'Basic_A0', 'basic_a1': 'Basic_A1', 'basic_a2': 'Basic_A2', 'basic_a3': 'Basic_A3', 'basic_a4': 'Basic_A4', 'standard_a0': 'Standard_A0', 'standard_a1': 'Standard_A1', 'standard_a2': 'Standard_A2', 'standard_a3': 'Standard_A3', 'standard_a4': 'Standard_A4', 'standard_a5': 'Standard_A5', 'standard_a6': 'Standard_A6', 'standard_a7': 'Standard_A7', 'standard_a8': 'Standard_A8', 'standard_a9': 'Standard_A9', 'standard_a10': 'Standard_A10', 'standard_a11': 'Standard_A11', 'standard_a1_v2': 'Standard_A1_v2', 'standard_a2_v2': 'Standard_A2_v2', 'standard_a4_v2': 'Standard_A4_v2', 'standard_a8_v2': 'Standard_A8_v2', 'standard_a2m_v2': 'Standard_A2m_v2', 'standard_a4m_v2': 'Standard_A4m_v2', 'standard_a8m_v2': 'Standard_A8m_v2', 'standard_b1s': 'Standard_B1s', 'standard_b1ms': 'Standard_B1ms', 'standard_b2s': 'Standard_B2s', 'standard_b2ms': 'Standard_B2ms', 'standard_b4ms': 'Standard_B4ms', 'standard_b8ms': 'Standard_B8ms', 'standard_d1': 'Standard_D1', 'standard_d2': 'Standard_D2', 'standard_d3': 'Standard_D3', 'standard_d4': 'Standard_D4', 'standard_d11': 'Standard_D11', 'standard_d12': 'Standard_D12', 'standard_d13': 'Standard_D13', 'standard_d14': 'Standard_D14', 'standard_d1_v2': 'Standard_D1_v2', 'standard_d2_v2': 'Standard_D2_v2', 'standard_d3_v2': 'Standard_D3_v2', 'standard_d4_v2': 'Standard_D4_v2', 'standard_d5_v2': 'Standard_D5_v2', 'standard_d2_v3': 'Standard_D2_v3', 'standard_d4_v3': 'Standard_D4_v3', 'standard_d8_v3': 'Standard_D8_v3', 'standard_d16_v3': 'Standard_D16_v3', 'standard_d32_v3': 'Standard_D32_v3', 'standard_d64_v3': 'Standard_D64_v3', 'standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3', 'standard_d8s_v3': 'Standard_D8s_v3', 'standard_d16s_v3': 'Standard_D16s_v3', 'standard_d32s_v3': 'Standard_D32s_v3', 'standard_d64s_v3': 'Standard_D64s_v3', 'standard_d11_v2': 'Standard_D11_v2', 'standard_d12_v2': 'Standard_D12_v2', 'standard_d13_v2': 'Standard_D13_v2', 'standard_d14_v2': 'Standard_D14_v2', 'standard_d15_v2': 'Standard_D15_v2', 'standard_ds1': 'Standard_DS1', 'standard_ds2': 'Standard_DS2', 'standard_ds3': 'Standard_DS3', 'standard_ds4': 'Standard_DS4', 'standard_ds11': 'Standard_DS11', 'standard_ds12': 'Standard_DS12', 'standard_ds13': 'Standard_DS13', 'standard_ds14': 'Standard_DS14', 'standard_ds1_v2': 'Standard_DS1_v2', 'standard_ds2_v2': 'Standard_DS2_v2', 'standard_ds3_v2': 'Standard_DS3_v2', 'standard_ds4_v2': 'Standard_DS4_v2', 'standard_ds5_v2': 'Standard_DS5_v2', 'standard_ds11_v2': 'Standard_DS11_v2', 'standard_ds12_v2': 'Standard_DS12_v2', 'standard_ds13_v2': 'Standard_DS13_v2', 'standard_ds14_v2': 'Standard_DS14_v2', 'standard_ds15_v2': 'Standard_DS15_v2', 'standard_ds13-4_v2': 'Standard_DS13-4_v2', 'standard_ds13-2_v2': 'Standard_DS13-2_v2', 'standard_ds14-8_v2': 'Standard_DS14-8_v2', 'standard_ds14-4_v2': 'Standard_DS14-4_v2', 'standard_e2_v3': 'Standard_E2_v3', 'standard_e4_v3': 'Standard_E4_v3', 'standard_e8_v3': 'Standard_E8_v3', 'standard_e16_v3': 'Standard_E16_v3', 'standard_e32_v3': 'Standard_E32_v3', 'standard_e64_v3': 'Standard_E64_v3', 'standard_e2s_v3': 'Standard_E2s_v3', 'standard_e4s_v3': 'Standard_E4s_v3', 'standard_e8s_v3': 'Standard_E8s_v3', 'standard_e16s_v3': 'Standard_E16s_v3', 'standard_e32s_v3': 'Standard_E32s_v3', 'standard_e64s_v3': 'Standard_E64s_v3', 'standard_e32-16_v3': 'Standard_E32-16_v3', 'standard_e32-8s_v3': 'Standard_E32-8s_v3', 'standard_e64-32s_v3': 'Standard_E64-32s_v3', 'standard_e64-16s_v3': 'Standard_E64-16s_v3', 'standard_f1': 'Standard_F1', 'standard_f2': 'Standard_F2', 'standard_f4': 'Standard_F4', 'standard_f8': 'Standard_F8', 'standard_f16': 'Standard_F16', 'standard_f1s': 'Standard_F1s', 'standard_f2s': 'Standard_F2s', 'standard_f4s': 'Standard_F4s', 'standard_f8s': 'Standard_F8s', 'standard_f16s': 'Standard_F16s', 'standard_f2s_v2': 'Standard_F2s_v2', 'standard_f4s_v2': 'Standard_F4s_v2', 'standard_f8s_v2': 'Standard_F8s_v2', 'standard_f16s_v2': 'Standard_F16s_v2', 'standard_f32s_v2': 'Standard_F32s_v2', 'standard_f64s_v2': 'Standard_F64s_v2', 'standard_f72s_v2': 'Standard_F72s_v2', 'standard_g1': 'Standard_G1', 'standard_g2': 'Standard_G2', 'standard_g3': 'Standard_G3', 'standard_g4': 'Standard_G4', 'standard_g5': 'Standard_G5', 'standard_gs1': 'Standard_GS1', 'standard_gs2': 'Standard_GS2', 'standard_gs3': 'Standard_GS3', 'standard_gs4': 'Standard_GS4', 'standard_gs5': 'Standard_GS5', 'standard_gs4-8': 'Standard_GS4-8', 'standard_gs4-4': 'Standard_GS4-4', 'standard_gs5-16': 'Standard_GS5-16', 'standard_gs5-8': 'Standard_GS5-8', 'standard_h8': 'Standard_H8', 'standard_h16': 'Standard_H16', 'standard_h8m': 'Standard_H8m', 'standard_h16m': 'Standard_H16m', 'standard_h16r': 'Standard_H16r', 'standard_h16mr': 'Standard_H16mr', 'standard_l4s': 'Standard_L4s', 'standard_l8s': 'Standard_L8s', 'standard_l16s': 'Standard_L16s', 'standard_l32s': 'Standard_L32s', 'standard_m64s': 'Standard_M64s', 'standard_m64ms': 'Standard_M64ms', 'standard_m128s': 'Standard_M128s', 'standard_m128ms': 'Standard_M128ms', 'standard_m64-32ms': 'Standard_M64-32ms', 'standard_m64-16ms': 'Standard_M64-16ms', 'standard_m128-64ms': 'Standard_M128-64ms', 'standard_m128-32ms': 'Standard_M128-32ms', 'standard_nc6': 'Standard_NC6', 'standard_nc12': 'Standard_NC12', 'standard_nc24': 'Standard_NC24', 'standard_nc24r': 'Standard_NC24r', 'standard_nc6s_v2': 'Standard_NC6s_v2', 'standard_nc12s_v2': 'Standard_NC12s_v2', 'standard_nc24s_v2': 'Standard_NC24s_v2', 'standard_nc24rs_v2': 'Standard_NC24rs_v2', 'standard_nc6s_v3': 'Standard_NC6s_v3', 'standard_nc12s_v3': 'Standard_NC12s_v3', 'standard_nc24s_v3': 'Standard_NC24s_v3', 'standard_nc24rs_v3': 'Standard_NC24rs_v3', 'standard_nd6s': 'Standard_ND6s', 'standard_nd12s': 'Standard_ND12s', 'standard_nd24s': 'Standard_ND24s', 'standard_nd24rs': 'Standard_ND24rs', 'standard_nv6': 'Standard_NV6', 'standard_nv12': 'Standard_NV12', 'standard_nv24': 'Standard_NV24'')
+        dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'os_type'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'caching'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'diff_disk_settings', 'option'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'create_option'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'storage_account_type'], True)
+        dict_map(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'caching'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'create_option'], True)
+        dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], True)
+        dict_map(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'pass_name'], True)
+        dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'component_name'], True)
+        dict_map(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'component_name'], ''microsoft-_windows-_shell-_setup': 'Microsoft-Windows-Shell-Setup'')
+        dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'setting_name'], True)
+        dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'win_rm', 'listeners', 'protocol'], True)
+        dict_camelize(self.parameters, ['identity', 'type'], True)
+        dict_map(self.parameters, ['identity', 'type'], ''system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'')
 
         response = None
 
@@ -1255,7 +908,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -1287,7 +940,7 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_virtualmachine(self):
@@ -1347,25 +1000,27 @@ class AzureRMVirtualMachines(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -1379,16 +1034,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMVirtualMachines()
+    AzureRMVirtualMachine()
 
 
 if __name__ == '__main__':

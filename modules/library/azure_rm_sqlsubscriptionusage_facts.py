@@ -92,7 +92,7 @@ except ImportError:
     pass
 
 
-class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
+class AzureRMSubscriptionUsageFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -111,7 +111,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.location_name = None
         self.name = None
-        super(AzureRMSubscriptionUsagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSubscriptionUsageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -133,10 +133,10 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
                                                                 usage_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SubscriptionUsages.')
+            self.log('Could not get facts for Subscription Usage.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -147,15 +147,15 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
             response = self.mgmt_client.subscription_usages.list_by_location(location_name=self.location_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SubscriptionUsages.')
+            self.log('Could not get facts for Subscription Usage.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -168,7 +168,7 @@ class AzureRMSubscriptionUsagesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSubscriptionUsagesFacts()
+    AzureRMSubscriptionUsageFacts()
 
 
 if __name__ == '__main__':

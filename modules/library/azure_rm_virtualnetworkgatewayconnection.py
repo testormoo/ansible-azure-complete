@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_virtualnetworkgatewayconnection
 version_added: "2.8"
-short_description: Manage Virtual Network Gateway Connection instance.
+short_description: Manage Azure Virtual Network Gateway Connection instance.
 description:
-    - Create, update and delete instance of Virtual Network Gateway Connection.
+    - Create, update and delete instance of Azure Virtual Network Gateway Connection.
 
 options:
     resource_group:
@@ -569,7 +569,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
+class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
     """Configuration class for an Azure RM Virtual Network Gateway Connection resource"""
 
     def __init__(self):
@@ -644,9 +644,9 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMVirtualNetworkGatewayConnections, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                                      supports_check_mode=True,
-                                                                      supports_tags=True)
+        super(AzureRMVirtualNetworkGatewayConnection, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                                        supports_check_mode=True,
+                                                                        supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -655,146 +655,29 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "id":
-                    self.parameters["id"] = kwargs[key]
-                elif key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "authorization_key":
-                    self.parameters["authorization_key"] = kwargs[key]
-                elif key == "virtual_network_gateway1":
-                    ev = kwargs[key]
-                    if 'gateway_type' in ev:
-                        if ev['gateway_type'] == 'vpn':
-                            ev['gateway_type'] = 'Vpn'
-                        elif ev['gateway_type'] == 'express_route':
-                            ev['gateway_type'] = 'ExpressRoute'
-                    if 'vpn_type' in ev:
-                        if ev['vpn_type'] == 'policy_based':
-                            ev['vpn_type'] = 'PolicyBased'
-                        elif ev['vpn_type'] == 'route_based':
-                            ev['vpn_type'] = 'RouteBased'
-                    self.parameters["virtual_network_gateway1"] = ev
-                elif key == "virtual_network_gateway2":
-                    ev = kwargs[key]
-                    if 'gateway_type' in ev:
-                        if ev['gateway_type'] == 'vpn':
-                            ev['gateway_type'] = 'Vpn'
-                        elif ev['gateway_type'] == 'express_route':
-                            ev['gateway_type'] = 'ExpressRoute'
-                    if 'vpn_type' in ev:
-                        if ev['vpn_type'] == 'policy_based':
-                            ev['vpn_type'] = 'PolicyBased'
-                        elif ev['vpn_type'] == 'route_based':
-                            ev['vpn_type'] = 'RouteBased'
-                    self.parameters["virtual_network_gateway2"] = ev
-                elif key == "local_network_gateway2":
-                    self.parameters["local_network_gateway2"] = kwargs[key]
-                elif key == "connection_type":
-                    ev = kwargs[key]
-                    if ev == 'ipsec':
-                        ev = 'IPsec'
-                    elif ev == 'vpn_client':
-                        ev = 'VPNClient'
-                    self.parameters["connection_type"] = _snake_to_camel(ev, True)
-                elif key == "routing_weight":
-                    self.parameters["routing_weight"] = kwargs[key]
-                elif key == "shared_key":
-                    self.parameters["shared_key"] = kwargs[key]
-                elif key == "peer":
-                    self.parameters["peer"] = kwargs[key]
-                elif key == "enable_bgp":
-                    self.parameters["enable_bgp"] = kwargs[key]
-                elif key == "use_policy_based_traffic_selectors":
-                    self.parameters["use_policy_based_traffic_selectors"] = kwargs[key]
-                elif key == "ipsec_policies":
-                    ev = kwargs[key]
-                    if 'ipsec_encryption' in ev:
-                        if ev['ipsec_encryption'] == 'none':
-                            ev['ipsec_encryption'] = 'None'
-                        elif ev['ipsec_encryption'] == 'des':
-                            ev['ipsec_encryption'] = 'DES'
-                        elif ev['ipsec_encryption'] == 'des3':
-                            ev['ipsec_encryption'] = 'DES3'
-                        elif ev['ipsec_encryption'] == 'aes128':
-                            ev['ipsec_encryption'] = 'AES128'
-                        elif ev['ipsec_encryption'] == 'aes192':
-                            ev['ipsec_encryption'] = 'AES192'
-                        elif ev['ipsec_encryption'] == 'aes256':
-                            ev['ipsec_encryption'] = 'AES256'
-                        elif ev['ipsec_encryption'] == 'gcmaes128':
-                            ev['ipsec_encryption'] = 'GCMAES128'
-                        elif ev['ipsec_encryption'] == 'gcmaes192':
-                            ev['ipsec_encryption'] = 'GCMAES192'
-                        elif ev['ipsec_encryption'] == 'gcmaes256':
-                            ev['ipsec_encryption'] = 'GCMAES256'
-                    if 'ipsec_integrity' in ev:
-                        if ev['ipsec_integrity'] == 'md5':
-                            ev['ipsec_integrity'] = 'MD5'
-                        elif ev['ipsec_integrity'] == 'sha1':
-                            ev['ipsec_integrity'] = 'SHA1'
-                        elif ev['ipsec_integrity'] == 'sha256':
-                            ev['ipsec_integrity'] = 'SHA256'
-                        elif ev['ipsec_integrity'] == 'gcmaes128':
-                            ev['ipsec_integrity'] = 'GCMAES128'
-                        elif ev['ipsec_integrity'] == 'gcmaes192':
-                            ev['ipsec_integrity'] = 'GCMAES192'
-                        elif ev['ipsec_integrity'] == 'gcmaes256':
-                            ev['ipsec_integrity'] = 'GCMAES256'
-                    if 'ike_encryption' in ev:
-                        if ev['ike_encryption'] == 'des':
-                            ev['ike_encryption'] = 'DES'
-                        elif ev['ike_encryption'] == 'des3':
-                            ev['ike_encryption'] = 'DES3'
-                        elif ev['ike_encryption'] == 'aes128':
-                            ev['ike_encryption'] = 'AES128'
-                        elif ev['ike_encryption'] == 'aes192':
-                            ev['ike_encryption'] = 'AES192'
-                        elif ev['ike_encryption'] == 'aes256':
-                            ev['ike_encryption'] = 'AES256'
-                    if 'ike_integrity' in ev:
-                        if ev['ike_integrity'] == 'md5':
-                            ev['ike_integrity'] = 'MD5'
-                        elif ev['ike_integrity'] == 'sha1':
-                            ev['ike_integrity'] = 'SHA1'
-                        elif ev['ike_integrity'] == 'sha256':
-                            ev['ike_integrity'] = 'SHA256'
-                        elif ev['ike_integrity'] == 'sha384':
-                            ev['ike_integrity'] = 'SHA384'
-                    if 'dh_group' in ev:
-                        if ev['dh_group'] == 'none':
-                            ev['dh_group'] = 'None'
-                        elif ev['dh_group'] == 'dh_group1':
-                            ev['dh_group'] = 'DHGroup1'
-                        elif ev['dh_group'] == 'dh_group2':
-                            ev['dh_group'] = 'DHGroup2'
-                        elif ev['dh_group'] == 'dh_group14':
-                            ev['dh_group'] = 'DHGroup14'
-                        elif ev['dh_group'] == 'dh_group2048':
-                            ev['dh_group'] = 'DHGroup2048'
-                        elif ev['dh_group'] == 'ecp256':
-                            ev['dh_group'] = 'ECP256'
-                        elif ev['dh_group'] == 'ecp384':
-                            ev['dh_group'] = 'ECP384'
-                        elif ev['dh_group'] == 'dh_group24':
-                            ev['dh_group'] = 'DHGroup24'
-                    if 'pfs_group' in ev:
-                        if ev['pfs_group'] == 'none':
-                            ev['pfs_group'] = 'None'
-                        elif ev['pfs_group'] == 'pfs1':
-                            ev['pfs_group'] = 'PFS1'
-                        elif ev['pfs_group'] == 'pfs2':
-                            ev['pfs_group'] = 'PFS2'
-                        elif ev['pfs_group'] == 'pfs2048':
-                            ev['pfs_group'] = 'PFS2048'
-                        elif ev['pfs_group'] == 'ecp256':
-                            ev['pfs_group'] = 'ECP256'
-                        elif ev['pfs_group'] == 'ecp384':
-                            ev['pfs_group'] = 'ECP384'
-                        elif ev['pfs_group'] == 'pfs24':
-                            ev['pfs_group'] = 'PFS24'
-                    self.parameters["ipsec_policies"] = ev
-                elif key == "resource_guid":
-                    self.parameters["resource_guid"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['virtual_network_gateway1', 'ip_configurations', 'private_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway1', 'gateway_type'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway1', 'vpn_type'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway1', 'sku', 'name'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway1', 'sku', 'tier'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway2', 'ip_configurations', 'private_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway2', 'gateway_type'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway2', 'vpn_type'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'name'], True)
+        dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'tier'], True)
+        dict_camelize(self.parameters, ['connection_type'], True)
+        dict_map(self.parameters, ['connection_type'], ''ipsec': 'IPsec', 'vpn_client': 'VPNClient'')
+        dict_upper(self.parameters, ['ipsec_policies', 'ipsec_encryption'])
+        dict_map(self.parameters, ['ipsec_policies', 'ipsec_encryption'], ''none': 'None'')
+        dict_upper(self.parameters, ['ipsec_policies', 'ipsec_integrity'])
+        dict_upper(self.parameters, ['ipsec_policies', 'ike_encryption'])
+        dict_upper(self.parameters, ['ipsec_policies', 'ike_integrity'])
+        dict_upper(self.parameters, ['ipsec_policies', 'dh_group'])
+        dict_map(self.parameters, ['ipsec_policies', 'dh_group'], ''none': 'None', 'dh_group1': 'DHGroup1', 'dh_group2': 'DHGroup2', 'dh_group14': 'DHGroup14', 'dh_group2048': 'DHGroup2048', 'dh_group24': 'DHGroup24'')
+        dict_upper(self.parameters, ['ipsec_policies', 'pfs_group'])
+        dict_map(self.parameters, ['ipsec_policies', 'pfs_group'], ''none': 'None'')
 
         response = None
 
@@ -819,7 +702,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -851,7 +734,7 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_virtualnetworkgatewayconnection(self):
@@ -911,25 +794,27 @@ class AzureRMVirtualNetworkGatewayConnections(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -943,11 +828,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -959,7 +927,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMVirtualNetworkGatewayConnections()
+    AzureRMVirtualNetworkGatewayConnection()
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_sqldatabasethreatdetectionpolicy
 version_added: "2.8"
-short_description: Manage Database Threat Detection Policy instance.
+short_description: Manage Azure Database Threat Detection Policy instance.
 description:
-    - Create, update and delete instance of Database Threat Detection Policy.
+    - Create, update and delete instance of Azure Database Threat Detection Policy.
 
 options:
     resource_group:
@@ -43,7 +43,7 @@ options:
             - Resource location. If not set, location from the resource group will be used as default.
     state:
         description:
-            - Specifies the state of the policy. If state is C(C(C(enabled))), I(storage_endpoint) and I(storage_account_access_key) are required.
+            - Specifies the state of the policy. If state is C(enabled), I(storage_endpoint) and I(storage_account_access_key) are required.
             - Required when C(state) is I(present).
         choices:
             - 'new'
@@ -51,33 +51,29 @@ options:
             - 'disabled'
     disabled_alerts:
         description:
-            - "Specifies the semicolon-separated list of alerts that are C(C(C(disabled))), or empty string to disable no alerts. Possible values:
-               Sql_Injection; Sql_Injection_Vulnerability; Access_Anomaly; Data_Exfiltration; Unsafe_Action."
+            - "Specifies the semicolon-separated list of alerts that are C(disabled), or empty string to disable no alerts. Possible values: Sql_Injection;
+               Sql_Injection_Vulnerability; Access_Anomaly; Data_Exfiltration; Unsafe_Action."
     email_addresses:
         description:
             - Specifies the semicolon-separated list of e-mail addresses to which the alert is sent.
     email_account_admins:
         description:
-            - Specifies that the alert is sent to the account administrators.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Specifies that the alert is sent to the account administrators. Possible values include: 'C(enabled)', 'C(disabled)'"
+        type: bool
     storage_endpoint:
         description:
             - "Specifies the blob storage endpoint (e.g. https://MyAccount.blob.core.windows.net). This blob storage will hold all Threat Detection audit
-               logs. If I(state) is C(C(C(enabled))), storageEndpoint is required."
+               logs. If I(state) is C(enabled), storageEndpoint is required."
     storage_account_access_key:
         description:
-            - Specifies the identifier key of the Threat Detection audit storage account. If I(state) is C(C(C(enabled))), storageAccountAccessKey is required.
+            - Specifies the identifier key of the Threat Detection audit storage account. If I(state) is C(enabled), storageAccountAccessKey is required.
     retention_days:
         description:
             - Specifies the number of days to keep in the Threat Detection audit logs.
     use_server_default:
         description:
-            - Specifies whether to use the default server policy.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Specifies whether to use the default server policy. Possible values include: 'C(enabled)', 'C(disabled)'"
+        type: bool
     state:
       description:
         - Assert the state of the Database Threat Detection Policy.
@@ -104,8 +100,10 @@ EXAMPLES = '''
       name: default
       location: eastus
       state: Enabled
+      email_account_admins: email_account_admins
       storage_endpoint: https://mystorage.blob.core.windows.net
       storage_account_access_key: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+      use_server_default: use_server_default
 '''
 
 RETURN = '''
@@ -143,7 +141,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
+class AzureRMDatabaseThreatDetectionPolicy(AzureRMModuleBase):
     """Configuration class for an Azure RM Database Threat Detection Policy resource"""
 
     def __init__(self):
@@ -180,9 +178,7 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
                 type='str'
             ),
             email_account_admins=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             storage_endpoint=dict(
                 type='str'
@@ -194,9 +190,7 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
                 type='int'
             ),
             use_server_default=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             state=dict(
                 type='str',
@@ -216,35 +210,22 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDatabaseThreatDetectionPolicies, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                                     supports_check_mode=True,
-                                                                     supports_tags=False)
+        super(AzureRMDatabaseThreatDetectionPolicy, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                                      supports_check_mode=True,
+                                                                      supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "state":
-                    self.parameters["state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "disabled_alerts":
-                    self.parameters["disabled_alerts"] = kwargs[key]
-                elif key == "email_addresses":
-                    self.parameters["email_addresses"] = kwargs[key]
-                elif key == "email_account_admins":
-                    self.parameters["email_account_admins"] = _snake_to_camel(kwargs[key], True)
-                elif key == "storage_endpoint":
-                    self.parameters["storage_endpoint"] = kwargs[key]
-                elif key == "storage_account_access_key":
-                    self.parameters["storage_account_access_key"] = kwargs[key]
-                elif key == "retention_days":
-                    self.parameters["retention_days"] = kwargs[key]
-                elif key == "use_server_default":
-                    self.parameters["use_server_default"] = _snake_to_camel(kwargs[key], True)
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['state'], True)
+        dict_map(self.parameters, ['email_account_admins'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['use_server_default'], '{True: 'Enabled', False: 'Disabled'}')
 
         response = None
 
@@ -269,7 +250,7 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -301,7 +282,7 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_databasethreatdetectionpolicy(self):
@@ -364,7 +345,7 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'state': d.get('state', None)
@@ -372,18 +353,20 @@ class AzureRMDatabaseThreatDetectionPolicies(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -397,11 +380,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -413,7 +479,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDatabaseThreatDetectionPolicies()
+    AzureRMDatabaseThreatDetectionPolicy()
 
 
 if __name__ == '__main__':

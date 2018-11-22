@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_iothubresource
 version_added: "2.8"
-short_description: Manage Iot Hub Resource instance.
+short_description: Manage Azure Iot Hub Resource instance.
 description:
-    - Create, update and delete instance of Iot Hub Resource.
+    - Create, update and delete instance of Azure Iot Hub Resource.
 
 options:
     resource_group:
@@ -30,324 +30,314 @@ options:
         description:
             - The name of the IoT hub.
         required: True
-    iot_hub_description:
+    location:
         description:
-            - The IoT hub metadata and security metadata.
-        required: True
+            - The resource location.
+            - Required when C(state) is I(present).
+    authorization_policies:
+        description:
+            - The shared access policies you can use to secure a connection to the IoT hub.
+        type: list
         suboptions:
-            location:
+            key_name:
                 description:
-                    - The resource location.
+                    - The name of the shared access policy.
                     - Required when C(state) is I(present).
-            authorization_policies:
+            primary_key:
                 description:
-                    - The shared access policies you can use to secure a connection to the IoT hub.
-                type: list
-                suboptions:
-                    key_name:
-                        description:
-                            - The name of the shared access policy.
-                            - Required when C(state) is I(present).
-                    primary_key:
-                        description:
-                            - The primary key.
-                    secondary_key:
-                        description:
-                            - The secondary key.
-                    rights:
-                        description:
-                            - The permissions assigned to the shared access policy.
-                            - Required when C(state) is I(present).
-                        choices:
-                            - 'registry_read'
-                            - 'registry_write'
-                            - 'service_connect'
-                            - 'device_connect'
-                            - 'registry_read, _registry_write'
-                            - 'registry_read, _service_connect'
-                            - 'registry_read, _device_connect'
-                            - 'registry_write, _service_connect'
-                            - 'registry_write, _device_connect'
-                            - 'service_connect, _device_connect'
-                            - 'registry_read, _registry_write, _service_connect'
-                            - 'registry_read, _registry_write, _device_connect'
-                            - 'registry_read, _service_connect, _device_connect'
-                            - 'registry_write, _service_connect, _device_connect'
-                            - 'registry_read, _registry_write, _service_connect, _device_connect'
-            ip_filter_rules:
+                    - The primary key.
+            secondary_key:
                 description:
-                    - The IP filter rules.
-                type: list
-                suboptions:
-                    filter_name:
-                        description:
-                            - The name of the IP filter rule.
-                            - Required when C(state) is I(present).
-                    action:
-                        description:
-                            - The desired action for requests captured by this rule.
-                            - Required when C(state) is I(present).
-                        choices:
-                            - 'accept'
-                            - 'reject'
-                    ip_mask:
-                        description:
-                            - A string that contains the IP address range in CIDR notation for the rule.
-                            - Required when C(state) is I(present).
-            event_hub_endpoints:
+                    - The secondary key.
+            rights:
                 description:
-                    - "The Event Hub-compatible endpoint properties. The possible keys to this dictionary are events and operationsMonitoringEvents. Both of
-                       these keys have to be present in the dictionary while making create or update calls for the IoT hub."
-            routing:
+                    - The permissions assigned to the shared access policy.
+                    - Required when C(state) is I(present).
+                choices:
+                    - 'registry_read'
+                    - 'registry_write'
+                    - 'service_connect'
+                    - 'device_connect'
+                    - 'registry_read, _registry_write'
+                    - 'registry_read, _service_connect'
+                    - 'registry_read, _device_connect'
+                    - 'registry_write, _service_connect'
+                    - 'registry_write, _device_connect'
+                    - 'service_connect, _device_connect'
+                    - 'registry_read, _registry_write, _service_connect'
+                    - 'registry_read, _registry_write, _device_connect'
+                    - 'registry_read, _service_connect, _device_connect'
+                    - 'registry_write, _service_connect, _device_connect'
+                    - 'registry_read, _registry_write, _service_connect, _device_connect'
+    ip_filter_rules:
+        description:
+            - The IP filter rules.
+        type: list
+        suboptions:
+            filter_name:
+                description:
+                    - The name of the IP filter rule.
+                    - Required when C(state) is I(present).
+            action:
+                description:
+                    - The desired action for requests captured by this rule.
+                    - Required when C(state) is I(present).
+                choices:
+                    - 'accept'
+                    - 'reject'
+            ip_mask:
+                description:
+                    - A string that contains the IP address range in CIDR notation for the rule.
+                    - Required when C(state) is I(present).
+    event_hub_endpoints:
+        description:
+            - "The Event Hub-compatible endpoint properties. The possible keys to this dictionary are events and operationsMonitoringEvents. Both of these
+               keys have to be present in the dictionary while making create or update calls for the IoT hub."
+    routing:
+        description:
+        suboptions:
+            endpoints:
                 description:
                 suboptions:
-                    endpoints:
+                    service_bus_queues:
                         description:
-                        suboptions:
-                            service_bus_queues:
-                                description:
-                                    - The list of Service Bus queue endpoints that IoT hub routes the messages to, based on the routing rules.
-                                type: list
-                                suboptions:
-                                    connection_string:
-                                        description:
-                                            - The connection string of the service bus queue endpoint.
-                                            - Required when C(state) is I(present).
-                                    name:
-                                        description:
-                                            - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
-                                               underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
-                                               operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
-                                               types. The name need not be the same as the actual queue name."
-                                            - Required when C(state) is I(present).
-                                    subscription_id:
-                                        description:
-                                            - The subscription identifier of the service bus queue endpoint.
-                                    resource_group:
-                                        description:
-                                            - The name of the resource group of the service bus queue endpoint.
-                            service_bus_topics:
-                                description:
-                                    - The list of Service Bus topic endpoints that the IoT hub routes the messages to, based on the routing rules.
-                                type: list
-                                suboptions:
-                                    connection_string:
-                                        description:
-                                            - The connection string of the service bus topic endpoint.
-                                            - Required when C(state) is I(present).
-                                    name:
-                                        description:
-                                            - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
-                                               underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
-                                               operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
-                                               types.  The name need not be the same as the actual topic name."
-                                            - Required when C(state) is I(present).
-                                    subscription_id:
-                                        description:
-                                            - The subscription identifier of the service bus topic endpoint.
-                                    resource_group:
-                                        description:
-                                            - The name of the resource group of the service bus topic endpoint.
-                            event_hubs:
-                                description:
-                                    - "The list of Event Hubs endpoints that IoT hub routes messages to, based on the routing rules. This list does not
-                                       include the built-in Event Hubs endpoint."
-                                type: list
-                                suboptions:
-                                    connection_string:
-                                        description:
-                                            - The connection string of the event hub endpoint.
-                                            - Required when C(state) is I(present).
-                                    name:
-                                        description:
-                                            - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
-                                               underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
-                                               operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
-                                               types."
-                                            - Required when C(state) is I(present).
-                                    subscription_id:
-                                        description:
-                                            - The subscription identifier of the event hub endpoint.
-                                    resource_group:
-                                        description:
-                                            - The name of the resource group of the event hub endpoint.
-                            storage_containers:
-                                description:
-                                    - The list of storage container endpoints that IoT hub routes messages to, based on the routing rules.
-                                type: list
-                                suboptions:
-                                    connection_string:
-                                        description:
-                                            - The connection string of the storage account.
-                                            - Required when C(state) is I(present).
-                                    name:
-                                        description:
-                                            - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods,
-                                               underscores, hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
-                                               operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint
-                                               types."
-                                            - Required when C(state) is I(present).
-                                    subscription_id:
-                                        description:
-                                            - The subscription identifier of the storage account.
-                                    resource_group:
-                                        description:
-                                            - The name of the resource group of the storage account.
-                                    container_name:
-                                        description:
-                                            - The name of storage container in the storage account.
-                                            - Required when C(state) is I(present).
-                                    file_name_format:
-                                        description:
-                                            - "File name format for the blob. Default format is {iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}. All
-                                               parameters are mandatory but can be reordered."
-                                    batch_frequency_in_seconds:
-                                        description:
-                                            - "Time interval at which blobs are written to storage. Value should be between 60 and 720 seconds. Default
-                                               value is 300 seconds."
-                                    max_chunk_size_in_bytes:
-                                        description:
-                                            - "Maximum number of bytes for each blob written to storage. Value should be between 10485760(10MB) and
-                                               524288000(500MB). Default value is 314572800(300MB)."
-                                    encoding:
-                                        description:
-                                            - "Encoding that is used to serialize messages to blobs. Supported values are 'avro' and 'avrodeflate'. Default
-                                               value is 'avro'."
-                    routes:
-                        description:
-                            - "The list of user-provided routing rules that the IoT hub uses to route messages to built-in and custom I(endpoints). A
-                               maximum of 100 routing rules are allowed for paid hubs and a maximum of 5 routing rules are allowed for free hubs."
+                            - The list of Service Bus queue endpoints that IoT hub routes the messages to, based on the routing rules.
                         type: list
                         suboptions:
+                            connection_string:
+                                description:
+                                    - The connection string of the service bus queue endpoint.
+                                    - Required when C(state) is I(present).
                             name:
                                 description:
-                                    - "The name of the route. The name can only include alphanumeric characters, periods, underscores, hyphens, has a
-                                       maximum length of 64 characters, and must be unique."
+                                    - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods, underscores,
+                                       hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
+                                       operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint types. The
+                                       name need not be the same as the actual queue name."
                                     - Required when C(state) is I(present).
-                            source:
+                            subscription_id:
                                 description:
-                                    - The source that the routing rule is to be applied to, such as C(device_messages).
-                                    - Required when C(state) is I(present).
-                                choices:
-                                    - 'invalid'
-                                    - 'device_messages'
-                                    - 'twin_change_events'
-                                    - 'device_lifecycle_events'
-                                    - 'device_job_lifecycle_events'
-                            condition:
+                                    - The subscription identifier of the service bus queue endpoint.
+                            resource_group:
                                 description:
-                                    - "The condition that is evaluated to apply the routing rule. If no condition is provided, it evaluates to true by
-                                       default. For grammar, see: https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-query-language"
-                            endpoint_names:
-                                description:
-                                    - The list of endpoints to which messages that satisfy the I(condition) are routed. Currently only one endpoint is allowed.
-                                    - Required when C(state) is I(present).
-                                type: list
-                            is_enabled:
-                                description:
-                                    - Used to specify whether a route is enabled.
-                                    - Required when C(state) is I(present).
-                    fallback_route:
+                                    - The name of the resource group of the service bus queue endpoint.
+                    service_bus_topics:
                         description:
-                            - "The properties of the route that is used as a fall-back route when none of the conditions specified in the 'I(routes)'
-                               section are met. This is an optional parameter. When this property is not set, the messages which do not meet any of the
-                               conditions specified in the 'I(routes)' section get routed to the built-in eventhub endpoint."
+                            - The list of Service Bus topic endpoints that the IoT hub routes the messages to, based on the routing rules.
+                        type: list
                         suboptions:
+                            connection_string:
+                                description:
+                                    - The connection string of the service bus topic endpoint.
+                                    - Required when C(state) is I(present).
                             name:
                                 description:
-                                    - "The name of the route. The name can only include alphanumeric characters, periods, underscores, hyphens, has a
-                                       maximum length of 64 characters, and must be unique."
-                            source:
-                                description:
-                                    - The source to which the routing rule is to be applied to. For example, DeviceMessages
+                                    - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods, underscores,
+                                       hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
+                                       operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint types.  The
+                                       name need not be the same as the actual topic name."
                                     - Required when C(state) is I(present).
-                            condition:
+                            subscription_id:
                                 description:
-                                    - "The condition which is evaluated in order to apply the fallback route. If the condition is not provided it will
-                                       evaluate to true by default. For grammar, See:
-                                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-query-language"
-                            endpoint_names:
+                                    - The subscription identifier of the service bus topic endpoint.
+                            resource_group:
                                 description:
-                                    - "The list of endpoints to which the messages that satisfy the I(condition) are routed to. Currently only 1 endpoint is
-                                       allowed."
-                                    - Required when C(state) is I(present).
-                                type: list
-                            is_enabled:
-                                description:
-                                    - Used to specify whether the fallback route is enabled.
-                                    - Required when C(state) is I(present).
-            storage_endpoints:
-                description:
-                    - "The list of Azure Storage endpoints where you can upload files. Currently you can configure only one Azure Storage account and that
-                       MUST have its key as $default. Specifying more than one storage account causes an error to be thrown. Not specifying a value for
-                       this property when the I(enable_file_upload_notifications) property is set to True, causes an error to be thrown."
-            messaging_endpoints:
-                description:
-                    - The messaging endpoint properties for the file upload notification queue.
-            enable_file_upload_notifications:
-                description:
-                    - If True, file upload notifications are enabled.
-            cloud_to_device:
-                description:
-                suboptions:
-                    max_delivery_count:
+                                    - The name of the resource group of the service bus topic endpoint.
+                    event_hubs:
                         description:
-                            - "The max delivery count for cloud-to-device messages in the device queue. See:
-                               https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
-                    default_ttl_as_iso8601:
-                        description:
-                            - "The default time to live for cloud-to-device messages in the device queue. See:
-                               https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
-                    feedback:
-                        description:
+                            - "The list of Event Hubs endpoints that IoT hub routes messages to, based on the routing rules. This list does not include the
+                               built-in Event Hubs endpoint."
+                        type: list
                         suboptions:
-                            lock_duration_as_iso8601:
+                            connection_string:
                                 description:
-                                    - "The lock duration for the feedback queue. See:
-                                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
-                            ttl_as_iso8601:
+                                    - The connection string of the event hub endpoint.
+                                    - Required when C(state) is I(present).
+                            name:
                                 description:
-                                    - "The period of time for which a message is available to consume before it is expired by the IoT hub. See:
-                                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
-                            max_delivery_count:
+                                    - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods, underscores,
+                                       hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
+                                       operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint types."
+                                    - Required when C(state) is I(present).
+                            subscription_id:
                                 description:
-                                    - "The number of times the IoT hub attempts to deliver a message on the feedback queue. See:
-                                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
-            comments:
-                description:
-                    - IoT hub comments.
-            operations_monitoring_properties:
-                description:
-                suboptions:
-                    events:
+                                    - The subscription identifier of the event hub endpoint.
+                            resource_group:
+                                description:
+                                    - The name of the resource group of the event hub endpoint.
+                    storage_containers:
                         description:
-            features:
+                            - The list of storage container endpoints that IoT hub routes messages to, based on the routing rules.
+                        type: list
+                        suboptions:
+                            connection_string:
+                                description:
+                                    - The connection string of the storage account.
+                                    - Required when C(state) is I(present).
+                            name:
+                                description:
+                                    - "The name that identifies this endpoint. The name can only include alphanumeric characters, periods, underscores,
+                                       hyphens and has a maximum length of 64 characters. The following names are reserved:  events,
+                                       operationsMonitoringEvents, fileNotifications, $default. Endpoint names must be unique across endpoint types."
+                                    - Required when C(state) is I(present).
+                            subscription_id:
+                                description:
+                                    - The subscription identifier of the storage account.
+                            resource_group:
+                                description:
+                                    - The name of the resource group of the storage account.
+                            container_name:
+                                description:
+                                    - The name of storage container in the storage account.
+                                    - Required when C(state) is I(present).
+                            file_name_format:
+                                description:
+                                    - "File name format for the blob. Default format is {iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}. All parameters are
+                                       mandatory but can be reordered."
+                            batch_frequency_in_seconds:
+                                description:
+                                    - "Time interval at which blobs are written to storage. Value should be between 60 and 720 seconds. Default value is 300
+                                       seconds."
+                            max_chunk_size_in_bytes:
+                                description:
+                                    - "Maximum number of bytes for each blob written to storage. Value should be between 10485760(10MB) and
+                                       524288000(500MB). Default value is 314572800(300MB)."
+                            encoding:
+                                description:
+                                    - "Encoding that is used to serialize messages to blobs. Supported values are 'avro' and 'avrodeflate'. Default value is
+                                       'avro'."
+            routes:
                 description:
-                    - The capabilities and features enabled for the IoT hub.
-                choices:
-                    - 'none'
-                    - 'device_management'
-            sku:
-                description:
-                    - IotHub SKU info
-                    - Required when C(state) is I(present).
+                    - "The list of user-provided routing rules that the IoT hub uses to route messages to built-in and custom I(endpoints). A maximum of 100
+                       routing rules are allowed for paid hubs and a maximum of 5 routing rules are allowed for free hubs."
+                type: list
                 suboptions:
                     name:
                         description:
-                            - The name of the SKU.
+                            - "The name of the route. The name can only include alphanumeric characters, periods, underscores, hyphens, has a maximum length
+                               of 64 characters, and must be unique."
+                            - Required when C(state) is I(present).
+                    source:
+                        description:
+                            - The source that the routing rule is to be applied to, such as C(device_messages).
                             - Required when C(state) is I(present).
                         choices:
-                            - 'f1'
-                            - 's1'
-                            - 's2'
-                            - 's3'
-                            - 'b1'
-                            - 'b2'
-                            - 'b3'
-                    capacity:
+                            - 'invalid'
+                            - 'device_messages'
+                            - 'twin_change_events'
+                            - 'device_lifecycle_events'
+                            - 'device_job_lifecycle_events'
+                    condition:
                         description:
-                            - "The number of provisioned IoT Hub units. See:
-                               https://docs.microsoft.com/azure/azure-subscription-service-limits#iot-hub-limits."
+                            - "The condition that is evaluated to apply the routing rule. If no condition is provided, it evaluates to true by default. For
+                               grammar, see: https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-query-language"
+                    endpoint_names:
+                        description:
+                            - The list of endpoints to which messages that satisfy the I(condition) are routed. Currently only one endpoint is allowed.
+                            - Required when C(state) is I(present).
+                        type: list
+                    is_enabled:
+                        description:
+                            - Used to specify whether a route is enabled.
+                            - Required when C(state) is I(present).
+            fallback_route:
+                description:
+                    - "The properties of the route that is used as a fall-back route when none of the conditions specified in the 'I(routes)' section are
+                       met. This is an optional parameter. When this property is not set, the messages which do not meet any of the conditions specified in
+                       the 'I(routes)' section get routed to the built-in eventhub endpoint."
+                suboptions:
+                    name:
+                        description:
+                            - "The name of the route. The name can only include alphanumeric characters, periods, underscores, hyphens, has a maximum length
+                               of 64 characters, and must be unique."
+                    source:
+                        description:
+                            - The source to which the routing rule is to be applied to. For example, DeviceMessages
+                            - Required when C(state) is I(present).
+                    condition:
+                        description:
+                            - "The condition which is evaluated in order to apply the fallback route. If the condition is not provided it will evaluate to
+                               true by default. For grammar, See: https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-query-language"
+                    endpoint_names:
+                        description:
+                            - The list of endpoints to which the messages that satisfy the I(condition) are routed to. Currently only 1 endpoint is allowed.
+                            - Required when C(state) is I(present).
+                        type: list
+                    is_enabled:
+                        description:
+                            - Used to specify whether the fallback route is enabled.
+                            - Required when C(state) is I(present).
+    storage_endpoints:
+        description:
+            - "The list of Azure Storage endpoints where you can upload files. Currently you can configure only one Azure Storage account and that MUST have
+               its key as $default. Specifying more than one storage account causes an error to be thrown. Not specifying a value for this property when
+               the I(enable_file_upload_notifications) property is set to True, causes an error to be thrown."
+    messaging_endpoints:
+        description:
+            - The messaging endpoint properties for the file upload notification queue.
+    enable_file_upload_notifications:
+        description:
+            - If True, file upload notifications are enabled.
+    cloud_to_device:
+        description:
+        suboptions:
+            max_delivery_count:
+                description:
+                    - "The max delivery count for cloud-to-device messages in the device queue. See:
+                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
+            default_ttl_as_iso8601:
+                description:
+                    - "The default time to live for cloud-to-device messages in the device queue. See:
+                       https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
+            feedback:
+                description:
+                suboptions:
+                    lock_duration_as_iso8601:
+                        description:
+                            - "The lock duration for the feedback queue. See:
+                               https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
+                    ttl_as_iso8601:
+                        description:
+                            - "The period of time for which a message is available to consume before it is expired by the IoT hub. See:
+                               https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
+                    max_delivery_count:
+                        description:
+                            - "The number of times the IoT hub attempts to deliver a message on the feedback queue. See:
+                               https://docs.microsoft.com/azure/iot-hub/iot-hub-devguide-messaging#cloud-to-device-messages."
+    comments:
+        description:
+            - IoT hub comments.
+    operations_monitoring_properties:
+        description:
+        suboptions:
+            events:
+                description:
+    features:
+        description:
+            - The capabilities and features enabled for the IoT hub.
+        choices:
+            - 'none'
+            - 'device_management'
+    sku:
+        description:
+            - IotHub SKU info
+            - Required when C(state) is I(present).
+        suboptions:
+            name:
+                description:
+                    - The name of the SKU.
+                    - Required when C(state) is I(present).
+                choices:
+                    - 'f1'
+                    - 's1'
+                    - 's2'
+                    - 's3'
+                    - 'b1'
+                    - 'b2'
+                    - 'b3'
+            capacity:
+                description:
+                    - "The number of provisioned IoT Hub units. See: https://docs.microsoft.com/azure/azure-subscription-service-limits#iot-hub-limits."
     if_match:
         description:
             - ETag of the IoT Hub. Do not specify for creating a brand new IoT Hub. Required to update an existing IoT Hub.
@@ -374,9 +364,8 @@ EXAMPLES = '''
     azure_rm_iothubresource:
       resource_group: myResourceGroup
       name: testHub
-      iot_hub_description:
-        location: centraluseuap
-        event_hub_endpoints: {
+      location: centraluseuap
+      event_hub_endpoints: {
   "events": {
     "retentionTimeInDays": "1",
     "partitionCount": "2",
@@ -398,40 +387,40 @@ EXAMPLES = '''
     "endpoint": "sb://iothub-ns-iot-dps-ci-245306-76aca8e13b.servicebus.windows.net/"
   }
 }
-        routing:
-          fallback_route:
-            name: $fallback
-            source: DeviceMessages
-            condition: true
-            endpoint_names:
-              - [
+      routing:
+        fallback_route:
+          name: $fallback
+          source: DeviceMessages
+          condition: true
+          endpoint_names:
+            - [
   "events"
 ]
-            is_enabled: True
-        storage_endpoints: {
+          is_enabled: True
+      storage_endpoints: {
   "$default": {
     "sasTtlAsIso8601": "PT1H",
     "connectionString": "",
     "containerName": ""
   }
 }
-        messaging_endpoints: {
+      messaging_endpoints: {
   "fileNotifications": {
     "lockDurationAsIso8601": "PT1M",
     "ttlAsIso8601": "PT1H",
     "maxDeliveryCount": "10"
   }
 }
-        enable_file_upload_notifications: False
-        cloud_to_device:
+      enable_file_upload_notifications: False
+      cloud_to_device:
+        max_delivery_count: 10
+        default_ttl_as_iso8601: PT1H
+        feedback:
+          lock_duration_as_iso8601: PT1M
+          ttl_as_iso8601: PT1H
           max_delivery_count: 10
-          default_ttl_as_iso8601: PT1H
-          feedback:
-            lock_duration_as_iso8601: PT1M
-            ttl_as_iso8601: PT1H
-            max_delivery_count: 10
-        operations_monitoring_properties:
-          events: {
+      operations_monitoring_properties:
+        events: {
   "None": "None",
   "Connections": "None",
   "DeviceTelemetry": "None",
@@ -440,10 +429,10 @@ EXAMPLES = '''
   "FileUploadOperations": "None",
   "Routes": "None"
 }
-        features: None
-        sku:
-          name: S1
-          capacity: 1
+      features: None
+      sku:
+        name: S1
+        capacity: 1
       if_match: NOT FOUND
 '''
 
@@ -487,9 +476,46 @@ class AzureRMIotHubResource(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            iot_hub_description=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            authorization_policies=dict(
+                type='list'
+            ),
+            ip_filter_rules=dict(
+                type='list'
+            ),
+            event_hub_endpoints=dict(
+                type='dict'
+            ),
+            routing=dict(
+                type='dict'
+            ),
+            storage_endpoints=dict(
+                type='dict'
+            ),
+            messaging_endpoints=dict(
+                type='dict'
+            ),
+            enable_file_upload_notifications=dict(
+                type='str'
+            ),
+            cloud_to_device=dict(
+                type='dict'
+            ),
+            comments=dict(
+                type='str'
+            ),
+            operations_monitoring_properties=dict(
+                type='dict'
+            ),
+            features=dict(
+                type='str',
+                choices=['none',
+                         'device_management']
+            ),
+            sku=dict(
+                type='dict'
             ),
             if_match=dict(
                 type='str'
@@ -512,8 +538,8 @@ class AzureRMIotHubResource(AzureRMModuleBase):
         self.to_do = Actions.NoAction
 
         super(AzureRMIotHubResource, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                    supports_check_mode=True,
-                                                    supports_tags=True)
+                                                      supports_check_mode=True,
+                                                      supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -522,86 +548,25 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.iot_hub_description["location"] = kwargs[key]
-                elif key == "authorization_policies":
-                    ev = kwargs[key]
-                    if 'rights' in ev:
-                        if ev['rights'] == 'registry_read':
-                            ev['rights'] = 'RegistryRead'
-                        elif ev['rights'] == 'registry_write':
-                            ev['rights'] = 'RegistryWrite'
-                        elif ev['rights'] == 'service_connect':
-                            ev['rights'] = 'ServiceConnect'
-                        elif ev['rights'] == 'device_connect':
-                            ev['rights'] = 'DeviceConnect'
-                        elif ev['rights'] == 'registry_read, _registry_write':
-                            ev['rights'] = 'RegistryRead, RegistryWrite'
-                        elif ev['rights'] == 'registry_read, _service_connect':
-                            ev['rights'] = 'RegistryRead, ServiceConnect'
-                        elif ev['rights'] == 'registry_read, _device_connect':
-                            ev['rights'] = 'RegistryRead, DeviceConnect'
-                        elif ev['rights'] == 'registry_write, _service_connect':
-                            ev['rights'] = 'RegistryWrite, ServiceConnect'
-                        elif ev['rights'] == 'registry_write, _device_connect':
-                            ev['rights'] = 'RegistryWrite, DeviceConnect'
-                        elif ev['rights'] == 'service_connect, _device_connect':
-                            ev['rights'] = 'ServiceConnect, DeviceConnect'
-                        elif ev['rights'] == 'registry_read, _registry_write, _service_connect':
-                            ev['rights'] = 'RegistryRead, RegistryWrite, ServiceConnect'
-                        elif ev['rights'] == 'registry_read, _registry_write, _device_connect':
-                            ev['rights'] = 'RegistryRead, RegistryWrite, DeviceConnect'
-                        elif ev['rights'] == 'registry_read, _service_connect, _device_connect':
-                            ev['rights'] = 'RegistryRead, ServiceConnect, DeviceConnect'
-                        elif ev['rights'] == 'registry_write, _service_connect, _device_connect':
-                            ev['rights'] = 'RegistryWrite, ServiceConnect, DeviceConnect'
-                        elif ev['rights'] == 'registry_read, _registry_write, _service_connect, _device_connect':
-                            ev['rights'] = 'RegistryRead, RegistryWrite, ServiceConnect, DeviceConnect'
-                    self.iot_hub_description.setdefault("properties", {})["authorization_policies"] = ev
-                elif key == "ip_filter_rules":
-                    ev = kwargs[key]
-                    if 'action' in ev:
-                        if ev['action'] == 'accept':
-                            ev['action'] = 'Accept'
-                        elif ev['action'] == 'reject':
-                            ev['action'] = 'Reject'
-                    self.iot_hub_description.setdefault("properties", {})["ip_filter_rules"] = ev
-                elif key == "event_hub_endpoints":
-                    self.iot_hub_description.setdefault("properties", {})["event_hub_endpoints"] = kwargs[key]
-                elif key == "routing":
-                    self.iot_hub_description.setdefault("properties", {})["routing"] = kwargs[key]
-                elif key == "storage_endpoints":
-                    self.iot_hub_description.setdefault("properties", {})["storage_endpoints"] = kwargs[key]
-                elif key == "messaging_endpoints":
-                    self.iot_hub_description.setdefault("properties", {})["messaging_endpoints"] = kwargs[key]
-                elif key == "enable_file_upload_notifications":
-                    self.iot_hub_description.setdefault("properties", {})["enable_file_upload_notifications"] = kwargs[key]
-                elif key == "cloud_to_device":
-                    self.iot_hub_description.setdefault("properties", {})["cloud_to_device"] = kwargs[key]
-                elif key == "comments":
-                    self.iot_hub_description.setdefault("properties", {})["comments"] = kwargs[key]
-                elif key == "operations_monitoring_properties":
-                    self.iot_hub_description.setdefault("properties", {})["operations_monitoring_properties"] = kwargs[key]
-                elif key == "features":
-                    self.iot_hub_description.setdefault("properties", {})["features"] = _snake_to_camel(kwargs[key], True)
-                elif key == "sku":
-                    ev = kwargs[key]
-                    if 'name' in ev:
-                        if ev['name'] == 'f1':
-                            ev['name'] = 'F1'
-                        elif ev['name'] == 's1':
-                            ev['name'] = 'S1'
-                        elif ev['name'] == 's2':
-                            ev['name'] = 'S2'
-                        elif ev['name'] == 's3':
-                            ev['name'] = 'S3'
-                        elif ev['name'] == 'b1':
-                            ev['name'] = 'B1'
-                        elif ev['name'] == 'b2':
-                            ev['name'] = 'B2'
-                        elif ev['name'] == 'b3':
-                            ev['name'] = 'B3'
-                    self.iot_hub_description["sku"] = ev
+                self.iot_hub_description[key] = kwargs[key]
+
+        dict_camelize(self.iot_hub_description, ['authorization_policies', 'rights'], True)
+        dict_map(self.iot_hub_description, ['authorization_policies', 'rights'], ''registry_read, _registry_write': 'RegistryRead, RegistryWrite', 'registry_read, _service_connect': 'RegistryRead, ServiceConnect', 'registry_read, _device_connect': 'RegistryRead, DeviceConnect', 'registry_write, _service_connect': 'RegistryWrite, ServiceConnect', 'registry_write, _device_connect': 'RegistryWrite, DeviceConnect', 'service_connect, _device_connect': 'ServiceConnect, DeviceConnect', 'registry_read, _registry_write, _service_connect': 'RegistryRead, RegistryWrite, ServiceConnect', 'registry_read, _registry_write, _device_connect': 'RegistryRead, RegistryWrite, DeviceConnect', 'registry_read, _service_connect, _device_connect': 'RegistryRead, ServiceConnect, DeviceConnect', 'registry_write, _service_connect, _device_connect': 'RegistryWrite, ServiceConnect, DeviceConnect', 'registry_read, _registry_write, _service_connect, _device_connect': 'RegistryRead, RegistryWrite, ServiceConnect, DeviceConnect'')
+        dict_expand(self.iot_hub_description, ['authorization_policies'])
+        dict_camelize(self.iot_hub_description, ['ip_filter_rules', 'action'], True)
+        dict_expand(self.iot_hub_description, ['ip_filter_rules'])
+        dict_expand(self.iot_hub_description, ['event_hub_endpoints'])
+        dict_camelize(self.iot_hub_description, ['routing', 'routes', 'source'], True)
+        dict_expand(self.iot_hub_description, ['routing'])
+        dict_expand(self.iot_hub_description, ['storage_endpoints'])
+        dict_expand(self.iot_hub_description, ['messaging_endpoints'])
+        dict_expand(self.iot_hub_description, ['enable_file_upload_notifications'])
+        dict_expand(self.iot_hub_description, ['cloud_to_device'])
+        dict_expand(self.iot_hub_description, ['comments'])
+        dict_expand(self.iot_hub_description, ['operations_monitoring_properties'])
+        dict_expand(self.iot_hub_description, ['features'])
+        dict_camelize(self.iot_hub_description, ['features'], True)
+        dict_camelize(self.iot_hub_description, ['sku', 'name'], True)
 
         response = None
 
@@ -623,7 +588,7 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.iot_hub_description, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -655,7 +620,7 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_iothubresource(self):
@@ -715,25 +680,27 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -747,11 +714,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):

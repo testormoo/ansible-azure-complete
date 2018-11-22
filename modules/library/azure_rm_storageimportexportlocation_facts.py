@@ -88,7 +88,7 @@ except ImportError:
     pass
 
 
-class AzureRMLocationsFacts(AzureRMModuleBase):
+class AzureRMLocationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -107,7 +107,7 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.name = None
         self.self.config.accept_language = None
-        super(AzureRMLocationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLocationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -125,14 +125,14 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
             response = self.mgmt_client.locations.get(location_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Locations.')
+            self.log('Could not get facts for Location.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -145,7 +145,7 @@ class AzureRMLocationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLocationsFacts()
+    AzureRMLocationFacts()
 
 
 if __name__ == '__main__':

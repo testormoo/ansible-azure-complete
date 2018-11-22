@@ -122,7 +122,7 @@ except ImportError:
     pass
 
 
-class AzureRMSolutionsFacts(AzureRMModuleBase):
+class AzureRMSolutionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -140,7 +140,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.name = None
-        super(AzureRMSolutionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSolutionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -165,10 +165,10 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
                                                       solution_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Solutions.')
+            self.log('Could not get facts for Solution.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -179,11 +179,11 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.solutions.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Solutions.')
+            self.log('Could not get facts for Solution.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -194,15 +194,15 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.solutions.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Solutions.')
+            self.log('Could not get facts for Solution.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -221,7 +221,7 @@ class AzureRMSolutionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSolutionsFacts()
+    AzureRMSolutionFacts()
 
 
 if __name__ == '__main__':

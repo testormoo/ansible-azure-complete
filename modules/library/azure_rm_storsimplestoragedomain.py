@@ -17,52 +17,45 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_storsimplestoragedomain
 version_added: "2.8"
-short_description: Manage Storage Domain instance.
+short_description: Manage Azure Storage Domain instance.
 description:
-    - Create, update and delete instance of Storage Domain.
+    - Create, update and delete instance of Azure Storage Domain.
 
 options:
     storage_domain_name:
         description:
             - The storage domain name.
         required: True
-    storage_domain:
+    storage_account_credential_ids:
         description:
-            - The storageDomain.
-        required: True
+            - The storage account credentials.
+            - Required when C(state) is I(present).
+        type: list
+    encryption_key:
+        description:
+            - The encryption key used to encrypt the data. This is a user secret.
         suboptions:
-            storage_account_credential_ids:
+            value:
                 description:
-                    - The storage account credentials.
+                    - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
+                       EncryptionCertThumbprint will be null."
                     - Required when C(state) is I(present).
-                type: list
-            encryption_key:
+            encryption_certificate_thumbprint:
                 description:
-                    - The encryption key used to encrypt the data. This is a user secret.
-                suboptions:
-                    value:
-                        description:
-                            - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
-                               EncryptionCertThumbprint will be null."
-                            - Required when C(state) is I(present).
-                    encryption_certificate_thumbprint:
-                        description:
-                            - "Thumbprint certificate that was used to encrypt 'I(value)'"
-                    encryption_algorithm:
-                        description:
-                            - "Algorithm used to encrypt 'I(value)'."
-                            - Required when C(state) is I(present).
-                        choices:
-                            - 'none'
-                            - 'aes256'
-                            - 'rsaes_pkcs1_v_1_5'
-            encryption_status:
+                    - "Thumbprint certificate that was used to encrypt 'I(value)'"
+            encryption_algorithm:
                 description:
-                    - "The encryption status 'C(enabled) | C(disabled)'."
+                    - "Algorithm used to encrypt 'I(value)'."
                     - Required when C(state) is I(present).
                 choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - 'none'
+                    - 'aes256'
+                    - 'rsaes_pkcs1_v_1_5'
+    encryption_status:
+        description:
+            - "The encryption status 'Enabled | Disabled'. Possible values include: 'Enabled', 'Disabled'"
+            - Required when C(state) is I(present).
+        type: bool
     resource_group:
         description:
             - The resource group name
@@ -92,12 +85,11 @@ EXAMPLES = '''
   - name: Create (or update) Storage Domain
     azure_rm_storsimplestoragedomain:
       storage_domain_name: sd-fs-HSDK-4XY4FI2IVG
-      storage_domain:
-        storage_account_credential_ids:
-          - [
+      storage_account_credential_ids:
+        - [
   "/subscriptions/9eb689cd-7243-43b4-b6f6-5c65cb296641/resourceGroups/ResourceGroupForSDKTest/providers/Microsoft.StorSimple/managers/hAzureSDKOperations/storageAccountCredentials/sacforsdktest"
 ]
-        encryption_status: Disabled
+      encryption_status: encryption_status
       resource_group: ResourceGroupForSDKTest
       name: hAzureSDKOperations
 '''
@@ -130,7 +122,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMStorageDomains(AzureRMModuleBase):
+class AzureRMStorageDomain(AzureRMModuleBase):
     """Configuration class for an Azure RM Storage Domain resource"""
 
     def __init__(self):
@@ -139,9 +131,14 @@ class AzureRMStorageDomains(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            storage_domain=dict(
-                type='dict',
-                required=True
+            storage_account_credential_ids=dict(
+                type='list'
+            ),
+            encryption_key=dict(
+                type='dict'
+            ),
+            encryption_status=dict(
+                type='bool'
             ),
             resource_group=dict(
                 type='str',
@@ -168,31 +165,22 @@ class AzureRMStorageDomains(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMStorageDomains, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMStorageDomain, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                     supports_check_mode=True,
                                                     supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "storage_account_credential_ids":
-                    self.storage_domain["storage_account_credential_ids"] = kwargs[key]
-                elif key == "encryption_key":
-                    ev = kwargs[key]
-                    if 'encryption_algorithm' in ev:
-                        if ev['encryption_algorithm'] == 'none':
-                            ev['encryption_algorithm'] = 'None'
-                        elif ev['encryption_algorithm'] == 'aes256':
-                            ev['encryption_algorithm'] = 'AES256'
-                        elif ev['encryption_algorithm'] == 'rsaes_pkcs1_v_1_5':
-                            ev['encryption_algorithm'] = 'RSAES_PKCS1_v_1_5'
-                    self.storage_domain["encryption_key"] = ev
-                elif key == "encryption_status":
-                    self.storage_domain["encryption_status"] = _snake_to_camel(kwargs[key], True)
+                self.storage_domain[key] = kwargs[key]
+
+        dict_upper(self.storage_domain, ['encryption_key', 'encryption_algorithm'])
+        dict_map(self.storage_domain, ['encryption_key', 'encryption_algorithm'], ''none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'')
+        dict_map(self.storage_domain, ['encryption_status'], '{True: 'Enabled', False: 'Disabled'}')
 
         response = None
 
@@ -214,7 +202,7 @@ class AzureRMStorageDomains(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.storage_domain, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -246,7 +234,7 @@ class AzureRMStorageDomains(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_storagedomain(self):
@@ -309,25 +297,27 @@ class AzureRMStorageDomains(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -341,11 +331,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -357,7 +430,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMStorageDomains()
+    AzureRMStorageDomain()
 
 
 if __name__ == '__main__':

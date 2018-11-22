@@ -93,7 +93,7 @@ except ImportError:
     pass
 
 
-class AzureRMBackupLongTermRetentionPoliciesFacts(AzureRMModuleBase):
+class AzureRMBackupLongTermRetentionPolicyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -122,7 +122,7 @@ class AzureRMBackupLongTermRetentionPoliciesFacts(AzureRMModuleBase):
         self.server_name = None
         self.database_name = None
         self.name = None
-        super(AzureRMBackupLongTermRetentionPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMBackupLongTermRetentionPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,10 +146,10 @@ class AzureRMBackupLongTermRetentionPoliciesFacts(AzureRMModuleBase):
                                                                                 policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackupLongTermRetentionPolicies.')
+            self.log('Could not get facts for Backup Long Term Retention Policy.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -162,15 +162,15 @@ class AzureRMBackupLongTermRetentionPoliciesFacts(AzureRMModuleBase):
                                                                                              database_name=self.database_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackupLongTermRetentionPolicies.')
+            self.log('Could not get facts for Backup Long Term Retention Policy.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -181,7 +181,7 @@ class AzureRMBackupLongTermRetentionPoliciesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMBackupLongTermRetentionPoliciesFacts()
+    AzureRMBackupLongTermRetentionPolicyFacts()
 
 
 if __name__ == '__main__':

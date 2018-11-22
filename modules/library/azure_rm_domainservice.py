@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_domainservice
 version_added: "2.8"
-short_description: Manage Domain Service instance.
+short_description: Manage Azure Domain Service instance.
 description:
-    - Create, update and delete instance of Domain Service.
+    - Create, update and delete instance of Azure Domain Service.
 
 options:
     resource_group:
@@ -43,10 +43,8 @@ options:
         suboptions:
             ldaps:
                 description:
-                    - A flag to determine whether or not Secure LDAP is C(C(enabled)) or C(C(disabled)).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "A flag to determine whether or not Secure LDAP is enabled or disabled. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             pfx_certificate:
                 description:
                     - "The certificate required to configure Secure LDAP. The parameter passed here should be a base64encoded representation of the
@@ -56,26 +54,21 @@ options:
                     - The password to decrypt the provided Secure LDAP certificate pfx file.
             external_access:
                 description:
-                    - A flag to determine whether or not Secure LDAP access over the internet is C(C(enabled)) or C(C(disabled)).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "A flag to determine whether or not Secure LDAP access over the internet is enabled or disabled. Possible values include: 'Enabled',
+                       'Disabled'"
+                type: bool
     notification_settings:
         description:
             - Notification Settings
         suboptions:
             notify_global_admins:
                 description:
-                    - Should global admins be notified.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Should global admins be notified. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             notify_dc_admins:
                 description:
-                    - Should domain controller admins be notified.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Should domain controller admins be notified. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             additional_recipients:
                 description:
                     - The list of additional recipients
@@ -86,28 +79,20 @@ options:
         suboptions:
             ntlm_v1:
                 description:
-                    - A flag to determine whether or not NtlmV1 is C(C(C(enabled))) or C(C(C(disabled))).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "A flag to determine whether or not NtlmV1 is enabled or disabled. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             tls_v1:
                 description:
-                    - A flag to determine whether or not TlsV1 is C(C(C(enabled))) or C(C(C(disabled))).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "A flag to determine whether or not TlsV1 is enabled or disabled. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             sync_ntlm_passwords:
                 description:
-                    - A flag to determine whether or not SyncNtlmPasswords is C(C(C(enabled))) or C(C(C(disabled))).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "A flag to determine whether or not SyncNtlmPasswords is enabled or disabled. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
     filtered_sync:
         description:
-            - C(enabled) or C(disabled) flag to turn on Group-based filtered sync.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Enabled or Disabled flag to turn on Group-based filtered sync. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     state:
       description:
         - Assert the state of the Domain Service.
@@ -134,23 +119,23 @@ EXAMPLES = '''
       domain_name: zdomain.zforest.com
       subnet_id: /subscriptions/1639790a-76a2-4ac4-98d9-8562f5dfcb4d/resourceGroups/Default-Networking/providers/Microsoft.Network/virtualNetworks/DCIaasTmpWusNet/subnets/Subnet-1
       ldaps_settings:
-        ldaps: Enabled
+        ldaps: ldaps
         pfx_certificate: MIIDPDCCAiSgAwIBAgIQQUI9P6tq2p9OFIJa7DLNvTANBgkqhkiG9w0BAQsFADAgMR4w...
         pfx_certificate_password: Password01
-        external_access: Enabled
+        external_access: external_access
       notification_settings:
-        notify_global_admins: Enabled
-        notify_dc_admins: Enabled
+        notify_global_admins: notify_global_admins
+        notify_dc_admins: notify_dc_admins
         additional_recipients:
           - [
   "jicha@microsoft.com",
   "caalmont@microsoft.com"
 ]
       domain_security_settings:
-        ntlm_v1: Enabled
-        tls_v1: Disabled
-        sync_ntlm_passwords: Enabled
-      filtered_sync: Enabled
+        ntlm_v1: ntlm_v1
+        tls_v1: tls_v1
+        sync_ntlm_passwords: sync_ntlm_passwords
+      filtered_sync: filtered_sync
 '''
 
 RETURN = '''
@@ -180,7 +165,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDomainServices(AzureRMModuleBase):
+class AzureRMDomainService(AzureRMModuleBase):
     """Configuration class for an Azure RM Domain Service resource"""
 
     def __init__(self):
@@ -209,9 +194,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
                 type='dict'
             ),
             filtered_sync=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             state=dict(
                 type='str',
@@ -229,7 +212,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDomainServices, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMDomainService, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                     supports_check_mode=True,
                                                     supports_tags=True)
 
@@ -240,56 +223,16 @@ class AzureRMDomainServices(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "domain_name":
-                    self.properties["domain_name"] = kwargs[key]
-                elif key == "subnet_id":
-                    self.properties["subnet_id"] = kwargs[key]
-                elif key == "ldaps_settings":
-                    ev = kwargs[key]
-                    if 'ldaps' in ev:
-                        if ev['ldaps'] == 'enabled':
-                            ev['ldaps'] = 'Enabled'
-                        elif ev['ldaps'] == 'disabled':
-                            ev['ldaps'] = 'Disabled'
-                    if 'external_access' in ev:
-                        if ev['external_access'] == 'enabled':
-                            ev['external_access'] = 'Enabled'
-                        elif ev['external_access'] == 'disabled':
-                            ev['external_access'] = 'Disabled'
-                    self.properties["ldaps_settings"] = ev
-                elif key == "notification_settings":
-                    ev = kwargs[key]
-                    if 'notify_global_admins' in ev:
-                        if ev['notify_global_admins'] == 'enabled':
-                            ev['notify_global_admins'] = 'Enabled'
-                        elif ev['notify_global_admins'] == 'disabled':
-                            ev['notify_global_admins'] = 'Disabled'
-                    if 'notify_dc_admins' in ev:
-                        if ev['notify_dc_admins'] == 'enabled':
-                            ev['notify_dc_admins'] = 'Enabled'
-                        elif ev['notify_dc_admins'] == 'disabled':
-                            ev['notify_dc_admins'] = 'Disabled'
-                    self.properties["notification_settings"] = ev
-                elif key == "domain_security_settings":
-                    ev = kwargs[key]
-                    if 'ntlm_v1' in ev:
-                        if ev['ntlm_v1'] == 'enabled':
-                            ev['ntlm_v1'] = 'Enabled'
-                        elif ev['ntlm_v1'] == 'disabled':
-                            ev['ntlm_v1'] = 'Disabled'
-                    if 'tls_v1' in ev:
-                        if ev['tls_v1'] == 'enabled':
-                            ev['tls_v1'] = 'Enabled'
-                        elif ev['tls_v1'] == 'disabled':
-                            ev['tls_v1'] = 'Disabled'
-                    if 'sync_ntlm_passwords' in ev:
-                        if ev['sync_ntlm_passwords'] == 'enabled':
-                            ev['sync_ntlm_passwords'] = 'Enabled'
-                        elif ev['sync_ntlm_passwords'] == 'disabled':
-                            ev['sync_ntlm_passwords'] = 'Disabled'
-                    self.properties["domain_security_settings"] = ev
-                elif key == "filtered_sync":
-                    self.properties["filtered_sync"] = _snake_to_camel(kwargs[key], True)
+                self.properties[key] = kwargs[key]
+
+        dict_map(self.properties, ['ldaps_settings', 'ldaps'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['ldaps_settings', 'external_access'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['notification_settings', 'notify_global_admins'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['notification_settings', 'notify_dc_admins'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['domain_security_settings', 'ntlm_v1'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['domain_security_settings', 'tls_v1'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['domain_security_settings', 'sync_ntlm_passwords'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['filtered_sync'], '{True: 'Enabled', False: 'Disabled'}')
 
         response = None
 
@@ -311,7 +254,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.properties, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -343,7 +286,7 @@ class AzureRMDomainServices(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_domainservice(self):
@@ -403,25 +346,27 @@ class AzureRMDomainServices(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -435,11 +380,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -451,7 +479,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDomainServices()
+    AzureRMDomainService()
 
 
 if __name__ == '__main__':

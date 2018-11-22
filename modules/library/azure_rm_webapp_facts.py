@@ -93,7 +93,7 @@ except ImportError:
     pass
 
 
-class AzureRMWebAppsFacts(AzureRMModuleBase):
+class AzureRMWebAppFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -120,7 +120,7 @@ class AzureRMWebAppsFacts(AzureRMModuleBase):
         self.include_slots = None
         self.name = None
         self.tags = None
-        super(AzureRMWebAppsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMWebAppFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -128,10 +128,10 @@ class AzureRMWebAppsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(WebSiteManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['web_apps'] = self.get()
         else:
             self.results['web_apps'] = self.list_by_resource_group()
-        elif self.name is not None:
-            self.results['web_apps'] = self.get()
         return self.results
 
     def list_by_resource_group(self):
@@ -141,12 +141,12 @@ class AzureRMWebAppsFacts(AzureRMModuleBase):
             response = self.mgmt_client.web_apps.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for WebApps.')
+            self.log('Could not get facts for Web App.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -158,14 +158,14 @@ class AzureRMWebAppsFacts(AzureRMModuleBase):
                                                      name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for WebApps.')
+            self.log('Could not get facts for Web App.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -177,7 +177,7 @@ class AzureRMWebAppsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMWebAppsFacts()
+    AzureRMWebAppFacts()
 
 
 if __name__ == '__main__':

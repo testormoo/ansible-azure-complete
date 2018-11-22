@@ -78,7 +78,7 @@ except ImportError:
     pass
 
 
-class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
+class AzureRMSupportPlanTypeFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -98,7 +98,7 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.provider_name = None
         self.name = None
-        super(AzureRMSupportPlanTypesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSupportPlanTypeFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -117,14 +117,14 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
                                                                plan_type_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SupportPlanTypes.')
+            self.log('Could not get facts for Support Plan Type.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -135,7 +135,7 @@ class AzureRMSupportPlanTypesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSupportPlanTypesFacts()
+    AzureRMSupportPlanTypeFacts()
 
 
 if __name__ == '__main__':

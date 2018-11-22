@@ -104,7 +104,7 @@ except ImportError:
     pass
 
 
-class AzureRMMarketplacesFacts(AzureRMModuleBase):
+class AzureRMMarketplaceFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -142,7 +142,7 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
         self.billing_account_id = None
         self.department_id = None
         self.enrollment_account_id = None
-        super(AzureRMMarketplacesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMMarketplaceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -167,11 +167,11 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             response = self.mgmt_client.marketplaces.list_by_billing_period(billing_period_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Marketplaces.')
+            self.log('Could not get facts for Marketplace.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -182,11 +182,11 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             response = self.mgmt_client.marketplaces.list_by_billing_account(billing_account_id=self.billing_account_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Marketplaces.')
+            self.log('Could not get facts for Marketplace.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -197,11 +197,11 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             response = self.mgmt_client.marketplaces.list_by_department(department_id=self.department_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Marketplaces.')
+            self.log('Could not get facts for Marketplace.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -212,15 +212,15 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
             response = self.mgmt_client.marketplaces.list_by_enrollment_account(enrollment_account_id=self.enrollment_account_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Marketplaces.')
+            self.log('Could not get facts for Marketplace.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -229,7 +229,7 @@ class AzureRMMarketplacesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMMarketplacesFacts()
+    AzureRMMarketplaceFacts()
 
 
 if __name__ == '__main__':

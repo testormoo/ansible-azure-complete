@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_sqlserver
 version_added: "2.8"
-short_description: Manage SQL Server instance.
+short_description: Manage Azure SQL Server instance.
 description:
-    - Create, update and delete instance of SQL Server.
+    - Create, update and delete instance of Azure SQL Server.
 
 options:
     resource_group:
@@ -122,7 +122,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMServers(AzureRMModuleBase):
+class AzureRMSQLServer(AzureRMModuleBase):
     """Configuration class for an Azure RM SQL Server resource"""
 
     def __init__(self):
@@ -168,9 +168,9 @@ class AzureRMServers(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMServers, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                             supports_check_mode=True,
-                                             supports_tags=True)
+        super(AzureRMSQLServer, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                supports_check_mode=True,
+                                                supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -179,18 +179,13 @@ class AzureRMServers(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "identity":
-                    self.parameters.setdefault("identity", {})["type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "admin_username":
-                    self.parameters["administrator_login"] = kwargs[key]
-                elif key == "admin_password":
-                    self.parameters["administrator_login_password"] = kwargs[key]
-                elif key == "version":
-                    self.parameters["version"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
 
-        self.adjust_parameters()
+        dict_rename(self.parameters, ['identity'], 'identity')
+        dict_expand(self.parameters, ['identity'])
+        dict_camelize(self.parameters, ['identity'], True)
+        dict_rename(self.parameters, ['admin_username'], 'administrator_login')
+        dict_rename(self.parameters, ['admin_password'], 'administrator_login_password')
 
         response = None
 
@@ -215,7 +210,7 @@ class AzureRMServers(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -247,18 +242,8 @@ class AzureRMServers(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
-
-    def adjust_parameters(self):
-        if self.parameters.get('identity', None) is not None:
-            self.rename_key(self.parameters['identity'], 'identity', 'type')
-
-    def rename_key(self, d, old_name, new_name):
-        old_value = d.get(old_name, None)
-        if old_value is not None:
-            d.pop(old_name, None)
-            d[new_name] = old_value
 
     def create_update_sqlserver(self):
         '''
@@ -317,7 +302,7 @@ class AzureRMServers(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'version': d.get('version', None),
@@ -327,18 +312,20 @@ class AzureRMServers(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -352,11 +339,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -368,7 +438,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMServers()
+    AzureRMSQLServer()
 
 
 if __name__ == '__main__':

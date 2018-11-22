@@ -111,7 +111,7 @@ except ImportError:
     pass
 
 
-class AzureRMNodeReportsFacts(AzureRMModuleBase):
+class AzureRMNodeReportFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -144,7 +144,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
         self.node_id = None
         self.filter = None
         self.report_id = None
-        super(AzureRMNodeReportsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMNodeReportFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -152,10 +152,10 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.report_id is not None:
+            self.results['node_reports'] = self.get()
         else:
             self.results['node_reports'] = self.list_by_node()
-        elif self.report_id is not None:
-            self.results['node_reports'] = self.get()
         return self.results
 
     def list_by_node(self):
@@ -167,11 +167,11 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
                                                                   node_id=self.node_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for NodeReports.')
+            self.log('Could not get facts for Node Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -185,14 +185,14 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
                                                          report_id=self.report_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for NodeReports.')
+            self.log('Could not get facts for Node Report.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -207,7 +207,7 @@ class AzureRMNodeReportsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMNodeReportsFacts()
+    AzureRMNodeReportFacts()
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_computedisk
 version_added: "2.8"
-short_description: Manage Disk instance.
+short_description: Manage Azure Disk instance.
 description:
-    - Create, update and delete instance of Disk.
+    - Create, update and delete instance of Azure Disk.
 
 options:
     resource_group:
@@ -28,130 +28,125 @@ options:
         required: True
     name:
         description:
-            - "The name of the managed I(disk) that is being created. The name can't be changed after the I(disk) is created. Supported characters for the
-               name are a-z, A-Z, 0-9 and _. The maximum name length is 80 characters."
+            - "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name
+               are a-z, A-Z, 0-9 and _. The maximum name length is 80 characters."
         required: True
-    disk:
+    location:
         description:
-            - Disk object supplied in the body of the Put disk operation.
-        required: True
+            - Resource location
+            - Required when C(state) is I(present).
+    sku:
+        description:
         suboptions:
-            location:
+            name:
                 description:
-                    - Resource location
-                    - Required when C(state) is I(present).
-            sku:
-                description:
-                suboptions:
-                    name:
-                        description:
-                            - The sku name.
-                        choices:
-                            - 'standard_lrs'
-                            - 'premium_lrs'
-                            - 'standard_ssd_lrs'
-                            - 'ultra_ssd_lrs'
-            zones:
-                description:
-                    - The Logical zone list for Disk.
-                type: list
-            os_type:
-                description:
-                    - The Operating System type.
+                    - The sku name.
                 choices:
-                    - 'windows'
-                    - 'linux'
-            creation_data:
+                    - 'standard_lrs'
+                    - 'premium_lrs'
+                    - 'standard_ssd_lrs'
+                    - 'ultra_ssd_lrs'
+    zones:
+        description:
+            - The Logical zone list for Disk.
+        type: list
+    os_type:
+        description:
+            - The Operating System type.
+        choices:
+            - 'windows'
+            - 'linux'
+    creation_data:
+        description:
+            - Disk source information. CreationData information cannot be changed after the disk has been created.
+            - Required when C(state) is I(present).
+        suboptions:
+            create_option:
                 description:
-                    - Disk source information. CreationData information cannot be changed after the disk has been created.
+                    - "This enumerates the possible sources of a disk's creation."
                     - Required when C(state) is I(present).
+                choices:
+                    - 'empty'
+                    - 'attach'
+                    - 'from_image'
+                    - 'import'
+                    - 'copy'
+                    - 'restore'
+            storage_account_id:
+                description:
+                    - "If I(create_option) is C(import), the Azure Resource Manager identifier of the storage account containing the blob to C(import) as a
+                       disk. Required only if the blob is in a different subscription"
+            image_reference:
+                description:
+                    - Disk source information.
                 suboptions:
-                    create_option:
+                    id:
                         description:
-                            - "This enumerates the possible sources of a disk's creation."
+                            - A relative uri containing either a Platform Image Repository or user image reference.
                             - Required when C(state) is I(present).
-                        choices:
-                            - 'empty'
-                            - 'attach'
-                            - 'from_image'
-                            - 'import'
-                            - 'copy'
-                            - 'restore'
-                    storage_account_id:
+                    lun:
                         description:
-                            - "If I(create_option) is C(import), the Azure Resource Manager identifier of the storage account containing the blob to
-                               C(import) as a disk. Required only if the blob is in a different subscription"
-                    image_reference:
+                            - "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the image to
+                               use. For OS disks, this field is null."
+            source_uri:
+                description:
+                    - If I(create_option) is C(import), this is the URI of a blob to be imported into a managed disk.
+            source_resource_id:
+                description:
+                    - If I(create_option) is C(copy), this is the ARM id of the source snapshot or disk.
+    disk_size_gb:
+        description:
+            - "If I(creation_data).createOption is Empty, this field is mandatory and it indicates the size of the VHD to create. If this field is present
+               for updates or creation with other options, it indicates a resize. Resizes are only allowed if the disk is not attached to a running VM, and
+               can only increase the disk's size."
+    encryption_settings:
+        description:
+            - Encryption settings for disk or snapshot
+        suboptions:
+            enabled:
+                description:
+                    - "Set this flag to true and provide I(disk_encryption_key) and optional I(key_encryption_key) to enable encryption. Set this flag to
+                       false and remove I(disk_encryption_key) and I(key_encryption_key) to disable encryption. If EncryptionSettings is null in the
+                       request object, the existing settings remain unchanged."
+            disk_encryption_key:
+                description:
+                    - Key Vault Secret Url and vault id of the disk encryption key
+                suboptions:
+                    source_vault:
                         description:
-                            - Disk source information.
+                            - Resource id of the KeyVault containing the key or secret
+                            - Required when C(state) is I(present).
                         suboptions:
                             id:
                                 description:
-                                    - A relative uri containing either a Platform Image Repository or user image reference.
-                                    - Required when C(state) is I(present).
-                            lun:
-                                description:
-                                    - "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the
-                                       image to use. For OS disks, this field is null."
-                    source_uri:
+                                    - Resource Id
+                    secret_url:
                         description:
-                            - If I(create_option) is C(import), this is the URI of a blob to be imported into a managed disk.
-                    source_resource_id:
-                        description:
-                            - If I(create_option) is C(copy), this is the ARM id of the source snapshot or disk.
-            disk_size_gb:
+                            - Url pointing to a key or secret in KeyVault
+                            - Required when C(state) is I(present).
+            key_encryption_key:
                 description:
-                    - "If I(creation_data).createOption is Empty, this field is mandatory and it indicates the size of the VHD to create. If this field is
-                       present for updates or creation with other options, it indicates a resize. Resizes are only allowed if the disk is not attached to a
-                       running VM, and can only increase the disk's size."
-            encryption_settings:
-                description:
-                    - Encryption settings for disk or snapshot
+                    - Key Vault Key Url and vault id of the key encryption key
                 suboptions:
-                    enabled:
+                    source_vault:
                         description:
-                            - "Set this flag to true and provide I(disk_encryption_key) and optional I(key_encryption_key) to enable encryption. Set this
-                               flag to false and remove I(disk_encryption_key) and I(key_encryption_key) to disable encryption. If EncryptionSettings is
-                               null in the request object, the existing settings remain unchanged."
-                    disk_encryption_key:
-                        description:
-                            - Key Vault Secret Url and vault id of the disk encryption key
+                            - Resource id of the KeyVault containing the key or secret
+                            - Required when C(state) is I(present).
                         suboptions:
-                            source_vault:
+                            id:
                                 description:
-                                    - Resource id of the KeyVault containing the key or secret
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    id:
-                                        description:
-                                            - Resource Id
-                            secret_url:
-                                description:
-                                    - Url pointing to a key or secret in KeyVault
-                                    - Required when C(state) is I(present).
-                    key_encryption_key:
+                                    - Resource Id
+                    key_url:
                         description:
-                            - Key Vault Key Url and vault id of the key encryption key
-                        suboptions:
-                            source_vault:
-                                description:
-                                    - Resource id of the KeyVault containing the key or secret
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    id:
-                                        description:
-                                            - Resource Id
-                            key_url:
-                                description:
-                                    - Url pointing to a key or secret in KeyVault
-                                    - Required when C(state) is I(present).
-            disk_iops_read_write:
-                description:
-                    - The number of IOPS allowed for this disk; only settable for UltraSSD disks. One operation can transfer between 4k and 256k bytes.
-            disk_mbps_read_write:
-                description:
-                    - "The bandwidth allowed for this disk; only settable for UltraSSD disks. MBps means millions of bytes per second - MB here uses the ISO
-                       notation, of powers of 10."
+                            - Url pointing to a key or secret in KeyVault
+                            - Required when C(state) is I(present).
+    disk_iops_read_write:
+        description:
+            - The number of IOPS allowed for this disk; only settable for UltraSSD disks. One operation can transfer between 4k and 256k bytes.
+    disk_mbps_read_write:
+        description:
+            - "The bandwidth allowed for this disk; only settable for UltraSSD disks. MBps means millions of bytes per second - MB here uses the ISO
+               notation, of powers of 10."
     state:
       description:
         - Assert the state of the Disk.
@@ -175,11 +170,10 @@ EXAMPLES = '''
     azure_rm_computedisk:
       resource_group: myResourceGroup
       name: myDisk
-      disk:
-        location: West US
-        creation_data:
-          create_option: Empty
-        disk_size_gb: 200
+      location: West US
+      creation_data:
+        create_option: Empty
+      disk_size_gb: 200
 '''
 
 RETURN = '''
@@ -209,7 +203,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDisks(AzureRMModuleBase):
+class AzureRMDisk(AzureRMModuleBase):
     """Configuration class for an Azure RM Disk resource"""
 
     def __init__(self):
@@ -222,9 +216,34 @@ class AzureRMDisks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            disk=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            sku=dict(
+                type='dict'
+            ),
+            zones=dict(
+                type='list'
+            ),
+            os_type=dict(
+                type='str',
+                choices=['windows',
+                         'linux']
+            ),
+            creation_data=dict(
+                type='dict'
+            ),
+            disk_size_gb=dict(
+                type='int'
+            ),
+            encryption_settings=dict(
+                type='dict'
+            ),
+            disk_iops_read_write=dict(
+                type='int'
+            ),
+            disk_mbps_read_write=dict(
+                type='int'
             ),
             state=dict(
                 type='str',
@@ -242,9 +261,9 @@ class AzureRMDisks(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDisks, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                           supports_check_mode=True,
-                                           supports_tags=True)
+        super(AzureRMDisk, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                          supports_check_mode=True,
+                                          supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -253,48 +272,12 @@ class AzureRMDisks(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.disk["location"] = kwargs[key]
-                elif key == "sku":
-                    ev = kwargs[key]
-                    if 'name' in ev:
-                        if ev['name'] == 'standard_lrs':
-                            ev['name'] = 'Standard_LRS'
-                        elif ev['name'] == 'premium_lrs':
-                            ev['name'] = 'Premium_LRS'
-                        elif ev['name'] == 'standard_ssd_lrs':
-                            ev['name'] = 'StandardSSD_LRS'
-                        elif ev['name'] == 'ultra_ssd_lrs':
-                            ev['name'] = 'UltraSSD_LRS'
-                    self.disk["sku"] = ev
-                elif key == "zones":
-                    self.disk["zones"] = kwargs[key]
-                elif key == "os_type":
-                    self.disk["os_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "creation_data":
-                    ev = kwargs[key]
-                    if 'create_option' in ev:
-                        if ev['create_option'] == 'empty':
-                            ev['create_option'] = 'Empty'
-                        elif ev['create_option'] == 'attach':
-                            ev['create_option'] = 'Attach'
-                        elif ev['create_option'] == 'from_image':
-                            ev['create_option'] = 'FromImage'
-                        elif ev['create_option'] == 'import':
-                            ev['create_option'] = 'Import'
-                        elif ev['create_option'] == 'copy':
-                            ev['create_option'] = 'Copy'
-                        elif ev['create_option'] == 'restore':
-                            ev['create_option'] = 'Restore'
-                    self.disk["creation_data"] = ev
-                elif key == "disk_size_gb":
-                    self.disk["disk_size_gb"] = kwargs[key]
-                elif key == "encryption_settings":
-                    self.disk["encryption_settings"] = kwargs[key]
-                elif key == "disk_iops_read_write":
-                    self.disk["disk_iops_read_write"] = kwargs[key]
-                elif key == "disk_mbps_read_write":
-                    self.disk["disk_mbps_read_write"] = kwargs[key]
+                self.disk[key] = kwargs[key]
+
+        dict_camelize(self.disk, ['sku', 'name'], True)
+        dict_map(self.disk, ['sku', 'name'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_camelize(self.disk, ['os_type'], True)
+        dict_camelize(self.disk, ['creation_data', 'create_option'], True)
 
         response = None
 
@@ -316,7 +299,7 @@ class AzureRMDisks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.disk, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -348,7 +331,7 @@ class AzureRMDisks(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_disk(self):
@@ -408,25 +391,27 @@ class AzureRMDisks(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -440,11 +425,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -456,7 +524,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDisks()
+    AzureRMDisk()
 
 
 if __name__ == '__main__':

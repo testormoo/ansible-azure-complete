@@ -159,10 +159,10 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.certificate_id is not None:
+            self.results['certificate'] = self.get()
         else:
             self.results['certificate'] = self.list_by_service()
-        elif self.certificate_id is not None:
-            self.results['certificate'] = self.get()
         return self.results
 
     def list_by_service(self):
@@ -177,7 +177,7 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -193,11 +193,11 @@ class AzureRMCertificateFacts(AzureRMModuleBase):
             self.log('Could not get facts for Certificate.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

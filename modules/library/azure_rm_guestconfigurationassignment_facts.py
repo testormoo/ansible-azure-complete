@@ -102,7 +102,7 @@ except ImportError:
     pass
 
 
-class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
+class AzureRMGuestConfigurationAssignmentFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -127,7 +127,7 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.guest_configuration_assignment_name = None
         self.name = None
-        super(AzureRMGuestConfigurationAssignmentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMGuestConfigurationAssignmentFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -147,14 +147,14 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
                                                                             vm_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GuestConfigurationAssignments.')
+            self.log('Could not get facts for Guest Configuration Assignment.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -169,7 +169,7 @@ class AzureRMGuestConfigurationAssignmentsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMGuestConfigurationAssignmentsFacts()
+    AzureRMGuestConfigurationAssignmentFacts()
 
 
 if __name__ == '__main__':

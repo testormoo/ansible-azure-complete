@@ -95,7 +95,7 @@ except ImportError:
     pass
 
 
-class AzureRMSchedulesFacts(AzureRMModuleBase):
+class AzureRMScheduleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -128,7 +128,7 @@ class AzureRMSchedulesFacts(AzureRMModuleBase):
         self.name = None
         self.expand = None
         self.tags = None
-        super(AzureRMSchedulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMScheduleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -148,14 +148,14 @@ class AzureRMSchedulesFacts(AzureRMModuleBase):
                                                       name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Schedules.')
+            self.log('Could not get facts for Schedule.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -167,7 +167,7 @@ class AzureRMSchedulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSchedulesFacts()
+    AzureRMScheduleFacts()
 
 
 if __name__ == '__main__':

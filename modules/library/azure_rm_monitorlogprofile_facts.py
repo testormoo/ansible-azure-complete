@@ -101,7 +101,7 @@ except ImportError:
     pass
 
 
-class AzureRMLogProfilesFacts(AzureRMModuleBase):
+class AzureRMLogProfileFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -120,7 +120,7 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.name = None
         self.tags = None
-        super(AzureRMLogProfilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLogProfileFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -138,14 +138,14 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
             response = self.mgmt_client.log_profiles.get(log_profile_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LogProfiles.')
+            self.log('Could not get facts for Log Profile.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -160,7 +160,7 @@ class AzureRMLogProfilesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLogProfilesFacts()
+    AzureRMLogProfileFacts()
 
 
 if __name__ == '__main__':

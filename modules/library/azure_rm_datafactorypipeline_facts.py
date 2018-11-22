@@ -117,7 +117,7 @@ except ImportError:
     pass
 
 
-class AzureRMPipelinesFacts(AzureRMModuleBase):
+class AzureRMPipelineFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -145,7 +145,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
         self.factory_name = None
         self.name = None
         self.if_none_match = None
-        super(AzureRMPipelinesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMPipelineFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -168,10 +168,10 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
                                                       pipeline_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Pipelines.')
+            self.log('Could not get facts for Pipeline.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -183,15 +183,15 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
                                                                   factory_name=self.factory_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Pipelines.')
+            self.log('Could not get facts for Pipeline.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -207,7 +207,7 @@ class AzureRMPipelinesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMPipelinesFacts()
+    AzureRMPipelineFacts()
 
 
 if __name__ == '__main__':

@@ -82,7 +82,7 @@ except ImportError:
     pass
 
 
-class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
+class AzureRMExpressRouteCircuitPeeringFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -107,7 +107,7 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.circuit_name = None
         self.name = None
-        super(AzureRMExpressRouteCircuitPeeringsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMExpressRouteCircuitPeeringFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -127,14 +127,14 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
                                                                            peering_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ExpressRouteCircuitPeerings.')
+            self.log('Could not get facts for Express Route Circuit Peering.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -145,7 +145,7 @@ class AzureRMExpressRouteCircuitPeeringsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMExpressRouteCircuitPeeringsFacts()
+    AzureRMExpressRouteCircuitPeeringFacts()
 
 
 if __name__ == '__main__':

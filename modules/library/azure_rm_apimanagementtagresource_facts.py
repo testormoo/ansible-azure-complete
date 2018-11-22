@@ -142,15 +142,15 @@ class AzureRMTagResourceFacts(AzureRMModuleBase):
                                                                      service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TagResource.')
+            self.log('Could not get facts for Tag Resource.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

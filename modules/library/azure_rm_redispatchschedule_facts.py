@@ -32,7 +32,7 @@ options:
     default:
         description:
             - Default string modeled as parameter for auto generation to work correctly.
-    name:
+    cache_name:
         description:
             - The name of the Redis cache.
 
@@ -54,7 +54,7 @@ EXAMPLES = '''
   - name: List instances of Patch Schedule
     azure_rm_redispatchschedule_facts:
       resource_group: resource_group_name
-      name: cache_name
+      cache_name: cache_name
 '''
 
 RETURN = '''
@@ -88,7 +88,7 @@ except ImportError:
     pass
 
 
-class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
+class AzureRMPatchScheduleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -102,7 +102,7 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
             default=dict(
                 type='str'
             ),
-            name=dict(
+            cache_name=dict(
                 type='str'
             )
         )
@@ -114,8 +114,8 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.default = None
-        self.name = None
-        super(AzureRMPatchSchedulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        self.cache_name = None
+        super(AzureRMPatchScheduleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -126,7 +126,7 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
         if (self.name is not None and
                 self.default is not None):
             self.results['patch_schedules'] = self.get()
-        elif self.name is not None:
+        elif self.cache_name is not None:
             self.results['patch_schedules'] = self.list_by_redis_resource()
         return self.results
 
@@ -139,10 +139,10 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
                                                             default=self.default)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for PatchSchedules.')
+            self.log('Could not get facts for Patch Schedule.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -151,18 +151,18 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.patch_schedules.list_by_redis_resource(resource_group_name=self.resource_group,
-                                                                               cache_name=self.name)
+                                                                               cache_name=self.cache_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for PatchSchedules.')
+            self.log('Could not get facts for Patch Schedule.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -173,7 +173,7 @@ class AzureRMPatchSchedulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMPatchSchedulesFacts()
+    AzureRMPatchScheduleFacts()
 
 
 if __name__ == '__main__':

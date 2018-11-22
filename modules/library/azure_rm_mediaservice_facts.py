@@ -93,7 +93,7 @@ except ImportError:
     pass
 
 
-class AzureRMMediaservicesFacts(AzureRMModuleBase):
+class AzureRMMediaserviceFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -115,7 +115,7 @@ class AzureRMMediaservicesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.tags = None
-        super(AzureRMMediaservicesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMMediaserviceFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -138,10 +138,10 @@ class AzureRMMediaservicesFacts(AzureRMModuleBase):
                                                           account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Mediaservices.')
+            self.log('Could not get facts for Mediaservice.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -152,16 +152,16 @@ class AzureRMMediaservicesFacts(AzureRMModuleBase):
             response = self.mgmt_client.mediaservices.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Mediaservices.')
+            self.log('Could not get facts for Mediaservice.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -174,7 +174,7 @@ class AzureRMMediaservicesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMMediaservicesFacts()
+    AzureRMMediaserviceFacts()
 
 
 if __name__ == '__main__':

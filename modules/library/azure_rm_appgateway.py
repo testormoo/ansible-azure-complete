@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_appgateway
 version_added: "2.8"
-short_description: Manage Application Gateway instance.
+short_description: Manage Azure Application Gateway instance.
 description:
-    - Create, update and delete instance of Application Gateway.
+    - Create, update and delete instance of Azure Application Gateway.
 
 options:
     resource_group:
@@ -617,10 +617,8 @@ options:
                     - 'https'
             cookie_based_affinity:
                 description:
-                    - Cookie based affinity.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "Cookie based affinity. Possible values include: 'Enabled', 'Disabled'"
+                type: bool
             request_timeout:
                 description:
                     - "Request timeout in seconds. Application Gateway will fail the request if response is not received within RequestTimeout. Acceptable
@@ -663,7 +661,7 @@ options:
                     - Cookie name to use for the affinity cookie.
             probe_enabled:
                 description:
-                    - Whether the I(probe) is C(enabled). Default value is false.
+                    - Whether the I(probe) is enabled. Default value is false.
             path:
                 description:
                     - Path which should be used as a prefix for all C(http) requests. Null means no path will be prefixed. Default value is null.
@@ -977,6 +975,8 @@ EXAMPLES = '''
       resource_group: NOT FOUND
       name: NOT FOUND
       location: eastus
+      backend_http_settings_collection:
+        - cookie_based_affinity: cookie_based_affinity
 '''
 
 RETURN = '''
@@ -1006,7 +1006,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMApplicationGateways(AzureRMModuleBase):
+class AzureRMApplicationGateway(AzureRMModuleBase):
     """Configuration class for an Azure RM Application Gateway resource"""
 
     def __init__(self):
@@ -1092,7 +1092,7 @@ class AzureRMApplicationGateways(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMApplicationGateways, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMApplicationGateway, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                          supports_check_mode=True,
                                                          supports_tags=True)
 
@@ -1103,132 +1103,35 @@ class AzureRMApplicationGateways(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "id":
-                    self.parameters["id"] = kwargs[key]
-                elif key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "sku":
-                    ev = kwargs[key]
-                    if 'name' in ev:
-                        if ev['name'] == 'standard_small':
-                            ev['name'] = 'Standard_Small'
-                        elif ev['name'] == 'standard_medium':
-                            ev['name'] = 'Standard_Medium'
-                        elif ev['name'] == 'standard_large':
-                            ev['name'] = 'Standard_Large'
-                        elif ev['name'] == 'waf_medium':
-                            ev['name'] = 'WAF_Medium'
-                        elif ev['name'] == 'waf_large':
-                            ev['name'] = 'WAF_Large'
-                    if 'tier' in ev:
-                        if ev['tier'] == 'standard':
-                            ev['tier'] = 'Standard'
-                        elif ev['tier'] == 'waf':
-                            ev['tier'] = 'WAF'
-                    self.parameters["sku"] = ev
-                elif key == "ssl_policy":
-                    ev = kwargs[key]
-                    if 'policy_type' in ev:
-                        if ev['policy_type'] == 'predefined':
-                            ev['policy_type'] = 'Predefined'
-                        elif ev['policy_type'] == 'custom':
-                            ev['policy_type'] = 'Custom'
-                    if 'policy_name' in ev:
-                        if ev['policy_name'] == 'app_gw_ssl_policy20150501':
-                            ev['policy_name'] = 'AppGwSslPolicy20150501'
-                        elif ev['policy_name'] == 'app_gw_ssl_policy20170401':
-                            ev['policy_name'] = 'AppGwSslPolicy20170401'
-                        elif ev['policy_name'] == 'app_gw_ssl_policy20170401_s':
-                            ev['policy_name'] = 'AppGwSslPolicy20170401S'
-                    if 'min_protocol_version' in ev:
-                        if ev['min_protocol_version'] == 'tl_sv1_0':
-                            ev['min_protocol_version'] = 'TLSv1_0'
-                        elif ev['min_protocol_version'] == 'tl_sv1_1':
-                            ev['min_protocol_version'] = 'TLSv1_1'
-                        elif ev['min_protocol_version'] == 'tl_sv1_2':
-                            ev['min_protocol_version'] = 'TLSv1_2'
-                    self.parameters["ssl_policy"] = ev
-                elif key == "gateway_ip_configurations":
-                    self.parameters["gateway_ip_configurations"] = kwargs[key]
-                elif key == "authentication_certificates":
-                    self.parameters["authentication_certificates"] = kwargs[key]
-                elif key == "ssl_certificates":
-                    self.parameters["ssl_certificates"] = kwargs[key]
-                elif key == "frontend_ip_configurations":
-                    ev = kwargs[key]
-                    if 'private_ip_allocation_method' in ev:
-                        if ev['private_ip_allocation_method'] == 'static':
-                            ev['private_ip_allocation_method'] = 'Static'
-                        elif ev['private_ip_allocation_method'] == 'dynamic':
-                            ev['private_ip_allocation_method'] = 'Dynamic'
-                    self.parameters["frontend_ip_configurations"] = ev
-                elif key == "frontend_ports":
-                    self.parameters["frontend_ports"] = kwargs[key]
-                elif key == "probes":
-                    ev = kwargs[key]
-                    if 'protocol' in ev:
-                        if ev['protocol'] == 'http':
-                            ev['protocol'] = 'Http'
-                        elif ev['protocol'] == 'https':
-                            ev['protocol'] = 'Https'
-                    self.parameters["probes"] = ev
-                elif key == "backend_address_pools":
-                    self.parameters["backend_address_pools"] = kwargs[key]
-                elif key == "backend_http_settings_collection":
-                    ev = kwargs[key]
-                    if 'protocol' in ev:
-                        if ev['protocol'] == 'http':
-                            ev['protocol'] = 'Http'
-                        elif ev['protocol'] == 'https':
-                            ev['protocol'] = 'Https'
-                    if 'cookie_based_affinity' in ev:
-                        if ev['cookie_based_affinity'] == 'enabled':
-                            ev['cookie_based_affinity'] = 'Enabled'
-                        elif ev['cookie_based_affinity'] == 'disabled':
-                            ev['cookie_based_affinity'] = 'Disabled'
-                    self.parameters["backend_http_settings_collection"] = ev
-                elif key == "http_listeners":
-                    ev = kwargs[key]
-                    if 'protocol' in ev:
-                        if ev['protocol'] == 'http':
-                            ev['protocol'] = 'Http'
-                        elif ev['protocol'] == 'https':
-                            ev['protocol'] = 'Https'
-                    self.parameters["http_listeners"] = ev
-                elif key == "url_path_maps":
-                    self.parameters["url_path_maps"] = kwargs[key]
-                elif key == "request_routing_rules":
-                    ev = kwargs[key]
-                    if 'rule_type' in ev:
-                        if ev['rule_type'] == 'basic':
-                            ev['rule_type'] = 'Basic'
-                        elif ev['rule_type'] == 'path_based_routing':
-                            ev['rule_type'] = 'PathBasedRouting'
-                    self.parameters["request_routing_rules"] = ev
-                elif key == "redirect_configurations":
-                    ev = kwargs[key]
-                    if 'redirect_type' in ev:
-                        if ev['redirect_type'] == 'permanent':
-                            ev['redirect_type'] = 'Permanent'
-                        elif ev['redirect_type'] == 'found':
-                            ev['redirect_type'] = 'Found'
-                        elif ev['redirect_type'] == 'see_other':
-                            ev['redirect_type'] = 'SeeOther'
-                        elif ev['redirect_type'] == 'temporary':
-                            ev['redirect_type'] = 'Temporary'
-                    self.parameters["redirect_configurations"] = ev
-                elif key == "web_application_firewall_configuration":
-                    ev = kwargs[key]
-                    if 'firewall_mode' in ev:
-                        if ev['firewall_mode'] == 'detection':
-                            ev['firewall_mode'] = 'Detection'
-                        elif ev['firewall_mode'] == 'prevention':
-                            ev['firewall_mode'] = 'Prevention'
-                    self.parameters["web_application_firewall_configuration"] = ev
-                elif key == "enable_http2":
-                    self.parameters["enable_http2"] = kwargs[key]
-                elif key == "resource_guid":
-                    self.parameters["resource_guid"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['sku', 'name'], True)
+        dict_map(self.parameters, ['sku', 'name'], ''standard_small': 'Standard_Small', 'standard_medium': 'Standard_Medium', 'standard_large': 'Standard_Large', 'waf_medium': 'WAF_Medium', 'waf_large': 'WAF_Large'')
+        dict_camelize(self.parameters, ['sku', 'tier'], True)
+        dict_map(self.parameters, ['sku', 'tier'], ''waf': 'WAF'')
+        dict_camelize(self.parameters, ['ssl_policy', 'policy_type'], True)
+        dict_camelize(self.parameters, ['ssl_policy', 'policy_name'], True)
+        dict_camelize(self.parameters, ['ssl_policy', 'min_protocol_version'], True)
+        dict_map(self.parameters, ['ssl_policy', 'min_protocol_version'], ''tl_sv1_0': 'TLSv1_0', 'tl_sv1_1': 'TLSv1_1', 'tl_sv1_2': 'TLSv1_2'')
+        dict_camelize(self.parameters, ['frontend_ip_configurations', 'private_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['probes', 'protocol'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], True)
+        dict_map(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'load_balancer_inbound_nat_rules', 'protocol'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'private_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], True)
+        dict_map(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'sku', 'name'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_address_version'], True)
+        dict_map(self.parameters, ['backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_camelize(self.parameters, ['backend_http_settings_collection', 'protocol'], True)
+        dict_map(self.parameters, ['backend_http_settings_collection', 'cookie_based_affinity'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.parameters, ['http_listeners', 'protocol'], True)
+        dict_camelize(self.parameters, ['request_routing_rules', 'rule_type'], True)
+        dict_camelize(self.parameters, ['redirect_configurations', 'redirect_type'], True)
+        dict_camelize(self.parameters, ['web_application_firewall_configuration', 'firewall_mode'], True)
 
         response = None
 
@@ -1253,7 +1156,7 @@ class AzureRMApplicationGateways(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -1285,7 +1188,7 @@ class AzureRMApplicationGateways(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_applicationgateway(self):
@@ -1345,25 +1248,27 @@ class AzureRMApplicationGateways(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -1377,16 +1282,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMApplicationGateways()
+    AzureRMApplicationGateway()
 
 
 if __name__ == '__main__':

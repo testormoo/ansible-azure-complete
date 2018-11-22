@@ -124,11 +124,11 @@ class AzureRMApplicationFacts(AzureRMModuleBase):
             self.log('Could not get facts for Application.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

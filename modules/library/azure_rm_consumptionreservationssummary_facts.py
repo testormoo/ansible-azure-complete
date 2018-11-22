@@ -79,7 +79,7 @@ except ImportError:
     pass
 
 
-class AzureRMReservationsSummariesFacts(AzureRMModuleBase):
+class AzureRMReservationsSummaryFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -107,7 +107,7 @@ class AzureRMReservationsSummariesFacts(AzureRMModuleBase):
         self.reservation_id = None
         self.grain = None
         self.filter = None
-        super(AzureRMReservationsSummariesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMReservationsSummaryFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -130,11 +130,11 @@ class AzureRMReservationsSummariesFacts(AzureRMModuleBase):
                                                                                                          grain=self.grain)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ReservationsSummaries.')
+            self.log('Could not get facts for Reservations Summary.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -146,15 +146,15 @@ class AzureRMReservationsSummariesFacts(AzureRMModuleBase):
                                                                                          grain=self.grain)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ReservationsSummaries.')
+            self.log('Could not get facts for Reservations Summary.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -163,7 +163,7 @@ class AzureRMReservationsSummariesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMReservationsSummariesFacts()
+    AzureRMReservationsSummaryFacts()
 
 
 if __name__ == '__main__':

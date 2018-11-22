@@ -162,10 +162,10 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.diagnostic_id is not None:
+            self.results['api_diagnostic'] = self.get()
         else:
             self.results['api_diagnostic'] = self.list_by_service()
-        elif self.diagnostic_id is not None:
-            self.results['api_diagnostic'] = self.get()
         return self.results
 
     def list_by_service(self):
@@ -177,11 +177,11 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
                                                                        api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiDiagnostic.')
+            self.log('Could not get facts for Api Diagnostic.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -195,14 +195,14 @@ class AzureRMApiDiagnosticFacts(AzureRMModuleBase):
                                                            diagnostic_id=self.diagnostic_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiDiagnostic.')
+            self.log('Could not get facts for Api Diagnostic.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

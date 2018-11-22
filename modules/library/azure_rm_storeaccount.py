@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_storeaccount
 version_added: "2.8"
-short_description: Manage Account instance.
+short_description: Manage Azure Account instance.
 description:
-    - Create, update and delete instance of Account.
+    - Create, update and delete instance of Azure Account.
 
 options:
     resource_group:
@@ -73,10 +73,8 @@ options:
                             - Required when C(state) is I(present).
     encryption_state:
         description:
-            - The current state of encryption for this Data Lake Store account.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The current state of encryption for this Data Lake Store account. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     firewall_rules:
         description:
             - The list of firewall rules associated with this Data Lake Store account.
@@ -109,17 +107,13 @@ options:
                     - Required when C(state) is I(present).
     firewall_state:
         description:
-            - The current state of the IP address firewall for this Data Lake Store account.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The current state of the IP address firewall for this Data Lake Store account. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     firewall_allow_azure_ips:
         description:
-            - "The current state of allowing or disallowing IPs originating within Azure through the firewall. If the firewall is C(C(C(C(disabled)))), this
-               is not enforced."
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The current state of allowing or disallowing IPs originating within Azure through the firewall. If the firewall is disabled, this is not
+               enforced. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     trusted_id_providers:
         description:
             - The list of trusted I(identity) providers associated with this Data Lake Store account.
@@ -135,10 +129,9 @@ options:
                     - Required when C(state) is I(present).
     trusted_id_provider_state:
         description:
-            - The current state of the trusted I(identity) provider feature for this Data Lake Store account.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The current state of the trusted I(identity) provider feature for this Data Lake Store account. Possible values include: 'Enabled',
+               'Disabled'"
+        type: bool
     new_tier:
         description:
             - The commitment tier to use for next month.
@@ -183,17 +176,17 @@ EXAMPLES = '''
           key_vault_resource_id: 34adfa4f-cedf-4dc0-ba29-b6d1a69ab345
           encryption_key_name: test_encryption_key_name
           encryption_key_version: encryption_key_version
-      encryption_state: Enabled
+      encryption_state: encryption_state
       firewall_rules:
         - name: test_rule
           start_ip_address: 1.1.1.1
           end_ip_address: 2.2.2.2
-      firewall_state: Enabled
-      firewall_allow_azure_ips: Enabled
+      firewall_state: firewall_state
+      firewall_allow_azure_ips: firewall_allow_azure_ips
       trusted_id_providers:
         - name: test_trusted_id_provider_name
           id_provider: https://sts.windows.net/ea9ec534-a3e3-4e45-ad36-3afc5bb291c1
-      trusted_id_provider_state: Enabled
+      trusted_id_provider_state: trusted_id_provider_state
       new_tier: Consumption
 '''
 
@@ -230,7 +223,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMAccounts(AzureRMModuleBase):
+class AzureRMAccount(AzureRMModuleBase):
     """Configuration class for an Azure RM Account resource"""
 
     def __init__(self):
@@ -256,9 +249,7 @@ class AzureRMAccounts(AzureRMModuleBase):
                 type='dict'
             ),
             encryption_state=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             firewall_rules=dict(
                 type='list'
@@ -267,22 +258,16 @@ class AzureRMAccounts(AzureRMModuleBase):
                 type='list'
             ),
             firewall_state=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             firewall_allow_azure_ips=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             trusted_id_providers=dict(
                 type='list'
             ),
             trusted_id_provider_state=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             new_tier=dict(
                 type='str',
@@ -310,9 +295,9 @@ class AzureRMAccounts(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMAccounts, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                              supports_check_mode=True,
-                                              supports_tags=True)
+        super(AzureRMAccount, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                             supports_check_mode=True,
+                                             supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -321,49 +306,15 @@ class AzureRMAccounts(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "identity":
-                    self.parameters["identity"] = kwargs[key]
-                elif key == "default_group":
-                    self.parameters["default_group"] = kwargs[key]
-                elif key == "encryption_config":
-                    ev = kwargs[key]
-                    if 'type' in ev:
-                        if ev['type'] == 'user_managed':
-                            ev['type'] = 'UserManaged'
-                        elif ev['type'] == 'service_managed':
-                            ev['type'] = 'ServiceManaged'
-                    self.parameters["encryption_config"] = ev
-                elif key == "encryption_state":
-                    self.parameters["encryption_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "firewall_rules":
-                    self.parameters["firewall_rules"] = kwargs[key]
-                elif key == "virtual_network_rules":
-                    self.parameters["virtual_network_rules"] = kwargs[key]
-                elif key == "firewall_state":
-                    self.parameters["firewall_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "firewall_allow_azure_ips":
-                    self.parameters["firewall_allow_azure_ips"] = _snake_to_camel(kwargs[key], True)
-                elif key == "trusted_id_providers":
-                    self.parameters["trusted_id_providers"] = kwargs[key]
-                elif key == "trusted_id_provider_state":
-                    self.parameters["trusted_id_provider_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "new_tier":
-                    ev = kwargs[key]
-                    if ev == 'commitment_1_tb':
-                        ev = 'Commitment_1TB'
-                    elif ev == 'commitment_10_tb':
-                        ev = 'Commitment_10TB'
-                    elif ev == 'commitment_100_tb':
-                        ev = 'Commitment_100TB'
-                    elif ev == 'commitment_500_tb':
-                        ev = 'Commitment_500TB'
-                    elif ev == 'commitment_1_pb':
-                        ev = 'Commitment_1PB'
-                    elif ev == 'commitment_5_pb':
-                        ev = 'Commitment_5PB'
-                    self.parameters["new_tier"] = _snake_to_camel(ev, True)
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['encryption_config', 'type'], True)
+        dict_map(self.parameters, ['encryption_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['firewall_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['firewall_allow_azure_ips'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['trusted_id_provider_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.parameters, ['new_tier'], True)
+        dict_map(self.parameters, ['new_tier'], ''commitment_1_tb': 'Commitment_1TB', 'commitment_10_tb': 'Commitment_10TB', 'commitment_100_tb': 'Commitment_100TB', 'commitment_500_tb': 'Commitment_500TB', 'commitment_1_pb': 'Commitment_1PB', 'commitment_5_pb': 'Commitment_5PB'')
 
         response = None
 
@@ -388,7 +339,7 @@ class AzureRMAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -420,7 +371,7 @@ class AzureRMAccounts(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_account(self):
@@ -485,7 +436,7 @@ class AzureRMAccounts(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'state': d.get('state', None)
@@ -493,18 +444,20 @@ class AzureRMAccounts(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -518,11 +471,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -534,7 +570,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMAccounts()
+    AzureRMAccount()
 
 
 if __name__ == '__main__':

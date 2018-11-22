@@ -86,7 +86,7 @@ except ImportError:
     pass
 
 
-class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
+class AzureRMLoadBalancingSettingFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -110,7 +110,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.front_door_name = None
         self.name = None
-        super(AzureRMLoadBalancingSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLoadBalancingSettingFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -133,10 +133,10 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
                                                                     load_balancing_settings_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LoadBalancingSettings.')
+            self.log('Could not get facts for Load Balancing Setting.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -148,15 +148,15 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
                                                                                    front_door_name=self.front_door_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LoadBalancingSettings.')
+            self.log('Could not get facts for Load Balancing Setting.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -167,7 +167,7 @@ class AzureRMLoadBalancingSettingsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLoadBalancingSettingsFacts()
+    AzureRMLoadBalancingSettingFacts()
 
 
 if __name__ == '__main__':

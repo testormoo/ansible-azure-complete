@@ -139,7 +139,7 @@ except ImportError:
     pass
 
 
-class AzureRMReportsFacts(AzureRMModuleBase):
+class AzureRMReportFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -175,7 +175,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
         self.top = None
         self.skip = None
         self.interval = None
-        super(AzureRMReportsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMReportFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -193,12 +193,12 @@ class AzureRMReportsFacts(AzureRMModuleBase):
             self.results['reports'] = self.list_by_operation()
         elif self.filter is not None:
             self.results['reports'] = self.list_by_product()
+        elif self.filter is not None:
+            self.results['reports'] = self.list_by_request()
         else:
             self.results['reports'] = self.list_by_geo()
         else:
             self.results['reports'] = self.list_by_subscription()
-        elif self.filter is not None:
-            self.results['reports'] = self.list_by_request()
         return self.results
 
     def list_by_time(self):
@@ -210,11 +210,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                              interval=self.interval)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -227,11 +227,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                             filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -244,11 +244,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                              filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -261,11 +261,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                                   filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -278,11 +278,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                                 filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -294,11 +294,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                             service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -310,11 +310,11 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                                      service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -327,15 +327,15 @@ class AzureRMReportsFacts(AzureRMModuleBase):
                                                                 filter=self.filter)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Reports.')
+            self.log('Could not get facts for Report.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -344,7 +344,7 @@ class AzureRMReportsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMReportsFacts()
+    AzureRMReportFacts()
 
 
 if __name__ == '__main__':

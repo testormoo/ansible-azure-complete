@@ -85,7 +85,7 @@ except ImportError:
     pass
 
 
-class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
+class AzureRMConnectionMonitorFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -114,7 +114,7 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
         self.network_watcher_name = None
         self.name = None
         self.tags = None
-        super(AzureRMConnectionMonitorsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMConnectionMonitorFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -134,14 +134,14 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
                                                                 connection_monitor_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ConnectionMonitors.')
+            self.log('Could not get facts for Connection Monitor.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -152,7 +152,7 @@ class AzureRMConnectionMonitorsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMConnectionMonitorsFacts()
+    AzureRMConnectionMonitorFacts()
 
 
 if __name__ == '__main__':

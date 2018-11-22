@@ -102,7 +102,7 @@ except ImportError:
     pass
 
 
-class AzureRMContentKeyPoliciesFacts(AzureRMModuleBase):
+class AzureRMContentKeyPolicyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -127,7 +127,7 @@ class AzureRMContentKeyPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.name = None
-        super(AzureRMContentKeyPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMContentKeyPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -147,14 +147,14 @@ class AzureRMContentKeyPoliciesFacts(AzureRMModuleBase):
                                                                  content_key_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ContentKeyPolicies.')
+            self.log('Could not get facts for Content Key Policy.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -169,7 +169,7 @@ class AzureRMContentKeyPoliciesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMContentKeyPoliciesFacts()
+    AzureRMContentKeyPolicyFacts()
 
 
 if __name__ == '__main__':

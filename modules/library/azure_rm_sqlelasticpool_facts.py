@@ -144,7 +144,7 @@ except ImportError:
     pass
 
 
-class AzureRMElasticPoolsFacts(AzureRMModuleBase):
+class AzureRMElasticPoolFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -176,7 +176,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
         self.skip = None
         self.name = None
         self.tags = None
-        super(AzureRMElasticPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMElasticPoolFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -184,10 +184,10 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['elastic_pools'] = self.get()
         else:
             self.results['elastic_pools'] = self.list_by_server()
-        elif self.name is not None:
-            self.results['elastic_pools'] = self.get()
         return self.results
 
     def list_by_server(self):
@@ -198,12 +198,12 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
                                                                      server_name=self.server_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ElasticPools.')
+            self.log('Could not get facts for Elastic Pool.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -216,14 +216,14 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
                                                           elastic_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ElasticPools.')
+            self.log('Could not get facts for Elastic Pool.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -243,7 +243,7 @@ class AzureRMElasticPoolsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMElasticPoolsFacts()
+    AzureRMElasticPoolFacts()
 
 
 if __name__ == '__main__':

@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_webappserviceplan
 version_added: "2.8"
-short_description: Manage App Service Plan instance.
+short_description: Manage Azure App Service Plan instance.
 description:
-    - Create, update and delete instance of App Service Plan.
+    - Create, update and delete instance of Azure App Service Plan.
 
 options:
     resource_group:
@@ -191,7 +191,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMAppServicePlans(AzureRMModuleBase):
+class AzureRMAppServicePlan(AzureRMModuleBase):
     """Configuration class for an Azure RM App Service Plan resource"""
 
     def __init__(self):
@@ -259,9 +259,9 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMAppServicePlans, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                     supports_check_mode=True,
-                                                     supports_tags=True)
+        super(AzureRMAppServicePlan, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                      supports_check_mode=True,
+                                                      supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -270,32 +270,8 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "kind":
-                    self.app_service_plan["kind"] = kwargs[key]
-                elif key == "location":
-                    self.app_service_plan["location"] = kwargs[key]
-                elif key == "app_service_plan_name":
-                    self.app_service_plan["app_service_plan_name"] = kwargs[key]
-                elif key == "worker_tier_name":
-                    self.app_service_plan["worker_tier_name"] = kwargs[key]
-                elif key == "admin_site_name":
-                    self.app_service_plan["admin_site_name"] = kwargs[key]
-                elif key == "hosting_environment_profile":
-                    self.app_service_plan["hosting_environment_profile"] = kwargs[key]
-                elif key == "per_site_scaling":
-                    self.app_service_plan["per_site_scaling"] = kwargs[key]
-                elif key == "is_spot":
-                    self.app_service_plan["is_spot"] = kwargs[key]
-                elif key == "spot_expiration_time":
-                    self.app_service_plan["spot_expiration_time"] = kwargs[key]
-                elif key == "reserved":
-                    self.app_service_plan["reserved"] = kwargs[key]
-                elif key == "target_worker_count":
-                    self.app_service_plan["target_worker_count"] = kwargs[key]
-                elif key == "target_worker_size_id":
-                    self.app_service_plan["target_worker_size_id"] = kwargs[key]
-                elif key == "sku":
-                    self.app_service_plan["sku"] = kwargs[key]
+                self.app_service_plan[key] = kwargs[key]
+
 
         response = None
 
@@ -317,7 +293,7 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.app_service_plan, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -349,7 +325,7 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_appserviceplan(self):
@@ -409,7 +385,7 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'status': d.get('status', None)
@@ -417,18 +393,20 @@ class AzureRMAppServicePlans(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -442,16 +420,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMAppServicePlans()
+    AzureRMAppServicePlan()
 
 
 if __name__ == '__main__':

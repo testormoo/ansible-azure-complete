@@ -123,7 +123,7 @@ except ImportError:
     pass
 
 
-class AzureRMRolloutsFacts(AzureRMModuleBase):
+class AzureRMRolloutFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -151,7 +151,7 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
         self.name = None
         self.retry_attempt = None
         self.tags = None
-        super(AzureRMRolloutsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMRolloutFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -170,14 +170,14 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
                                                      rollout_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Rollouts.')
+            self.log('Could not get facts for Rollout.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -196,7 +196,7 @@ class AzureRMRolloutsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMRolloutsFacts()
+    AzureRMRolloutFacts()
 
 
 if __name__ == '__main__':

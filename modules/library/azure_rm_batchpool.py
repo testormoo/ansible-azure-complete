@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_batchpool
 version_added: "2.8"
-short_description: Manage Pool instance.
+short_description: Manage Azure Pool instance.
 description:
-    - Create, update and delete instance of Pool.
+    - Create, update and delete instance of Azure Pool.
 
 options:
     resource_group:
@@ -200,10 +200,8 @@ options:
     inter_node_communication:
         description:
             - "This imposes restrictions on which nodes can be assigned to the pool. Enabling this value can reduce the chance of the requested number of
-               nodes to be allocated in the pool. If not specified, this value defaults to 'C(disabled)'."
-        choices:
-            - 'enabled'
-            - 'disabled'
+               nodes to be allocated in the pool. If not specified, this value defaults to 'Disabled'. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     network_configuration:
         description:
         suboptions:
@@ -513,6 +511,7 @@ EXAMPLES = '''
       scale_settings:
         fixed_scale:
           target_dedicated_nodes: 3
+      inter_node_communication: inter_node_communication
       if_match: NOT FOUND
       if_none_match: NOT FOUND
 '''
@@ -574,9 +573,7 @@ class AzureRMPool(AzureRMModuleBase):
                 type='dict'
             ),
             inter_node_communication=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             network_configuration=dict(
                 type='dict'
@@ -637,56 +634,25 @@ class AzureRMPool(AzureRMModuleBase):
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "display_name":
-                    self.parameters["display_name"] = kwargs[key]
-                elif key == "vm_size":
-                    self.parameters["vm_size"] = kwargs[key]
-                elif key == "deployment_configuration":
-                    self.parameters["deployment_configuration"] = kwargs[key]
-                elif key == "scale_settings":
-                    self.parameters["scale_settings"] = kwargs[key]
-                elif key == "inter_node_communication":
-                    self.parameters["inter_node_communication"] = _snake_to_camel(kwargs[key], True)
-                elif key == "network_configuration":
-                    self.parameters["network_configuration"] = kwargs[key]
-                elif key == "max_tasks_per_node":
-                    self.parameters["max_tasks_per_node"] = kwargs[key]
-                elif key == "task_scheduling_policy":
-                    ev = kwargs[key]
-                    if 'node_fill_type' in ev:
-                        if ev['node_fill_type'] == 'spread':
-                            ev['node_fill_type'] = 'Spread'
-                        elif ev['node_fill_type'] == 'pack':
-                            ev['node_fill_type'] = 'Pack'
-                    self.parameters["task_scheduling_policy"] = ev
-                elif key == "user_accounts":
-                    ev = kwargs[key]
-                    if 'elevation_level' in ev:
-                        if ev['elevation_level'] == 'non_admin':
-                            ev['elevation_level'] = 'NonAdmin'
-                        elif ev['elevation_level'] == 'admin':
-                            ev['elevation_level'] = 'Admin'
-                    self.parameters["user_accounts"] = ev
-                elif key == "metadata":
-                    self.parameters["metadata"] = kwargs[key]
-                elif key == "start_task":
-                    self.parameters["start_task"] = kwargs[key]
-                elif key == "certificates":
-                    ev = kwargs[key]
-                    if 'store_location' in ev:
-                        if ev['store_location'] == 'current_user':
-                            ev['store_location'] = 'CurrentUser'
-                        elif ev['store_location'] == 'local_machine':
-                            ev['store_location'] = 'LocalMachine'
-                    self.parameters["certificates"] = ev
-                elif key == "application_packages":
-                    self.parameters["application_packages"] = kwargs[key]
-                elif key == "application_licenses":
-                    self.parameters["application_licenses"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'os_disk', 'caching'], True)
+        dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'data_disks', 'caching'], True)
+        dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'data_disks', 'storage_account_type'], True)
+        dict_map(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'data_disks', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS'')
+        dict_camelize(self.parameters, ['scale_settings', 'fixed_scale', 'node_deallocation_option'], True)
+        dict_map(self.parameters, ['inter_node_communication'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_upper(self.parameters, ['network_configuration', 'endpoint_configuration', 'inbound_nat_pools', 'protocol'])
+        dict_camelize(self.parameters, ['network_configuration', 'endpoint_configuration', 'inbound_nat_pools', 'network_security_group_rules', 'access'], True)
+        dict_camelize(self.parameters, ['task_scheduling_policy', 'node_fill_type'], True)
+        dict_camelize(self.parameters, ['user_accounts', 'elevation_level'], True)
+        dict_camelize(self.parameters, ['start_task', 'user_identity', 'auto_user', 'scope'], True)
+        dict_camelize(self.parameters, ['start_task', 'user_identity', 'auto_user', 'elevation_level'], True)
+        dict_camelize(self.parameters, ['certificates', 'store_location'], True)
 
         response = None
 
@@ -708,7 +674,7 @@ class AzureRMPool(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -740,7 +706,7 @@ class AzureRMPool(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_pool(self):
@@ -809,25 +775,27 @@ class AzureRMPool(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -841,11 +809,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):

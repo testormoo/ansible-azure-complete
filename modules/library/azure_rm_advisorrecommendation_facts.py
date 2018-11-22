@@ -95,7 +95,7 @@ except ImportError:
     pass
 
 
-class AzureRMRecommendationsFacts(AzureRMModuleBase):
+class AzureRMRecommendationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -115,7 +115,7 @@ class AzureRMRecommendationsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_uri = None
         self.recommendation_id = None
-        super(AzureRMRecommendationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMRecommendationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -134,14 +134,14 @@ class AzureRMRecommendationsFacts(AzureRMModuleBase):
                                                             recommendation_id=self.recommendation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Recommendations.')
+            self.log('Could not get facts for Recommendation.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -155,7 +155,7 @@ class AzureRMRecommendationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMRecommendationsFacts()
+    AzureRMRecommendationFacts()
 
 
 if __name__ == '__main__':

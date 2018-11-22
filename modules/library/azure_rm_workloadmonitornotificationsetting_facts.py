@@ -79,7 +79,7 @@ except ImportError:
     pass
 
 
-class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
+class AzureRMNotificationSettingFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -113,7 +113,7 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
         self.resource_type = None
         self.name = None
         self.skiptoken = None
-        super(AzureRMNotificationSettingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMNotificationSettingFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -134,15 +134,15 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
                                                                                resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for NotificationSettings.')
+            self.log('Could not get facts for Notification Setting.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -151,7 +151,7 @@ class AzureRMNotificationSettingsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMNotificationSettingsFacts()
+    AzureRMNotificationSettingFacts()
 
 
 if __name__ == '__main__':

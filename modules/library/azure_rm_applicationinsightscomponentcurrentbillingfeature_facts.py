@@ -65,7 +65,7 @@ except ImportError:
     pass
 
 
-class AzureRMComponentCurrentBillingFeaturesFacts(AzureRMModuleBase):
+class AzureRMComponentCurrentBillingFeatureFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -85,7 +85,7 @@ class AzureRMComponentCurrentBillingFeaturesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.name = None
-        super(AzureRMComponentCurrentBillingFeaturesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMComponentCurrentBillingFeatureFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -104,14 +104,14 @@ class AzureRMComponentCurrentBillingFeaturesFacts(AzureRMModuleBase):
                                                                                resource_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ComponentCurrentBillingFeatures.')
+            self.log('Could not get facts for Component Current Billing Feature.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -120,7 +120,7 @@ class AzureRMComponentCurrentBillingFeaturesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMComponentCurrentBillingFeaturesFacts()
+    AzureRMComponentCurrentBillingFeatureFacts()
 
 
 if __name__ == '__main__':

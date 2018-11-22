@@ -97,7 +97,7 @@ except ImportError:
     pass
 
 
-class AzureRMVirtualMachineRunCommandsFacts(AzureRMModuleBase):
+class AzureRMVirtualMachineRunCommandFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -117,7 +117,7 @@ class AzureRMVirtualMachineRunCommandsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.location = None
         self.command_id = None
-        super(AzureRMVirtualMachineRunCommandsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMVirtualMachineRunCommandFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -136,14 +136,14 @@ class AzureRMVirtualMachineRunCommandsFacts(AzureRMModuleBase):
                                                                          command_id=self.command_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for VirtualMachineRunCommands.')
+            self.log('Could not get facts for Virtual Machine Run Command.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -158,7 +158,7 @@ class AzureRMVirtualMachineRunCommandsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMVirtualMachineRunCommandsFacts()
+    AzureRMVirtualMachineRunCommandFacts()
 
 
 if __name__ == '__main__':

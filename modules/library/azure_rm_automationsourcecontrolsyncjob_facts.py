@@ -154,10 +154,10 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
                                                                     source_control_sync_job_id=self.source_control_sync_job_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SourceControlSyncJob.')
+            self.log('Could not get facts for Source Control Sync Job.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -170,15 +170,15 @@ class AzureRMSourceControlSyncJobFacts(AzureRMModuleBase):
                                                                                            source_control_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SourceControlSyncJob.')
+            self.log('Could not get facts for Source Control Sync Job.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

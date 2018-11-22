@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_computegalleryimage
 version_added: "2.8"
-short_description: Manage Gallery Image instance.
+short_description: Manage Azure Gallery Image instance.
 description:
-    - Create, update and delete instance of Gallery Image.
+    - Create, update and delete instance of Azure Gallery Image.
 
 options:
     resource_group:
@@ -35,101 +35,96 @@ options:
             - "The name of the gallery Image Definition to be created or updated. The allowed characters are alphabets and numbers with dots, dashes, and
                periods allowed in the middle. The maximum length is 80 characters."
         required: True
-    gallery_image:
+    location:
         description:
-            - Parameters supplied to the create or update gallery image operation.
-        required: True
+            - Resource location
+            - Required when C(state) is I(present).
+    description:
+        description:
+            - The description of this gallery Image Definition resource. This property is updateable.
+    eula:
+        description:
+            - The Eula agreement for the gallery Image Definition.
+    privacy_statement_uri:
+        description:
+            - The privacy statement uri.
+    release_note_uri:
+        description:
+            - The release note uri.
+    os_type:
+        description:
+            - "This property allows you to specify the type of the OS that is included in the disk when creating a VM from a managed image. <br><br>
+               Possible values are: <br><br> **C(windows)** <br><br> **C(linux)**."
+            - Required when C(state) is I(present).
+        choices:
+            - 'windows'
+            - 'linux'
+    os_state:
+        description:
+            - "The allowed values for OS State are 'C(generalized)'."
+            - Required when C(state) is I(present).
+        choices:
+            - 'generalized'
+            - 'specialized'
+    end_of_life_date:
+        description:
+            - The end of life date of the gallery Image Definition. This property can be used for decommissioning purposes. This property is updateable.
+    identifier:
+        description:
+            - Required when C(state) is I(present).
         suboptions:
-            location:
+            publisher:
                 description:
-                    - Resource location
+                    - The name of the gallery Image Definition publisher.
                     - Required when C(state) is I(present).
-            description:
+            offer:
                 description:
-                    - The description of this gallery Image Definition resource. This property is updateable.
-            eula:
-                description:
-                    - The Eula agreement for the gallery Image Definition.
-            privacy_statement_uri:
-                description:
-                    - The privacy statement uri.
-            release_note_uri:
-                description:
-                    - The release note uri.
-            os_type:
-                description:
-                    - "This property allows you to specify the type of the OS that is included in the disk when creating a VM from a managed image. <br><br>
-                       Possible values are: <br><br> **C(windows)** <br><br> **C(linux)**."
+                    - The name of the gallery Image Definition offer.
                     - Required when C(state) is I(present).
-                choices:
-                    - 'windows'
-                    - 'linux'
-            os_state:
+            sku:
                 description:
-                    - "The allowed values for OS State are 'C(generalized)'."
+                    - The name of the gallery Image Definition SKU.
                     - Required when C(state) is I(present).
-                choices:
-                    - 'generalized'
-                    - 'specialized'
-            end_of_life_date:
-                description:
-                    - The end of life date of the gallery Image Definition. This property can be used for decommissioning purposes. This property is updateable.
-            identifier:
-                description:
-                    - Required when C(state) is I(present).
-                suboptions:
-                    publisher:
-                        description:
-                            - The name of the gallery Image Definition publisher.
-                            - Required when C(state) is I(present).
-                    offer:
-                        description:
-                            - The name of the gallery Image Definition offer.
-                            - Required when C(state) is I(present).
-                    sku:
-                        description:
-                            - The name of the gallery Image Definition SKU.
-                            - Required when C(state) is I(present).
-            recommended:
+    recommended:
+        description:
+        suboptions:
+            v_cp_us:
                 description:
                 suboptions:
-                    v_cp_us:
+                    min:
                         description:
-                        suboptions:
-                            min:
-                                description:
-                                    - The minimum number of the resource.
-                            max:
-                                description:
-                                    - The maximum number of the resource.
-                    memory:
+                            - The minimum number of the resource.
+                    max:
                         description:
-                        suboptions:
-                            min:
-                                description:
-                                    - The minimum number of the resource.
-                            max:
-                                description:
-                                    - The maximum number of the resource.
-            disallowed:
+                            - The maximum number of the resource.
+            memory:
                 description:
                 suboptions:
-                    disk_types:
+                    min:
                         description:
-                            - A list of disk types.
-                        type: list
-            purchase_plan:
+                            - The minimum number of the resource.
+                    max:
+                        description:
+                            - The maximum number of the resource.
+    disallowed:
+        description:
+        suboptions:
+            disk_types:
                 description:
-                suboptions:
-                    name:
-                        description:
-                            - The plan ID.
-                    publisher:
-                        description:
-                            - The publisher ID.
-                    product:
-                        description:
-                            - The product ID.
+                    - A list of disk types.
+                type: list
+    purchase_plan:
+        description:
+        suboptions:
+            name:
+                description:
+                    - The plan ID.
+            publisher:
+                description:
+                    - The publisher ID.
+            product:
+                description:
+                    - The product ID.
     state:
       description:
         - Assert the state of the Gallery Image.
@@ -154,14 +149,13 @@ EXAMPLES = '''
       resource_group: myResourceGroup
       gallery_name: myGalleryName
       name: myGalleryImageName
-      gallery_image:
-        location: West US
-        os_type: Windows
-        os_state: Generalized
-        identifier:
-          publisher: myPublisherName
-          offer: myOfferName
-          sku: mySkuName
+      location: West US
+      os_type: Windows
+      os_state: Generalized
+      identifier:
+        publisher: myPublisherName
+        offer: myOfferName
+        sku: mySkuName
 '''
 
 RETURN = '''
@@ -191,7 +185,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMGalleryImages(AzureRMModuleBase):
+class AzureRMGalleryImage(AzureRMModuleBase):
     """Configuration class for an Azure RM Gallery Image resource"""
 
     def __init__(self):
@@ -208,9 +202,45 @@ class AzureRMGalleryImages(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            gallery_image=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            eula=dict(
+                type='str'
+            ),
+            privacy_statement_uri=dict(
+                type='str'
+            ),
+            release_note_uri=dict(
+                type='str'
+            ),
+            os_type=dict(
+                type='str',
+                choices=['windows',
+                         'linux']
+            ),
+            os_state=dict(
+                type='str',
+                choices=['generalized',
+                         'specialized']
+            ),
+            end_of_life_date=dict(
+                type='datetime'
+            ),
+            identifier=dict(
+                type='dict'
+            ),
+            recommended=dict(
+                type='dict'
+            ),
+            disallowed=dict(
+                type='dict'
+            ),
+            purchase_plan=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -229,7 +259,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMGalleryImages, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMGalleryImage, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                    supports_check_mode=True,
                                                    supports_tags=True)
 
@@ -240,30 +270,10 @@ class AzureRMGalleryImages(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.gallery_image["location"] = kwargs[key]
-                elif key == "description":
-                    self.gallery_image["description"] = kwargs[key]
-                elif key == "eula":
-                    self.gallery_image["eula"] = kwargs[key]
-                elif key == "privacy_statement_uri":
-                    self.gallery_image["privacy_statement_uri"] = kwargs[key]
-                elif key == "release_note_uri":
-                    self.gallery_image["release_note_uri"] = kwargs[key]
-                elif key == "os_type":
-                    self.gallery_image["os_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "os_state":
-                    self.gallery_image["os_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "end_of_life_date":
-                    self.gallery_image["end_of_life_date"] = kwargs[key]
-                elif key == "identifier":
-                    self.gallery_image["identifier"] = kwargs[key]
-                elif key == "recommended":
-                    self.gallery_image["recommended"] = kwargs[key]
-                elif key == "disallowed":
-                    self.gallery_image["disallowed"] = kwargs[key]
-                elif key == "purchase_plan":
-                    self.gallery_image["purchase_plan"] = kwargs[key]
+                self.gallery_image[key] = kwargs[key]
+
+        dict_camelize(self.gallery_image, ['os_type'], True)
+        dict_camelize(self.gallery_image, ['os_state'], True)
 
         response = None
 
@@ -285,7 +295,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.gallery_image, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -317,7 +327,7 @@ class AzureRMGalleryImages(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_galleryimage(self):
@@ -380,25 +390,27 @@ class AzureRMGalleryImages(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -412,11 +424,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -428,7 +523,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMGalleryImages()
+    AzureRMGalleryImage()
 
 
 if __name__ == '__main__':

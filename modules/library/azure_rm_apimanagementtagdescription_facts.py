@@ -163,10 +163,10 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.tag_id is not None:
+            self.results['tag_description'] = self.get()
         else:
             self.results['tag_description'] = self.list_by_api()
-        elif self.tag_id is not None:
-            self.results['tag_description'] = self.get()
         return self.results
 
     def list_by_api(self):
@@ -178,11 +178,11 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
                                                                     api_id=self.api_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TagDescription.')
+            self.log('Could not get facts for Tag Description.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -196,14 +196,14 @@ class AzureRMTagDescriptionFacts(AzureRMModuleBase):
                                                             tag_id=self.tag_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TagDescription.')
+            self.log('Could not get facts for Tag Description.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

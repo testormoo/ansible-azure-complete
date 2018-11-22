@@ -99,7 +99,7 @@ except ImportError:
     pass
 
 
-class AzureRMSyncMembersFacts(AzureRMModuleBase):
+class AzureRMSyncMemberFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -133,7 +133,7 @@ class AzureRMSyncMembersFacts(AzureRMModuleBase):
         self.database_name = None
         self.sync_group_name = None
         self.name = None
-        super(AzureRMSyncMembersFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSyncMemberFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -158,10 +158,10 @@ class AzureRMSyncMembersFacts(AzureRMModuleBase):
                                                          sync_member_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SyncMembers.')
+            self.log('Could not get facts for Sync Member.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -175,15 +175,15 @@ class AzureRMSyncMembersFacts(AzureRMModuleBase):
                                                                         sync_group_name=self.sync_group_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SyncMembers.')
+            self.log('Could not get facts for Sync Member.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -194,7 +194,7 @@ class AzureRMSyncMembersFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSyncMembersFacts()
+    AzureRMSyncMemberFacts()
 
 
 if __name__ == '__main__':

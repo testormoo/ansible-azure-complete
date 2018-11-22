@@ -62,7 +62,7 @@ except ImportError:
     pass
 
 
-class AzureRMWorkspaceCollectionsFacts(AzureRMModuleBase):
+class AzureRMWorkspaceCollectionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -76,7 +76,7 @@ class AzureRMWorkspaceCollectionsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        super(AzureRMWorkspaceCollectionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMWorkspaceCollectionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -97,11 +97,11 @@ class AzureRMWorkspaceCollectionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.workspace_collections.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for WorkspaceCollections.')
+            self.log('Could not get facts for Workspace Collection.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -112,15 +112,15 @@ class AzureRMWorkspaceCollectionsFacts(AzureRMModuleBase):
             response = self.mgmt_client.workspace_collections.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for WorkspaceCollections.')
+            self.log('Could not get facts for Workspace Collection.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -129,7 +129,7 @@ class AzureRMWorkspaceCollectionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMWorkspaceCollectionsFacts()
+    AzureRMWorkspaceCollectionFacts()
 
 
 if __name__ == '__main__':

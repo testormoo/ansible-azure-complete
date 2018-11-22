@@ -86,7 +86,7 @@ except ImportError:
     pass
 
 
-class AzureRMFirewallRulesFacts(AzureRMModuleBase):
+class AzureRMFirewallRuleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -110,7 +110,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.account_name = None
         self.name = None
-        super(AzureRMFirewallRulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMFirewallRuleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -133,10 +133,10 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
                                                            firewall_rule_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for FirewallRules.')
+            self.log('Could not get facts for Firewall Rule.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -148,15 +148,15 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
                                                                        account_name=self.account_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for FirewallRules.')
+            self.log('Could not get facts for Firewall Rule.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -167,7 +167,7 @@ class AzureRMFirewallRulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMFirewallRulesFacts()
+    AzureRMFirewallRuleFacts()
 
 
 if __name__ == '__main__':

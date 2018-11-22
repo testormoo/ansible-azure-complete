@@ -88,7 +88,7 @@ except ImportError:
     pass
 
 
-class AzureRMLoadBalancerBackendAddressPoolsFacts(AzureRMModuleBase):
+class AzureRMLoadBalancerBackendAddressPoolFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -113,7 +113,7 @@ class AzureRMLoadBalancerBackendAddressPoolsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.load_balancer_name = None
         self.name = None
-        super(AzureRMLoadBalancerBackendAddressPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLoadBalancerBackendAddressPoolFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -133,14 +133,14 @@ class AzureRMLoadBalancerBackendAddressPoolsFacts(AzureRMModuleBase):
                                                                                 backend_address_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LoadBalancerBackendAddressPools.')
+            self.log('Could not get facts for Load Balancer Backend Address Pool.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -152,7 +152,7 @@ class AzureRMLoadBalancerBackendAddressPoolsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLoadBalancerBackendAddressPoolsFacts()
+    AzureRMLoadBalancerBackendAddressPoolFacts()
 
 
 if __name__ == '__main__':

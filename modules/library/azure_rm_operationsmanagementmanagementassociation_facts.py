@@ -104,7 +104,7 @@ except ImportError:
     pass
 
 
-class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
+class AzureRMManagementAssociationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -134,7 +134,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
         self.self.config.resource_type = None
         self.self.config.resource_name = None
         self.name = None
-        super(AzureRMManagementAssociationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMManagementAssociationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -163,10 +163,10 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
                                                                     management_association_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ManagementAssociations.')
+            self.log('Could not get facts for Management Association.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -177,15 +177,15 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
             response = self.mgmt_client.management_associations.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ManagementAssociations.')
+            self.log('Could not get facts for Management Association.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -199,7 +199,7 @@ class AzureRMManagementAssociationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMManagementAssociationsFacts()
+    AzureRMManagementAssociationFacts()
 
 
 if __name__ == '__main__':

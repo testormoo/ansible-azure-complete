@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_recoveryservicesbackupprotecteditem
 version_added: "2.8"
-short_description: Manage Protected Item instance.
+short_description: Manage Azure Protected Item instance.
 description:
-    - Create, update and delete instance of Protected Item.
+    - Create, update and delete instance of Azure Protected Item.
 
 options:
     vault_name:
@@ -163,7 +163,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMProtectedItems(AzureRMModuleBase):
+class AzureRMProtectedItem(AzureRMModuleBase):
     """Configuration class for an Azure RM Protected Item resource"""
 
     def __init__(self):
@@ -266,7 +266,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMProtectedItems, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMProtectedItem, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                     supports_check_mode=True,
                                                     supports_tags=True)
 
@@ -277,46 +277,22 @@ class AzureRMProtectedItems(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "e_tag":
-                    self.parameters["e_tag"] = kwargs[key]
-                elif key == "backup_management_type":
-                    ev = kwargs[key]
-                    if ev == 'azure_iaas_vm':
-                        ev = 'AzureIaasVM'
-                    elif ev == 'mab':
-                        ev = 'MAB'
-                    elif ev == 'dpm':
-                        ev = 'DPM'
-                    self.parameters.setdefault("properties", {})["backup_management_type"] = _snake_to_camel(ev, True)
-                elif key == "workload_type":
-                    ev = kwargs[key]
-                    if ev == 'vm':
-                        ev = 'VM'
-                    elif ev == 'sqldb':
-                        ev = 'SQLDB'
-                    elif ev == 'vmware_vm':
-                        ev = 'VMwareVM'
-                    elif ev == 'sql_data_base':
-                        ev = 'SQLDataBase'
-                    elif ev == 'sap_hana_database':
-                        ev = 'SAPHanaDatabase'
-                    self.parameters.setdefault("properties", {})["workload_type"] = _snake_to_camel(ev, True)
-                elif key == "container_name":
-                    self.parameters.setdefault("properties", {})["container_name"] = kwargs[key]
-                elif key == "source_resource_id":
-                    self.parameters.setdefault("properties", {})["source_resource_id"] = kwargs[key]
-                elif key == "policy_id":
-                    self.parameters.setdefault("properties", {})["policy_id"] = kwargs[key]
-                elif key == "last_recovery_point":
-                    self.parameters.setdefault("properties", {})["last_recovery_point"] = kwargs[key]
-                elif key == "backup_set_name":
-                    self.parameters.setdefault("properties", {})["backup_set_name"] = kwargs[key]
-                elif key == "create_mode":
-                    self.parameters.setdefault("properties", {})["create_mode"] = _snake_to_camel(kwargs[key], True)
-                elif key == "protected_item_type":
-                    self.parameters.setdefault("properties", {})["protected_item_type"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_expand(self.parameters, ['backup_management_type'])
+        dict_camelize(self.parameters, ['backup_management_type'], True)
+        dict_map(self.parameters, ['backup_management_type'], ''azure_iaas_vm': 'AzureIaasVM', 'mab': 'MAB', 'dpm': 'DPM'')
+        dict_expand(self.parameters, ['workload_type'])
+        dict_camelize(self.parameters, ['workload_type'], True)
+        dict_map(self.parameters, ['workload_type'], ''vm': 'VM', 'sqldb': 'SQLDB', 'vmware_vm': 'VMwareVM', 'sql_data_base': 'SQLDataBase', 'sap_hana_database': 'SAPHanaDatabase'')
+        dict_expand(self.parameters, ['container_name'])
+        dict_expand(self.parameters, ['source_resource_id'])
+        dict_expand(self.parameters, ['policy_id'])
+        dict_expand(self.parameters, ['last_recovery_point'])
+        dict_expand(self.parameters, ['backup_set_name'])
+        dict_expand(self.parameters, ['create_mode'])
+        dict_camelize(self.parameters, ['create_mode'], True)
+        dict_expand(self.parameters, ['protected_item_type'])
 
         response = None
 
@@ -341,7 +317,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -373,7 +349,7 @@ class AzureRMProtectedItems(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_protecteditem(self):
@@ -442,25 +418,27 @@ class AzureRMProtectedItems(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -474,11 +452,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -490,7 +551,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMProtectedItems()
+    AzureRMProtectedItem()
 
 
 if __name__ == '__main__':

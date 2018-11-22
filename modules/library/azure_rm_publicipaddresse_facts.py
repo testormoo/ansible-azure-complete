@@ -96,7 +96,7 @@ except ImportError:
     pass
 
 
-class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
+class AzureRMPublicIPAddresseFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -124,7 +124,7 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
         self.name = None
         self.expand = None
         self.tags = None
-        super(AzureRMPublicIPAddressesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMPublicIPAddresseFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -143,14 +143,14 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
                                                                 public_ip_address_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for PublicIPAddresses.')
+            self.log('Could not get facts for Public I P Addresse.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -163,7 +163,7 @@ class AzureRMPublicIPAddressesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMPublicIPAddressesFacts()
+    AzureRMPublicIPAddresseFacts()
 
 
 if __name__ == '__main__':

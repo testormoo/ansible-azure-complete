@@ -72,7 +72,7 @@ except ImportError:
     pass
 
 
-class AzureRMEnrollmentAccountsFacts(AzureRMModuleBase):
+class AzureRMEnrollmentAccountFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -87,7 +87,7 @@ class AzureRMEnrollmentAccountsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.name = None
-        super(AzureRMEnrollmentAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMEnrollmentAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -105,14 +105,14 @@ class AzureRMEnrollmentAccountsFacts(AzureRMModuleBase):
             response = self.mgmt_client.enrollment_accounts.get(name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EnrollmentAccounts.')
+            self.log('Could not get facts for Enrollment Account.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -123,7 +123,7 @@ class AzureRMEnrollmentAccountsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMEnrollmentAccountsFacts()
+    AzureRMEnrollmentAccountFacts()
 
 
 if __name__ == '__main__':

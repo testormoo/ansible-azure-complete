@@ -173,7 +173,7 @@ except ImportError:
     pass
 
 
-class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
+class AzureRMJobTargetExecutionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -244,7 +244,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
         self.skip = None
         self.top = None
         self.target_id = None
-        super(AzureRMJobTargetExecutionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMJobTargetExecutionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -252,13 +252,13 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.name is not None:
+        if (self.name is not None and
+                self.target_id is not None):
+            self.results['job_target_executions'] = self.get()
+        elif self.name is not None:
             self.results['job_target_executions'] = self.list_by_step()
         else:
             self.results['job_target_executions'] = self.list_by_job_execution()
-        elif (self.name is not None and
-                self.target_id is not None):
-            self.results['job_target_executions'] = self.get()
         return self.results
 
     def list_by_step(self):
@@ -273,11 +273,11 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                                                                            step_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobTargetExecutions.')
+            self.log('Could not get facts for Job Target Execution.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -292,11 +292,11 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                                                                                     job_execution_id=self.job_execution_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobTargetExecutions.')
+            self.log('Could not get facts for Job Target Execution.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -313,14 +313,14 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
                                                                   target_id=self.target_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobTargetExecutions.')
+            self.log('Could not get facts for Job Target Execution.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -335,7 +335,7 @@ class AzureRMJobTargetExecutionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMJobTargetExecutionsFacts()
+    AzureRMJobTargetExecutionFacts()
 
 
 if __name__ == '__main__':

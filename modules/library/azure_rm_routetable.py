@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_routetable
 version_added: "2.8"
-short_description: Manage Route Table instance.
+short_description: Manage Azure Route Table instance.
 description:
-    - Create, update and delete instance of Route Table.
+    - Create, update and delete instance of Azure Route Table.
 
 options:
     resource_group:
@@ -120,7 +120,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMRouteTables(AzureRMModuleBase):
+class AzureRMRouteTable(AzureRMModuleBase):
     """Configuration class for an Azure RM Route Table resource"""
 
     def __init__(self):
@@ -161,7 +161,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMRouteTables, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMRouteTable, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                  supports_check_mode=True,
                                                  supports_tags=True)
 
@@ -172,26 +172,9 @@ class AzureRMRouteTables(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "id":
-                    self.parameters["id"] = kwargs[key]
-                elif key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "routes":
-                    ev = kwargs[key]
-                    if 'next_hop_type' in ev:
-                        if ev['next_hop_type'] == 'virtual_network_gateway':
-                            ev['next_hop_type'] = 'VirtualNetworkGateway'
-                        elif ev['next_hop_type'] == 'vnet_local':
-                            ev['next_hop_type'] = 'VnetLocal'
-                        elif ev['next_hop_type'] == 'internet':
-                            ev['next_hop_type'] = 'Internet'
-                        elif ev['next_hop_type'] == 'virtual_appliance':
-                            ev['next_hop_type'] = 'VirtualAppliance'
-                        elif ev['next_hop_type'] == 'none':
-                            ev['next_hop_type'] = 'None'
-                    self.parameters["routes"] = ev
-                elif key == "disable_bgp_route_propagation":
-                    self.parameters["disable_bgp_route_propagation"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['routes', 'next_hop_type'], True)
 
         response = None
 
@@ -216,7 +199,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -248,7 +231,7 @@ class AzureRMRouteTables(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_routetable(self):
@@ -308,25 +291,27 @@ class AzureRMRouteTables(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -340,16 +325,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMRouteTables()
+    AzureRMRouteTable()
 
 
 if __name__ == '__main__':

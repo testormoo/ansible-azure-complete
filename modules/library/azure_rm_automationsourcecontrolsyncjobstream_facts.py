@@ -117,7 +117,7 @@ except ImportError:
     pass
 
 
-class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
+class AzureRMSourceControlSyncJobStreamFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -155,7 +155,7 @@ class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
         self.source_control_sync_job_id = None
         self.filter = None
         self.stream_id = None
-        super(AzureRMSourceControlSyncJobStreamsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSourceControlSyncJobStreamFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -163,10 +163,10 @@ class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.stream_id is not None:
+            self.results['source_control_sync_job_streams'] = self.get()
         else:
             self.results['source_control_sync_job_streams'] = self.list_by_sync_job()
-        elif self.stream_id is not None:
-            self.results['source_control_sync_job_streams'] = self.get()
         return self.results
 
     def list_by_sync_job(self):
@@ -179,11 +179,11 @@ class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
                                                                                          source_control_sync_job_id=self.source_control_sync_job_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SourceControlSyncJobStreams.')
+            self.log('Could not get facts for Source Control Sync Job Stream.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -198,14 +198,14 @@ class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
                                                                             stream_id=self.stream_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SourceControlSyncJobStreams.')
+            self.log('Could not get facts for Source Control Sync Job Stream.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -218,7 +218,7 @@ class AzureRMSourceControlSyncJobStreamsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSourceControlSyncJobStreamsFacts()
+    AzureRMSourceControlSyncJobStreamFacts()
 
 
 if __name__ == '__main__':

@@ -100,7 +100,7 @@ except ImportError:
     pass
 
 
-class AzureRMPoliciesFacts(AzureRMModuleBase):
+class AzureRMPolicyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -138,7 +138,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
         self.name = None
         self.expand = None
         self.tags = None
-        super(AzureRMPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -159,14 +159,14 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
                                                      name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Policies.')
+            self.log('Could not get facts for Policy.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -178,7 +178,7 @@ class AzureRMPoliciesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMPoliciesFacts()
+    AzureRMPolicyFacts()
 
 
 if __name__ == '__main__':

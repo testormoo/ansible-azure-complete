@@ -178,12 +178,12 @@ class AzureRMApiFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        else:
-            self.results['api'] = self.list_by_service()
+        if self.api_id is not None:
+            self.results['api'] = self.get()
         else:
             self.results['api'] = self.list_by_tags()
-        elif self.api_id is not None:
-            self.results['api'] = self.get()
+        else:
+            self.results['api'] = self.list_by_service()
         return self.results
 
     def list_by_service(self):
@@ -198,7 +198,7 @@ class AzureRMApiFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -214,7 +214,7 @@ class AzureRMApiFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -230,11 +230,11 @@ class AzureRMApiFacts(AzureRMModuleBase):
             self.log('Could not get facts for Api.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

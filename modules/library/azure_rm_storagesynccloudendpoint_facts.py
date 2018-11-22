@@ -94,7 +94,7 @@ except ImportError:
     pass
 
 
-class AzureRMCloudEndpointsFacts(AzureRMModuleBase):
+class AzureRMCloudEndpointFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -123,7 +123,7 @@ class AzureRMCloudEndpointsFacts(AzureRMModuleBase):
         self.storage_sync_service_name = None
         self.sync_group_name = None
         self.name = None
-        super(AzureRMCloudEndpointsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMCloudEndpointFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -147,10 +147,10 @@ class AzureRMCloudEndpointsFacts(AzureRMModuleBase):
                                                             cloud_endpoint_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for CloudEndpoints.')
+            self.log('Could not get facts for Cloud Endpoint.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -163,15 +163,15 @@ class AzureRMCloudEndpointsFacts(AzureRMModuleBase):
                                                                            sync_group_name=self.sync_group_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for CloudEndpoints.')
+            self.log('Could not get facts for Cloud Endpoint.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -182,7 +182,7 @@ class AzureRMCloudEndpointsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMCloudEndpointsFacts()
+    AzureRMCloudEndpointFacts()
 
 
 if __name__ == '__main__':

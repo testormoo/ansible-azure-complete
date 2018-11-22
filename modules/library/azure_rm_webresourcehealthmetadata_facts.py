@@ -126,11 +126,11 @@ class AzureRMResourceHealthMetadataFacts(AzureRMModuleBase):
                                                                                    slot=self.slot)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ResourceHealthMetadata.')
+            self.log('Could not get facts for Resource Health Metadata.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -142,11 +142,11 @@ class AzureRMResourceHealthMetadataFacts(AzureRMModuleBase):
                                                                               name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ResourceHealthMetadata.')
+            self.log('Could not get facts for Resource Health Metadata.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -157,15 +157,15 @@ class AzureRMResourceHealthMetadataFacts(AzureRMModuleBase):
             response = self.mgmt_client.resource_health_metadata.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ResourceHealthMetadata.')
+            self.log('Could not get facts for Resource Health Metadata.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

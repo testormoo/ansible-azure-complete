@@ -127,7 +127,7 @@ except ImportError:
     pass
 
 
-class AzureRMJobAgentsFacts(AzureRMModuleBase):
+class AzureRMJobAgentFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -155,7 +155,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
         self.server_name = None
         self.name = None
         self.tags = None
-        super(AzureRMJobAgentsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMJobAgentFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -178,10 +178,10 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
                                                        job_agent_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobAgents.')
+            self.log('Could not get facts for Job Agent.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -193,16 +193,16 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
                                                                   server_name=self.server_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobAgents.')
+            self.log('Could not get facts for Job Agent.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -220,7 +220,7 @@ class AzureRMJobAgentsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMJobAgentsFacts()
+    AzureRMJobAgentFacts()
 
 
 if __name__ == '__main__':

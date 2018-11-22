@@ -111,7 +111,7 @@ except ImportError:
     pass
 
 
-class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
+class AzureRMLongTermRetentionBackupFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -146,7 +146,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
         self.only_latest_per_database = None
         self.database_state = None
         self.name = None
-        super(AzureRMLongTermRetentionBackupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLongTermRetentionBackupFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -155,12 +155,12 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         if (self.long_term_retention_server_name is not None and
-                self.long_term_retention_database_name is not None):
-            self.results['long_term_retention_backups'] = self.list_by_database()
-        elif (self.long_term_retention_server_name is not None and
                 self.long_term_retention_database_name is not None and
                 self.name is not None):
             self.results['long_term_retention_backups'] = self.get()
+        elif (self.long_term_retention_server_name is not None and
+                self.long_term_retention_database_name is not None):
+            self.results['long_term_retention_backups'] = self.list_by_database()
         elif self.long_term_retention_server_name is not None:
             self.results['long_term_retention_backups'] = self.list_by_server()
         else:
@@ -176,11 +176,11 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
                                                                                      long_term_retention_database_name=self.long_term_retention_database_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LongTermRetentionBackups.')
+            self.log('Could not get facts for Long Term Retention Backup.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -194,10 +194,10 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
                                                                         backup_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LongTermRetentionBackups.')
+            self.log('Could not get facts for Long Term Retention Backup.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -209,11 +209,11 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
                                                                                    long_term_retention_server_name=self.long_term_retention_server_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LongTermRetentionBackups.')
+            self.log('Could not get facts for Long Term Retention Backup.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -224,15 +224,15 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
             response = self.mgmt_client.long_term_retention_backups.list_by_location(location_name=self.location_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LongTermRetentionBackups.')
+            self.log('Could not get facts for Long Term Retention Backup.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -243,7 +243,7 @@ class AzureRMLongTermRetentionBackupsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLongTermRetentionBackupsFacts()
+    AzureRMLongTermRetentionBackupFacts()
 
 
 if __name__ == '__main__':

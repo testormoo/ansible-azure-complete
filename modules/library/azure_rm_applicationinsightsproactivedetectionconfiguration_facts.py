@@ -70,7 +70,7 @@ except ImportError:
     pass
 
 
-class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
+class AzureRMProactiveDetectionConfigurationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -95,7 +95,7 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.configuration_id = None
-        super(AzureRMProactiveDetectionConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMProactiveDetectionConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -115,14 +115,14 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
                                                                                configuration_id=self.configuration_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ProactiveDetectionConfigurations.')
+            self.log('Could not get facts for Proactive Detection Configuration.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -131,7 +131,7 @@ class AzureRMProactiveDetectionConfigurationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMProactiveDetectionConfigurationsFacts()
+    AzureRMProactiveDetectionConfigurationFacts()
 
 
 if __name__ == '__main__':

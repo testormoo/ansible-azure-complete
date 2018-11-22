@@ -17,38 +17,34 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_migrateproject
 version_added: "2.8"
-short_description: Manage Project instance.
+short_description: Manage Azure Project instance.
 description:
-    - Create, update and delete instance of Project.
+    - Create, update and delete instance of Azure Project.
 
 options:
     resource_group:
         description:
-            - Name of the Azure Resource Group that I(project) is part of.
+            - Name of the Azure Resource Group that project is part of.
         required: True
     name:
         description:
-            - Name of the Azure Migrate I(project).
+            - Name of the Azure Migrate project.
         required: True
     self.config.accept_language:
         description:
             - Standard request header. Used by service to respond to client in appropriate language.
-    project:
+    e_tag:
         description:
-            - New or Updated project object.
-        suboptions:
-            e_tag:
-                description:
-                    - For optimistic concurrency control.
-            location:
-                description:
-                    - Azure location in which project is created.
-            customer_workspace_id:
-                description:
-                    - ARM ID of the Service Map workspace created by user.
-            customer_workspace_location:
-                description:
-                    - Location of the Service Map workspace created by user.
+            - For optimistic concurrency control.
+    location:
+        description:
+            - Azure location in which project is created.
+    customer_workspace_id:
+        description:
+            - ARM ID of the Service Map workspace created by user.
+    customer_workspace_location:
+        description:
+            - Location of the Service Map workspace created by user.
     state:
       description:
         - Assert the state of the Project.
@@ -73,11 +69,10 @@ EXAMPLES = '''
       resource_group: myResourceGroup
       name: project01
       self.config.accept_language: NOT FOUND
-      project:
-        e_tag: "b701c73a-0000-0000-0000-59c12ff00000"
-        location: West Us
-        customer_workspace_id: url-to-customers-service-map
-        customer_workspace_location: West Us
+      e_tag: "b701c73a-0000-0000-0000-59c12ff00000"
+      location: West Us
+      customer_workspace_id: url-to-customers-service-map
+      customer_workspace_location: West Us
 '''
 
 RETURN = '''
@@ -107,7 +102,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMProjects(AzureRMModuleBase):
+class AzureRMProject(AzureRMModuleBase):
     """Configuration class for an Azure RM Project resource"""
 
     def __init__(self):
@@ -123,8 +118,17 @@ class AzureRMProjects(AzureRMModuleBase):
             self.config.accept_language=dict(
                 type='str'
             ),
-            project=dict(
-                type='dict'
+            e_tag=dict(
+                type='str'
+            ),
+            location=dict(
+                type='str'
+            ),
+            customer_workspace_id=dict(
+                type='str'
+            ),
+            customer_workspace_location=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -143,9 +147,9 @@ class AzureRMProjects(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMProjects, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                              supports_check_mode=True,
-                                              supports_tags=True)
+        super(AzureRMProject, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                             supports_check_mode=True,
+                                             supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -154,14 +158,8 @@ class AzureRMProjects(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "e_tag":
-                    self.project["e_tag"] = kwargs[key]
-                elif key == "location":
-                    self.project["location"] = kwargs[key]
-                elif key == "customer_workspace_id":
-                    self.project["customer_workspace_id"] = kwargs[key]
-                elif key == "customer_workspace_location":
-                    self.project["customer_workspace_location"] = kwargs[key]
+                self.project[key] = kwargs[key]
+
 
         response = None
 
@@ -183,7 +181,7 @@ class AzureRMProjects(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.project, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -215,7 +213,7 @@ class AzureRMProjects(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_project(self):
@@ -278,25 +276,27 @@ class AzureRMProjects(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -310,16 +310,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMProjects()
+    AzureRMProject()
 
 
 if __name__ == '__main__':

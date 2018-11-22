@@ -101,7 +101,7 @@ except ImportError:
     pass
 
 
-class AzureRMLoadBalancerFrontendIPConfigurationsFacts(AzureRMModuleBase):
+class AzureRMLoadBalancerFrontendIPConfigurationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -126,7 +126,7 @@ class AzureRMLoadBalancerFrontendIPConfigurationsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.load_balancer_name = None
         self.name = None
-        super(AzureRMLoadBalancerFrontendIPConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLoadBalancerFrontendIPConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,14 +146,14 @@ class AzureRMLoadBalancerFrontendIPConfigurationsFacts(AzureRMModuleBase):
                                                                                      frontend_ip_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LoadBalancerFrontendIPConfigurations.')
+            self.log('Could not get facts for Load Balancer Frontend I P Configuration.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -168,7 +168,7 @@ class AzureRMLoadBalancerFrontendIPConfigurationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLoadBalancerFrontendIPConfigurationsFacts()
+    AzureRMLoadBalancerFrontendIPConfigurationFacts()
 
 
 if __name__ == '__main__':

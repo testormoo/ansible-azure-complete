@@ -118,7 +118,7 @@ except ImportError:
     pass
 
 
-class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
+class AzureRMDataLakeStoreAccountFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -166,7 +166,7 @@ class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
         self.orderby = None
         self.count = None
         self.name = None
-        super(AzureRMDataLakeStoreAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMDataLakeStoreAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -174,10 +174,10 @@ class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeAnalyticsAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['data_lake_store_accounts'] = self.get()
         else:
             self.results['data_lake_store_accounts'] = self.list_by_account()
-        elif self.name is not None:
-            self.results['data_lake_store_accounts'] = self.get()
         return self.results
 
     def list_by_account(self):
@@ -188,11 +188,11 @@ class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
                                                                                  account_name=self.account_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for DataLakeStoreAccounts.')
+            self.log('Could not get facts for Data Lake Store Account.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -205,14 +205,14 @@ class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
                                                                      data_lake_store_account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for DataLakeStoreAccounts.')
+            self.log('Could not get facts for Data Lake Store Account.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -224,7 +224,7 @@ class AzureRMDataLakeStoreAccountsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMDataLakeStoreAccountsFacts()
+    AzureRMDataLakeStoreAccountFacts()
 
 
 if __name__ == '__main__':

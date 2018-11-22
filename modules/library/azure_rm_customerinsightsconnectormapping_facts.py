@@ -105,7 +105,7 @@ except ImportError:
     pass
 
 
-class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
+class AzureRMConnectorMappingFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -134,7 +134,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
         self.hub_name = None
         self.connector_name = None
         self.name = None
-        super(AzureRMConnectorMappingsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMConnectorMappingFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -158,10 +158,10 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
                                                                mapping_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ConnectorMappings.')
+            self.log('Could not get facts for Connector Mapping.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -174,15 +174,15 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
                                                                              connector_name=self.connector_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ConnectorMappings.')
+            self.log('Could not get facts for Connector Mapping.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -195,7 +195,7 @@ class AzureRMConnectorMappingsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMConnectorMappingsFacts()
+    AzureRMConnectorMappingFacts()
 
 
 if __name__ == '__main__':

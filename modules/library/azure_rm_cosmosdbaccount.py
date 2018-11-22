@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_cosmosdbaccount
 version_added: "2.8"
-short_description: Manage Database Account instance.
+short_description: Manage Azure Database Account instance.
 description:
-    - Create, update and delete instance of Database Account.
+    - Create, update and delete instance of Azure Database Account.
 
 options:
     resource_group:
@@ -58,18 +58,20 @@ options:
             max_staleness_prefix:
                 description:
                     - "When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range
-                       for this value is 1 - 2,147,483,647. Required when defaultConsistencyPolicy is set to 'C(bounded_staleness)'."
+                       for this value is 1 - 2,147,483,647. Required when I(default_consistency_policy) is set to C(bounded_staleness)."
+                type: number
             max_interval_in_seconds:
                 description:
                     - "When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated.
-                       Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'C(bounded_staleness)'."
-    locations:
+                       Accepted range for this value is 5 - 86400. Required when I(default_consistency_policy) is set to C(bounded_staleness)."
+                type: number
+    geo_rep_locations:
         description:
             - An array that contains the georeplication locations enabled for the Cosmos DB account.
             - Required when C(state) is I(present).
         type: list
         suboptions:
-            location_name:
+            name:
                 description:
                     - The name of the region.
             failover_priority:
@@ -78,6 +80,7 @@ options:
                        (total number of regions - 1). Failover priority values must be unique for each of the regions in which the database account exists."
     database_account_offer_type:
         description:
+            - Database account offer type, for example I(Standard)
             - Required when C(state) is I(present).
     ip_range_filter:
         description:
@@ -90,6 +93,7 @@ options:
         description:
             - "Enables automatic failover of the write region in the rare event that the region is unavailable due to an outage. Automatic failover will
                result in a new write region for the account and is chosen based on the failover priorities configured for the account."
+        type: bool
     capabilities:
         description:
             - List of Cosmos DB capabilities for the account
@@ -131,15 +135,34 @@ author:
 '''
 
 EXAMPLES = '''
-  - name: Create (or update) Database Account
+  - name: Create Cosmos DB Account - min
     azure_rm_cosmosdbaccount:
-      resource_group: rg1
+      resource_group: testResourceGroup
       name: ddb1
       location: westus
-      locations:
-        - location_name: southcentralus
+      geo_rep_locations:
+        - name: southcentralus
           failover_priority: 0
       database_account_offer_type: Standard
+
+  - name: Create Cosmos DB Account - max
+    azure_rm_cosmosdbaccount:
+      resource_group: testResourceGroup
+      name: ddb1
+      location: westus
+      kind: mongo_db
+      geo_rep_locations:
+        - name: southcentralus
+          failover_priority: 0
+      database_account_offer_type: Standard
+      ip_range_filter: 10.10.10.10
+      enable_multiple_write_locations: yes
+      virtual_network_rules:
+        - id: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/subnet1
+      consistency_policy:
+        default_consistency_level: bounded_staleness
+        max_staleness_prefix: 10
+        max_interval_in_seconds: 1000
 '''
 
 RETURN = '''
@@ -169,7 +192,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDatabaseAccounts(AzureRMModuleBase):
+class AzureRMCosmosDBAccount(AzureRMModuleBase):
     """Configuration class for an Azure RM Database Account resource"""
 
     def __init__(self):
@@ -192,10 +215,36 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                          'parse']
             ),
             consistency_policy=dict(
-                type='dict'
+                type='dict',
+                options=dict(
+                    default_consistency_level=dict(
+                        type='str',
+                        choices=['eventual',
+                                'session',
+                                'bounded_staleness',
+                                'strong',
+                                'consistent_prefix']
+                    ),
+                    max_staleness_prefix=dict(
+                        type='number'
+                    ),
+                    max_interval_in_seconds=dict(
+                        type='number'
+                    )
+                )
             ),
-            locations=dict(
-                type='list'
+            geo_rep_locations=dict(
+                type='list',
+                options=dict(
+                    name=dict(
+                        type='str',
+                        required=True
+                    ),
+                    failover_priority=dict(
+                        type='number',
+                        required=True
+                    )
+                )
             ),
             database_account_offer_type=dict(
                 type='str'
@@ -207,13 +256,19 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
                 type='str'
             ),
             enable_automatic_failover=dict(
-                type='str'
+                type='bool'
             ),
             capabilities=dict(
                 type='list'
             ),
             virtual_network_rules=dict(
-                type='list'
+                type='list',
+                options=dict(
+                    id=dict(
+                        type='str',
+                        required=True
+                    )
+                )
             ),
             enable_multiple_write_locations=dict(
                 type='str'
@@ -234,7 +289,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDatabaseAccounts, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMCosmosDBAccount, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                       supports_check_mode=True,
                                                       supports_tags=True)
 
@@ -245,45 +300,12 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "kind":
-                    ev = kwargs[key]
-                    if ev == 'global_document_db':
-                        ev = 'GlobalDocumentDB'
-                    elif ev == 'mongo_db':
-                        ev = 'MongoDB'
-                    self.parameters["kind"] = _snake_to_camel(ev, True)
-                elif key == "consistency_policy":
-                    ev = kwargs[key]
-                    if 'default_consistency_level' in ev:
-                        if ev['default_consistency_level'] == 'eventual':
-                            ev['default_consistency_level'] = 'Eventual'
-                        elif ev['default_consistency_level'] == 'session':
-                            ev['default_consistency_level'] = 'Session'
-                        elif ev['default_consistency_level'] == 'bounded_staleness':
-                            ev['default_consistency_level'] = 'BoundedStaleness'
-                        elif ev['default_consistency_level'] == 'strong':
-                            ev['default_consistency_level'] = 'Strong'
-                        elif ev['default_consistency_level'] == 'consistent_prefix':
-                            ev['default_consistency_level'] = 'ConsistentPrefix'
-                    self.parameters["consistency_policy"] = ev
-                elif key == "locations":
-                    self.parameters["locations"] = kwargs[key]
-                elif key == "database_account_offer_type":
-                    self.parameters["database_account_offer_type"] = kwargs[key]
-                elif key == "ip_range_filter":
-                    self.parameters["ip_range_filter"] = kwargs[key]
-                elif key == "is_virtual_network_filter_enabled":
-                    self.parameters["is_virtual_network_filter_enabled"] = kwargs[key]
-                elif key == "enable_automatic_failover":
-                    self.parameters["enable_automatic_failover"] = kwargs[key]
-                elif key == "capabilities":
-                    self.parameters["capabilities"] = kwargs[key]
-                elif key == "virtual_network_rules":
-                    self.parameters["virtual_network_rules"] = kwargs[key]
-                elif key == "enable_multiple_write_locations":
-                    self.parameters["enable_multiple_write_locations"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_camelize(self.parameters, ['kind'], True)
+        dict_camelize(self.parameters, ['consistency_policy', 'default_consistency_level'], True)
+        dict_rename(self.parameters, ['geo_rep_locations', 'name'], 'location_name')
+        dict_rename(self.parameters, ['geo_rep_locations'], 'locations')
 
         response = None
 
@@ -308,10 +330,8 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '', {
-                '/location': 'location',
-                '/locations/location_name': 'location
-                       })):
+                old_response['locations'] = old_response['failover_policies']
+                if not default_compare(self.parameters, old_response, '', self.results):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -343,7 +363,7 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_databaseaccount(self):
@@ -403,25 +423,27 @@ class AzureRMDatabaseAccounts(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -429,17 +451,86 @@ def default_compare(new, old, path):
                 key = 'id'
             elif 'name' in old[0] and 'name' in new[0]:
                 key = 'name'
+            else:
+                key = old[0].keys()[0]
             new = sorted(new, key=lambda x: x.get(key, None))
             old = sorted(old, key=lambda x: x.get(key, None))
         else:
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location' or path.endswith('location_name'):
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
+            return False
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -451,7 +542,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDatabaseAccounts()
+    AzureRMCosmosDBAccount()
 
 
 if __name__ == '__main__':

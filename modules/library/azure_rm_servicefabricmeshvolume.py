@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_servicefabricmeshvolume
 version_added: "2.8"
-short_description: Manage Volume instance.
+short_description: Manage Azure Volume instance.
 description:
-    - Create, update and delete instance of Volume.
+    - Create, update and delete instance of Azure Volume.
 
 options:
     resource_group:
@@ -30,37 +30,32 @@ options:
         description:
             - The identity of the volume.
         required: True
-    volume_resource_description:
+    location:
         description:
-            - Description for creating a Volume resource.
-        required: True
+            - The geo-location where the resource lives
+            - Required when C(state) is I(present).
+    description:
+        description:
+            - User readable description of the volume.
+    provider:
+        description:
+            - Provider of the volume.
+            - Required when C(state) is I(present).
+    azure_file_parameters:
+        description:
+            - This type describes a volume provided by an Azure Files file share.
         suboptions:
-            location:
+            account_name:
                 description:
-                    - The geo-location where the resource lives
+                    - Name of the Azure storage account for the File Share.
                     - Required when C(state) is I(present).
-            description:
+            account_key:
                 description:
-                    - User readable description of the volume.
-            provider:
+                    - Access key of the Azure storage account for the File Share.
+            share_name:
                 description:
-                    - Provider of the volume.
+                    - Name of the Azure Files file share that provides storage for the volume.
                     - Required when C(state) is I(present).
-            azure_file_parameters:
-                description:
-                    - This type describes a volume provided by an Azure Files file share.
-                suboptions:
-                    account_name:
-                        description:
-                            - Name of the Azure storage account for the File Share.
-                            - Required when C(state) is I(present).
-                    account_key:
-                        description:
-                            - Access key of the Azure storage account for the File Share.
-                    share_name:
-                        description:
-                            - Name of the Azure Files file share that provides storage for the volume.
-                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Volume.
@@ -84,14 +79,13 @@ EXAMPLES = '''
     azure_rm_servicefabricmeshvolume:
       resource_group: sbz_demo
       name: sampleVolume
-      volume_resource_description:
-        location: EastUS
-        description: Service Fabric Mesh sample volume.
-        provider: SFAzureFile
-        azure_file_parameters:
-          account_name: sbzdemoaccount
-          account_key: provide-account-key-here
-          share_name: sharel
+      location: EastUS
+      description: Service Fabric Mesh sample volume.
+      provider: SFAzureFile
+      azure_file_parameters:
+        account_name: sbzdemoaccount
+        account_key: provide-account-key-here
+        share_name: sharel
 '''
 
 RETURN = '''
@@ -141,9 +135,17 @@ class AzureRMVolume(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            volume_resource_description=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            provider=dict(
+                type='str'
+            ),
+            azure_file_parameters=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -172,14 +174,8 @@ class AzureRMVolume(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.volume_resource_description["location"] = kwargs[key]
-                elif key == "description":
-                    self.volume_resource_description["description"] = kwargs[key]
-                elif key == "provider":
-                    self.volume_resource_description["provider"] = kwargs[key]
-                elif key == "azure_file_parameters":
-                    self.volume_resource_description["azure_file_parameters"] = kwargs[key]
+                self.volume_resource_description[key] = kwargs[key]
+
 
         response = None
 
@@ -201,7 +197,7 @@ class AzureRMVolume(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.volume_resource_description, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -233,7 +229,7 @@ class AzureRMVolume(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_volume(self):
@@ -296,7 +292,7 @@ class AzureRMVolume(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'status': d.get('status', None)
@@ -304,18 +300,20 @@ class AzureRMVolume(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -329,11 +327,101 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

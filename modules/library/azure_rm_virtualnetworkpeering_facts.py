@@ -82,7 +82,7 @@ except ImportError:
     pass
 
 
-class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
+class AzureRMVirtualNetworkPeeringFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -107,7 +107,7 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.virtual_network_name = None
         self.name = None
-        super(AzureRMVirtualNetworkPeeringsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMVirtualNetworkPeeringFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -127,14 +127,14 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
                                                                      virtual_network_peering_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for VirtualNetworkPeerings.')
+            self.log('Could not get facts for Virtual Network Peering.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -145,7 +145,7 @@ class AzureRMVirtualNetworkPeeringsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMVirtualNetworkPeeringsFacts()
+    AzureRMVirtualNetworkPeeringFacts()
 
 
 if __name__ == '__main__':

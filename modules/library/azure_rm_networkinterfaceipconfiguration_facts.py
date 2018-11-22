@@ -101,7 +101,7 @@ except ImportError:
     pass
 
 
-class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
+class AzureRMNetworkInterfaceIPConfigurationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -126,7 +126,7 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.network_interface_name = None
         self.name = None
-        super(AzureRMNetworkInterfaceIPConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMNetworkInterfaceIPConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,14 +146,14 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
                                                                                 ip_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for NetworkInterfaceIPConfigurations.')
+            self.log('Could not get facts for Network Interface I P Configuration.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -168,7 +168,7 @@ class AzureRMNetworkInterfaceIPConfigurationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMNetworkInterfaceIPConfigurationsFacts()
+    AzureRMNetworkInterfaceIPConfigurationFacts()
 
 
 if __name__ == '__main__':

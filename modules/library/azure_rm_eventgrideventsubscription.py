@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_eventgrideventsubscription
 version_added: "2.8"
-short_description: Manage Event Subscription instance.
+short_description: Manage Azure Event Subscription instance.
 description:
-    - Create, update and delete instance of Event Subscription.
+    - Create, update and delete instance of Azure Event Subscription.
 
 options:
     scope:
@@ -36,85 +36,80 @@ options:
         description:
             - Name of the event subscription. Event subscription names must be between 3 and 64 characters in length and should use alphanumeric letters only.
         required: True
-    event_subscription_info:
+    destination:
         description:
-            - Event subscription properties containing the destination and filter information
-        required: True
+            - Information about the destination where events have to be delivered for the event subscription.
         suboptions:
-            destination:
+            endpoint_type:
                 description:
-                    - Information about the destination where events have to be delivered for the event subscription.
-                suboptions:
-                    endpoint_type:
-                        description:
-                            - Constant filled by server.
-                            - Required when C(state) is I(present).
-            filter:
+                    - Constant filled by server.
+                    - Required when C(state) is I(present).
+    filter:
+        description:
+            - Information about the filter for the event subscription.
+        suboptions:
+            subject_begins_with:
                 description:
-                    - Information about the filter for the event subscription.
-                suboptions:
-                    subject_begins_with:
-                        description:
-                            - "An optional string to filter events for an event subscription based on a resource path prefix.\n"
-                            - "The format of this depends on the publisher of the events. \n"
-                            - Wildcard characters are not supported in this path.
-                    subject_ends_with:
-                        description:
-                            - "An optional string to filter events for an event subscription based on a resource path suffix.\n"
-                            - Wildcard characters are not supported in this path.
-                    included_event_types:
-                        description:
-                            - "A list of applicable event types that need to be part of the event subscription. \n"
-                            - "If it is desired to subscribe to all event types, the string 'all' needs to be specified as an element in this list."
-                        type: list
-                    is_subject_case_sensitive:
-                        description:
-                            - "Specifies if the I(subject_begins_with) and I(subject_ends_with) properties of the filter \n"
-                            - should be compared in a case sensitive manner.
-                    advanced_filters:
-                        description:
-                            - A list of advanced filters.
-                        type: list
-                        suboptions:
-                            key:
-                                description:
-                                    - The filter key. Represents an event property with upto two levels of nesting.
-                            operator_type:
-                                description:
-                                    - Constant filled by server.
-                                    - Required when C(state) is I(present).
-            labels:
+                    - "An optional string to filter events for an event subscription based on a resource path prefix.\n"
+                    - "The format of this depends on the publisher of the events. \n"
+                    - Wildcard characters are not supported in this path.
+            subject_ends_with:
                 description:
-                    - List of user defined labels.
+                    - "An optional string to filter events for an event subscription based on a resource path suffix.\n"
+                    - Wildcard characters are not supported in this path.
+            included_event_types:
+                description:
+                    - "A list of applicable event types that need to be part of the event subscription. \n"
+                    - "If it is desired to subscribe to all event types, the string 'all' needs to be specified as an element in this list."
                 type: list
-            expiration_time_utc:
+            is_subject_case_sensitive:
                 description:
-                    - Expiration time of the event subscription.
-            event_delivery_schema:
+                    - "Specifies if the I(subject_begins_with) and I(subject_ends_with) properties of the filter \n"
+                    - should be compared in a case sensitive manner.
+            advanced_filters:
                 description:
-                    - The event delivery schema for the event subscription.
-                choices:
-                    - 'event_grid_schema'
-                    - 'cloud_event_v01_schema'
-                    - 'custom_input_schema'
-            retry_policy:
-                description:
-                    - The retry policy for events. This can be used to configure maximum number of delivery attempts and time to live for events.
+                    - A list of advanced filters.
+                type: list
                 suboptions:
-                    max_delivery_attempts:
+                    key:
                         description:
-                            - Maximum number of delivery retry attempts for events.
-                    event_time_to_live_in_minutes:
-                        description:
-                            - Time To Live (in minutes) for events.
-            dead_letter_destination:
-                description:
-                    - The DeadLetter I(destination) of the event subscription.
-                suboptions:
-                    endpoint_type:
+                            - The filter key. Represents an event property with upto two levels of nesting.
+                    operator_type:
                         description:
                             - Constant filled by server.
                             - Required when C(state) is I(present).
+    labels:
+        description:
+            - List of user defined labels.
+        type: list
+    expiration_time_utc:
+        description:
+            - Expiration time of the event subscription.
+    event_delivery_schema:
+        description:
+            - The event delivery schema for the event subscription.
+        choices:
+            - 'event_grid_schema'
+            - 'cloud_event_v01_schema'
+            - 'custom_input_schema'
+    retry_policy:
+        description:
+            - The retry policy for events. This can be used to configure maximum number of delivery attempts and time to live for events.
+        suboptions:
+            max_delivery_attempts:
+                description:
+                    - Maximum number of delivery retry attempts for events.
+            event_time_to_live_in_minutes:
+                description:
+                    - Time To Live (in minutes) for events.
+    dead_letter_destination:
+        description:
+            - The DeadLetter I(destination) of the event subscription.
+        suboptions:
+            endpoint_type:
+                description:
+                    - Constant filled by server.
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Event Subscription.
@@ -137,9 +132,8 @@ EXAMPLES = '''
     azure_rm_eventgrideventsubscription:
       scope: subscriptions/5b4b650e-28b9-4790-b3ab-ddbd88d727c4
       name: examplesubscription3
-      event_subscription_info:
-        filter:
-          is_subject_case_sensitive: False
+      filter:
+        is_subject_case_sensitive: False
 '''
 
 RETURN = '''
@@ -169,7 +163,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMEventSubscriptions(AzureRMModuleBase):
+class AzureRMEventSubscription(AzureRMModuleBase):
     """Configuration class for an Azure RM Event Subscription resource"""
 
     def __init__(self):
@@ -182,9 +176,29 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            event_subscription_info=dict(
-                type='dict',
-                required=True
+            destination=dict(
+                type='dict'
+            ),
+            filter=dict(
+                type='dict'
+            ),
+            labels=dict(
+                type='list'
+            ),
+            expiration_time_utc=dict(
+                type='datetime'
+            ),
+            event_delivery_schema=dict(
+                type='str',
+                choices=['event_grid_schema',
+                         'cloud_event_v01_schema',
+                         'custom_input_schema']
+            ),
+            retry_policy=dict(
+                type='dict'
+            ),
+            dead_letter_destination=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -202,31 +216,20 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMEventSubscriptions, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMEventSubscription, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                         supports_check_mode=True,
                                                         supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "destination":
-                    self.event_subscription_info["destination"] = kwargs[key]
-                elif key == "filter":
-                    self.event_subscription_info["filter"] = kwargs[key]
-                elif key == "labels":
-                    self.event_subscription_info["labels"] = kwargs[key]
-                elif key == "expiration_time_utc":
-                    self.event_subscription_info["expiration_time_utc"] = kwargs[key]
-                elif key == "event_delivery_schema":
-                    self.event_subscription_info["event_delivery_schema"] = _snake_to_camel(kwargs[key], True)
-                elif key == "retry_policy":
-                    self.event_subscription_info["retry_policy"] = kwargs[key]
-                elif key == "dead_letter_destination":
-                    self.event_subscription_info["dead_letter_destination"] = kwargs[key]
+                self.event_subscription_info[key] = kwargs[key]
+
+        dict_camelize(self.event_subscription_info, ['event_delivery_schema'], True)
 
         response = None
 
@@ -246,7 +249,7 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.event_subscription_info, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -278,7 +281,7 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_eventsubscription(self):
@@ -338,25 +341,27 @@ class AzureRMEventSubscriptions(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -370,11 +375,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -386,7 +474,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMEventSubscriptions()
+    AzureRMEventSubscription()
 
 
 if __name__ == '__main__':

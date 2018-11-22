@@ -71,7 +71,7 @@ except ImportError:
     pass
 
 
-class AzureRMSecurityPINsFacts(AzureRMModuleBase):
+class AzureRMSecurityPINFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -91,7 +91,7 @@ class AzureRMSecurityPINsFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.vault_name = None
         self.resource_group = None
-        super(AzureRMSecurityPINsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSecurityPINFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -110,14 +110,14 @@ class AzureRMSecurityPINsFacts(AzureRMModuleBase):
                                                            resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for SecurityPINs.')
+            self.log('Could not get facts for Security P I N.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -127,7 +127,7 @@ class AzureRMSecurityPINsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSecurityPINsFacts()
+    AzureRMSecurityPINFacts()
 
 
 if __name__ == '__main__':

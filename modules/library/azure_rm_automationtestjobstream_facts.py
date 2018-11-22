@@ -109,7 +109,7 @@ except ImportError:
     pass
 
 
-class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
+class AzureRMTestJobStreamFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -142,7 +142,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
         self.name = None
         self.job_stream_id = None
         self.filter = None
-        super(AzureRMTestJobStreamsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMTestJobStreamFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -166,10 +166,10 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
                                                              job_stream_id=self.job_stream_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TestJobStreams.')
+            self.log('Could not get facts for Test Job Stream.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -182,15 +182,15 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
                                                                           runbook_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TestJobStreams.')
+            self.log('Could not get facts for Test Job Stream.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -203,7 +203,7 @@ class AzureRMTestJobStreamsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMTestJobStreamsFacts()
+    AzureRMTestJobStreamFacts()
 
 
 if __name__ == '__main__':

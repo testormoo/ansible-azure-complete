@@ -30,7 +30,7 @@ options:
         description:
             - The name of the redis cache.
         required: True
-    name:
+    linked_server_name:
         description:
             - The name of the linked server.
         required: True
@@ -48,7 +48,7 @@ EXAMPLES = '''
     azure_rm_redislinkedserver_facts:
       resource_group: resource_group_name
       name: name
-      name: linked_server_name
+      linked_server_name: linked_server_name
 '''
 
 RETURN = '''
@@ -94,7 +94,7 @@ class AzureRMLinkedServerFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            linked_server_name=dict(
                 type='str',
                 required=True
             )
@@ -106,7 +106,7 @@ class AzureRMLinkedServerFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.name = None
-        self.name = None
+        self.linked_server_name = None
         super(AzureRMLinkedServerFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
@@ -124,17 +124,17 @@ class AzureRMLinkedServerFacts(AzureRMModuleBase):
         try:
             response = self.mgmt_client.linked_server.get(resource_group_name=self.resource_group,
                                                           name=self.name,
-                                                          linked_server_name=self.name)
+                                                          linked_server_name=self.linked_server_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LinkedServer.')
+            self.log('Could not get facts for Linked Server.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

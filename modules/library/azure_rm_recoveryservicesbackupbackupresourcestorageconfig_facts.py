@@ -94,7 +94,7 @@ except ImportError:
     pass
 
 
-class AzureRMBackupResourceStorageConfigsFacts(AzureRMModuleBase):
+class AzureRMBackupResourceStorageConfigFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -118,7 +118,7 @@ class AzureRMBackupResourceStorageConfigsFacts(AzureRMModuleBase):
         self.vault_name = None
         self.resource_group = None
         self.tags = None
-        super(AzureRMBackupResourceStorageConfigsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMBackupResourceStorageConfigFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -137,14 +137,14 @@ class AzureRMBackupResourceStorageConfigsFacts(AzureRMModuleBase):
                                                                             resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackupResourceStorageConfigs.')
+            self.log('Could not get facts for Backup Resource Storage Config.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -158,7 +158,7 @@ class AzureRMBackupResourceStorageConfigsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMBackupResourceStorageConfigsFacts()
+    AzureRMBackupResourceStorageConfigFacts()
 
 
 if __name__ == '__main__':

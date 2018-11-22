@@ -104,7 +104,7 @@ except ImportError:
     pass
 
 
-class AzureRMApplicationsFacts(AzureRMModuleBase):
+class AzureRMApplicationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -133,7 +133,7 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
         self.cluster_name = None
         self.name = None
         self.tags = None
-        super(AzureRMApplicationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMApplicationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -153,14 +153,14 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
                                                          application_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Applications.')
+            self.log('Could not get facts for Application.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -175,7 +175,7 @@ class AzureRMApplicationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMApplicationsFacts()
+    AzureRMApplicationFacts()
 
 
 if __name__ == '__main__':

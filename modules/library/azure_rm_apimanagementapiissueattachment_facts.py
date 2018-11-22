@@ -180,10 +180,10 @@ class AzureRMApiIssueAttachmentFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.attachment_id is not None:
+            self.results['api_issue_attachment'] = self.get()
         else:
             self.results['api_issue_attachment'] = self.list_by_service()
-        elif self.attachment_id is not None:
-            self.results['api_issue_attachment'] = self.get()
         return self.results
 
     def list_by_service(self):
@@ -196,11 +196,11 @@ class AzureRMApiIssueAttachmentFacts(AzureRMModuleBase):
                                                                              issue_id=self.issue_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiIssueAttachment.')
+            self.log('Could not get facts for Api Issue Attachment.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -215,14 +215,14 @@ class AzureRMApiIssueAttachmentFacts(AzureRMModuleBase):
                                                                  attachment_id=self.attachment_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ApiIssueAttachment.')
+            self.log('Could not get facts for Api Issue Attachment.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

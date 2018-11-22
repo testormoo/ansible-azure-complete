@@ -87,7 +87,7 @@ except ImportError:
     pass
 
 
-class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
+class AzureRMVirtualMachineExtensionImageFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -121,7 +121,7 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
         self.type = None
         self.version = None
         self.tags = None
-        super(AzureRMVirtualMachineExtensionImagesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMVirtualMachineExtensionImageFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -142,14 +142,14 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
                                                                              version=self.version)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for VirtualMachineExtensionImages.')
+            self.log('Could not get facts for Virtual Machine Extension Image.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -160,7 +160,7 @@ class AzureRMVirtualMachineExtensionImagesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMVirtualMachineExtensionImagesFacts()
+    AzureRMVirtualMachineExtensionImageFacts()
 
 
 if __name__ == '__main__':

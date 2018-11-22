@@ -75,7 +75,7 @@ except ImportError:
     pass
 
 
-class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
+class AzureRMProtectionContainerRefreshOperationResultFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -105,7 +105,7 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.operation_id = None
-        super(AzureRMProtectionContainerRefreshOperationResultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMProtectionContainerRefreshOperationResultFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -126,14 +126,14 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
                                                                                            operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ProtectionContainerRefreshOperationResults.')
+            self.log('Could not get facts for Protection Container Refresh Operation Result.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -142,7 +142,7 @@ class AzureRMProtectionContainerRefreshOperationResultsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMProtectionContainerRefreshOperationResultsFacts()
+    AzureRMProtectionContainerRefreshOperationResultFacts()
 
 
 if __name__ == '__main__':

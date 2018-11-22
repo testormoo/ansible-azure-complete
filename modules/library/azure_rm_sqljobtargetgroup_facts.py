@@ -100,7 +100,7 @@ except ImportError:
     pass
 
 
-class AzureRMJobTargetGroupsFacts(AzureRMModuleBase):
+class AzureRMJobTargetGroupFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -129,7 +129,7 @@ class AzureRMJobTargetGroupsFacts(AzureRMModuleBase):
         self.server_name = None
         self.job_agent_name = None
         self.name = None
-        super(AzureRMJobTargetGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMJobTargetGroupFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -153,10 +153,10 @@ class AzureRMJobTargetGroupsFacts(AzureRMModuleBase):
                                                               target_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobTargetGroups.')
+            self.log('Could not get facts for Job Target Group.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -169,15 +169,15 @@ class AzureRMJobTargetGroupsFacts(AzureRMModuleBase):
                                                                         job_agent_name=self.job_agent_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobTargetGroups.')
+            self.log('Could not get facts for Job Target Group.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -190,7 +190,7 @@ class AzureRMJobTargetGroupsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMJobTargetGroupsFacts()
+    AzureRMJobTargetGroupFacts()
 
 
 if __name__ == '__main__':

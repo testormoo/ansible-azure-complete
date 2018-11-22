@@ -17,68 +17,61 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_storsimplestorageaccountcredential
 version_added: "2.8"
-short_description: Manage Storage Account Credential instance.
+short_description: Manage Azure Storage Account Credential instance.
 description:
-    - Create, update and delete instance of Storage Account Credential.
+    - Create, update and delete instance of Azure Storage Account Credential.
 
 options:
     credential_name:
         description:
             - The credential name.
         required: True
-    storage_account:
+    cloud_type:
         description:
-            - The storage account credential to be added or updated.
-        required: True
+            - The cloud service provider.
+            - Required when C(state) is I(present).
+        choices:
+            - 'azure'
+            - 's3'
+            - 's3_rrs'
+            - 'open_stack'
+            - 'hp'
+    end_point:
+        description:
+            - The storage endpoint
+            - Required when C(state) is I(present).
+    login:
+        description:
+            - The storage account login
+            - Required when C(state) is I(present).
+    location:
+        description:
+            - "The storage account's geo location"
+    enable_ssl:
+        description:
+            - "SSL needs to be enabled or not. Possible values include: 'Enabled', 'Disabled'"
+            - Required when C(state) is I(present).
+        type: bool
+    access_key:
+        description:
+            - The details of the storage account password
         suboptions:
-            cloud_type:
+            value:
                 description:
-                    - The cloud service provider.
+                    - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
+                       EncryptionCertThumbprint will be null."
+                    - Required when C(state) is I(present).
+            encryption_certificate_thumbprint:
+                description:
+                    - "Thumbprint certificate that was used to encrypt 'I(value)'"
+            encryption_algorithm:
+                description:
+                    - "Algorithm used to encrypt 'I(value)'."
                     - Required when C(state) is I(present).
                 choices:
-                    - 'azure'
-                    - 's3'
-                    - 's3_rrs'
-                    - 'open_stack'
-                    - 'hp'
-            end_point:
-                description:
-                    - The storage endpoint
-                    - Required when C(state) is I(present).
-            login:
-                description:
-                    - The storage account login
-                    - Required when C(state) is I(present).
-            location:
-                description:
-                    - "The storage account's geo location"
-            enable_ssl:
-                description:
-                    - SSL needs to be C(enabled) or not.
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'enabled'
-                    - 'disabled'
-            access_key:
-                description:
-                    - The details of the storage account password
-                suboptions:
-                    value:
-                        description:
-                            - "The value of the secret itself. If the secret is in plaintext then I(encryption_algorithm) will be C(none) and
-                               EncryptionCertThumbprint will be null."
-                            - Required when C(state) is I(present).
-                    encryption_certificate_thumbprint:
-                        description:
-                            - "Thumbprint certificate that was used to encrypt 'I(value)'"
-                    encryption_algorithm:
-                        description:
-                            - "Algorithm used to encrypt 'I(value)'."
-                            - Required when C(state) is I(present).
-                        choices:
-                            - 'none'
-                            - 'aes256'
-                            - 'rsaes_pkcs1_v_1_5'
+                    - 'none'
+                    - 'aes256'
+                    - 'rsaes_pkcs1_v_1_5'
     resource_group:
         description:
             - The resource group name
@@ -108,16 +101,15 @@ EXAMPLES = '''
   - name: Create (or update) Storage Account Credential
     azure_rm_storsimplestorageaccountcredential:
       credential_name: DummySacForSDKTest
-      storage_account:
-        cloud_type: Azure
-        end_point: blob.core.windows.net
-        login: SacForSDKTest
-        location: West US
-        enable_ssl: Enabled
-        access_key:
-          value: Ev1tm0QBmpGGm4a58GkqLqx8veJEEgQtg5K3Jizpmy7JdSv9dlcRwk59THw6KIdMDlEHcS8mPyneBtOEQsh4wkcFB7qrmQz+KsRAyIhEm6bwPEm3qN8+aDDzNcXn/6vu/sqV0AP7zit9/s7SxXGxjKrz4zKnOy16/DbzRRmUHNO+HO6JUM0cUfHXTX0mEecbsXqBq0A8IEG8z+bJgXX1EhoGkzE6yVsObm4S1AcKrLiwWjqmSLji5Q8gGO+y4KTTmC3p45h5GHHXjJyOccHhySWDAffxnTzUD/sOoh+aD2VkAYrL3DdnkVzhAdfcZfVI4soONx7tYMloZIVsfW1M2Q==
-          encryption_certificate_thumbprint: D73DB57C4CDD6761E159F8D1E8A7D759424983FD
-          encryption_algorithm: RSAES_PKCS1_v_1_5
+      cloud_type: Azure
+      end_point: blob.core.windows.net
+      login: SacForSDKTest
+      location: West US
+      enable_ssl: enable_ssl
+      access_key:
+        value: Ev1tm0QBmpGGm4a58GkqLqx8veJEEgQtg5K3Jizpmy7JdSv9dlcRwk59THw6KIdMDlEHcS8mPyneBtOEQsh4wkcFB7qrmQz+KsRAyIhEm6bwPEm3qN8+aDDzNcXn/6vu/sqV0AP7zit9/s7SxXGxjKrz4zKnOy16/DbzRRmUHNO+HO6JUM0cUfHXTX0mEecbsXqBq0A8IEG8z+bJgXX1EhoGkzE6yVsObm4S1AcKrLiwWjqmSLji5Q8gGO+y4KTTmC3p45h5GHHXjJyOccHhySWDAffxnTzUD/sOoh+aD2VkAYrL3DdnkVzhAdfcZfVI4soONx7tYMloZIVsfW1M2Q==
+        encryption_certificate_thumbprint: D73DB57C4CDD6761E159F8D1E8A7D759424983FD
+        encryption_algorithm: RSAES_PKCS1_v_1_5
       resource_group: ResourceGroupForSDKTest
       name: hAzureSDKOperations
 '''
@@ -150,7 +142,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMStorageAccountCredentials(AzureRMModuleBase):
+class AzureRMStorageAccountCredential(AzureRMModuleBase):
     """Configuration class for an Azure RM Storage Account Credential resource"""
 
     def __init__(self):
@@ -159,9 +151,28 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            storage_account=dict(
-                type='dict',
-                required=True
+            cloud_type=dict(
+                type='str',
+                choices=['azure',
+                         's3',
+                         's3_rrs',
+                         'open_stack',
+                         'hp']
+            ),
+            end_point=dict(
+                type='str'
+            ),
+            login=dict(
+                type='str'
+            ),
+            location=dict(
+                type='str'
+            ),
+            enable_ssl=dict(
+                type='bool'
+            ),
+            access_key=dict(
+                type='dict'
             ),
             resource_group=dict(
                 type='str',
@@ -188,42 +199,24 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMStorageAccountCredentials, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                               supports_check_mode=True,
-                                                               supports_tags=False)
+        super(AzureRMStorageAccountCredential, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                                supports_check_mode=True,
+                                                                supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "cloud_type":
-                    ev = kwargs[key]
-                    if ev == 's3_rrs':
-                        ev = 'S3_RRS'
-                    elif ev == 'hp':
-                        ev = 'HP'
-                    self.storage_account["cloud_type"] = _snake_to_camel(ev, True)
-                elif key == "end_point":
-                    self.storage_account["end_point"] = kwargs[key]
-                elif key == "login":
-                    self.storage_account["login"] = kwargs[key]
-                elif key == "location":
-                    self.storage_account["location"] = kwargs[key]
-                elif key == "enable_ssl":
-                    self.storage_account["enable_ssl"] = _snake_to_camel(kwargs[key], True)
-                elif key == "access_key":
-                    ev = kwargs[key]
-                    if 'encryption_algorithm' in ev:
-                        if ev['encryption_algorithm'] == 'none':
-                            ev['encryption_algorithm'] = 'None'
-                        elif ev['encryption_algorithm'] == 'aes256':
-                            ev['encryption_algorithm'] = 'AES256'
-                        elif ev['encryption_algorithm'] == 'rsaes_pkcs1_v_1_5':
-                            ev['encryption_algorithm'] = 'RSAES_PKCS1_v_1_5'
-                    self.storage_account["access_key"] = ev
+                self.storage_account[key] = kwargs[key]
+
+        dict_camelize(self.storage_account, ['cloud_type'], True)
+        dict_map(self.storage_account, ['cloud_type'], ''s3_rrs': 'S3_RRS', 'hp': 'HP'')
+        dict_map(self.storage_account, ['enable_ssl'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_upper(self.storage_account, ['access_key', 'encryption_algorithm'])
+        dict_map(self.storage_account, ['access_key', 'encryption_algorithm'], ''none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'')
 
         response = None
 
@@ -245,7 +238,7 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.storage_account, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -277,7 +270,7 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_storageaccountcredential(self):
@@ -340,25 +333,27 @@ class AzureRMStorageAccountCredentials(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -372,11 +367,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -388,7 +466,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMStorageAccountCredentials()
+    AzureRMStorageAccountCredential()
 
 
 if __name__ == '__main__':

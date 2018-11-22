@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_databoxjob
 version_added: "2.8"
-short_description: Manage Job instance.
+short_description: Manage Azure Job instance.
 description:
-    - Create, update and delete instance of Job.
+    - Create, update and delete instance of Azure Job.
 
 options:
     resource_group:
@@ -31,150 +31,144 @@ options:
             - "The name of the job Resource within the specified resource group. job names must be between 3 and 24 characters in length and use any
                alphanumeric and underscore only"
         required: True
-    job_resource:
+    location:
         description:
-            - Job details from request body.
-        required: True
+            - "The location of the resource. This will be one of the supported and registered Azure Regions (e.g. West US, East US, Southeast Asia, etc.).
+               The region of a resource cannot be changed once it is created, but if an identical region is specified on update the request will succeed."
+            - Required when C(state) is I(present).
+    sku:
+        description:
+            - The sku type.
+            - Required when C(state) is I(present).
         suboptions:
-            location:
+            name:
                 description:
-                    - "The location of the resource. This will be one of the supported and registered Azure Regions (e.g. West US, East US, Southeast Asia,
-                       etc.). The region of a resource cannot be changed once it is created, but if an identical region is specified on update the request
-                       will succeed."
+                    - The sku name.
                     - Required when C(state) is I(present).
-            sku:
+                choices:
+                    - 'data_box'
+                    - 'data_box_disk'
+                    - 'data_box_heavy'
+            display_name:
                 description:
-                    - The sku type.
+                    - The display name of the sku.
+            family:
+                description:
+                    - The sku family.
+    details:
+        description:
+            - Details of a job run. This field will only be sent for expand details filter.
+        suboptions:
+            expected_data_size_in_tera_bytes:
+                description:
+                    - The expected size of the data, which needs to be transfered in this job, in tera bytes.
+            contact_details:
+                description:
+                    - Contact details for notification and shipping.
                     - Required when C(state) is I(present).
                 suboptions:
-                    name:
+                    contact_name:
                         description:
-                            - The sku name.
+                            - Contact name of the person.
                             - Required when C(state) is I(present).
-                        choices:
-                            - 'data_box'
-                            - 'data_box_disk'
-                            - 'data_box_heavy'
-                    display_name:
+                    phone:
                         description:
-                            - The display name of the sku.
-                    family:
-                        description:
-                            - The sku family.
-            details:
-                description:
-                    - Details of a job run. This field will only be sent for expand details filter.
-                suboptions:
-                    expected_data_size_in_tera_bytes:
-                        description:
-                            - The expected size of the data, which needs to be transfered in this job, in tera bytes.
-                    contact_details:
-                        description:
-                            - Contact details for notification and shipping.
+                            - Phone number of the contact person.
                             - Required when C(state) is I(present).
-                        suboptions:
-                            contact_name:
-                                description:
-                                    - Contact name of the person.
-                                    - Required when C(state) is I(present).
-                            phone:
-                                description:
-                                    - Phone number of the contact person.
-                                    - Required when C(state) is I(present).
-                            phone_extension:
-                                description:
-                                    - I(phone) extension number of the contact person.
-                            mobile:
-                                description:
-                                    - Mobile number of the contact person.
-                            email_list:
-                                description:
-                                    - List of Email-ids to be notified about job progress.
-                                    - Required when C(state) is I(present).
-                                type: list
-                            notification_preference:
-                                description:
-                                    - Notification preference for a job stage.
-                                type: list
-                                suboptions:
-                                    stage_name:
-                                        description:
-                                            - Name of the stage.
-                                            - Required when C(state) is I(present).
-                                        choices:
-                                            - 'device_prepared'
-                                            - 'dispatched'
-                                            - 'delivered'
-                                            - 'picked_up'
-                                            - 'at_azure_dc'
-                                            - 'data_copy'
-                                    send_notification:
-                                        description:
-                                            - Notification is required or not.
-                                            - Required when C(state) is I(present).
-                    shipping_address:
+                    phone_extension:
                         description:
-                            - Shipping address of the customer.
-                            - Required when C(state) is I(present).
-                        suboptions:
-                            street_address1:
-                                description:
-                                    - Street Address line 1.
-                                    - Required when C(state) is I(present).
-                            street_address2:
-                                description:
-                                    - Street Address line 2.
-                            street_address3:
-                                description:
-                                    - Street Address line 3.
-                            city:
-                                description:
-                                    - Name of the City.
-                            state_or_province:
-                                description:
-                                    - Name of the State or Province.
-                            country:
-                                description:
-                                    - Name of the Country.
-                                    - Required when C(state) is I(present).
-                            postal_code:
-                                description:
-                                    - Postal code.
-                                    - Required when C(state) is I(present).
-                            zip_extended_code:
-                                description:
-                                    - Extended Zip Code.
-                            company_name:
-                                description:
-                                    - Name of the company.
-                            address_type:
-                                description:
-                                    - Type of address.
-                                choices:
-                                    - 'none'
-                                    - 'residential'
-                                    - 'commercial'
-                    destination_account_details:
+                            - I(phone) extension number of the contact person.
+                    mobile:
                         description:
-                            - Destination account details.
+                            - Mobile number of the contact person.
+                    email_list:
+                        description:
+                            - List of Email-ids to be notified about job progress.
                             - Required when C(state) is I(present).
                         type: list
+                    notification_preference:
+                        description:
+                            - Notification preference for a job stage.
+                        type: list
                         suboptions:
-                            account_id:
+                            stage_name:
                                 description:
-                                    - Destination storage account id.
+                                    - Name of the stage.
                                     - Required when C(state) is I(present).
-                    preferences:
-                        description:
-                            - Preferences for the order.
-                        suboptions:
-                            preferred_data_center_region:
+                                choices:
+                                    - 'device_prepared'
+                                    - 'dispatched'
+                                    - 'delivered'
+                                    - 'picked_up'
+                                    - 'at_azure_dc'
+                                    - 'data_copy'
+                            send_notification:
                                 description:
-                                type: list
-                    job_details_type:
+                                    - Notification is required or not.
+                                    - Required when C(state) is I(present).
+            shipping_address:
+                description:
+                    - Shipping address of the customer.
+                    - Required when C(state) is I(present).
+                suboptions:
+                    street_address1:
                         description:
-                            - Constant filled by server.
+                            - Street Address line 1.
                             - Required when C(state) is I(present).
+                    street_address2:
+                        description:
+                            - Street Address line 2.
+                    street_address3:
+                        description:
+                            - Street Address line 3.
+                    city:
+                        description:
+                            - Name of the City.
+                    state_or_province:
+                        description:
+                            - Name of the State or Province.
+                    country:
+                        description:
+                            - Name of the Country.
+                            - Required when C(state) is I(present).
+                    postal_code:
+                        description:
+                            - Postal code.
+                            - Required when C(state) is I(present).
+                    zip_extended_code:
+                        description:
+                            - Extended Zip Code.
+                    company_name:
+                        description:
+                            - Name of the company.
+                    address_type:
+                        description:
+                            - Type of address.
+                        choices:
+                            - 'none'
+                            - 'residential'
+                            - 'commercial'
+            destination_account_details:
+                description:
+                    - Destination account details.
+                    - Required when C(state) is I(present).
+                type: list
+                suboptions:
+                    account_id:
+                        description:
+                            - Destination storage account id.
+                            - Required when C(state) is I(present).
+            preferences:
+                description:
+                    - Preferences for the order.
+                suboptions:
+                    preferred_data_center_region:
+                        description:
+                        type: list
+            job_details_type:
+                description:
+                    - Constant filled by server.
+                    - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Job.
@@ -198,30 +192,29 @@ EXAMPLES = '''
     azure_rm_databoxjob:
       resource_group: SdkRg8120
       name: SdkJob7196
-      job_resource:
-        location: westus
-        sku:
-          name: DataBox
-        details:
-          contact_details:
-            contact_name: Public SDK Test
-            phone: 1234567890
-            phone_extension: 1234
-            email_list:
-              - [
+      location: westus
+      sku:
+        name: DataBox
+      details:
+        contact_details:
+          contact_name: Public SDK Test
+          phone: 1234567890
+          phone_extension: 1234
+          email_list:
+            - [
   "testing@microsoft.com"
 ]
-          shipping_address:
-            street_address1: 16 TOWNSEND ST
-            street_address2: Unit 1
-            city: San Francisco
-            state_or_province: CA
-            country: US
-            postal_code: 94107
-            company_name: Microsoft
-            address_type: Commercial
-          destination_account_details:
-            - account_id: /subscriptions/fa68082f-8ff7-4a25-95c7-ce9da541242f/resourcegroups/databoxbvt/providers/Microsoft.Storage/storageAccounts/databoxbvttestaccount
+        shipping_address:
+          street_address1: 16 TOWNSEND ST
+          street_address2: Unit 1
+          city: San Francisco
+          state_or_province: CA
+          country: US
+          postal_code: 94107
+          company_name: Microsoft
+          address_type: Commercial
+        destination_account_details:
+          - account_id: /subscriptions/fa68082f-8ff7-4a25-95c7-ce9da541242f/resourcegroups/databoxbvt/providers/Microsoft.Storage/storageAccounts/databoxbvttestaccount
 '''
 
 RETURN = '''
@@ -259,7 +252,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMJobs(AzureRMModuleBase):
+class AzureRMJob(AzureRMModuleBase):
     """Configuration class for an Azure RM Job resource"""
 
     def __init__(self):
@@ -272,9 +265,14 @@ class AzureRMJobs(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            job_resource=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            sku=dict(
+                type='dict'
+            ),
+            details=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -292,9 +290,9 @@ class AzureRMJobs(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMJobs, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                          supports_check_mode=True,
-                                          supports_tags=True)
+        super(AzureRMJob, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                         supports_check_mode=True,
+                                         supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -303,20 +301,12 @@ class AzureRMJobs(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.job_resource["location"] = kwargs[key]
-                elif key == "sku":
-                    ev = kwargs[key]
-                    if 'name' in ev:
-                        if ev['name'] == 'data_box':
-                            ev['name'] = 'DataBox'
-                        elif ev['name'] == 'data_box_disk':
-                            ev['name'] = 'DataBoxDisk'
-                        elif ev['name'] == 'data_box_heavy':
-                            ev['name'] = 'DataBoxHeavy'
-                    self.job_resource["sku"] = ev
-                elif key == "details":
-                    self.job_resource["details"] = kwargs[key]
+                self.job_resource[key] = kwargs[key]
+
+        dict_camelize(self.job_resource, ['sku', 'name'], True)
+        dict_camelize(self.job_resource, ['details', 'contact_details', 'notification_preference', 'stage_name'], True)
+        dict_map(self.job_resource, ['details', 'contact_details', 'notification_preference', 'stage_name'], ''at_azure_dc': 'AtAzureDC'')
+        dict_camelize(self.job_resource, ['details', 'shipping_address', 'address_type'], True)
 
         response = None
 
@@ -338,7 +328,7 @@ class AzureRMJobs(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.job_resource, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -370,7 +360,7 @@ class AzureRMJobs(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_job(self):
@@ -435,7 +425,7 @@ class AzureRMJobs(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'status': d.get('status', None),
             'id': d.get('id', None)
@@ -443,18 +433,20 @@ class AzureRMJobs(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -468,16 +460,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMJobs()
+    AzureRMJob()
 
 
 if __name__ == '__main__':

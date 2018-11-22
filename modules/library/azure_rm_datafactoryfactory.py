@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_datafactoryfactory
 version_added: "2.8"
-short_description: Manage Factory instance.
+short_description: Manage Azure Factory instance.
 description:
-    - Create, update and delete instance of Factory.
+    - Create, update and delete instance of Azure Factory.
 
 options:
     resource_group:
@@ -28,58 +28,52 @@ options:
         required: True
     name:
         description:
-            - The I(factory) name.
+            - The factory name.
         required: True
-    factory:
+    location:
         description:
-            - Factory resource definition.
-        required: True
+            - The resource location.
+    additional_properties:
+        description:
+            - Unmatched properties from the message are deserialized this collection
+    identity:
+        description:
+            - Managed service identity of the factory.
         suboptions:
-            location:
+            type:
                 description:
-                    - The resource location.
-            additional_properties:
+                    - "The identity type. Currently the only supported type is 'SystemAssigned'."
+                    - Required when C(state) is I(present).
+    repo_configuration:
+        description:
+            - Git repo information of the factory.
+        suboptions:
+            account_name:
                 description:
-                    - Unmatched properties from the message are deserialized this collection
-            identity:
+                    - Account name.
+                    - Required when C(state) is I(present).
+            repository_name:
                 description:
-                    - Managed service identity of the factory.
-                suboptions:
-                    type:
-                        description:
-                            - "The identity type. Currently the only supported type is 'SystemAssigned'."
-                            - Required when C(state) is I(present).
-            repo_configuration:
+                    - Rrepository name.
+                    - Required when C(state) is I(present).
+            collaboration_branch:
                 description:
-                    - Git repo information of the factory.
-                suboptions:
-                    account_name:
-                        description:
-                            - Account name.
-                            - Required when C(state) is I(present).
-                    repository_name:
-                        description:
-                            - Rrepository name.
-                            - Required when C(state) is I(present).
-                    collaboration_branch:
-                        description:
-                            - Collaboration branch.
-                            - Required when C(state) is I(present).
-                    root_folder:
-                        description:
-                            - Root folder.
-                            - Required when C(state) is I(present).
-                    last_commit_id:
-                        description:
-                            - Last commit id.
-                    type:
-                        description:
-                            - Constant filled by server.
-                            - Required when C(state) is I(present).
+                    - Collaboration branch.
+                    - Required when C(state) is I(present).
+            root_folder:
+                description:
+                    - Root folder.
+                    - Required when C(state) is I(present).
+            last_commit_id:
+                description:
+                    - Last commit id.
+            type:
+                description:
+                    - Constant filled by server.
+                    - Required when C(state) is I(present).
     if_match:
         description:
-            - "ETag of the I(factory) entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional
-               update."
+            - ETag of the factory entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update.
     state:
       description:
         - Assert the state of the Factory.
@@ -103,8 +97,7 @@ EXAMPLES = '''
     azure_rm_datafactoryfactory:
       resource_group: exampleResourceGroup
       name: exampleFactoryName
-      factory:
-        location: East US
+      location: East US
       if_match: NOT FOUND
 '''
 
@@ -141,7 +134,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMFactories(AzureRMModuleBase):
+class AzureRMFactory(AzureRMModuleBase):
     """Configuration class for an Azure RM Factory resource"""
 
     def __init__(self):
@@ -154,9 +147,17 @@ class AzureRMFactories(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            factory=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            additional_properties=dict(
+                type='dict'
+            ),
+            identity=dict(
+                type='dict'
+            ),
+            repo_configuration=dict(
+                type='dict'
             ),
             if_match=dict(
                 type='str'
@@ -178,9 +179,9 @@ class AzureRMFactories(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMFactories, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                               supports_check_mode=True,
-                                               supports_tags=True)
+        super(AzureRMFactory, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                             supports_check_mode=True,
+                                             supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -189,14 +190,8 @@ class AzureRMFactories(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.factory["location"] = kwargs[key]
-                elif key == "additional_properties":
-                    self.factory["additional_properties"] = kwargs[key]
-                elif key == "identity":
-                    self.factory["identity"] = kwargs[key]
-                elif key == "repo_configuration":
-                    self.factory["repo_configuration"] = kwargs[key]
+                self.factory[key] = kwargs[key]
+
 
         response = None
 
@@ -218,7 +213,7 @@ class AzureRMFactories(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.factory, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -250,7 +245,7 @@ class AzureRMFactories(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_factory(self):
@@ -310,7 +305,7 @@ class AzureRMFactories(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'version': d.get('version', None)
@@ -318,18 +313,20 @@ class AzureRMFactories(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -343,16 +340,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMFactories()
+    AzureRMFactory()
 
 
 if __name__ == '__main__':

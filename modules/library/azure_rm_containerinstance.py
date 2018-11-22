@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_containerinstance
 version_added: "2.8"
-short_description: Manage Container Group instance.
+short_description: Manage Azure Container Group instance.
 description:
-    - Create, update and delete instance of Container Group.
+    - Create, update and delete instance of Azure Container Group.
 
 options:
     resource_group:
@@ -30,194 +30,189 @@ options:
         description:
             - The name of the container group.
         required: True
-    container_group:
+    location:
         description:
-            - The properties of the container group to be created or updated.
-        required: True
+            - The resource location.
+            - Required when C(state) is I(present).
+    containers:
+        description:
+            - The containers within the container group.
+        type: list
         suboptions:
-            location:
+            name:
                 description:
-                    - The resource location.
+                    - The user-provided name of the container instance.
                     - Required when C(state) is I(present).
-            containers:
+            image:
                 description:
-                    - The containers within the container group.
+                    - The name of the image used to create the container instance.
+                    - Required when C(state) is I(present).
+            command:
+                description:
+                    - The commands to execute within the container instance in exec form.
+                type: list
+            ports:
+                description:
+                    - The exposed ports on the container instance.
+                type: list
+                suboptions:
+                    protocol:
+                        description:
+                            - The protocol associated with the I(port).
+                        choices:
+                            - 'tcp'
+                            - 'udp'
+                    port:
+                        description:
+                            - The port number exposed within the container group.
+                            - Required when C(state) is I(present).
+            environment_variables:
+                description:
+                    - The environment variables to set in the container instance.
                 type: list
                 suboptions:
                     name:
                         description:
-                            - The user-provided name of the container instance.
+                            - The name of the environment variable.
                             - Required when C(state) is I(present).
-                    image:
+                    value:
                         description:
-                            - The name of the image used to create the container instance.
+                            - The value of the environment variable.
                             - Required when C(state) is I(present).
-                    command:
-                        description:
-                            - The commands to execute within the container instance in exec form.
-                        type: list
-                    ports:
-                        description:
-                            - The exposed ports on the container instance.
-                        type: list
-                        suboptions:
-                            protocol:
-                                description:
-                                    - The protocol associated with the I(port).
-                                choices:
-                                    - 'tcp'
-                                    - 'udp'
-                            port:
-                                description:
-                                    - The port number exposed within the container group.
-                                    - Required when C(state) is I(present).
-                    environment_variables:
-                        description:
-                            - The environment variables to set in the container instance.
-                        type: list
-                        suboptions:
-                            name:
-                                description:
-                                    - The name of the environment variable.
-                                    - Required when C(state) is I(present).
-                            value:
-                                description:
-                                    - The value of the environment variable.
-                                    - Required when C(state) is I(present).
-                    resources:
-                        description:
-                            - The resource requirements of the container instance.
-                            - Required when C(state) is I(present).
-                        suboptions:
-                            requests:
-                                description:
-                                    - The resource requests of this container instance.
-                                    - Required when C(state) is I(present).
-                                suboptions:
-                                    memory_in_gb:
-                                        description:
-                                            - The memory request in GB of this container instance.
-                                            - Required when C(state) is I(present).
-                                    cpu:
-                                        description:
-                                            - The CPU request of this container instance.
-                                            - Required when C(state) is I(present).
-                            limits:
-                                description:
-                                    - The resource limits of this container instance.
-                                suboptions:
-                                    memory_in_gb:
-                                        description:
-                                            - The memory limit in GB of this container instance.
-                                    cpu:
-                                        description:
-                                            - The CPU limit of this container instance.
-                    volume_mounts:
-                        description:
-                            - The volume mounts available to the container instance.
-                        type: list
-                        suboptions:
-                            name:
-                                description:
-                                    - The name of the volume mount.
-                                    - Required when C(state) is I(present).
-                            mount_path:
-                                description:
-                                    - "The path within the container where the volume should be mounted. Must not contain colon (:)."
-                                    - Required when C(state) is I(present).
-                            read_only:
-                                description:
-                                    - The flag indicating whether the volume mount is read-only.
-            image_registry_credentials:
+            resources:
                 description:
-                    - The image registry credentials by which the container group is created from.
-                type: list
+                    - The resource requirements of the container instance.
+                    - Required when C(state) is I(present).
                 suboptions:
-                    server:
+                    requests:
                         description:
-                            - "The Docker image registry server without a protocol such as 'http' and 'https'."
+                            - The resource requests of this container instance.
                             - Required when C(state) is I(present).
-                    username:
-                        description:
-                            - The username for the private registry.
-                            - Required when C(state) is I(present).
-                    password:
-                        description:
-                            - The password for the private registry.
-            restart_policy:
-                description:
-                    - Restart policy for all I(containers) within the container group.
-                    - - `C(always)` C(always) restart
-                    - - `C(on_failure)` Restart on failure
-                    - - `C(never)` C(never) restart
-                    - .
-                choices:
-                    - 'always'
-                    - 'on_failure'
-                    - 'never'
-            ip_address:
-                description:
-                    - The IP address type of the container group.
-                suboptions:
-                    ports:
-                        description:
-                            - The list of ports exposed on the container group.
-                            - Required when C(state) is I(present).
-                        type: list
                         suboptions:
-                            protocol:
+                            memory_in_gb:
                                 description:
-                                    - The protocol associated with the I(port).
-                                choices:
-                                    - 'tcp'
-                                    - 'udp'
-                            port:
-                                description:
-                                    - The port number.
+                                    - The memory request in GB of this container instance.
                                     - Required when C(state) is I(present).
-                    type:
+                            cpu:
+                                description:
+                                    - The CPU request of this container instance.
+                                    - Required when C(state) is I(present).
+                    limits:
                         description:
-                            - Specifies if the I(ip) is exposed to the public internet.
-                            - Required when C(state) is I(present).
-                    ip:
-                        description:
-                            - The IP exposed to the public internet.
-            os_type:
+                            - The resource limits of this container instance.
+                        suboptions:
+                            memory_in_gb:
+                                description:
+                                    - The memory limit in GB of this container instance.
+                            cpu:
+                                description:
+                                    - The CPU limit of this container instance.
+            volume_mounts:
                 description:
-                    - The operating system type required by the I(containers) in the container group.
-                choices:
-                    - 'windows'
-                    - 'linux'
-            volumes:
-                description:
-                    - The list of volumes that can be mounted by I(containers) in this container group.
+                    - The volume mounts available to the container instance.
                 type: list
                 suboptions:
                     name:
                         description:
-                            - The name of the volume.
+                            - The name of the volume mount.
                             - Required when C(state) is I(present).
-                    azure_file:
+                    mount_path:
                         description:
-                            - The name of the Azure File volume.
-                        suboptions:
-                            share_name:
-                                description:
-                                    - The name of the Azure File share to be mounted as a volume.
-                                    - Required when C(state) is I(present).
-                            read_only:
-                                description:
-                                    - The flag indicating whether the Azure File shared mounted as a volume is read-only.
-                            storage_account_name:
-                                description:
-                                    - The name of the storage account that contains the Azure File share.
-                                    - Required when C(state) is I(present).
-                            storage_account_key:
-                                description:
-                                    - The storage account access key used to access the Azure File share.
-                    empty_dir:
+                            - "The path within the container where the volume should be mounted. Must not contain colon (:)."
+                            - Required when C(state) is I(present).
+                    read_only:
                         description:
-                            - The empty directory volume.
+                            - The flag indicating whether the volume mount is read-only.
+    image_registry_credentials:
+        description:
+            - The image registry credentials by which the container group is created from.
+        type: list
+        suboptions:
+            server:
+                description:
+                    - "The Docker image registry server without a protocol such as 'http' and 'https'."
+                    - Required when C(state) is I(present).
+            username:
+                description:
+                    - The username for the private registry.
+                    - Required when C(state) is I(present).
+            password:
+                description:
+                    - The password for the private registry.
+    restart_policy:
+        description:
+            - Restart policy for all I(containers) within the container group.
+            - - `C(always)` C(always) restart
+            - - `C(on_failure)` Restart on failure
+            - - `C(never)` C(never) restart
+            - .
+        choices:
+            - 'always'
+            - 'on_failure'
+            - 'never'
+    ip_address:
+        description:
+            - The IP address type of the container group.
+        suboptions:
+            ports:
+                description:
+                    - The list of ports exposed on the container group.
+                    - Required when C(state) is I(present).
+                type: list
+                suboptions:
+                    protocol:
+                        description:
+                            - The protocol associated with the I(port).
+                        choices:
+                            - 'tcp'
+                            - 'udp'
+                    port:
+                        description:
+                            - The port number.
+                            - Required when C(state) is I(present).
+            type:
+                description:
+                    - Specifies if the I(ip) is exposed to the public internet.
+                    - Required when C(state) is I(present).
+            ip:
+                description:
+                    - The IP exposed to the public internet.
+    os_type:
+        description:
+            - The operating system type required by the I(containers) in the container group.
+        choices:
+            - 'windows'
+            - 'linux'
+    volumes:
+        description:
+            - The list of volumes that can be mounted by I(containers) in this container group.
+        type: list
+        suboptions:
+            name:
+                description:
+                    - The name of the volume.
+                    - Required when C(state) is I(present).
+            azure_file:
+                description:
+                    - The name of the Azure File volume.
+                suboptions:
+                    share_name:
+                        description:
+                            - The name of the Azure File share to be mounted as a volume.
+                            - Required when C(state) is I(present).
+                    read_only:
+                        description:
+                            - The flag indicating whether the Azure File shared mounted as a volume is read-only.
+                    storage_account_name:
+                        description:
+                            - The name of the storage account that contains the Azure File share.
+                            - Required when C(state) is I(present).
+                    storage_account_key:
+                        description:
+                            - The storage account access key used to access the Azure File share.
+            empty_dir:
+                description:
+                    - The empty directory volume.
     state:
       description:
         - Assert the state of the Container Group.
@@ -241,34 +236,33 @@ EXAMPLES = '''
     azure_rm_containerinstance:
       resource_group: demo
       name: mycontainers
-      container_group:
-        location: westus
-        containers:
-          - name: mycontainers
-            image: nginx
-            command:
-              - []
-            ports:
-              - port: 80
-            resources:
-              requests:
-                memory_in_gb: 1.5
-                cpu: 1
-            volume_mounts:
-              - name: volume1
-                mount_path: /mnt/volume1
-                read_only: False
-        ip_address:
+      location: westus
+      containers:
+        - name: mycontainers
+          image: nginx
+          command:
+            - []
           ports:
-            - protocol: TCP
-              port: 80
-          type: Public
-        os_type: Linux
-        volumes:
-          - name: volume1
-            azure_file:
-              share_name: shareName
-              storage_account_name: accountName
+            - port: 80
+          resources:
+            requests:
+              memory_in_gb: 1.5
+              cpu: 1
+          volume_mounts:
+            - name: volume1
+              mount_path: /mnt/volume1
+              read_only: False
+      ip_address:
+        ports:
+          - protocol: TCP
+            port: 80
+        type: Public
+      os_type: Linux
+      volumes:
+        - name: volume1
+          azure_file:
+            share_name: shareName
+            storage_account_name: accountName
 '''
 
 RETURN = '''
@@ -298,7 +292,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMContainerGroups(AzureRMModuleBase):
+class AzureRMContainerGroup(AzureRMModuleBase):
     """Configuration class for an Azure RM Container Group resource"""
 
     def __init__(self):
@@ -311,9 +305,31 @@ class AzureRMContainerGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            container_group=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            containers=dict(
+                type='list'
+            ),
+            image_registry_credentials=dict(
+                type='list'
+            ),
+            restart_policy=dict(
+                type='str',
+                choices=['always',
+                         'on_failure',
+                         'never']
+            ),
+            ip_address=dict(
+                type='dict'
+            ),
+            os_type=dict(
+                type='str',
+                choices=['windows',
+                         'linux']
+            ),
+            volumes=dict(
+                type='list'
             ),
             state=dict(
                 type='str',
@@ -331,7 +347,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMContainerGroups, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMContainerGroup, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                      supports_check_mode=True,
                                                      supports_tags=True)
 
@@ -342,20 +358,12 @@ class AzureRMContainerGroups(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.container_group["location"] = kwargs[key]
-                elif key == "containers":
-                    self.container_group["containers"] = kwargs[key]
-                elif key == "image_registry_credentials":
-                    self.container_group["image_registry_credentials"] = kwargs[key]
-                elif key == "restart_policy":
-                    self.container_group["restart_policy"] = _snake_to_camel(kwargs[key], True)
-                elif key == "ip_address":
-                    self.container_group["ip_address"] = kwargs[key]
-                elif key == "os_type":
-                    self.container_group["os_type"] = _snake_to_camel(kwargs[key], True)
-                elif key == "volumes":
-                    self.container_group["volumes"] = kwargs[key]
+                self.container_group[key] = kwargs[key]
+
+        dict_upper(self.container_group, ['containers', 'ports', 'protocol'])
+        dict_camelize(self.container_group, ['restart_policy'], True)
+        dict_upper(self.container_group, ['ip_address', 'ports', 'protocol'])
+        dict_camelize(self.container_group, ['os_type'], True)
 
         response = None
 
@@ -377,7 +385,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.container_group, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -409,7 +417,7 @@ class AzureRMContainerGroups(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_containergroup(self):
@@ -469,25 +477,27 @@ class AzureRMContainerGroups(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -501,11 +511,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -517,7 +610,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMContainerGroups()
+    AzureRMContainerGroup()
 
 
 if __name__ == '__main__':

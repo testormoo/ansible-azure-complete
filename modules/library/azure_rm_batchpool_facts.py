@@ -177,10 +177,10 @@ class AzureRMPoolFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(BatchManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['pool'] = self.get()
         else:
             self.results['pool'] = self.list_by_batch_account()
-        elif self.name is not None:
-            self.results['pool'] = self.get()
         return self.results
 
     def list_by_batch_account(self):
@@ -195,7 +195,7 @@ class AzureRMPoolFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -211,11 +211,11 @@ class AzureRMPoolFacts(AzureRMModuleBase):
             self.log('Could not get facts for Pool.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

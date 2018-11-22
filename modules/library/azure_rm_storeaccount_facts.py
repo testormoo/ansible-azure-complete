@@ -146,7 +146,7 @@ except ImportError:
     pass
 
 
-class AzureRMAccountsFacts(AzureRMModuleBase):
+class AzureRMAccountFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -193,7 +193,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         self.count = None
         self.name = None
         self.tags = None
-        super(AzureRMAccountsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMAccountFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -201,10 +201,10 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DataLakeStoreAccountManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['accounts'] = self.get()
         else:
             self.results['accounts'] = self.list_by_resource_group()
-        elif self.name is not None:
-            self.results['accounts'] = self.get()
         return self.results
 
     def list_by_resource_group(self):
@@ -214,12 +214,12 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
             response = self.mgmt_client.accounts.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Accounts.')
+            self.log('Could not get facts for Account.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -231,14 +231,14 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
                                                      account_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Accounts.')
+            self.log('Could not get facts for Account.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -256,7 +256,7 @@ class AzureRMAccountsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMAccountsFacts()
+    AzureRMAccountFacts()
 
 
 if __name__ == '__main__':

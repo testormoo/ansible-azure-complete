@@ -112,7 +112,7 @@ except ImportError:
     pass
 
 
-class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
+class AzureRMGlobalScheduleFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -150,7 +150,7 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
         self.orderby = None
         self.name = None
         self.tags = None
-        super(AzureRMGlobalSchedulesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMGlobalScheduleFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -174,12 +174,12 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
             response = self.mgmt_client.global_schedules.list_by_resource_group(resource_group_name=self.resource_group)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GlobalSchedules.')
+            self.log('Could not get facts for Global Schedule.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -190,12 +190,12 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
             response = self.mgmt_client.global_schedules.list_by_subscription()
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GlobalSchedules.')
+            self.log('Could not get facts for Global Schedule.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -207,14 +207,14 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
                                                              name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for GlobalSchedules.')
+            self.log('Could not get facts for Global Schedule.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -226,7 +226,7 @@ class AzureRMGlobalSchedulesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMGlobalSchedulesFacts()
+    AzureRMGlobalScheduleFacts()
 
 
 if __name__ == '__main__':

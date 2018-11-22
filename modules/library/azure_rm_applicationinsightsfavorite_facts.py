@@ -86,7 +86,7 @@ except ImportError:
     pass
 
 
-class AzureRMFavoritesFacts(AzureRMModuleBase):
+class AzureRMFavoriteFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -115,7 +115,7 @@ class AzureRMFavoritesFacts(AzureRMModuleBase):
         self.name = None
         self.favorite_id = None
         self.tags = None
-        super(AzureRMFavoritesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMFavoriteFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -135,14 +135,14 @@ class AzureRMFavoritesFacts(AzureRMModuleBase):
                                                       favorite_id=self.favorite_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Favorites.')
+            self.log('Could not get facts for Favorite.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -153,7 +153,7 @@ class AzureRMFavoritesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMFavoritesFacts()
+    AzureRMFavoriteFacts()
 
 
 if __name__ == '__main__':

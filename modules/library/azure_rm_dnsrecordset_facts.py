@@ -125,7 +125,7 @@ except ImportError:
     pass
 
 
-class AzureRMRecordSetsFacts(AzureRMModuleBase):
+class AzureRMRecordSetFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -161,7 +161,7 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
         self.top = None
         self.recordsetnamesuffix = None
         self.name = None
-        super(AzureRMRecordSetsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMRecordSetFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -169,11 +169,11 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(DnsManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
-        if self.record_type is not None:
-            self.results['record_sets'] = self.list_by_type()
-        elif (self.name is not None and
+        if (self.name is not None and
                 self.record_type is not None):
             self.results['record_sets'] = self.get()
+        elif self.record_type is not None:
+            self.results['record_sets'] = self.list_by_type()
         else:
             self.results['record_sets'] = self.list_by_dns_zone()
         return self.results
@@ -187,11 +187,11 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
                                                                  record_type=self.record_type)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RecordSets.')
+            self.log('Could not get facts for Record Set.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -205,10 +205,10 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
                                                         record_type=self.record_type)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RecordSets.')
+            self.log('Could not get facts for Record Set.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -220,15 +220,15 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
                                                                      zone_name=self.zone_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RecordSets.')
+            self.log('Could not get facts for Record Set.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -242,7 +242,7 @@ class AzureRMRecordSetsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMRecordSetsFacts()
+    AzureRMRecordSetFacts()
 
 
 if __name__ == '__main__':

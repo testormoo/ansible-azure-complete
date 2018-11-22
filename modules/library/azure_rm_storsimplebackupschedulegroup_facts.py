@@ -93,7 +93,7 @@ except ImportError:
     pass
 
 
-class AzureRMBackupScheduleGroupsFacts(AzureRMModuleBase):
+class AzureRMBackupScheduleGroupFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -122,7 +122,7 @@ class AzureRMBackupScheduleGroupsFacts(AzureRMModuleBase):
         self.schedule_group_name = None
         self.resource_group = None
         self.name = None
-        super(AzureRMBackupScheduleGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMBackupScheduleGroupFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,10 +146,10 @@ class AzureRMBackupScheduleGroupsFacts(AzureRMModuleBase):
                                                                    manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackupScheduleGroups.')
+            self.log('Could not get facts for Backup Schedule Group.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -162,15 +162,15 @@ class AzureRMBackupScheduleGroupsFacts(AzureRMModuleBase):
                                                                               manager_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackupScheduleGroups.')
+            self.log('Could not get facts for Backup Schedule Group.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -181,7 +181,7 @@ class AzureRMBackupScheduleGroupsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMBackupScheduleGroupsFacts()
+    AzureRMBackupScheduleGroupFacts()
 
 
 if __name__ == '__main__':

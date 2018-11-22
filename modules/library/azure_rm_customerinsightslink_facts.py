@@ -100,7 +100,7 @@ except ImportError:
     pass
 
 
-class AzureRMLinksFacts(AzureRMModuleBase):
+class AzureRMLinkFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -124,7 +124,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
         self.resource_group = None
         self.hub_name = None
         self.name = None
-        super(AzureRMLinksFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLinkFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -147,10 +147,10 @@ class AzureRMLinksFacts(AzureRMModuleBase):
                                                   link_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Links.')
+            self.log('Could not get facts for Link.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -162,15 +162,15 @@ class AzureRMLinksFacts(AzureRMModuleBase):
                                                           hub_name=self.hub_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Links.')
+            self.log('Could not get facts for Link.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -184,7 +184,7 @@ class AzureRMLinksFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLinksFacts()
+    AzureRMLinkFacts()
 
 
 if __name__ == '__main__':

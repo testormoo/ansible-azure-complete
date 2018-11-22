@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_applicationinsightsworkbook
 version_added: "2.8"
-short_description: Manage Workbook instance.
+short_description: Manage Azure Workbook instance.
 description:
-    - Create, update and delete instance of Workbook.
+    - Create, update and delete instance of Azure Workbook.
 
 options:
     resource_group:
@@ -30,58 +30,53 @@ options:
         description:
             - The name of the Application Insights component resource.
         required: True
-    workbook_properties:
+    location:
         description:
-            - Properties that need to be specified to create a new workbook.
-        required: True
-        suboptions:
-            location:
-                description:
-                    - Resource location
-            kind:
-                description:
-                    - The kind of workbook. Choices are C(C(user)) and C(C(shared)).
-                choices:
-                    - 'user'
-                    - 'shared'
-            workbook_name:
-                description:
-                    - The C(C(user))-defined name of the workbook.
-                    - Required when C(state) is I(present).
-            serialized_data:
-                description:
-                    - Configuration of this particular workbook. Configuration data is a string containing valid JSON
-                    - Required when C(state) is I(present).
-            version:
-                description:
-                    - "This instance's version of the data model. This can change as new features are added that can be marked workbook."
-            workbook_id:
-                description:
-                    - Internally assigned unique id of the workbook definition.
-                    - Required when C(state) is I(present).
-            shared_type_kind:
-                description:
-                    - "Enum indicating if this workbook definition is owned by a specific C(C(user)) or is C(C(shared)) between all users with access to the
-                       Application Insights component."
-                    - Required when C(state) is I(present).
-                choices:
-                    - 'user'
-                    - 'shared'
-            category:
-                description:
-                    - Workbook category, as defined by the C(C(user)) at creation time.
-                    - Required when C(state) is I(present).
-            workbook_tags:
-                description:
-                    - A list of 0 or more tags that are associated with this workbook definition
-                type: list
-            user_id:
-                description:
-                    - Unique C(C(user)) id of the specific C(C(user)) that owns this workbook.
-                    - Required when C(state) is I(present).
-            source_resource_id:
-                description:
-                    - Optional resourceId for a source resource.
+            - Resource location
+    kind:
+        description:
+            - The kind of workbook. Choices are C(C(user)) and C(C(shared)).
+        choices:
+            - 'user'
+            - 'shared'
+    workbook_name:
+        description:
+            - The C(C(user))-defined name of the workbook.
+            - Required when C(state) is I(present).
+    serialized_data:
+        description:
+            - Configuration of this particular workbook. Configuration data is a string containing valid JSON
+            - Required when C(state) is I(present).
+    version:
+        description:
+            - "This instance's version of the data model. This can change as new features are added that can be marked workbook."
+    workbook_id:
+        description:
+            - Internally assigned unique id of the workbook definition.
+            - Required when C(state) is I(present).
+    shared_type_kind:
+        description:
+            - "Enum indicating if this workbook definition is owned by a specific C(C(user)) or is C(C(shared)) between all users with access to the
+               Application Insights component."
+            - Required when C(state) is I(present).
+        choices:
+            - 'user'
+            - 'shared'
+    category:
+        description:
+            - Workbook category, as defined by the C(C(user)) at creation time.
+            - Required when C(state) is I(present).
+    workbook_tags:
+        description:
+            - A list of 0 or more tags that are associated with this workbook definition
+        type: list
+    user_id:
+        description:
+            - Unique C(C(user)) id of the specific C(C(user)) that owns this workbook.
+            - Required when C(state) is I(present).
+    source_resource_id:
+        description:
+            - Optional resourceId for a source resource.
     state:
       description:
         - Assert the state of the Workbook.
@@ -105,21 +100,20 @@ EXAMPLES = '''
     azure_rm_applicationinsightsworkbook:
       resource_group: my-resource-group
       name: deadb33f-8bee-4d3b-a059-9be8dac93960
-      workbook_properties:
-        location: west us
-        kind: shared
-        workbook_name: Blah Blah Blah
-        serialized_data: {"version":"Notebook/1.0","items":[{"type":1,"content":"{"json":"## New workbook\r\n---\r\n\r\nWelcome to your new workbook.  This area will display text formatted as markdown.\r\n\r\n\r\nWe've included a basic analytics query to get you started. Use the `Edit` button below each section to configure it or add more sections."}","halfWidth":null,"conditionalVisibility":null},{"type":3,"content":"{"version":"KqlItem/1.0","query":"union withsource=TableName *\n| summarize Count=count() by TableName\n| render barchart","showQuery":false,"size":1,"aggregation":0,"showAnnotations":false}","halfWidth":null,"conditionalVisibility":null}],"isLocked":false}
-        workbook_id: deadb33f-8bee-4d3b-a059-9be8dac93960
-        shared_type_kind: shared
-        category: workbook
-        workbook_tags:
-          - [
+      location: west us
+      kind: shared
+      workbook_name: Blah Blah Blah
+      serialized_data: {"version":"Notebook/1.0","items":[{"type":1,"content":"{"json":"## New workbook\r\n---\r\n\r\nWelcome to your new workbook.  This area will display text formatted as markdown.\r\n\r\n\r\nWe've included a basic analytics query to get you started. Use the `Edit` button below each section to configure it or add more sections."}","halfWidth":null,"conditionalVisibility":null},{"type":3,"content":"{"version":"KqlItem/1.0","query":"union withsource=TableName *\n| summarize Count=count() by TableName\n| render barchart","showQuery":false,"size":1,"aggregation":0,"showAnnotations":false}","halfWidth":null,"conditionalVisibility":null}],"isLocked":false}
+      workbook_id: deadb33f-8bee-4d3b-a059-9be8dac93960
+      shared_type_kind: shared
+      category: workbook
+      workbook_tags:
+        - [
   "TagSample01",
   "TagSample02"
 ]
-        user_id: userId
-        source_resource_id: /subscriptions/00000000-0000-0000-0000-00000000/resourceGroups/MyGroup/providers/Microsoft.Web/sites/MyTestApp-CodeLens
+      user_id: userId
+      source_resource_id: /subscriptions/00000000-0000-0000-0000-00000000/resourceGroups/MyGroup/providers/Microsoft.Web/sites/MyTestApp-CodeLens
 '''
 
 RETURN = '''
@@ -155,7 +149,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMWorkbooks(AzureRMModuleBase):
+class AzureRMWorkbook(AzureRMModuleBase):
     """Configuration class for an Azure RM Workbook resource"""
 
     def __init__(self):
@@ -168,9 +162,42 @@ class AzureRMWorkbooks(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            workbook_properties=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            kind=dict(
+                type='str',
+                choices=['user',
+                         'shared']
+            ),
+            workbook_name=dict(
+                type='str'
+            ),
+            serialized_data=dict(
+                type='str'
+            ),
+            version=dict(
+                type='str'
+            ),
+            workbook_id=dict(
+                type='str'
+            ),
+            shared_type_kind=dict(
+                type='str',
+                choices=['user',
+                         'shared']
+            ),
+            category=dict(
+                type='str'
+            ),
+            workbook_tags=dict(
+                type='list'
+            ),
+            user_id=dict(
+                type='str'
+            ),
+            source_resource_id=dict(
+                type='str'
             ),
             state=dict(
                 type='str',
@@ -188,9 +215,9 @@ class AzureRMWorkbooks(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMWorkbooks, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                               supports_check_mode=True,
-                                               supports_tags=True)
+        super(AzureRMWorkbook, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                              supports_check_mode=True,
+                                              supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -199,28 +226,8 @@ class AzureRMWorkbooks(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.workbook_properties["location"] = kwargs[key]
-                elif key == "kind":
-                    self.workbook_properties["kind"] = kwargs[key]
-                elif key == "workbook_name":
-                    self.workbook_properties["workbook_name"] = kwargs[key]
-                elif key == "serialized_data":
-                    self.workbook_properties["serialized_data"] = kwargs[key]
-                elif key == "version":
-                    self.workbook_properties["version"] = kwargs[key]
-                elif key == "workbook_id":
-                    self.workbook_properties["workbook_id"] = kwargs[key]
-                elif key == "shared_type_kind":
-                    self.workbook_properties["shared_type_kind"] = kwargs[key]
-                elif key == "category":
-                    self.workbook_properties["category"] = kwargs[key]
-                elif key == "workbook_tags":
-                    self.workbook_properties["workbook_tags"] = kwargs[key]
-                elif key == "user_id":
-                    self.workbook_properties["user_id"] = kwargs[key]
-                elif key == "source_resource_id":
-                    self.workbook_properties["source_resource_id"] = kwargs[key]
+                self.workbook_properties[key] = kwargs[key]
+
 
         response = None
 
@@ -242,7 +249,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.workbook_properties, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -274,7 +281,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_workbook(self):
@@ -334,7 +341,7 @@ class AzureRMWorkbooks(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'version': d.get('version', None)
@@ -342,18 +349,20 @@ class AzureRMWorkbooks(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -367,16 +376,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMWorkbooks()
+    AzureRMWorkbook()
 
 
 if __name__ == '__main__':

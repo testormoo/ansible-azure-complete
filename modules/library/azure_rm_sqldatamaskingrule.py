@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_sqldatamaskingrule
 version_added: "2.8"
-short_description: Manage Data Masking Rule instance.
+short_description: Manage Azure Data Masking Rule instance.
 description:
-    - Create, update and delete instance of Data Masking Rule.
+    - Create, update and delete instance of Azure Data Masking Rule.
 
 options:
     resource_group:
@@ -48,11 +48,9 @@ options:
     rule_state:
         description:
             - "The rule state. Used to delete a rule. To delete an existing rule, specify the I(schema_name), I(table_name), I(column_name),
-               I(masking_function), and specify ruleState as C(disabled). However, if the rule doesn't already exist, the rule will be created with
-               ruleState set to C(enabled), regardless of the provided value of ruleState."
-        choices:
-            - 'disabled'
-            - 'enabled'
+               I(masking_function), and specify ruleState as disabled. However, if the rule doesn't already exist, the rule will be created with ruleState
+               set to enabled, regardless of the provided value of ruleState. Possible values include: 'Disabled', 'Enabled'"
+        type: bool
     schema_name:
         description:
             - The schema name on which the data masking rule is applied.
@@ -119,6 +117,7 @@ EXAMPLES = '''
       database_name: sqlcrudtest-331
       data_masking_policy_name: Default
       name: rule1
+      rule_state: rule_state
       schema_name: dbo
       table_name: Table_1
       column_name: test1
@@ -156,7 +155,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDataMaskingRules(AzureRMModuleBase):
+class AzureRMDataMaskingRule(AzureRMModuleBase):
     """Configuration class for an Azure RM Data Masking Rule resource"""
 
     def __init__(self):
@@ -185,9 +184,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
                 type='str'
             ),
             rule_state=dict(
-                type='str',
-                choices=['disabled',
-                         'enabled']
+                type='bool'
             ),
             schema_name=dict(
                 type='str'
@@ -241,44 +238,22 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDataMaskingRules, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                      supports_check_mode=True,
-                                                      supports_tags=False)
+        super(AzureRMDataMaskingRule, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                       supports_check_mode=True,
+                                                       supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "alias_name":
-                    self.parameters["alias_name"] = kwargs[key]
-                elif key == "rule_state":
-                    self.parameters["rule_state"] = _snake_to_camel(kwargs[key], True)
-                elif key == "schema_name":
-                    self.parameters["schema_name"] = kwargs[key]
-                elif key == "table_name":
-                    self.parameters["table_name"] = kwargs[key]
-                elif key == "column_name":
-                    self.parameters["column_name"] = kwargs[key]
-                elif key == "masking_function":
-                    ev = kwargs[key]
-                    if ev == 'ccn':
-                        ev = 'CCN'
-                    elif ev == 'ssn':
-                        ev = 'SSN'
-                    self.parameters["masking_function"] = _snake_to_camel(ev, True)
-                elif key == "number_from":
-                    self.parameters["number_from"] = kwargs[key]
-                elif key == "number_to":
-                    self.parameters["number_to"] = kwargs[key]
-                elif key == "prefix_size":
-                    self.parameters["prefix_size"] = kwargs[key]
-                elif key == "suffix_size":
-                    self.parameters["suffix_size"] = kwargs[key]
-                elif key == "replacement_string":
-                    self.parameters["replacement_string"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_map(self.parameters, ['rule_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.parameters, ['masking_function'], True)
+        dict_map(self.parameters, ['masking_function'], ''ccn': 'CCN', 'ssn': 'SSN'')
 
         response = None
 
@@ -300,7 +275,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -332,7 +307,7 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_datamaskingrule(self):
@@ -393,25 +368,27 @@ class AzureRMDataMaskingRules(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -425,11 +402,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -441,7 +501,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDataMaskingRules()
+    AzureRMDataMaskingRule()
 
 
 if __name__ == '__main__':

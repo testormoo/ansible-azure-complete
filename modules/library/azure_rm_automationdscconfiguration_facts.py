@@ -193,10 +193,10 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(AutomationClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['dsc_configuration'] = self.get()
         else:
             self.results['dsc_configuration'] = self.list_by_automation_account()
-        elif self.name is not None:
-            self.results['dsc_configuration'] = self.get()
         return self.results
 
     def list_by_automation_account(self):
@@ -207,12 +207,12 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
                                                                                      automation_account_name=self.automation_account_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for DscConfiguration.')
+            self.log('Could not get facts for Dsc Configuration.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
@@ -225,14 +225,14 @@ class AzureRMDscConfigurationFacts(AzureRMModuleBase):
                                                               configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for DscConfiguration.')
+            self.log('Could not get facts for Dsc Configuration.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

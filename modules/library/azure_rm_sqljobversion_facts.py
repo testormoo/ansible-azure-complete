@@ -99,7 +99,7 @@ except ImportError:
     pass
 
 
-class AzureRMJobVersionsFacts(AzureRMModuleBase):
+class AzureRMJobVersionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -133,7 +133,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
         self.job_agent_name = None
         self.name = None
         self.job_version = None
-        super(AzureRMJobVersionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMJobVersionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -158,10 +158,10 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
                                                          job_version=self.job_version)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobVersions.')
+            self.log('Could not get facts for Job Version.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -175,15 +175,15 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
                                                                  job_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for JobVersions.')
+            self.log('Could not get facts for Job Version.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -194,7 +194,7 @@ class AzureRMJobVersionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMJobVersionsFacts()
+    AzureRMJobVersionFacts()
 
 
 if __name__ == '__main__':

@@ -26,7 +26,7 @@ options:
         description:
             - The name of the resource group.
         required: True
-    name:
+    resource_name:
         description:
             - The name of the Application Insights component resource.
         required: True
@@ -54,7 +54,7 @@ EXAMPLES = '''
   - name: Get instance of Analytics Item
     azure_rm_applicationinsightsanalyticsitem_facts:
       resource_group: resource_group_name
-      name: resource_name
+      resource_name: resource_name
       scope_path: scope_path
       id: id
       name: name
@@ -91,7 +91,7 @@ except ImportError:
     pass
 
 
-class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
+class AzureRMAnalyticsItemFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -99,7 +99,7 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            name=dict(
+            resource_name=dict(
                 type='str',
                 required=True
             ),
@@ -120,11 +120,11 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
         )
         self.mgmt_client = None
         self.resource_group = None
-        self.name = None
+        self.resource_name = None
         self.scope_path = None
         self.id = None
         self.name = None
-        super(AzureRMAnalyticsItemsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMAnalyticsItemFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -140,18 +140,18 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
         results = []
         try:
             response = self.mgmt_client.analytics_items.get(resource_group_name=self.resource_group,
-                                                            resource_name=self.name,
+                                                            resource_name=self.resource_name,
                                                             scope_path=self.scope_path)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for AnalyticsItems.')
+            self.log('Could not get facts for Analytics Item.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -162,7 +162,7 @@ class AzureRMAnalyticsItemsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMAnalyticsItemsFacts()
+    AzureRMAnalyticsItemFacts()
 
 
 if __name__ == '__main__':

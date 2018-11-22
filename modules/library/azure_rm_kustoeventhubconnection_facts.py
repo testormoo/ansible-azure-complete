@@ -100,7 +100,7 @@ except ImportError:
     pass
 
 
-class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
+class AzureRMEventHubConnectionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -129,7 +129,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
         self.cluster_name = None
         self.database_name = None
         self.name = None
-        super(AzureRMEventHubConnectionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMEventHubConnectionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -153,10 +153,10 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
                                                                   event_hub_connection_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EventHubConnections.')
+            self.log('Could not get facts for Event Hub Connection.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -169,15 +169,15 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
                                                                                database_name=self.database_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for EventHubConnections.')
+            self.log('Could not get facts for Event Hub Connection.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -189,7 +189,7 @@ class AzureRMEventHubConnectionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMEventHubConnectionsFacts()
+    AzureRMEventHubConnectionFacts()
 
 
 if __name__ == '__main__':

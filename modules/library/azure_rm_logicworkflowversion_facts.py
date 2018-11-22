@@ -97,7 +97,7 @@ except ImportError:
     pass
 
 
-class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
+class AzureRMWorkflowVersionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -126,7 +126,7 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
         self.name = None
         self.version_id = None
         self.tags = None
-        super(AzureRMWorkflowVersionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMWorkflowVersionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,14 +146,14 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
                                                               version_id=self.version_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for WorkflowVersions.')
+            self.log('Could not get facts for Workflow Version.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -166,7 +166,7 @@ class AzureRMWorkflowVersionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMWorkflowVersionsFacts()
+    AzureRMWorkflowVersionFacts()
 
 
 if __name__ == '__main__':

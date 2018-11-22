@@ -69,7 +69,7 @@ except ImportError:
     pass
 
 
-class AzureRMAdminKeysFacts(AzureRMModuleBase):
+class AzureRMAdminKeyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -93,7 +93,7 @@ class AzureRMAdminKeysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.search_management_request_options = None
-        super(AzureRMAdminKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMAdminKeyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -112,14 +112,14 @@ class AzureRMAdminKeysFacts(AzureRMModuleBase):
                                                        search_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for AdminKeys.')
+            self.log('Could not get facts for Admin Key.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -128,7 +128,7 @@ class AzureRMAdminKeysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMAdminKeysFacts()
+    AzureRMAdminKeyFacts()
 
 
 if __name__ == '__main__':

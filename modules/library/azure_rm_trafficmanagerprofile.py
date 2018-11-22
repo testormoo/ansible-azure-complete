@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_trafficmanagerprofile
 version_added: "2.8"
-short_description: Manage Profile instance.
+short_description: Manage Azure Profile instance.
 description:
-    - Create, update and delete instance of Profile.
+    - Create, update and delete instance of Azure Profile.
 
 options:
     resource_group:
@@ -45,10 +45,8 @@ options:
             - Resource location. If not set, location from the resource group will be used as default.
     profile_status:
         description:
-            - The status of the Traffic Manager profile.
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "The status of the Traffic Manager profile. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     traffic_routing_method:
         description:
             - The traffic routing method of the Traffic Manager profile.
@@ -155,10 +153,9 @@ options:
                        this endpoint."
             endpoint_status:
                 description:
-                    - The status of the endpoint. If the endpoint is C(enabled), it is probed for endpoint health and is included in the traffic routing method.
-                choices:
-                    - 'enabled'
-                    - 'disabled'
+                    - "The status of the endpoint. If the endpoint is Enabled, it is probed for endpoint health and is included in the traffic routing
+                       method. Possible values include: 'Enabled', 'C(disabled)'"
+                type: bool
             weight:
                 description:
                     - "The weight of this endpoint when using the 'Weighted' traffic routing method. Possible values are from 1 to 1000."
@@ -217,11 +214,9 @@ options:
                             - Header value.
     traffic_view_enrollment_status:
         description:
-            - "Indicates whether Traffic View is 'C(C(enabled))' or 'C(C(disabled))' for the Traffic Manager profile. Null, indicates 'C(C(disabled))'.
-               Enabling this feature will increase the cost of the Traffic Manage profile."
-        choices:
-            - 'enabled'
-            - 'disabled'
+            - "Indicates whether Traffic View is 'Enabled' or 'Disabled' for the Traffic Manager profile. Null, indicates 'Disabled'. Enabling this feature
+               will increase the cost of the Traffic Manage profile. Possible values include: 'Enabled', 'Disabled'"
+        type: bool
     max_return:
         description:
             - Maximum number of I(endpoints) to be returned for C(multi_value) routing I(type).
@@ -249,7 +244,7 @@ EXAMPLES = '''
       resource_group: azuresdkfornetautoresttrafficmanager1421
       name: azsmnet6386
       location: eastus
-      profile_status: Enabled
+      profile_status: profile_status
       traffic_routing_method: Performance
       dns_config:
         relative_name: azsmnet6386
@@ -258,6 +253,9 @@ EXAMPLES = '''
         protocol: HTTP
         port: 80
         path: /testpath.aspx
+      endpoints:
+        - endpoint_status: endpoint_status
+      traffic_view_enrollment_status: traffic_view_enrollment_status
 '''
 
 RETURN = '''
@@ -289,7 +287,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMProfiles(AzureRMModuleBase):
+class AzureRMProfile(AzureRMModuleBase):
     """Configuration class for an Azure RM Profile resource"""
 
     def __init__(self):
@@ -315,9 +313,7 @@ class AzureRMProfiles(AzureRMModuleBase):
                 type='str'
             ),
             profile_status=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             traffic_routing_method=dict(
                 type='str',
@@ -338,9 +334,7 @@ class AzureRMProfiles(AzureRMModuleBase):
                 type='list'
             ),
             traffic_view_enrollment_status=dict(
-                type='str',
-                choices=['enabled',
-                         'disabled']
+                type='bool'
             ),
             max_return=dict(
                 type='int'
@@ -361,9 +355,9 @@ class AzureRMProfiles(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMProfiles, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                              supports_check_mode=True,
-                                              supports_tags=True)
+        super(AzureRMProfile, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                             supports_check_mode=True,
+                                             supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -372,66 +366,15 @@ class AzureRMProfiles(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "id":
-                    self.parameters["id"] = kwargs[key]
-                elif key == "name":
-                    self.parameters["name"] = kwargs[key]
-                elif key == "type":
-                    self.parameters["type"] = kwargs[key]
-                elif key == "location":
-                    self.parameters["location"] = kwargs[key]
-                elif key == "profile_status":
-                    self.parameters["profile_status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "traffic_routing_method":
-                    self.parameters["traffic_routing_method"] = _snake_to_camel(kwargs[key], True)
-                elif key == "dns_config":
-                    self.parameters["dns_config"] = kwargs[key]
-                elif key == "monitor_config":
-                    ev = kwargs[key]
-                    if 'profile_monitor_status' in ev:
-                        if ev['profile_monitor_status'] == 'checking_endpoints':
-                            ev['profile_monitor_status'] = 'CheckingEndpoints'
-                        elif ev['profile_monitor_status'] == 'online':
-                            ev['profile_monitor_status'] = 'Online'
-                        elif ev['profile_monitor_status'] == 'degraded':
-                            ev['profile_monitor_status'] = 'Degraded'
-                        elif ev['profile_monitor_status'] == 'disabled':
-                            ev['profile_monitor_status'] = 'Disabled'
-                        elif ev['profile_monitor_status'] == 'inactive':
-                            ev['profile_monitor_status'] = 'Inactive'
-                    if 'protocol' in ev:
-                        if ev['protocol'] == 'http':
-                            ev['protocol'] = 'HTTP'
-                        elif ev['protocol'] == 'https':
-                            ev['protocol'] = 'HTTPS'
-                        elif ev['protocol'] == 'tcp':
-                            ev['protocol'] = 'TCP'
-                    self.parameters["monitor_config"] = ev
-                elif key == "endpoints":
-                    ev = kwargs[key]
-                    if 'endpoint_status' in ev:
-                        if ev['endpoint_status'] == 'enabled':
-                            ev['endpoint_status'] = 'Enabled'
-                        elif ev['endpoint_status'] == 'disabled':
-                            ev['endpoint_status'] = 'Disabled'
-                    if 'endpoint_monitor_status' in ev:
-                        if ev['endpoint_monitor_status'] == 'checking_endpoint':
-                            ev['endpoint_monitor_status'] = 'CheckingEndpoint'
-                        elif ev['endpoint_monitor_status'] == 'online':
-                            ev['endpoint_monitor_status'] = 'Online'
-                        elif ev['endpoint_monitor_status'] == 'degraded':
-                            ev['endpoint_monitor_status'] = 'Degraded'
-                        elif ev['endpoint_monitor_status'] == 'disabled':
-                            ev['endpoint_monitor_status'] = 'Disabled'
-                        elif ev['endpoint_monitor_status'] == 'inactive':
-                            ev['endpoint_monitor_status'] = 'Inactive'
-                        elif ev['endpoint_monitor_status'] == 'stopped':
-                            ev['endpoint_monitor_status'] = 'Stopped'
-                    self.parameters["endpoints"] = ev
-                elif key == "traffic_view_enrollment_status":
-                    self.parameters["traffic_view_enrollment_status"] = _snake_to_camel(kwargs[key], True)
-                elif key == "max_return":
-                    self.parameters["max_return"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        dict_map(self.parameters, ['profile_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.parameters, ['traffic_routing_method'], True)
+        dict_camelize(self.parameters, ['monitor_config', 'profile_monitor_status'], True)
+        dict_upper(self.parameters, ['monitor_config', 'protocol'])
+        dict_map(self.parameters, ['endpoints', 'endpoint_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_camelize(self.parameters, ['endpoints', 'endpoint_monitor_status'], True)
+        dict_map(self.parameters, ['traffic_view_enrollment_status'], '{True: 'Enabled', False: 'Disabled'}')
 
         response = None
 
@@ -456,7 +399,7 @@ class AzureRMProfiles(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.parameters, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -488,7 +431,7 @@ class AzureRMProfiles(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_profile(self):
@@ -548,25 +491,27 @@ class AzureRMProfiles(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -580,11 +525,94 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -596,7 +624,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMProfiles()
+    AzureRMProfile()
 
 
 if __name__ == '__main__':

@@ -99,7 +99,7 @@ except ImportError:
     pass
 
 
-class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
+class AzureRMIntegrationAccountBatchConfigurationFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -128,7 +128,7 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
         self.integration_account_name = None
         self.name = None
         self.tags = None
-        super(AzureRMIntegrationAccountBatchConfigurationsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMIntegrationAccountBatchConfigurationFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -148,14 +148,14 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
                                                                                      batch_configuration_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for IntegrationAccountBatchConfigurations.')
+            self.log('Could not get facts for Integration Account Batch Configuration.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -169,7 +169,7 @@ class AzureRMIntegrationAccountBatchConfigurationsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMIntegrationAccountBatchConfigurationsFacts()
+    AzureRMIntegrationAccountBatchConfigurationFacts()
 
 
 if __name__ == '__main__':

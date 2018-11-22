@@ -109,7 +109,7 @@ except ImportError:
     pass
 
 
-class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
+class AzureRMManagedInstanceKeyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -137,7 +137,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
         self.managed_instance_name = None
         self.filter = None
         self.name = None
-        super(AzureRMManagedInstanceKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMManagedInstanceKeyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -145,10 +145,10 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(SqlManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['managed_instance_keys'] = self.get()
         else:
             self.results['managed_instance_keys'] = self.list_by_instance()
-        elif self.name is not None:
-            self.results['managed_instance_keys'] = self.get()
         return self.results
 
     def list_by_instance(self):
@@ -159,11 +159,11 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
                                                                                managed_instance_name=self.managed_instance_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ManagedInstanceKeys.')
+            self.log('Could not get facts for Managed Instance Key.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -176,14 +176,14 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
                                                                   key_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ManagedInstanceKeys.')
+            self.log('Could not get facts for Managed Instance Key.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -197,7 +197,7 @@ class AzureRMManagedInstanceKeysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMManagedInstanceKeysFacts()
+    AzureRMManagedInstanceKeyFacts()
 
 
 if __name__ == '__main__':

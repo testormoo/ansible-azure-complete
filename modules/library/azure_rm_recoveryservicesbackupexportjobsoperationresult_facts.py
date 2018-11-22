@@ -83,7 +83,7 @@ except ImportError:
     pass
 
 
-class AzureRMExportJobsOperationResultsFacts(AzureRMModuleBase):
+class AzureRMExportJobsOperationResultFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -108,7 +108,7 @@ class AzureRMExportJobsOperationResultsFacts(AzureRMModuleBase):
         self.vault_name = None
         self.resource_group = None
         self.operation_id = None
-        super(AzureRMExportJobsOperationResultsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMExportJobsOperationResultFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -128,14 +128,14 @@ class AzureRMExportJobsOperationResultsFacts(AzureRMModuleBase):
                                                                           operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ExportJobsOperationResults.')
+            self.log('Could not get facts for Export Jobs Operation Result.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -147,7 +147,7 @@ class AzureRMExportJobsOperationResultsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMExportJobsOperationResultsFacts()
+    AzureRMExportJobsOperationResultFacts()
 
 
 if __name__ == '__main__':

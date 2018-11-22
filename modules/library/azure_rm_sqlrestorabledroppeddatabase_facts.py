@@ -99,7 +99,7 @@ except ImportError:
     pass
 
 
-class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
+class AzureRMRestorableDroppedDatabaseFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -123,7 +123,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.restorable_droppeded_database_id = None
-        super(AzureRMRestorableDroppedDatabasesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMRestorableDroppedDatabaseFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -146,10 +146,10 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
                                                                          restorable_droppeded_database_id=self.restorable_droppeded_database_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RestorableDroppedDatabases.')
+            self.log('Could not get facts for Restorable Dropped Database.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -161,15 +161,15 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
                                                                                     server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for RestorableDroppedDatabases.')
+            self.log('Could not get facts for Restorable Dropped Database.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -182,7 +182,7 @@ class AzureRMRestorableDroppedDatabasesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMRestorableDroppedDatabasesFacts()
+    AzureRMRestorableDroppedDatabaseFacts()
 
 
 if __name__ == '__main__':

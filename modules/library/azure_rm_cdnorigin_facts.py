@@ -101,7 +101,7 @@ except ImportError:
     pass
 
 
-class AzureRMOriginsFacts(AzureRMModuleBase):
+class AzureRMOriginFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -134,7 +134,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
         self.endpoint_name = None
         self.name = None
         self.tags = None
-        super(AzureRMOriginsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMOriginFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -158,10 +158,10 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
                                                     origin_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Origins.')
+            self.log('Could not get facts for Origin.')
 
         if response and self.has_tags(response.tags, self.tags):
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -174,16 +174,16 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
                                                                  endpoint_name=self.endpoint_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Origins.')
+            self.log('Could not get facts for Origin.')
 
         if response is not None:
             for item in response:
                 if self.has_tags(item.tags, self.tags):
-                    results.append(self.format_item(item))
+                    results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -195,7 +195,7 @@ class AzureRMOriginsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMOriginsFacts()
+    AzureRMOriginFacts()
 
 
 if __name__ == '__main__':

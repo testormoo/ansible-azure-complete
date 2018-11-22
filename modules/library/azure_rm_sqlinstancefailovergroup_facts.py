@@ -87,7 +87,7 @@ except ImportError:
     pass
 
 
-class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
+class AzureRMInstanceFailoverGroupFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -111,7 +111,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.location_name = None
         self.name = None
-        super(AzureRMInstanceFailoverGroupsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMInstanceFailoverGroupFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -134,10 +134,10 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
                                                                      failover_group_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for InstanceFailoverGroups.')
+            self.log('Could not get facts for Instance Failover Group.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -149,15 +149,15 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
                                                                                   location_name=self.location_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for InstanceFailoverGroups.')
+            self.log('Could not get facts for Instance Failover Group.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -168,7 +168,7 @@ class AzureRMInstanceFailoverGroupsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMInstanceFailoverGroupsFacts()
+    AzureRMInstanceFailoverGroupFacts()
 
 
 if __name__ == '__main__':

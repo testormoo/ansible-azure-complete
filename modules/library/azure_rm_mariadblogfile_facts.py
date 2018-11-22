@@ -65,7 +65,7 @@ except ImportError:
     pass
 
 
-class AzureRMLogFilesFacts(AzureRMModuleBase):
+class AzureRMLogFileFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -85,7 +85,7 @@ class AzureRMLogFilesFacts(AzureRMModuleBase):
         self.mgmt_client = None
         self.resource_group = None
         self.name = None
-        super(AzureRMLogFilesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMLogFileFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -104,15 +104,15 @@ class AzureRMLogFilesFacts(AzureRMModuleBase):
                                                                  server_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for LogFiles.')
+            self.log('Could not get facts for Log File.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -121,7 +121,7 @@ class AzureRMLogFilesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMLogFilesFacts()
+    AzureRMLogFileFacts()
 
 
 if __name__ == '__main__':

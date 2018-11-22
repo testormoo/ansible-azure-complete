@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_armservicemapmachinegroup
 version_added: "2.8"
-short_description: Manage Machine Group instance.
+short_description: Manage Azure Machine Group instance.
 description:
-    - Create, update and delete instance of Machine Group.
+    - Create, update and delete instance of Azure Machine Group.
 
 options:
     resource_group:
@@ -30,45 +30,40 @@ options:
         description:
             - OMS workspace containing the resources of interest.
         required: True
-    machine_group:
+    kind:
         description:
-            - Machine Group resource to create.
-        required: True
+            - Constant filled by server.
+            - Required when C(state) is I(present).
+    group_type:
+        description:
+            - Type of the machine group.
+        choices:
+            - 'unknown'
+            - 'azure-cs'
+            - 'azure-sf'
+            - 'azure-vmss'
+            - 'user-static'
+    display_name:
+        description:
+            - User defined name for the group
+    count:
+        description:
+            - "Count of I(machines) in this group. The value of count may be bigger than the number of I(machines) in case of the group has been truncated
+               due to exceeding the max number of I(machines) a group can handle."
+    machines:
+        description:
+            - "References of the machines in this group. The hints within each reference do not represent the current value of the corresponding fields.
+               They are a snapshot created during the last time the machine group was updated."
+        type: list
         suboptions:
+            id:
+                description:
+                    - Resource URI.
+                    - Required when C(state) is I(present).
             kind:
                 description:
                     - Constant filled by server.
                     - Required when C(state) is I(present).
-            group_type:
-                description:
-                    - Type of the machine group.
-                choices:
-                    - 'unknown'
-                    - 'azure-cs'
-                    - 'azure-sf'
-                    - 'azure-vmss'
-                    - 'user-static'
-            display_name:
-                description:
-                    - User defined name for the group
-            count:
-                description:
-                    - "Count of I(machines) in this group. The value of count may be bigger than the number of I(machines) in case of the group has been
-                       truncated due to exceeding the max number of I(machines) a group can handle."
-            machines:
-                description:
-                    - "References of the machines in this group. The hints within each reference do not represent the current value of the corresponding
-                       fields. They are a snapshot created during the last time the machine group was updated."
-                type: list
-                suboptions:
-                    id:
-                        description:
-                            - Resource URI.
-                            - Required when C(state) is I(present).
-                    kind:
-                        description:
-                            - Constant filled by server.
-                            - Required when C(state) is I(present).
     state:
       description:
         - Assert the state of the Machine Group.
@@ -91,13 +86,12 @@ EXAMPLES = '''
     azure_rm_armservicemapmachinegroup:
       resource_group: rg-sm
       name: D6F79F14-E563-469B-84B5-9286D2803B2F
-      machine_group:
-        kind: machineGroup
-        display_name: Foo
-        count: 1
-        machines:
-          - id: /subscriptions/63BE4E24-FDF0-4E9C-9342-6A5D5A359722/resourceGroups/rg-sm/providers/Microsoft.OperationalInsights/workspaces/D6F79F14-E563-469B-84B5-9286D2803B2F/machines/m-2f2506f5-cf18-4dc6-98ba-d84ce2610ae0
-            kind: ref:machinewithhints
+      kind: machineGroup
+      display_name: Foo
+      count: 1
+      machines:
+        - id: /subscriptions/63BE4E24-FDF0-4E9C-9342-6A5D5A359722/resourceGroups/rg-sm/providers/Microsoft.OperationalInsights/workspaces/D6F79F14-E563-469B-84B5-9286D2803B2F/machines/m-2f2506f5-cf18-4dc6-98ba-d84ce2610ae0
+          kind: ref:machinewithhints
 '''
 
 RETURN = '''
@@ -128,7 +122,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMMachineGroups(AzureRMModuleBase):
+class AzureRMMachineGroup(AzureRMModuleBase):
     """Configuration class for an Azure RM Machine Group resource"""
 
     def __init__(self):
@@ -141,9 +135,25 @@ class AzureRMMachineGroups(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            machine_group=dict(
-                type='dict',
-                required=True
+            kind=dict(
+                type='str'
+            ),
+            group_type=dict(
+                type='str',
+                choices=['unknown',
+                         'azure-cs',
+                         'azure-sf',
+                         'azure-vmss',
+                         'user-static']
+            ),
+            display_name=dict(
+                type='str'
+            ),
+            count=dict(
+                type='int'
+            ),
+            machines=dict(
+                type='list'
             ),
             state=dict(
                 type='str',
@@ -161,27 +171,19 @@ class AzureRMMachineGroups(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMMachineGroups, self).__init__(derived_arg_spec=self.module_arg_spec,
+        super(AzureRMMachineGroup, self).__init__(derived_arg_spec=self.module_arg_spec,
                                                    supports_check_mode=True,
                                                    supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "kind":
-                    self.machine_group["kind"] = kwargs[key]
-                elif key == "group_type":
-                    self.machine_group["group_type"] = kwargs[key]
-                elif key == "display_name":
-                    self.machine_group["display_name"] = kwargs[key]
-                elif key == "count":
-                    self.machine_group["count"] = kwargs[key]
-                elif key == "machines":
-                    self.machine_group["machines"] = kwargs[key]
+                self.machine_group[key] = kwargs[key]
+
 
         response = None
 
@@ -203,7 +205,7 @@ class AzureRMMachineGroups(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.machine_group, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -235,7 +237,7 @@ class AzureRMMachineGroups(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_machinegroup(self):
@@ -303,25 +305,27 @@ class AzureRMMachineGroups(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -335,16 +339,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMMachineGroups()
+    AzureRMMachineGroup()
 
 
 if __name__ == '__main__':

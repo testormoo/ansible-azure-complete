@@ -93,7 +93,7 @@ except ImportError:
     pass
 
 
-class AzureRMBackendPoolsFacts(AzureRMModuleBase):
+class AzureRMBackendPoolFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -117,7 +117,7 @@ class AzureRMBackendPoolsFacts(AzureRMModuleBase):
         self.resource_group = None
         self.front_door_name = None
         self.name = None
-        super(AzureRMBackendPoolsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMBackendPoolFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -140,10 +140,10 @@ class AzureRMBackendPoolsFacts(AzureRMModuleBase):
                                                           backend_pool_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackendPools.')
+            self.log('Could not get facts for Backend Pool.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
@@ -155,15 +155,15 @@ class AzureRMBackendPoolsFacts(AzureRMModuleBase):
                                                                          front_door_name=self.front_door_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for BackendPools.')
+            self.log('Could not get facts for Backend Pool.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -176,7 +176,7 @@ class AzureRMBackendPoolsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMBackendPoolsFacts()
+    AzureRMBackendPoolFacts()
 
 
 if __name__ == '__main__':

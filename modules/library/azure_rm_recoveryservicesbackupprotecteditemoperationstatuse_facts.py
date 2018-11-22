@@ -110,7 +110,7 @@ except ImportError:
     pass
 
 
-class AzureRMProtectedItemOperationStatusesFacts(AzureRMModuleBase):
+class AzureRMProtectedItemOperationStatuseFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -150,7 +150,7 @@ class AzureRMProtectedItemOperationStatusesFacts(AzureRMModuleBase):
         self.container_name = None
         self.name = None
         self.operation_id = None
-        super(AzureRMProtectedItemOperationStatusesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMProtectedItemOperationStatuseFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -173,14 +173,14 @@ class AzureRMProtectedItemOperationStatusesFacts(AzureRMModuleBase):
                                                                               operation_id=self.operation_id)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ProtectedItemOperationStatuses.')
+            self.log('Could not get facts for Protected Item Operation Statuse.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -194,7 +194,7 @@ class AzureRMProtectedItemOperationStatusesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMProtectedItemOperationStatusesFacts()
+    AzureRMProtectedItemOperationStatuseFacts()
 
 
 if __name__ == '__main__':

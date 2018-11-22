@@ -69,7 +69,7 @@ except ImportError:
     pass
 
 
-class AzureRMQueryKeysFacts(AzureRMModuleBase):
+class AzureRMQueryKeyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -93,7 +93,7 @@ class AzureRMQueryKeysFacts(AzureRMModuleBase):
         self.resource_group = None
         self.name = None
         self.search_management_request_options = None
-        super(AzureRMQueryKeysFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMQueryKeyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -112,15 +112,15 @@ class AzureRMQueryKeysFacts(AzureRMModuleBase):
                                                                           search_service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for QueryKeys.')
+            self.log('Could not get facts for Query Key.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -129,7 +129,7 @@ class AzureRMQueryKeysFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMQueryKeysFacts()
+    AzureRMQueryKeyFacts()
 
 
 if __name__ == '__main__':

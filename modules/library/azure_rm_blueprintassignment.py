@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_blueprintassignment
 version_added: "2.8"
-short_description: Manage Assignment instance.
+short_description: Manage Azure Assignment instance.
 description:
-    - Create, update and delete instance of Assignment.
+    - Create, update and delete instance of Azure Assignment.
 
 options:
     subscription_id:
@@ -28,63 +28,58 @@ options:
         required: True
     name:
         description:
-            - name of the I(assignment).
+            - name of the assignment.
         required: True
-    assignment:
+    location:
         description:
-            - assignment object to save.
-        required: True
+            - The location of this Blueprint assignment.
+            - Required when C(state) is I(present).
+    identity:
+        description:
+            - Managed Service Identity for this Blueprint assignment
+            - Required when C(state) is I(present).
         suboptions:
-            location:
+            type:
                 description:
-                    - The location of this Blueprint assignment.
+                    - Type of the Managed Service Identity.
                     - Required when C(state) is I(present).
-            identity:
+                choices:
+                    - 'none'
+                    - 'system_assigned'
+                    - 'user_assigned'
+            principal_id:
                 description:
-                    - Managed Service Identity for this Blueprint assignment
-                    - Required when C(state) is I(present).
-                suboptions:
-                    type:
-                        description:
-                            - Type of the Managed Service Identity.
-                            - Required when C(state) is I(present).
-                        choices:
-                            - 'none'
-                            - 'system_assigned'
-                            - 'user_assigned'
-                    principal_id:
-                        description:
-                            - Azure Active Directory principal ID associated with this Identity.
-                    tenant_id:
-                        description:
-                            - ID of the Azure Active Directory.
-            display_name:
+                    - Azure Active Directory principal ID associated with this Identity.
+            tenant_id:
                 description:
-                    - One-liner string explain this resource.
-            description:
+                    - ID of the Azure Active Directory.
+    display_name:
+        description:
+            - One-liner string explain this resource.
+    description:
+        description:
+            - Multi-line explain this resource.
+    blueprint_id:
+        description:
+            - ID of the Blueprint definition resource.
+    parameters:
+        description:
+            - Blueprint parameter values.
+            - Required when C(state) is I(present).
+    resource_groups:
+        description:
+            - Names and locations of resource group placeholders.
+            - Required when C(state) is I(present).
+    locks:
+        description:
+            - Defines how Blueprint-managed resources will be locked.
+        suboptions:
+            mode:
                 description:
-                    - Multi-line explain this resource.
-            blueprint_id:
-                description:
-                    - ID of the Blueprint definition resource.
-            parameters:
-                description:
-                    - Blueprint parameter values.
-                    - Required when C(state) is I(present).
-            resource_groups:
-                description:
-                    - Names and locations of resource group placeholders.
-                    - Required when C(state) is I(present).
-            locks:
-                description:
-                    - Defines how Blueprint-managed resources will be locked.
-                suboptions:
-                    mode:
-                        description:
-                            - Lock mode.
-                        choices:
-                            - 'none'
-                            - 'all_resources'
+                    - Lock mode.
+                choices:
+                    - 'none'
+                    - 'all_resources'
     state:
       description:
         - Assert the state of the Assignment.
@@ -107,13 +102,12 @@ EXAMPLES = '''
     azure_rm_blueprintassignment:
       subscription_id: f8df94f2-2f5a-4f4a-bcaf-1bb992fb564b
       name: assignSimpleBlueprint
-      assignment:
-        location: eastus
-        identity:
-          type: SystemAssigned
-        description: enforce pre-defined simpleBlueprint to this XXXXXXXX subscription.
-        blueprint_id: /providers/Microsoft.Management/managementGroups/ContosoOnlineGroup/providers/Microsoft.Blueprint/blueprints/simpleBlueprint
-        parameters: {
+      location: eastus
+      identity:
+        type: SystemAssigned
+      description: enforce pre-defined simpleBlueprint to this XXXXXXXX subscription.
+      blueprint_id: /providers/Microsoft.Management/managementGroups/ContosoOnlineGroup/providers/Microsoft.Blueprint/blueprints/simpleBlueprint
+      parameters: {
   "storageAccountType": {
     "value": "Standard_LRS"
   },
@@ -127,7 +121,7 @@ EXAMPLES = '''
     ]
   }
 }
-        resource_groups: {
+      resource_groups: {
   "storageRG": {
     "name": "defaultRG",
     "location": "eastus"
@@ -169,7 +163,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMAssignments(AzureRMModuleBase):
+class AzureRMAssignment(AzureRMModuleBase):
     """Configuration class for an Azure RM Assignment resource"""
 
     def __init__(self):
@@ -182,9 +176,29 @@ class AzureRMAssignments(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
-            assignment=dict(
-                type='dict',
-                required=True
+            location=dict(
+                type='str'
+            ),
+            identity=dict(
+                type='dict'
+            ),
+            display_name=dict(
+                type='str'
+            ),
+            description=dict(
+                type='str'
+            ),
+            blueprint_id=dict(
+                type='str'
+            ),
+            parameters=dict(
+                type='dict'
+            ),
+            resource_groups=dict(
+                type='dict'
+            ),
+            locks=dict(
+                type='dict'
             ),
             state=dict(
                 type='str',
@@ -202,47 +216,21 @@ class AzureRMAssignments(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMAssignments, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                 supports_check_mode=True,
-                                                 supports_tags=False)
+        super(AzureRMAssignment, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                supports_check_mode=True,
+                                                supports_tags=False)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "location":
-                    self.assignment["location"] = kwargs[key]
-                elif key == "identity":
-                    ev = kwargs[key]
-                    if 'type' in ev:
-                        if ev['type'] == 'none':
-                            ev['type'] = 'None'
-                        elif ev['type'] == 'system_assigned':
-                            ev['type'] = 'SystemAssigned'
-                        elif ev['type'] == 'user_assigned':
-                            ev['type'] = 'UserAssigned'
-                    self.assignment["identity"] = ev
-                elif key == "display_name":
-                    self.assignment["display_name"] = kwargs[key]
-                elif key == "description":
-                    self.assignment["description"] = kwargs[key]
-                elif key == "blueprint_id":
-                    self.assignment["blueprint_id"] = kwargs[key]
-                elif key == "parameters":
-                    self.assignment["parameters"] = kwargs[key]
-                elif key == "resource_groups":
-                    self.assignment["resource_groups"] = kwargs[key]
-                elif key == "locks":
-                    ev = kwargs[key]
-                    if 'mode' in ev:
-                        if ev['mode'] == 'none':
-                            ev['mode'] = 'None'
-                        elif ev['mode'] == 'all_resources':
-                            ev['mode'] = 'AllResources'
-                    self.assignment["locks"] = ev
+                self.assignment[key] = kwargs[key]
+
+        dict_camelize(self.assignment, ['identity', 'type'], True)
+        dict_camelize(self.assignment, ['locks', 'mode'], True)
 
         response = None
 
@@ -262,7 +250,7 @@ class AzureRMAssignments(AzureRMModuleBase):
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '')):
+                if (not default_compare(self.assignment, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
@@ -294,7 +282,7 @@ class AzureRMAssignments(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_assignment(self):
@@ -354,7 +342,7 @@ class AzureRMAssignments(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None),
             'status': {
@@ -363,18 +351,20 @@ class AzureRMAssignments(AzureRMModuleBase):
         return d
 
 
-def default_compare(new, old, path):
+def default_compare(new, old, path, result):
     if new is None:
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
-            if not default_compare(new.get(k), old.get(k, None), path + '/' + k):
+            if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
                 return False
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -388,16 +378,106 @@ def default_compare(new, old, path):
             new = sorted(new)
             old = sorted(old)
         for i in range(len(new)):
-            if not default_compare(new[i], old[i], path + '/*'):
+            if not default_compare(new[i], old[i], path + '/*', result):
                 return False
         return True
     else:
-        return new == old
+        if path == '/location':
+            new = new.replace(' ', '').lower()
+            old = new.replace(' ', '').lower()
+        if new == old:
+            return True
+        else:
+            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
     """Main execution"""
-    AzureRMAssignments()
+    AzureRMAssignment()
 
 
 if __name__ == '__main__':

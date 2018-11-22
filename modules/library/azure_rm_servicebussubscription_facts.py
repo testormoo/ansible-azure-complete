@@ -109,7 +109,7 @@ except ImportError:
     pass
 
 
-class AzureRMSubscriptionsFacts(AzureRMModuleBase):
+class AzureRMSubscriptionFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -146,7 +146,7 @@ class AzureRMSubscriptionsFacts(AzureRMModuleBase):
         self.skip = None
         self.top = None
         self.name = None
-        super(AzureRMSubscriptionsFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMSubscriptionFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -154,10 +154,10 @@ class AzureRMSubscriptionsFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ServiceBusManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.name is not None:
+            self.results['subscriptions'] = self.get()
         else:
             self.results['subscriptions'] = self.list_by_topic()
-        elif self.name is not None:
-            self.results['subscriptions'] = self.get()
         return self.results
 
     def list_by_topic(self):
@@ -169,11 +169,11 @@ class AzureRMSubscriptionsFacts(AzureRMModuleBase):
                                                                     topic_name=self.topic_name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Subscriptions.')
+            self.log('Could not get facts for Subscription.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -187,14 +187,14 @@ class AzureRMSubscriptionsFacts(AzureRMModuleBase):
                                                           subscription_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for Subscriptions.')
+            self.log('Could not get facts for Subscription.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -206,7 +206,7 @@ class AzureRMSubscriptionsFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMSubscriptionsFacts()
+    AzureRMSubscriptionFacts()
 
 
 if __name__ == '__main__':

@@ -75,7 +75,7 @@ except ImportError:
     pass
 
 
-class AzureRMTransparentDataEncryptionActivitiesFacts(AzureRMModuleBase):
+class AzureRMTransparentDataEncryptionActivityFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -105,7 +105,7 @@ class AzureRMTransparentDataEncryptionActivitiesFacts(AzureRMModuleBase):
         self.server_name = None
         self.database_name = None
         self.name = None
-        super(AzureRMTransparentDataEncryptionActivitiesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMTransparentDataEncryptionActivityFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -126,15 +126,15 @@ class AzureRMTransparentDataEncryptionActivitiesFacts(AzureRMModuleBase):
                                                                                                      transparent_data_encryption_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for TransparentDataEncryptionActivities.')
+            self.log('Could not get facts for Transparent Data Encryption Activity.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -143,7 +143,7 @@ class AzureRMTransparentDataEncryptionActivitiesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMTransparentDataEncryptionActivitiesFacts()
+    AzureRMTransparentDataEncryptionActivityFacts()
 
 
 if __name__ == '__main__':

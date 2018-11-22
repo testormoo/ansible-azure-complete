@@ -151,10 +151,10 @@ class AzureRMOpenIdConnectProviderFacts(AzureRMModuleBase):
         self.mgmt_client = self.get_mgmt_svc_client(ApiManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
+        if self.opid is not None:
+            self.results['open_id_connect_provider'] = self.get()
         else:
             self.results['open_id_connect_provider'] = self.list_by_service()
-        elif self.opid is not None:
-            self.results['open_id_connect_provider'] = self.get()
         return self.results
 
     def list_by_service(self):
@@ -165,11 +165,11 @@ class AzureRMOpenIdConnectProviderFacts(AzureRMModuleBase):
                                                                                  service_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for OpenIdConnectProvider.')
+            self.log('Could not get facts for Open Id Connect Provider.')
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -182,14 +182,14 @@ class AzureRMOpenIdConnectProviderFacts(AzureRMModuleBase):
                                                                      opid=self.opid)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for OpenIdConnectProvider.')
+            self.log('Could not get facts for Open Id Connect Provider.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

@@ -205,10 +205,10 @@ class AzureRMTagFacts(AzureRMModuleBase):
             self.results['tag'] = self.list_by_api()
         elif self.product_id is not None:
             self.results['tag'] = self.list_by_product()
-        else:
-            self.results['tag'] = self.list_by_service()
         elif self.tag_id is not None:
             self.results['tag'] = self.get()
+        else:
+            self.results['tag'] = self.list_by_service()
         return self.results
 
     def list_by_operation(self):
@@ -225,7 +225,7 @@ class AzureRMTagFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -242,7 +242,7 @@ class AzureRMTagFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -259,7 +259,7 @@ class AzureRMTagFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -275,7 +275,7 @@ class AzureRMTagFacts(AzureRMModuleBase):
 
         if response is not None:
             for item in response:
-                results.append(self.format_item(item))
+                results.append(self.format_response(item))
 
         return results
 
@@ -291,11 +291,11 @@ class AzureRMTagFacts(AzureRMModuleBase):
             self.log('Could not get facts for Tag.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,

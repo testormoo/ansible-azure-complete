@@ -89,7 +89,7 @@ except ImportError:
     pass
 
 
-class AzureRMServerSecurityAlertPoliciesFacts(AzureRMModuleBase):
+class AzureRMServerSecurityAlertPolicyFacts(AzureRMModuleBase):
     def __init__(self):
         # define user inputs into argument
         self.module_arg_spec = dict(
@@ -114,7 +114,7 @@ class AzureRMServerSecurityAlertPoliciesFacts(AzureRMModuleBase):
         self.resource_group = None
         self.server_name = None
         self.name = None
-        super(AzureRMServerSecurityAlertPoliciesFacts, self).__init__(self.module_arg_spec, supports_tags=False)
+        super(AzureRMServerSecurityAlertPolicyFacts, self).__init__(self.module_arg_spec, supports_tags=False)
 
     def exec_module(self, **kwargs):
         for key in self.module_arg_spec:
@@ -134,14 +134,14 @@ class AzureRMServerSecurityAlertPoliciesFacts(AzureRMModuleBase):
                                                                            security_alert_policy_name=self.name)
             self.log("Response : {0}".format(response))
         except CloudError as e:
-            self.log('Could not get facts for ServerSecurityAlertPolicies.')
+            self.log('Could not get facts for Server Security Alert Policy.')
 
         if response is not None:
-            results.append(self.format_item(response))
+            results.append(self.format_response(response))
 
         return results
 
-    def format_item(self, item):
+    def format_response(self, item):
         d = item.as_dict()
         d = {
             'resource_group': self.resource_group,
@@ -153,7 +153,7 @@ class AzureRMServerSecurityAlertPoliciesFacts(AzureRMModuleBase):
 
 
 def main():
-    AzureRMServerSecurityAlertPoliciesFacts()
+    AzureRMServerSecurityAlertPolicyFacts()
 
 
 if __name__ == '__main__':

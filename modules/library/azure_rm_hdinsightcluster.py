@@ -272,7 +272,7 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMClusters(AzureRMModuleBase):
+class AzureRMCluster(AzureRMModuleBase):
     """Configuration class for an Azure RM Cluster resource"""
 
     def __init__(self):
@@ -332,9 +332,9 @@ class AzureRMClusters(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMClusters, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                              supports_check_mode=True,
-                                              supports_tags=True)
+        super(AzureRMCluster, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                             supports_check_mode=True,
+                                             supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -345,19 +345,25 @@ class AzureRMClusters(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        expand(self.parameters, ['cluster_version'], expand='properties')
-        expand(self.parameters, ['os_type'], expand='properties', camelize=True)
-        expand(self.parameters, ['tier'], expand='properties', camelize=True)
-        expand(self.parameters, ['cluster_definition'], expand='properties')
-        expand(self.parameters, ['security_profile', 'directory_type'], camelize=True)
-        expand(self.parameters, ['security_profile'], expand='properties')
-        expand(self.parameters, ['compute_profile_roles', 'vm_size'], expand='hardware_profile')
-        expand(self.parameters, ['compute_profile_roles', 'linux_profile'], rename='linux_operating_system_profile', expand='os_profile')
-        expand(self.parameters, ['compute_profile_roles'], rename='roles', expand='compute_profile')
-        expand(self.parameters, ['compute_profile'], expand='properties')
-        expand(self.parameters, ['storage_accounts'], rename='storageaccounts', expand='storage_profile')
-        expand(self.parameters, ['storage_profile'], expand='properties')
-        expand(self.parameters, ['identity', 'type'], camelize={'system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'})
+        dict_expand(self.parameters, ['cluster_version'])
+        dict_expand(self.parameters, ['os_type'])
+        dict_camelize(self.parameters, ['os_type'], True)
+        dict_expand(self.parameters, ['tier'])
+        dict_camelize(self.parameters, ['tier'], True)
+        dict_expand(self.parameters, ['cluster_definition'])
+        dict_camelize(self.parameters, ['security_profile', 'directory_type'], True)
+        dict_expand(self.parameters, ['security_profile'])
+        dict_expand(self.parameters, ['compute_profile_roles', 'vm_size'])
+        dict_rename(self.parameters, ['compute_profile_roles', 'linux_profile'], 'os_profile')
+        dict_expand(self.parameters, ['compute_profile_roles', 'linux_profile'])
+        dict_rename(self.parameters, ['compute_profile_roles'], 'compute_profile')
+        dict_expand(self.parameters, ['compute_profile_roles'])
+        dict_expand(self.parameters, ['compute_profile'])
+        dict_rename(self.parameters, ['storage_accounts'], 'storage_profile')
+        dict_expand(self.parameters, ['storage_accounts'])
+        dict_expand(self.parameters, ['storage_profile'])
+        dict_camelize(self.parameters, ['identity', 'type'], True)
+        dict_map(self.parameters, ['identity', 'type'], ''system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'')
 
         response = None
 
@@ -414,7 +420,7 @@ class AzureRMClusters(AzureRMModuleBase):
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_item(response))
+            self.results.update(self.format_response(response))
         return self.results
 
     def create_update_cluster(self):
@@ -478,7 +484,7 @@ class AzureRMClusters(AzureRMModuleBase):
 
         return False
 
-    def format_item(self, d):
+    def format_response(self, d):
         d = {
             'id': d.get('id', None)
         }
@@ -490,7 +496,7 @@ def default_compare(new, old, path, result):
         return True
     elif isinstance(new, dict):
         if not isinstance(old, dict):
-            result['compare'] = 'changed [' + path + '] old dict is null' 
+            result['compare'] = 'changed [' + path + '] old dict is null'
             return False
         for k in new.keys():
             if not default_compare(new.get(k), old.get(k, None), path + '/' + k, result):
@@ -498,7 +504,7 @@ def default_compare(new, old, path, result):
         return True
     elif isinstance(new, list):
         if not isinstance(old, list) or len(new) != len(old):
-            result['compare'] = 'changed [' + path + '] length is different or null' 
+            result['compare'] = 'changed [' + path + '] length is different or null'
             return False
         if isinstance(old[0], dict):
             key = None
@@ -523,49 +529,83 @@ def default_compare(new, old, path, result):
             return True
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
-            return False 
+            return False
 
 
-def expand(d, path, **kwargs):
-    expandx = kwargs.get('expand', None)
-    rename = kwargs.get('rename', None)
-    camelize = kwargs.get('camelize', False)
-    camelize_lower = kwargs.get('camelize_lower', False)
-    upper = kwargs.get('upper', False)
-    map = kwargs.get('map', None)
+def dict_camelize(d, path, camelize_first):
     if isinstance(d, list):
         for i in range(len(d)):
-            expand(d[i], path, **kwargs)
+            dict_camelize(d[i], path, camelize_first)
     elif isinstance(d, dict):
         if len(path) == 1:
-            old_name = path[0]
-            new_name = old_name if rename is None else rename
-            old_value = d.get(old_name, None)
-            new_value = None
+            old_value = d.get(path[0], None)
             if old_value is not None:
-                if map is not None:
-                    new_value = map.get(old_value, None)
-                if new_value is None:
-                    if camelize:
-                        new_value = _snake_to_camel(old_value, True)
-                    elif camelize_lower:
-                        new_value = _snake_to_camel(old_value, False)
-                    elif upper:
-                        new_value = old_value.upper()
-            if expandx is None:
-                # just rename
-                if new_name != old_name:
-                    d.pop(old_name, None)
-            else:
-                # expand and rename
-                d[expandx] = d.get(expandx, {})
-                d.pop(old_name, None)
-                d = d[expandx]
-            d[new_name] = new_value
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
         else:
             sd = d.get(path[0], None)
             if sd is not None:
-                expand(sd, path[1:], **kwargs)
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def _snake_to_camel(snake, capitalize_first=False):
@@ -577,7 +617,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMClusters()
+    AzureRMCluster()
 
 
 if __name__ == '__main__':
