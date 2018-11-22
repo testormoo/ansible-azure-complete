@@ -20,11 +20,12 @@
         resource_group: "{{ resource_group }}"
         name: cosmosdbaccounxx
         location: eastus
-        locations:
-          - location_name: westus
+        geo_rep_locations:
+          - name: westus
             failover_priority: 1
-          - location_name: eastus
+          - name: eastus
             failover_priority: 0
         database_account_offer_type: Standard
-
-
+      register: output
+    - debug:
+        var: output
