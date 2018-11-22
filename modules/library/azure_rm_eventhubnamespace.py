@@ -287,7 +287,7 @@ class AzureRMNamespace(AzureRMModuleBase):
             found = True
             self.log("Response : {0}".format(response))
             self.log("Namespace instance : {0} found".format(response.name))
-        except CloudError as e:
+        except:
             self.log('Did not find the Namespace instance.')
         if found is True:
             return response.as_dict()
