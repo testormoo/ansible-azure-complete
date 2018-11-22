@@ -48,7 +48,7 @@
               #restAuthCredential.isEnabled: True
               restAuthCredential.username: http-user
               restAuthCredential.password: MuABCPassword!!@123 
-        storageaccounts:
+        storage_accounts:
           - name: storage{{ resource_group }}.blob.core.windows.net 
             is_default: yes
             container: "cluster{{ resource_group }}"
