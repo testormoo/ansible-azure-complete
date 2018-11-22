@@ -343,7 +343,7 @@ class AzureRMEventHub(AzureRMModuleBase):
             found = True
             self.log("Response : {0}".format(response))
             self.log("Event Hub instance : {0} found".format(response.name))
-        except CloudError as e:
+        except:
             self.log('Did not find the Event Hub instance.')
         if found is True:
             return response.as_dict()
