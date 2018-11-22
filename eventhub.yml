@@ -1,0 +1,74 @@
+
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  vars:
+    resource_group: zimsansiblefest
+    vm_name: ansiblefesttestvm
+    location: eastus
+  roles:
+    - modules
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    - name: Create Event Hub Namespace
+      azure_rm_eventhubnamespace:
+        resource_group: "{{ resource_group }}"
+        name: sdk-Namespace-5849xyz
+        location: eastus
+        sku:
+          name: Standard
+          tier: Standard
+
+    - name: Create Event Hub Namespace
+      azure_rm_eventhubnamespace:
+        resource_group: "{{ resource_group }}"
+        name: sdk-Namespace-5849xyz-second
+        location: eastus
+        sku:
+          name: Standard
+          tier: Standard
+      register: output
+
+    - name: Create Event Hub
+      azure_rm_eventhub:
+        resource_group: "{{ resource_group }}"
+        namespace_name: sdk-Namespace-5849xyz
+        name: sdk-EventHub-6547
+        message_retention_in_days: 4
+        partition_count: 4
+        status: active
+        #capture_description:
+          #enabled: True
+          #encoding: Avro
+          #interval_in_seconds: 120
+          #size_limit_in_bytes: 10485763
+          #destination:
+          #  name: EventHubArchive.AzureBlockBlob
+          #  storage_account_resource_id: /subscriptions/e2f361f0-3b27-4503-a9cc-21cfba380093/resourceGroups/Default-Storage-SouthCentralUS/providers/Microsoft.ClassicStorage/storageAccounts/arjunteststorage
+          #  blob_container: container
+          #  archive_name_format: "{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}"
+      register: output
+    - debug:
+        var: output
+
+    #- name: Create (or update) Consumer Group
+    #  azure_rm_eventhubconsumergroup:
+    #    resource_group: "{{ resource_group }}"
+    #    namespace_name: sdk-Namespace-5849xyz
+    #    event_hub_name: sdk-EventHub-6547
+    #    name: sdk-ConsumerGroup-5563xyz
+    #    user_metadata: Some user data....................
+
+    - name: Create (or update) Disaster Recovery Config
+      azure_rm_eventhubdisasterrecoveryconfig:
+        resource_group: "{{ resource_group }}"
+        namespace_name: sdk-Namespace-5849xyz
+        alias: sdk-DisasterRecovery-3814aaaa
+        partner_namespace: "{{ output.id }}"
+        #name: sdk-DisasterRecovery-3814xxxx
+
