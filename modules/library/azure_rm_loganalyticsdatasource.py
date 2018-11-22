@@ -184,7 +184,7 @@ class AzureRMDataSource(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['kind'], True)
-        dict_map(self.parameters, ['kind'], ''iis_logs': 'IISLogs'')
+        dict_map(self.parameters, ['kind'], {'iis_logs': 'IISLogs'})
 
         response = None
 

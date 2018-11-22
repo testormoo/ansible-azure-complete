@@ -317,7 +317,7 @@ class AzureRMLiveEvent(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_upper(self.parameters, ['input', 'streaming_protocol'])
-        dict_map(self.parameters, ['input', 'streaming_protocol'], ''fragmented_mp4': 'FragmentedMP4'')
+        dict_map(self.parameters, ['input', 'streaming_protocol'], {'fragmented_mp4': 'FragmentedMP4'})
         dict_camelize(self.parameters, ['encoding', 'encoding_type'], True)
 
         response = None

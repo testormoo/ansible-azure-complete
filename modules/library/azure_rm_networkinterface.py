@@ -1120,14 +1120,14 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
         dict_camelize(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'load_balancer_inbound_nat_rules', 'protocol'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_allocation_method'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], True)
-        dict_map(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_map(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'private_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
         dict_camelize(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_allocation_method'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_address_version'], True)
-        dict_map(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_map(self.parameters, ['ip_configurations', 'application_gateway_backend_address_pools', 'backend_ip_configurations', 'public_ip_address', 'public_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
         dict_camelize(self.parameters, ['ip_configurations', 'load_balancer_inbound_nat_rules', 'protocol'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'private_ip_allocation_method'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'private_ip_address_version'], True)
-        dict_map(self.parameters, ['ip_configurations', 'private_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_map(self.parameters, ['ip_configurations', 'private_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
         dict_camelize(self.parameters, ['ip_configurations', 'subnet', 'network_security_group', 'security_rules', 'protocol'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'subnet', 'network_security_group', 'security_rules', 'access'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'subnet', 'network_security_group', 'security_rules', 'direction'], True)
@@ -1138,7 +1138,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
         dict_camelize(self.parameters, ['ip_configurations', 'public_ip_address', 'sku', 'name'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'public_ip_address', 'public_ip_allocation_method'], True)
         dict_camelize(self.parameters, ['ip_configurations', 'public_ip_address', 'public_ip_address_version'], True)
-        dict_map(self.parameters, ['ip_configurations', 'public_ip_address', 'public_ip_address_version'], ''ipv4': 'IPv4', 'ipv6': 'IPv6'')
+        dict_map(self.parameters, ['ip_configurations', 'public_ip_address', 'public_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
 
         response = None
 

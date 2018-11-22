@@ -203,7 +203,7 @@ class AzureRMInstanceFailoverGroup(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['read_write_endpoint', 'failover_policy'], True)
-        dict_map(self.parameters, ['read_only_endpoint', 'failover_policy'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['read_only_endpoint', 'failover_policy'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

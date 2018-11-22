@@ -510,14 +510,14 @@ class AzureRMAssessment(AzureRMModuleBase):
 
         dict_camelize(self.assessment, ['azure_location'], True)
         dict_camelize(self.assessment, ['azure_offer_code'], True)
-        dict_map(self.assessment, ['azure_offer_code'], ''msazr0003_p': 'MSAZR0003P', 'msazr0044_p': 'MSAZR0044P', 'msazr0059_p': 'MSAZR0059P', 'msazr0060_p': 'MSAZR0060P', 'msazr0062_p': 'MSAZR0062P', 'msazr0063_p': 'MSAZR0063P', 'msazr0064_p': 'MSAZR0064P', 'msazr0029_p': 'MSAZR0029P', 'msazr0022_p': 'MSAZR0022P', 'msazr0023_p': 'MSAZR0023P', 'msazr0148_p': 'MSAZR0148P', 'msazr0025_p': 'MSAZR0025P', 'msazr0036_p': 'MSAZR0036P', 'msazr0120_p': 'MSAZR0120P', 'msazr0121_p': 'MSAZR0121P', 'msazr0122_p': 'MSAZR0122P', 'msazr0123_p': 'MSAZR0123P', 'msazr0124_p': 'MSAZR0124P', 'msazr0125_p': 'MSAZR0125P', 'msazr0126_p': 'MSAZR0126P', 'msazr0127_p': 'MSAZR0127P', 'msazr0128_p': 'MSAZR0128P', 'msazr0129_p': 'MSAZR0129P', 'msazr0130_p': 'MSAZR0130P', 'msazr0111_p': 'MSAZR0111P', 'msazr0144_p': 'MSAZR0144P', 'msazr0149_p': 'MSAZR0149P', 'msmcazr0044_p': 'MSMCAZR0044P', 'msmcazr0059_p': 'MSMCAZR0059P', 'msmcazr0060_p': 'MSMCAZR0060P', 'msmcazr0063_p': 'MSMCAZR0063P', 'msmcazr0120_p': 'MSMCAZR0120P', 'msmcazr0121_p': 'MSMCAZR0121P', 'msmcazr0125_p': 'MSMCAZR0125P', 'msmcazr0128_p': 'MSMCAZR0128P', 'msazrde0003_p': 'MSAZRDE0003P', 'msazrde0044_p': 'MSAZRDE0044P'')
+        dict_map(self.assessment, ['azure_offer_code'], {'msazr0003_p': 'MSAZR0003P', 'msazr0044_p': 'MSAZR0044P', 'msazr0059_p': 'MSAZR0059P', 'msazr0060_p': 'MSAZR0060P', 'msazr0062_p': 'MSAZR0062P', 'msazr0063_p': 'MSAZR0063P', 'msazr0064_p': 'MSAZR0064P', 'msazr0029_p': 'MSAZR0029P', 'msazr0022_p': 'MSAZR0022P', 'msazr0023_p': 'MSAZR0023P', 'msazr0148_p': 'MSAZR0148P', 'msazr0025_p': 'MSAZR0025P', 'msazr0036_p': 'MSAZR0036P', 'msazr0120_p': 'MSAZR0120P', 'msazr0121_p': 'MSAZR0121P', 'msazr0122_p': 'MSAZR0122P', 'msazr0123_p': 'MSAZR0123P', 'msazr0124_p': 'MSAZR0124P', 'msazr0125_p': 'MSAZR0125P', 'msazr0126_p': 'MSAZR0126P', 'msazr0127_p': 'MSAZR0127P', 'msazr0128_p': 'MSAZR0128P', 'msazr0129_p': 'MSAZR0129P', 'msazr0130_p': 'MSAZR0130P', 'msazr0111_p': 'MSAZR0111P', 'msazr0144_p': 'MSAZR0144P', 'msazr0149_p': 'MSAZR0149P', 'msmcazr0044_p': 'MSMCAZR0044P', 'msmcazr0059_p': 'MSMCAZR0059P', 'msmcazr0060_p': 'MSMCAZR0060P', 'msmcazr0063_p': 'MSMCAZR0063P', 'msmcazr0120_p': 'MSMCAZR0120P', 'msmcazr0121_p': 'MSMCAZR0121P', 'msmcazr0125_p': 'MSMCAZR0125P', 'msmcazr0128_p': 'MSMCAZR0128P', 'msazrde0003_p': 'MSAZRDE0003P', 'msazrde0044_p': 'MSAZRDE0044P'})
         dict_camelize(self.assessment, ['azure_pricing_tier'], True)
         dict_camelize(self.assessment, ['azure_storage_redundancy'], True)
         dict_camelize(self.assessment, ['percentile'], True)
         dict_camelize(self.assessment, ['time_range'], True)
         dict_camelize(self.assessment, ['stage'], True)
         dict_upper(self.assessment, ['currency'])
-        dict_map(self.assessment, ['currency'], ''unknown': 'Unknown'')
+        dict_map(self.assessment, ['currency'], {'unknown': 'Unknown'})
         dict_camelize(self.assessment, ['azure_hybrid_use_benefit'], True)
         dict_camelize(self.assessment, ['sizing_criterion'], True)
 

@@ -15,63 +15,59 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: azure_rm_dedicatedhsm
+module: azure_rm_iotspace
 version_added: "2.8"
-short_description: Manage Azure Dedicated Hsm instance.
+short_description: Manage Azure Io T Space instance.
 description:
-    - Create, update and delete instance of Azure Dedicated Hsm.
+    - Create, update and delete instance of Azure Io T Space.
 
 options:
     resource_group:
         description:
-            - The name of the Resource Group to which the resource belongs.
+            - The name of the resource group that contains the IoTSpaces instance.
         required: True
     name:
         description:
-            - Name of the dedicated Hsm
+            - The name of the IoTSpaces instance.
         required: True
     location:
         description:
-            - Resource location. If not set, location from the resource group will be used as default.
+            - The resource location.
+            - Required when C(state) is I(present).
+    storage_container:
+        description:
+            - The properties of the designated storage container.
+        suboptions:
+            connection_string:
+                description:
+                    - The connection string of the storage account.
+            subscription_id:
+                description:
+                    - The subscription identifier of the storage account.
+            resource_group:
+                description:
+                    - The name of the resource group of the storage account.
+            container_name:
+                description:
+                    - The name of storage container in the storage account.
     sku:
         description:
-            - SKU details
+            - A valid instance SKU.
+            - Required when C(state) is I(present).
         suboptions:
             name:
                 description:
-                    - SKU of the dedicated HSM.
+                    - The name of the SKU.
+                    - Required when C(state) is I(present).
                 choices:
-                    - 'safe_net _luna _network _hsm _a790'
-    zones:
-        description:
-            - The Dedicated Hsm zones.
-        type: list
-    network_profile:
-        description:
-            - Specifies the network interfaces of the dedicated hsm.
-        suboptions:
-            subnet:
-                description:
-                    - Specifies the identifier of the subnet.
-                suboptions:
-                    id:
-                        description:
-                            - The ARM resource id in the form of /subscriptions/{SubcriptionId}/resourceGroups/{ResourceGroupName}/...
-            network_interfaces:
-                description:
-                    - Specifies the list of resource Ids for the network interfaces associated with the dedicated HSM.
-                type: list
-                suboptions:
-                    private_ip_address:
-                        description:
-                            - Private Ip address of the interface
-    stamp_id:
-        description:
-            - This field will be used when RP does not support Availability I(zones).
+                    - 'f1'
+                    - 's1'
+                    - 's2'
+                    - 's3'
     state:
       description:
-        - Assert the state of the Dedicated Hsm.
-        - Use 'present' to create or update an Dedicated Hsm and 'absent' to delete it.
+        - Assert the state of the Io T Space.
+        - Use 'present' to create or update an Io T Space and 'absent' to delete it.
       default: present
       choices:
         - absent
@@ -87,28 +83,27 @@ author:
 '''
 
 EXAMPLES = '''
-  - name: Create (or update) Dedicated Hsm
-    azure_rm_dedicatedhsm:
-      resource_group: hsm-group
-      name: hsm1
-      location: eastus
+  - name: Create (or update) Io T Space
+    azure_rm_iotspace:
+      resource_group: resRg
+      name: myIoTSpacesService
+      location: string
+      storage_container:
+        connection_string: string
+        subscription_id: string
+        resource_group: string
+        container_name: string
       sku:
-        name: SafeNet Luna Network HSM A790
-      network_profile:
-        subnet:
-          id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.Network/virtualNetworks/stamp01/subnets/stamp01
-        network_interfaces:
-          - private_ip_address: 1.0.0.1
-      stamp_id: stamp01
+        name: F1
 '''
 
 RETURN = '''
 id:
     description:
-        - The Azure Resource Manager resource ID for the dedicated HSM.
+        - The resource identifier.
     returned: always
     type: str
-    sample: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs/hsm1
+    sample: /subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/resRg/providers/Microsoft.IoTSpaces/IoTSpacesService/myIoTSpacesService
 '''
 
 import time
@@ -118,7 +113,7 @@ try:
     from msrestazure.azure_exceptions import CloudError
     from msrest.polling import LROPoller
     from msrestazure.azure_operation import AzureOperationPoller
-    from azure.mgmt.dedicatedhsm import AzureDedicatedHSMResourceProvider
+    from azure.mgmt.iotspaces import IoTSpacesClient
     from msrest.serialization import Model
 except ImportError:
     # This is handled in azure_rm_common
@@ -129,8 +124,8 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDedicatedHsm(AzureRMModuleBase):
-    """Configuration class for an Azure RM Dedicated Hsm resource"""
+class AzureRMIoTSpace(AzureRMModuleBase):
+    """Configuration class for an Azure RM Io T Space resource"""
 
     def __init__(self):
         self.module_arg_spec = dict(
@@ -145,17 +140,11 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
             location=dict(
                 type='str'
             ),
+            storage_container=dict(
+                type='dict'
+            ),
             sku=dict(
                 type='dict'
-            ),
-            zones=dict(
-                type='list'
-            ),
-            network_profile=dict(
-                type='dict'
-            ),
-            stamp_id=dict(
-                type='str'
             ),
             state=dict(
                 type='str',
@@ -166,16 +155,16 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
 
         self.resource_group = None
         self.name = None
-        self.parameters = dict()
+        self.iot_space_description = dict()
 
         self.results = dict(changed=False)
         self.mgmt_client = None
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDedicatedHsm, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                   supports_check_mode=True,
-                                                   supports_tags=True)
+        super(AzureRMIoTSpace, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                supports_check_mode=True,
+                                                supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -184,62 +173,59 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                self.parameters[key] = kwargs[key]
+                self.iot_space_description[key] = kwargs[key]
 
-        dict_camelize(self.parameters, ['sku', 'name'], True)
-        dict_map(self.parameters, ['sku', 'name'], {'safe_net _luna _network _hsm _a790': 'SafeNet Luna Network HSM A790'})
+        dict_expand(self.iot_space_description, ['storage_container'])
+        dict_camelize(self.iot_space_description, ['sku', 'name'], True)
 
         response = None
 
-        self.mgmt_client = self.get_mgmt_svc_client(AzureDedicatedHSMResourceProvider,
+        self.mgmt_client = self.get_mgmt_svc_client(IoTSpacesClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         resource_group = self.get_resource_group(self.resource_group)
 
-        if "location" not in self.parameters:
-            self.parameters["location"] = resource_group.location
-
-        old_response = self.get_dedicatedhsm()
+        old_response = self.get_iotspace()
 
         if not old_response:
-            self.log("Dedicated Hsm instance doesn't exist")
+            self.log("Io T Space instance doesn't exist")
             if self.state == 'absent':
                 self.log("Old instance didn't exist")
             else:
                 self.to_do = Actions.Create
         else:
-            self.log("Dedicated Hsm instance already exists")
+            self.log("Io T Space instance already exists")
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
-                if (not default_compare(self.parameters, old_response, '', self.results)):
+                if (not default_compare(self.iot_space_description, old_response, '', self.results)):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
-            self.log("Need to Create / Update the Dedicated Hsm instance")
+            self.log("Need to Create / Update the Io T Space instance")
 
             if self.check_mode:
                 self.results['changed'] = True
                 return self.results
 
-            response = self.create_update_dedicatedhsm()
+            response = self.create_update_iotspace()
 
             self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
-            self.log("Dedicated Hsm instance deleted")
+            self.log("Io T Space instance deleted")
             self.results['changed'] = True
 
             if self.check_mode:
                 return self.results
 
-            self.delete_dedicatedhsm()
+            self.delete_iotspace()
             # make sure instance is actually deleted, for some Azure resources, instance is hanging around
             # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_dedicatedhsm():
+            while self.get_iotspace():
                 time.sleep(20)
         else:
-            self.log("Dedicated Hsm instance unchanged")
+            self.log("Io T Space instance unchanged")
             self.results['changed'] = False
             response = old_response
 
@@ -247,58 +233,58 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
             self.results.update(self.format_response(response))
         return self.results
 
-    def create_update_dedicatedhsm(self):
+    def create_update_iotspace(self):
         '''
-        Creates or updates Dedicated Hsm with the specified configuration.
+        Creates or updates Io T Space with the specified configuration.
 
-        :return: deserialized Dedicated Hsm instance state dictionary
+        :return: deserialized Io T Space instance state dictionary
         '''
-        self.log("Creating / Updating the Dedicated Hsm instance {0}".format(self.name))
+        self.log("Creating / Updating the Io T Space instance {0}".format(self.name))
 
         try:
-            response = self.mgmt_client.dedicated_hsm.create_or_update(resource_group_name=self.resource_group,
-                                                                       name=self.name,
-                                                                       parameters=self.parameters)
+            response = self.mgmt_client.io_tspaces.create_or_update(resource_group_name=self.resource_group,
+                                                                    resource_name=self.name,
+                                                                    iot_space_description=self.iot_space_description)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
         except CloudError as exc:
-            self.log('Error attempting to create the Dedicated Hsm instance.')
-            self.fail("Error creating the Dedicated Hsm instance: {0}".format(str(exc)))
+            self.log('Error attempting to create the Io T Space instance.')
+            self.fail("Error creating the Io T Space instance: {0}".format(str(exc)))
         return response.as_dict()
 
-    def delete_dedicatedhsm(self):
+    def delete_iotspace(self):
         '''
-        Deletes specified Dedicated Hsm instance in the specified subscription and resource group.
+        Deletes specified Io T Space instance in the specified subscription and resource group.
 
         :return: True
         '''
-        self.log("Deleting the Dedicated Hsm instance {0}".format(self.name))
+        self.log("Deleting the Io T Space instance {0}".format(self.name))
         try:
-            response = self.mgmt_client.dedicated_hsm.delete(resource_group_name=self.resource_group,
-                                                             name=self.name)
+            response = self.mgmt_client.io_tspaces.delete(resource_group_name=self.resource_group,
+                                                          resource_name=self.name)
         except CloudError as e:
-            self.log('Error attempting to delete the Dedicated Hsm instance.')
-            self.fail("Error deleting the Dedicated Hsm instance: {0}".format(str(e)))
+            self.log('Error attempting to delete the Io T Space instance.')
+            self.fail("Error deleting the Io T Space instance: {0}".format(str(e)))
 
         return True
 
-    def get_dedicatedhsm(self):
+    def get_iotspace(self):
         '''
-        Gets the properties of the specified Dedicated Hsm.
+        Gets the properties of the specified Io T Space.
 
-        :return: deserialized Dedicated Hsm instance state dictionary
+        :return: deserialized Io T Space instance state dictionary
         '''
-        self.log("Checking if the Dedicated Hsm instance {0} is present".format(self.name))
+        self.log("Checking if the Io T Space instance {0} is present".format(self.name))
         found = False
         try:
-            response = self.mgmt_client.dedicated_hsm.get(resource_group_name=self.resource_group,
-                                                          name=self.name)
+            response = self.mgmt_client.io_tspaces.get(resource_group_name=self.resource_group,
+                                                       resource_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
-            self.log("Dedicated Hsm instance : {0} found".format(response.name))
+            self.log("Io T Space instance : {0} found".format(response.name))
         except CloudError as e:
-            self.log('Did not find the Dedicated Hsm instance.')
+            self.log('Did not find the Io T Space instance.')
         if found is True:
             return response.as_dict()
 
@@ -437,7 +423,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDedicatedHsm()
+    AzureRMIoTSpace()
 
 
 if __name__ == '__main__':

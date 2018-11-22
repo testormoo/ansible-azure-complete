@@ -158,7 +158,7 @@ class AzureRMVaultCertificate(AzureRMModuleBase):
                 self.properties[key] = kwargs[key]
 
         dict_camelize(self.properties, ['auth_type'], True)
-        dict_map(self.properties, ['auth_type'], ''acs': 'ACS', 'aad': 'AAD'')
+        dict_map(self.properties, ['auth_type'], {'acs': 'ACS', 'aad': 'AAD'})
 
         response = None
 

@@ -201,7 +201,7 @@ class AzureRMFileServer(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['data_disks', 'storage_account_type'], True)
-        dict_map(self.parameters, ['data_disks', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS'')
+        dict_map(self.parameters, ['data_disks', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS'})
 
         response = None
 

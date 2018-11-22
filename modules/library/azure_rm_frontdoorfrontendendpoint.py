@@ -200,7 +200,7 @@ class AzureRMFrontendEndpoint(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.frontend_endpoint_parameters[key] = kwargs[key]
 
-        dict_map(self.frontend_endpoint_parameters, ['session_affinity_enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.frontend_endpoint_parameters, ['session_affinity_enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.frontend_endpoint_parameters, ['resource_state'], True)
 
         response = None

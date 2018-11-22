@@ -179,7 +179,7 @@ class AzureRMCapacity(AzureRMModuleBase):
                 self.capacity_parameters[key] = kwargs[key]
 
         dict_camelize(self.capacity_parameters, ['sku', 'tier'], True)
-        dict_map(self.capacity_parameters, ['sku', 'tier'], ''pbie_azure': 'PBIE_Azure'')
+        dict_map(self.capacity_parameters, ['sku', 'tier'], {'pbie_azure': 'PBIE_Azure'})
 
         response = None
 

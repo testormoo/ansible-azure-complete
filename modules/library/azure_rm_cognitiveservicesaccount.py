@@ -206,7 +206,7 @@ class AzureRMAccount(AzureRMModuleBase):
 
         dict_camelize(self.parameters, ['sku', 'name'], True)
         dict_camelize(self.parameters, ['kind'], True)
-        dict_map(self.parameters, ['kind'], ''luis': 'LUIS', 'qn_amaker': 'QnAMaker', 'web_lm': 'WebLM'')
+        dict_map(self.parameters, ['kind'], {'luis': 'LUIS', 'qn_amaker': 'QnAMaker', 'web_lm': 'WebLM'})
 
         response = None
 

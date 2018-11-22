@@ -280,7 +280,7 @@ class AzureRMEndpoint(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        dict_map(self.parameters, ['endpoint_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['endpoint_status'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['endpoint_monitor_status'], True)
 
         response = None

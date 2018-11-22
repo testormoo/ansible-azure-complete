@@ -15,63 +15,84 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: azure_rm_dedicatedhsm
+module: azure_rm_networkpublicipaddress
 version_added: "2.8"
-short_description: Manage Azure Dedicated Hsm instance.
+short_description: Manage Azure Public I P Address instance.
 description:
-    - Create, update and delete instance of Azure Dedicated Hsm.
+    - Create, update and delete instance of Azure Public I P Address.
 
 options:
     resource_group:
         description:
-            - The name of the Resource Group to which the resource belongs.
+            - The name of the resource group.
         required: True
     name:
         description:
-            - Name of the dedicated Hsm
+            - The name of the public IP address.
         required: True
+    id:
+        description:
+            - Resource ID.
     location:
         description:
             - Resource location. If not set, location from the resource group will be used as default.
     sku:
         description:
-            - SKU details
+            - The public IP address SKU.
         suboptions:
             name:
                 description:
-                    - SKU of the dedicated HSM.
+                    - Name of a public IP address SKU.
                 choices:
-                    - 'safe_net _luna _network _hsm _a790'
+                    - 'basic'
+                    - 'standard'
+    public_ip_allocation_method:
+        description:
+            - "The public IP allocation method. Possible values are: 'C(static)' and 'C(dynamic)'."
+        choices:
+            - 'static'
+            - 'dynamic'
+    public_ip_address_version:
+        description:
+            - "The public IP address version. Possible values are: 'C(ipv4)' and 'C(ipv6)'."
+        choices:
+            - 'ipv4'
+            - 'ipv6'
+    dns_settings:
+        description:
+            - The FQDN of the DNS record associated with the public IP address.
+        suboptions:
+            domain_name_label:
+                description:
+                    - "Gets or sets the Domain name label.The concatenation of the domain name label and the regionalized DNS zone make up the fully
+                       qualified domain name associated with the public IP address. If a domain name label is specified, an A DNS record is created for the
+                       public IP in the Microsoft Azure DNS system."
+            fqdn:
+                description:
+                    - "Gets the FQDN, Fully qualified domain name of the A DNS record associated with the public IP. This is the concatenation of the
+                       I(domain_name_label) and the regionalized DNS zone."
+            reverse_fqdn:
+                description:
+                    - "Gets or Sets the Reverse I(fqdn). A user-visible, fully qualified domain name that resolves to this public IP address. If the
+                       reverseFqdn is specified, then a PTR DNS record is created pointing from the IP address in the in-addr.arpa domain to the reverse
+                       I(fqdn). "
+    ip_address:
+        description:
+            - The IP address associated with the public IP address resource.
+    idle_timeout_in_minutes:
+        description:
+            - The idle timeout of the public IP address.
+    resource_guid:
+        description:
+            - The resource GUID property of the public IP resource.
     zones:
         description:
-            - The Dedicated Hsm zones.
+            - A list of availability zones denoting the IP allocated for the resource needs to come from.
         type: list
-    network_profile:
-        description:
-            - Specifies the network interfaces of the dedicated hsm.
-        suboptions:
-            subnet:
-                description:
-                    - Specifies the identifier of the subnet.
-                suboptions:
-                    id:
-                        description:
-                            - The ARM resource id in the form of /subscriptions/{SubcriptionId}/resourceGroups/{ResourceGroupName}/...
-            network_interfaces:
-                description:
-                    - Specifies the list of resource Ids for the network interfaces associated with the dedicated HSM.
-                type: list
-                suboptions:
-                    private_ip_address:
-                        description:
-                            - Private Ip address of the interface
-    stamp_id:
-        description:
-            - This field will be used when RP does not support Availability I(zones).
     state:
       description:
-        - Assert the state of the Dedicated Hsm.
-        - Use 'present' to create or update an Dedicated Hsm and 'absent' to delete it.
+        - Assert the state of the Public I P Address.
+        - Use 'present' to create or update an Public I P Address and 'absent' to delete it.
       default: present
       choices:
         - absent
@@ -87,28 +108,20 @@ author:
 '''
 
 EXAMPLES = '''
-  - name: Create (or update) Dedicated Hsm
-    azure_rm_dedicatedhsm:
-      resource_group: hsm-group
-      name: hsm1
+  - name: Create (or update) Public I P Address
+    azure_rm_networkpublicipaddress:
+      resource_group: rg1
+      name: test-ip
       location: eastus
-      sku:
-        name: SafeNet Luna Network HSM A790
-      network_profile:
-        subnet:
-          id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.Network/virtualNetworks/stamp01/subnets/stamp01
-        network_interfaces:
-          - private_ip_address: 1.0.0.1
-      stamp_id: stamp01
 '''
 
 RETURN = '''
 id:
     description:
-        - The Azure Resource Manager resource ID for the dedicated HSM.
+        - Resource ID.
     returned: always
     type: str
-    sample: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs/hsm1
+    sample: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/publicIPAddresses/test-ip
 '''
 
 import time
@@ -118,7 +131,7 @@ try:
     from msrestazure.azure_exceptions import CloudError
     from msrest.polling import LROPoller
     from msrestazure.azure_operation import AzureOperationPoller
-    from azure.mgmt.dedicatedhsm import AzureDedicatedHSMResourceProvider
+    from azure.mgmt.network import NetworkManagementClient
     from msrest.serialization import Model
 except ImportError:
     # This is handled in azure_rm_common
@@ -129,8 +142,8 @@ class Actions:
     NoAction, Create, Update, Delete = range(4)
 
 
-class AzureRMDedicatedHsm(AzureRMModuleBase):
-    """Configuration class for an Azure RM Dedicated Hsm resource"""
+class AzureRMPublicIPAddress(AzureRMModuleBase):
+    """Configuration class for an Azure RM Public I P Address resource"""
 
     def __init__(self):
         self.module_arg_spec = dict(
@@ -142,20 +155,39 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
                 type='str',
                 required=True
             ),
+            id=dict(
+                type='str'
+            ),
             location=dict(
                 type='str'
             ),
             sku=dict(
                 type='dict'
             ),
-            zones=dict(
-                type='list'
+            public_ip_allocation_method=dict(
+                type='str',
+                choices=['static',
+                         'dynamic']
             ),
-            network_profile=dict(
+            public_ip_address_version=dict(
+                type='str',
+                choices=['ipv4',
+                         'ipv6']
+            ),
+            dns_settings=dict(
                 type='dict'
             ),
-            stamp_id=dict(
+            ip_address=dict(
                 type='str'
+            ),
+            idle_timeout_in_minutes=dict(
+                type='int'
+            ),
+            resource_guid=dict(
+                type='str'
+            ),
+            zones=dict(
+                type='list'
             ),
             state=dict(
                 type='str',
@@ -173,9 +205,9 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
         self.state = None
         self.to_do = Actions.NoAction
 
-        super(AzureRMDedicatedHsm, self).__init__(derived_arg_spec=self.module_arg_spec,
-                                                   supports_check_mode=True,
-                                                   supports_tags=True)
+        super(AzureRMPublicIPAddress, self).__init__(derived_arg_spec=self.module_arg_spec,
+                                                        supports_check_mode=True,
+                                                        supports_tags=True)
 
     def exec_module(self, **kwargs):
         """Main module execution method"""
@@ -187,11 +219,13 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['sku', 'name'], True)
-        dict_map(self.parameters, ['sku', 'name'], {'safe_net _luna _network _hsm _a790': 'SafeNet Luna Network HSM A790'})
+        dict_camelize(self.parameters, ['public_ip_allocation_method'], True)
+        dict_camelize(self.parameters, ['public_ip_address_version'], True)
+        dict_map(self.parameters, ['public_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
 
         response = None
 
-        self.mgmt_client = self.get_mgmt_svc_client(AzureDedicatedHSMResourceProvider,
+        self.mgmt_client = self.get_mgmt_svc_client(NetworkManagementClient,
                                                     base_url=self._cloud_environment.endpoints.resource_manager)
 
         resource_group = self.get_resource_group(self.resource_group)
@@ -199,16 +233,16 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
         if "location" not in self.parameters:
             self.parameters["location"] = resource_group.location
 
-        old_response = self.get_dedicatedhsm()
+        old_response = self.get_publicipaddress()
 
         if not old_response:
-            self.log("Dedicated Hsm instance doesn't exist")
+            self.log("Public I P Address instance doesn't exist")
             if self.state == 'absent':
                 self.log("Old instance didn't exist")
             else:
                 self.to_do = Actions.Create
         else:
-            self.log("Dedicated Hsm instance already exists")
+            self.log("Public I P Address instance already exists")
             if self.state == 'absent':
                 self.to_do = Actions.Delete
             elif self.state == 'present':
@@ -216,30 +250,30 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
                     self.to_do = Actions.Update
 
         if (self.to_do == Actions.Create) or (self.to_do == Actions.Update):
-            self.log("Need to Create / Update the Dedicated Hsm instance")
+            self.log("Need to Create / Update the Public I P Address instance")
 
             if self.check_mode:
                 self.results['changed'] = True
                 return self.results
 
-            response = self.create_update_dedicatedhsm()
+            response = self.create_update_publicipaddress()
 
             self.results['changed'] = True
             self.log("Creation / Update done")
         elif self.to_do == Actions.Delete:
-            self.log("Dedicated Hsm instance deleted")
+            self.log("Public I P Address instance deleted")
             self.results['changed'] = True
 
             if self.check_mode:
                 return self.results
 
-            self.delete_dedicatedhsm()
+            self.delete_publicipaddress()
             # make sure instance is actually deleted, for some Azure resources, instance is hanging around
             # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_dedicatedhsm():
+            while self.get_publicipaddress():
                 time.sleep(20)
         else:
-            self.log("Dedicated Hsm instance unchanged")
+            self.log("Public I P Address instance unchanged")
             self.results['changed'] = False
             response = old_response
 
@@ -247,58 +281,58 @@ class AzureRMDedicatedHsm(AzureRMModuleBase):
             self.results.update(self.format_response(response))
         return self.results
 
-    def create_update_dedicatedhsm(self):
+    def create_update_publicipaddress(self):
         '''
-        Creates or updates Dedicated Hsm with the specified configuration.
+        Creates or updates Public I P Address with the specified configuration.
 
-        :return: deserialized Dedicated Hsm instance state dictionary
+        :return: deserialized Public I P Address instance state dictionary
         '''
-        self.log("Creating / Updating the Dedicated Hsm instance {0}".format(self.name))
+        self.log("Creating / Updating the Public I P Address instance {0}".format(self.name))
 
         try:
-            response = self.mgmt_client.dedicated_hsm.create_or_update(resource_group_name=self.resource_group,
-                                                                       name=self.name,
-                                                                       parameters=self.parameters)
+            response = self.mgmt_client.public_ip_addresses.create_or_update(resource_group_name=self.resource_group,
+                                                                             public_ip_address_name=self.name,
+                                                                             parameters=self.parameters)
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 
         except CloudError as exc:
-            self.log('Error attempting to create the Dedicated Hsm instance.')
-            self.fail("Error creating the Dedicated Hsm instance: {0}".format(str(exc)))
+            self.log('Error attempting to create the Public I P Address instance.')
+            self.fail("Error creating the Public I P Address instance: {0}".format(str(exc)))
         return response.as_dict()
 
-    def delete_dedicatedhsm(self):
+    def delete_publicipaddress(self):
         '''
-        Deletes specified Dedicated Hsm instance in the specified subscription and resource group.
+        Deletes specified Public I P Address instance in the specified subscription and resource group.
 
         :return: True
         '''
-        self.log("Deleting the Dedicated Hsm instance {0}".format(self.name))
+        self.log("Deleting the Public I P Address instance {0}".format(self.name))
         try:
-            response = self.mgmt_client.dedicated_hsm.delete(resource_group_name=self.resource_group,
-                                                             name=self.name)
+            response = self.mgmt_client.public_ip_addresses.delete(resource_group_name=self.resource_group,
+                                                                   public_ip_address_name=self.name)
         except CloudError as e:
-            self.log('Error attempting to delete the Dedicated Hsm instance.')
-            self.fail("Error deleting the Dedicated Hsm instance: {0}".format(str(e)))
+            self.log('Error attempting to delete the Public I P Address instance.')
+            self.fail("Error deleting the Public I P Address instance: {0}".format(str(e)))
 
         return True
 
-    def get_dedicatedhsm(self):
+    def get_publicipaddress(self):
         '''
-        Gets the properties of the specified Dedicated Hsm.
+        Gets the properties of the specified Public I P Address.
 
-        :return: deserialized Dedicated Hsm instance state dictionary
+        :return: deserialized Public I P Address instance state dictionary
         '''
-        self.log("Checking if the Dedicated Hsm instance {0} is present".format(self.name))
+        self.log("Checking if the Public I P Address instance {0} is present".format(self.name))
         found = False
         try:
-            response = self.mgmt_client.dedicated_hsm.get(resource_group_name=self.resource_group,
-                                                          name=self.name)
+            response = self.mgmt_client.public_ip_addresses.get(resource_group_name=self.resource_group,
+                                                                public_ip_address_name=self.name)
             found = True
             self.log("Response : {0}".format(response))
-            self.log("Dedicated Hsm instance : {0} found".format(response.name))
+            self.log("Public I P Address instance : {0} found".format(response.name))
         except CloudError as e:
-            self.log('Did not find the Dedicated Hsm instance.')
+            self.log('Did not find the Public I P Address instance.')
         if found is True:
             return response.as_dict()
 
@@ -437,7 +471,7 @@ def _snake_to_camel(snake, capitalize_first=False):
 
 def main():
     """Main execution"""
-    AzureRMDedicatedHsm()
+    AzureRMPublicIPAddress()
 
 
 if __name__ == '__main__':

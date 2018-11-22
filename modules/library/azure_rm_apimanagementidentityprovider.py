@@ -218,7 +218,7 @@ class AzureRMIdentityProvider(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['identity_provider_contract_type'], True)
-        dict_map(self.parameters, ['identity_provider_contract_type'], ''aad_b2_c': 'aadB2C'')
+        dict_map(self.parameters, ['identity_provider_contract_type'], {'aad_b2_c': 'aadB2C'})
 
         response = None
 

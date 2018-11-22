@@ -174,7 +174,7 @@ class AzureRMLogger(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['logger_type'], True)
-        dict_map(self.parameters, ['logger_type'], ''azure_event_hub': 'azureEventHub', 'application_insights': 'applicationInsights'')
+        dict_map(self.parameters, ['logger_type'], {'azure_event_hub': 'azureEventHub', 'application_insights': 'applicationInsights'})
 
         response = None
 

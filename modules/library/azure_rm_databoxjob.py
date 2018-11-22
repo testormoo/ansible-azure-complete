@@ -305,7 +305,7 @@ class AzureRMJob(AzureRMModuleBase):
 
         dict_camelize(self.job_resource, ['sku', 'name'], True)
         dict_camelize(self.job_resource, ['details', 'contact_details', 'notification_preference', 'stage_name'], True)
-        dict_map(self.job_resource, ['details', 'contact_details', 'notification_preference', 'stage_name'], ''at_azure_dc': 'AtAzureDC'')
+        dict_map(self.job_resource, ['details', 'contact_details', 'notification_preference', 'stage_name'], {'at_azure_dc': 'AtAzureDC'})
         dict_camelize(self.job_resource, ['details', 'shipping_address', 'address_type'], True)
 
         response = None

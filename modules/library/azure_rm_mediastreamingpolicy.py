@@ -498,13 +498,13 @@ class AzureRMStreamingPolicy(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['envelope_encryption', 'clear_tracks', 'track_selections', 'property'], True)
-        dict_map(self.parameters, ['envelope_encryption', 'clear_tracks', 'track_selections', 'property'], ''four_cc': 'FourCC'')
+        dict_map(self.parameters, ['envelope_encryption', 'clear_tracks', 'track_selections', 'property'], {'four_cc': 'FourCC'})
         dict_camelize(self.parameters, ['envelope_encryption', 'clear_tracks', 'track_selections', 'operation'], True)
         dict_camelize(self.parameters, ['common_encryption_cenc', 'clear_tracks', 'track_selections', 'property'], True)
-        dict_map(self.parameters, ['common_encryption_cenc', 'clear_tracks', 'track_selections', 'property'], ''four_cc': 'FourCC'')
+        dict_map(self.parameters, ['common_encryption_cenc', 'clear_tracks', 'track_selections', 'property'], {'four_cc': 'FourCC'})
         dict_camelize(self.parameters, ['common_encryption_cenc', 'clear_tracks', 'track_selections', 'operation'], True)
         dict_camelize(self.parameters, ['common_encryption_cbcs', 'clear_tracks', 'track_selections', 'property'], True)
-        dict_map(self.parameters, ['common_encryption_cbcs', 'clear_tracks', 'track_selections', 'property'], ''four_cc': 'FourCC'')
+        dict_map(self.parameters, ['common_encryption_cbcs', 'clear_tracks', 'track_selections', 'property'], {'four_cc': 'FourCC'})
         dict_camelize(self.parameters, ['common_encryption_cbcs', 'clear_tracks', 'track_selections', 'operation'], True)
 
         response = None

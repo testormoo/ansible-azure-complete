@@ -363,7 +363,7 @@ class AzureRMCluster(AzureRMModuleBase):
         dict_expand(self.parameters, ['storage_accounts'])
         dict_expand(self.parameters, ['storage_profile'])
         dict_camelize(self.parameters, ['identity', 'type'], True)
-        dict_map(self.parameters, ['identity', 'type'], ''system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'')
+        dict_map(self.parameters, ['identity', 'type'], {'system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'})
 
         response = None
 

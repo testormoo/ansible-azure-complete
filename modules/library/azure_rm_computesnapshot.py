@@ -254,7 +254,7 @@ class AzureRMSnapshot(AzureRMModuleBase):
                 self.snapshot[key] = kwargs[key]
 
         dict_camelize(self.snapshot, ['sku', 'name'], True)
-        dict_map(self.snapshot, ['sku', 'name'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_zrs': 'Standard_ZRS'')
+        dict_map(self.snapshot, ['sku', 'name'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_zrs': 'Standard_ZRS'})
         dict_camelize(self.snapshot, ['os_type'], True)
         dict_camelize(self.snapshot, ['creation_data', 'create_option'], True)
 

@@ -261,7 +261,7 @@ class AzureRMJobStep(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['action', 'type'], True)
-        dict_map(self.parameters, ['action', 'type'], ''tsql': 'TSql'')
+        dict_map(self.parameters, ['action', 'type'], {'tsql': 'TSql'})
         dict_camelize(self.parameters, ['action', 'source'], True)
         dict_camelize(self.parameters, ['output', 'type'], True)
 

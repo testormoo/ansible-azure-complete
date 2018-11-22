@@ -279,12 +279,12 @@ class AzureRMPolicy(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        dict_map(self.parameters, ['policy_settings', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['policy_settings', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['policy_settings', 'mode'], True)
         dict_camelize(self.parameters, ['custom_rules', 'rules', 'rule_type'], True)
         dict_camelize(self.parameters, ['custom_rules', 'rules', 'match_conditions', 'match_variable'], True)
         dict_camelize(self.parameters, ['custom_rules', 'rules', 'match_conditions', 'operator'], True)
-        dict_map(self.parameters, ['custom_rules', 'rules', 'match_conditions', 'operator'], ''ip_match': 'IPMatch'')
+        dict_map(self.parameters, ['custom_rules', 'rules', 'match_conditions', 'operator'], {'ip_match': 'IPMatch'})
         dict_camelize(self.parameters, ['custom_rules', 'rules', 'action'], True)
 
         response = None

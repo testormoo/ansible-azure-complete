@@ -224,8 +224,8 @@ class AzureRMDatabaseThreatDetectionPolicy(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['state'], True)
-        dict_map(self.parameters, ['email_account_admins'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.parameters, ['use_server_default'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['email_account_admins'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.parameters, ['use_server_default'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

@@ -368,13 +368,13 @@ class AzureRMProfile(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        dict_map(self.parameters, ['profile_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['profile_status'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['traffic_routing_method'], True)
         dict_camelize(self.parameters, ['monitor_config', 'profile_monitor_status'], True)
         dict_upper(self.parameters, ['monitor_config', 'protocol'])
-        dict_map(self.parameters, ['endpoints', 'endpoint_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['endpoints', 'endpoint_status'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['endpoints', 'endpoint_monitor_status'], True)
-        dict_map(self.parameters, ['traffic_view_enrollment_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['traffic_view_enrollment_status'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

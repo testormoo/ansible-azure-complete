@@ -186,7 +186,7 @@ class AzureRMWorkspace(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['sku', 'name'], True)
-        dict_map(self.parameters, ['sku', 'name'], ''per_gb2018': 'PerGB2018'')
+        dict_map(self.parameters, ['sku', 'name'], {'per_gb2018': 'PerGB2018'})
 
         response = None
 

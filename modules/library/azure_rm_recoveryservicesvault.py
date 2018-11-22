@@ -160,7 +160,7 @@ class AzureRMVault(AzureRMModuleBase):
 
         dict_expand(self.vault, ['upgrade_details'])
         dict_camelize(self.vault, ['sku', 'name'], True)
-        dict_map(self.vault, ['sku', 'name'], ''rs0': 'RS0'')
+        dict_map(self.vault, ['sku', 'name'], {'rs0': 'RS0'})
 
         response = None
 

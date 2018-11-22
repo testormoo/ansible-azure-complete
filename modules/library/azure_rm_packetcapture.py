@@ -208,7 +208,7 @@ class AzureRMPacketCapture(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_upper(self.parameters, ['filters', 'protocol'])
-        dict_map(self.parameters, ['filters', 'protocol'], ''any': 'Any'')
+        dict_map(self.parameters, ['filters', 'protocol'], {'any': 'Any'})
 
         response = None
 

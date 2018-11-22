@@ -193,7 +193,7 @@ class AzureRMProduct(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['state'], True)
-        dict_map(self.parameters, ['state'], ''not_published': 'notPublished'')
+        dict_map(self.parameters, ['state'], {'not_published': 'notPublished'})
 
         response = None
 

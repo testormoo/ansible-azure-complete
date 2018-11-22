@@ -183,7 +183,7 @@ class AzureRMCluster(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_upper(self.parameters, ['sku', 'name'])
-        dict_map(self.parameters, ['sku', 'name'], ''d13_v2': 'D13_v2', 'd14_v2': 'D14_v2'')
+        dict_map(self.parameters, ['sku', 'name'], {'d13_v2': 'D13_v2', 'd14_v2': 'D14_v2'})
 
         response = None
 
@@ -254,7 +254,8 @@ class AzureRMCluster(AzureRMModuleBase):
         try:
             response = self.mgmt_client.clusters.create_or_update(resource_group_name=self.resource_group,
                                                                   cluster_name=self.name,
-                                                                  parameters=self.parameters)
+                                                                  location=self.parameters.get('location', None),
+                                                                  tags=self.parameters.get('tags', None))
             if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
                 response = self.get_poller_result(response)
 

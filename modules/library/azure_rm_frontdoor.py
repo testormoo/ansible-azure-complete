@@ -467,17 +467,17 @@ class AzureRMFrontDoor(AzureRMModuleBase):
 
         dict_camelize(self.front_door_parameters, ['routing_rules', 'forwarding_protocol'], True)
         dict_camelize(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'query_parameter_strip_directive'], True)
-        dict_map(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'dynamic_compression'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.front_door_parameters, ['routing_rules', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'dynamic_compression'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.front_door_parameters, ['routing_rules', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['routing_rules', 'resource_state'], True)
         dict_camelize(self.front_door_parameters, ['load_balancing_settings', 'resource_state'], True)
         dict_camelize(self.front_door_parameters, ['health_probe_settings', 'protocol'], True)
         dict_camelize(self.front_door_parameters, ['health_probe_settings', 'resource_state'], True)
-        dict_map(self.front_door_parameters, ['backend_pools', 'backends', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.front_door_parameters, ['backend_pools', 'backends', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['backend_pools', 'resource_state'], True)
-        dict_map(self.front_door_parameters, ['frontend_endpoints', 'session_affinity_enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.front_door_parameters, ['frontend_endpoints', 'session_affinity_enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['frontend_endpoints', 'resource_state'], True)
-        dict_map(self.front_door_parameters, ['enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.front_door_parameters, ['enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['resource_state'], True)
 
         response = None

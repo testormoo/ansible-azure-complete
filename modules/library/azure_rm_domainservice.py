@@ -225,14 +225,14 @@ class AzureRMDomainService(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.properties[key] = kwargs[key]
 
-        dict_map(self.properties, ['ldaps_settings', 'ldaps'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['ldaps_settings', 'external_access'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['notification_settings', 'notify_global_admins'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['notification_settings', 'notify_dc_admins'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['domain_security_settings', 'ntlm_v1'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['domain_security_settings', 'tls_v1'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['domain_security_settings', 'sync_ntlm_passwords'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.properties, ['filtered_sync'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.properties, ['ldaps_settings', 'ldaps'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['ldaps_settings', 'external_access'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['notification_settings', 'notify_global_admins'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['notification_settings', 'notify_dc_admins'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['domain_security_settings', 'ntlm_v1'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['domain_security_settings', 'tls_v1'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['domain_security_settings', 'sync_ntlm_passwords'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.properties, ['filtered_sync'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

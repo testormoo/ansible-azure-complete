@@ -174,7 +174,7 @@ class AzureRMChapSetting(AzureRMModuleBase):
                 self.chap_setting[key] = kwargs[key]
 
         dict_upper(self.chap_setting, ['password', 'encryption_algorithm'])
-        dict_map(self.chap_setting, ['password', 'encryption_algorithm'], ''none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'')
+        dict_map(self.chap_setting, ['password', 'encryption_algorithm'], {'none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'})
 
         response = None
 

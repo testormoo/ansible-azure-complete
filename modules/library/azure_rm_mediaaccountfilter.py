@@ -227,7 +227,7 @@ class AzureRMAccountFilter(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['tracks', 'track_selections', 'property'], True)
-        dict_map(self.parameters, ['tracks', 'track_selections', 'property'], ''four_cc': 'FourCC'')
+        dict_map(self.parameters, ['tracks', 'track_selections', 'property'], {'four_cc': 'FourCC'})
         dict_camelize(self.parameters, ['tracks', 'track_selections', 'operation'], True)
 
         response = None

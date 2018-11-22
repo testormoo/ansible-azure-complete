@@ -312,10 +312,10 @@ class AzureRMOpenShiftManagedCluster(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['master_pool_profile', 'vm_size'], True)
-        dict_map(self.parameters, ['master_pool_profile', 'vm_size'], ''standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3'')
+        dict_map(self.parameters, ['master_pool_profile', 'vm_size'], {'standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3'})
         dict_camelize(self.parameters, ['master_pool_profile', 'os_type'], True)
         dict_camelize(self.parameters, ['agent_pool_profiles', 'vm_size'], True)
-        dict_map(self.parameters, ['agent_pool_profiles', 'vm_size'], ''standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3'')
+        dict_map(self.parameters, ['agent_pool_profiles', 'vm_size'], {'standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3'})
         dict_camelize(self.parameters, ['agent_pool_profiles', 'os_type'], True)
 
         response = None

@@ -179,8 +179,8 @@ class AzureRMStorageDomain(AzureRMModuleBase):
                 self.storage_domain[key] = kwargs[key]
 
         dict_upper(self.storage_domain, ['encryption_key', 'encryption_algorithm'])
-        dict_map(self.storage_domain, ['encryption_key', 'encryption_algorithm'], ''none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'')
-        dict_map(self.storage_domain, ['encryption_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.storage_domain, ['encryption_key', 'encryption_algorithm'], {'none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'})
+        dict_map(self.storage_domain, ['encryption_status'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

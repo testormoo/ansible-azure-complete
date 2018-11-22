@@ -271,10 +271,10 @@ class AzureRMImage(AzureRMModuleBase):
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'os_state'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'storage_account_type'], True)
-        dict_map(self.parameters, ['storage_profile', 'os_disk', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_map(self.parameters, ['storage_profile', 'os_disk', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'storage_account_type'], True)
-        dict_map(self.parameters, ['storage_profile', 'data_disks', 'storage_account_type'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_map(self.parameters, ['storage_profile', 'data_disks', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
 
         response = None
 

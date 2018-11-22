@@ -192,7 +192,7 @@ class AzureRMWebhook(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.webhook_create_parameters[key] = kwargs[key]
 
-        dict_map(self.webhook_create_parameters, ['status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.webhook_create_parameters, ['status'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

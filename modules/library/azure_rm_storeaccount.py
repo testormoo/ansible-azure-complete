@@ -309,12 +309,12 @@ class AzureRMAccount(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['encryption_config', 'type'], True)
-        dict_map(self.parameters, ['encryption_state'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.parameters, ['firewall_state'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.parameters, ['firewall_allow_azure_ips'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.parameters, ['trusted_id_provider_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['encryption_state'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.parameters, ['firewall_state'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.parameters, ['firewall_allow_azure_ips'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.parameters, ['trusted_id_provider_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['new_tier'], True)
-        dict_map(self.parameters, ['new_tier'], ''commitment_1_tb': 'Commitment_1TB', 'commitment_10_tb': 'Commitment_10TB', 'commitment_100_tb': 'Commitment_100TB', 'commitment_500_tb': 'Commitment_500TB', 'commitment_1_pb': 'Commitment_1PB', 'commitment_5_pb': 'Commitment_5PB'')
+        dict_map(self.parameters, ['new_tier'], {'commitment_1_tb': 'Commitment_1TB', 'commitment_10_tb': 'Commitment_10TB', 'commitment_100_tb': 'Commitment_100TB', 'commitment_500_tb': 'Commitment_500TB', 'commitment_1_pb': 'Commitment_1PB', 'commitment_5_pb': 'Commitment_5PB'})
 
         response = None
 

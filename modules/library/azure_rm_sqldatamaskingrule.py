@@ -251,9 +251,9 @@ class AzureRMDataMaskingRule(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        dict_map(self.parameters, ['rule_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['rule_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['masking_function'], True)
-        dict_map(self.parameters, ['masking_function'], ''ccn': 'CCN', 'ssn': 'SSN'')
+        dict_map(self.parameters, ['masking_function'], {'ccn': 'CCN', 'ssn': 'SSN'})
 
         response = None
 

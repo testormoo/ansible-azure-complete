@@ -253,7 +253,7 @@ class AzureRMDatabaseBlobAuditingPolicy(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        dict_map(self.parameters, ['state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['state'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

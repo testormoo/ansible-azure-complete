@@ -218,7 +218,7 @@ class AzureRMService(AzureRMModuleBase):
                 self.service[key] = kwargs[key]
 
         dict_camelize(self.service, ['hosting_mode'], True)
-        dict_map(self.service, ['hosting_mode'], ''high_density': 'highDensity'')
+        dict_map(self.service, ['hosting_mode'], {'high_density': 'highDensity'})
 
         response = None
 

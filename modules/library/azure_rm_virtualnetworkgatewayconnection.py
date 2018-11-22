@@ -668,16 +668,16 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'name'], True)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'tier'], True)
         dict_camelize(self.parameters, ['connection_type'], True)
-        dict_map(self.parameters, ['connection_type'], ''ipsec': 'IPsec', 'vpn_client': 'VPNClient'')
+        dict_map(self.parameters, ['connection_type'], {'ipsec': 'IPsec', 'vpn_client': 'VPNClient'})
         dict_upper(self.parameters, ['ipsec_policies', 'ipsec_encryption'])
-        dict_map(self.parameters, ['ipsec_policies', 'ipsec_encryption'], ''none': 'None'')
+        dict_map(self.parameters, ['ipsec_policies', 'ipsec_encryption'], {'none': 'None'})
         dict_upper(self.parameters, ['ipsec_policies', 'ipsec_integrity'])
         dict_upper(self.parameters, ['ipsec_policies', 'ike_encryption'])
         dict_upper(self.parameters, ['ipsec_policies', 'ike_integrity'])
         dict_upper(self.parameters, ['ipsec_policies', 'dh_group'])
-        dict_map(self.parameters, ['ipsec_policies', 'dh_group'], ''none': 'None', 'dh_group1': 'DHGroup1', 'dh_group2': 'DHGroup2', 'dh_group14': 'DHGroup14', 'dh_group2048': 'DHGroup2048', 'dh_group24': 'DHGroup24'')
+        dict_map(self.parameters, ['ipsec_policies', 'dh_group'], {'none': 'None', 'dh_group1': 'DHGroup1', 'dh_group2': 'DHGroup2', 'dh_group14': 'DHGroup14', 'dh_group2048': 'DHGroup2048', 'dh_group24': 'DHGroup24'})
         dict_upper(self.parameters, ['ipsec_policies', 'pfs_group'])
-        dict_map(self.parameters, ['ipsec_policies', 'pfs_group'], ''none': 'None'')
+        dict_map(self.parameters, ['ipsec_policies', 'pfs_group'], {'none': 'None'})
 
         response = None
 

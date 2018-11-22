@@ -226,7 +226,7 @@ class AzureRMBackendPool(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.backend_pool_parameters[key] = kwargs[key]
 
-        dict_map(self.backend_pool_parameters, ['backends', 'enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.backend_pool_parameters, ['backends', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.backend_pool_parameters, ['resource_state'], True)
 
         response = None

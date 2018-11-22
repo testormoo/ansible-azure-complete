@@ -220,7 +220,7 @@ class AzureRMIscsiDisk(AzureRMModuleBase):
 
         dict_camelize(self.iscsi_disk, ['disk_status'], True)
         dict_camelize(self.iscsi_disk, ['data_policy'], True)
-        dict_map(self.iscsi_disk, ['monitoring_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.iscsi_disk, ['monitoring_status'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

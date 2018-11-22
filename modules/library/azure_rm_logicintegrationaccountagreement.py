@@ -827,7 +827,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                 self.agreement[key] = kwargs[key]
 
         dict_camelize(self.agreement, ['agreement_type'], True)
-        dict_map(self.agreement, ['agreement_type'], ''as2': 'AS2'')
+        dict_map(self.agreement, ['agreement_type'], {'as2': 'AS2'})
 
         response = None
 

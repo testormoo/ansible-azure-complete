@@ -260,8 +260,8 @@ class AzureRMRoutingRule(AzureRMModuleBase):
 
         dict_camelize(self.routing_rule_parameters, ['forwarding_protocol'], True)
         dict_camelize(self.routing_rule_parameters, ['cache_configuration', 'query_parameter_strip_directive'], True)
-        dict_map(self.routing_rule_parameters, ['cache_configuration', 'dynamic_compression'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.routing_rule_parameters, ['enabled_state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.routing_rule_parameters, ['cache_configuration', 'dynamic_compression'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.routing_rule_parameters, ['enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.routing_rule_parameters, ['resource_state'], True)
 
         response = None

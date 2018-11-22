@@ -211,7 +211,7 @@ class AzureRMManagedDatabase(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_upper(self.parameters, ['catalog_collation'])
-        dict_map(self.parameters, ['catalog_collation'], ''sql_latin1_general_cp1_ci_as': 'SQL_Latin1_General_CP1_CI_AS'')
+        dict_map(self.parameters, ['catalog_collation'], {'sql_latin1_general_cp1_ci_as': 'SQL_Latin1_General_CP1_CI_AS'})
         dict_camelize(self.parameters, ['create_mode'], True)
 
         response = None

@@ -218,7 +218,7 @@ class AzureRMFileShare(AzureRMModuleBase):
 
         dict_camelize(self.file_share, ['share_status'], True)
         dict_camelize(self.file_share, ['data_policy'], True)
-        dict_map(self.file_share, ['monitoring_status'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.file_share, ['monitoring_status'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

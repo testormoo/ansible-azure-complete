@@ -225,9 +225,9 @@ class AzureRMProject(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['source_platform'], True)
-        dict_map(self.parameters, ['source_platform'], ''sql': 'SQL', 'my_sql': 'MySQL'')
+        dict_map(self.parameters, ['source_platform'], {'sql': 'SQL', 'my_sql': 'MySQL'})
         dict_camelize(self.parameters, ['target_platform'], True)
-        dict_map(self.parameters, ['target_platform'], ''sqldb': 'SQLDB', 'sqlmi': 'SQLMI'')
+        dict_map(self.parameters, ['target_platform'], {'sqldb': 'SQLDB', 'sqlmi': 'SQLMI'})
 
         response = None
 

@@ -275,7 +275,7 @@ class AzureRMDisk(AzureRMModuleBase):
                 self.disk[key] = kwargs[key]
 
         dict_camelize(self.disk, ['sku', 'name'], True)
-        dict_map(self.disk, ['sku', 'name'], ''standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'')
+        dict_map(self.disk, ['sku', 'name'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
         dict_camelize(self.disk, ['os_type'], True)
         dict_camelize(self.disk, ['creation_data', 'create_option'], True)
 

@@ -357,12 +357,12 @@ class AzureRMSQLDatabase(AzureRMModuleBase):
 
         dict_camelize(self.parameters, ['create_mode'], True)
         dict_camelize(self.parameters, ['sample_name'], True)
-        dict_map(self.parameters, ['sample_name'], ''adventure_works_lt': 'AdventureWorksLT'')
+        dict_map(self.parameters, ['sample_name'], {'adventure_works_lt': 'AdventureWorksLT'})
         dict_upper(self.parameters, ['catalog_collation'])
-        dict_map(self.parameters, ['catalog_collation'], ''sql_latin1_general_cp1_ci_as': 'SQL_Latin1_General_CP1_CI_AS'')
-        dict_map(self.parameters, ['zone_redundant'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['catalog_collation'], {'sql_latin1_general_cp1_ci_as': 'SQL_Latin1_General_CP1_CI_AS'})
+        dict_map(self.parameters, ['zone_redundant'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['license_type'], True)
-        dict_map(self.parameters, ['read_scale'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['read_scale'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

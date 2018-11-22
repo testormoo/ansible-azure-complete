@@ -225,7 +225,7 @@ class AzureRMDscConfiguration(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['source', 'type'], True)
-        dict_map(self.parameters, ['source', 'type'], ''embedded_content': 'embeddedContent'')
+        dict_map(self.parameters, ['source', 'type'], {'embedded_content': 'embeddedContent'})
 
         response = None
 

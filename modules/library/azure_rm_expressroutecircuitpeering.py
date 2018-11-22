@@ -834,24 +834,24 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                 self.peering_parameters[key] = kwargs[key]
 
         dict_camelize(self.peering_parameters, ['peering_type'], True)
-        dict_map(self.peering_parameters, ['state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.peering_parameters, ['microsoft_peering_config', 'advertised_public_prefixes_state'], True)
         dict_camelize(self.peering_parameters, ['route_filter', 'rules', 'access'], True)
         dict_camelize(self.peering_parameters, ['route_filter', 'peerings', 'peering_type'], True)
-        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.peering_parameters, ['route_filter', 'peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
         dict_camelize(self.peering_parameters, ['route_filter', 'peerings', 'route_filter', 'rules', 'access'], True)
         dict_camelize(self.peering_parameters, ['route_filter', 'peerings', 'route_filter', 'peerings', 'peering_type'], True)
-        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'route_filter', 'peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.peering_parameters, ['route_filter', 'peerings', 'ipv6_peering_config', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
-        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'ipv6_peering_config', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['route_filter', 'peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.peering_parameters, ['ipv6_peering_config', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
         dict_camelize(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'rules', 'access'], True)
         dict_camelize(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'peering_type'], True)
-        dict_map(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
-        dict_map(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'ipv6_peering_config', 'state'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.peering_parameters, ['ipv6_peering_config', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.peering_parameters, ['ipv6_peering_config', 'route_filter', 'peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.peering_parameters, ['ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

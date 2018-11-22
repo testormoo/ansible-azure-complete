@@ -281,10 +281,10 @@ class AzureRMProtectedItem(AzureRMModuleBase):
 
         dict_expand(self.parameters, ['backup_management_type'])
         dict_camelize(self.parameters, ['backup_management_type'], True)
-        dict_map(self.parameters, ['backup_management_type'], ''azure_iaas_vm': 'AzureIaasVM', 'mab': 'MAB', 'dpm': 'DPM'')
+        dict_map(self.parameters, ['backup_management_type'], {'azure_iaas_vm': 'AzureIaasVM', 'mab': 'MAB', 'dpm': 'DPM'})
         dict_expand(self.parameters, ['workload_type'])
         dict_camelize(self.parameters, ['workload_type'], True)
-        dict_map(self.parameters, ['workload_type'], ''vm': 'VM', 'sqldb': 'SQLDB', 'vmware_vm': 'VMwareVM', 'sql_data_base': 'SQLDataBase', 'sap_hana_database': 'SAPHanaDatabase'')
+        dict_map(self.parameters, ['workload_type'], {'vm': 'VM', 'sqldb': 'SQLDB', 'vmware_vm': 'VMwareVM', 'sql_data_base': 'SQLDataBase', 'sap_hana_database': 'SAPHanaDatabase'})
         dict_expand(self.parameters, ['container_name'])
         dict_expand(self.parameters, ['source_resource_id'])
         dict_expand(self.parameters, ['policy_id'])

@@ -153,7 +153,7 @@ class AzureRMProfile(AzureRMModuleBase):
                 self.profile[key] = kwargs[key]
 
         dict_camelize(self.profile, ['sku', 'name'], True)
-        dict_map(self.profile, ['sku', 'name'], ''standard_verizon': 'Standard_Verizon', 'premium_verizon': 'Premium_Verizon', 'custom_verizon': 'Custom_Verizon', 'standard_akamai': 'Standard_Akamai', 'standard_china_cdn': 'Standard_ChinaCdn', 'standard_microsoft': 'Standard_Microsoft'')
+        dict_map(self.profile, ['sku', 'name'], {'standard_verizon': 'Standard_Verizon', 'premium_verizon': 'Premium_Verizon', 'custom_verizon': 'Custom_Verizon', 'standard_akamai': 'Standard_Akamai', 'standard_china_cdn': 'Standard_ChinaCdn', 'standard_microsoft': 'Standard_Microsoft'})
 
         response = None
 

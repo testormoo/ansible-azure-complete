@@ -208,7 +208,7 @@ class AzureRMBlueprint(AzureRMModuleBase):
                 self.blueprint[key] = kwargs[key]
 
         dict_camelize(self.blueprint, ['target_scope'], True)
-        dict_map(self.blueprint, ['target_scope'], ''management_group': 'managementGroup'')
+        dict_map(self.blueprint, ['target_scope'], {'management_group': 'managementGroup'})
 
         response = None
 

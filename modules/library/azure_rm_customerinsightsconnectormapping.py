@@ -339,7 +339,7 @@ class AzureRMConnectorMapping(AzureRMModuleBase):
                 self.parameters[key] = kwargs[key]
 
         dict_camelize(self.parameters, ['connector_type'], True)
-        dict_map(self.parameters, ['connector_type'], ''crm': 'CRM'')
+        dict_map(self.parameters, ['connector_type'], {'crm': 'CRM'})
         dict_camelize(self.parameters, ['entity_type'], True)
         dict_camelize(self.parameters, ['mapping_properties', 'error_management', 'error_management_type'], True)
         dict_camelize(self.parameters, ['mapping_properties', 'availability', 'frequency'], True)

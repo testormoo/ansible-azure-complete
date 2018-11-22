@@ -225,7 +225,7 @@ class AzureRMMySQLServer(AzureRMModuleBase):
         dict_expand(self.parameters, ['version'])
         dict_rename(self.parameters, ['enforce_ssl'], 'properties')
         dict_expand(self.parameters, ['enforce_ssl'])
-        dict_map(self.parameters, ['enforce_ssl'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['enforce_ssl'], {True: 'Enabled', False: 'Disabled'})
         dict_expand(self.parameters, ['create_mode'])
         dict_rename(self.parameters, ['admin_username'], 'properties')
         dict_expand(self.parameters, ['admin_username'])

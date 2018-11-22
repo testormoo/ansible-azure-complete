@@ -690,18 +690,18 @@ class AzureRMExpressRouteCircuit(AzureRMModuleBase):
         dict_camelize(self.parameters, ['service_provider_provisioning_state'], True)
         dict_camelize(self.parameters, ['authorizations', 'authorization_use_status'], True)
         dict_camelize(self.parameters, ['peerings', 'peering_type'], True)
-        dict_map(self.parameters, ['peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
         dict_camelize(self.parameters, ['peerings', 'route_filter', 'rules', 'access'], True)
         dict_camelize(self.parameters, ['peerings', 'route_filter', 'peerings', 'peering_type'], True)
-        dict_map(self.parameters, ['peerings', 'route_filter', 'peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['peerings', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['peerings', 'route_filter', 'peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
-        dict_map(self.parameters, ['peerings', 'route_filter', 'peerings', 'ipv6_peering_config', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['peerings', 'route_filter', 'peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.parameters, ['peerings', 'ipv6_peering_config', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
         dict_camelize(self.parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'rules', 'access'], True)
         dict_camelize(self.parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'peering_type'], True)
-        dict_map(self.parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'state'], '{True: 'Enabled', False: 'Disabled'}')
-        dict_map(self.parameters, ['peerings', 'ipv6_peering_config', 'state'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
+        dict_map(self.parameters, ['peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
 
         response = None
 

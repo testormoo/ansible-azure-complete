@@ -213,10 +213,10 @@ class AzureRMStorageAccountCredential(AzureRMModuleBase):
                 self.storage_account[key] = kwargs[key]
 
         dict_camelize(self.storage_account, ['cloud_type'], True)
-        dict_map(self.storage_account, ['cloud_type'], ''s3_rrs': 'S3_RRS', 'hp': 'HP'')
-        dict_map(self.storage_account, ['enable_ssl'], '{True: 'Enabled', False: 'Disabled'}')
+        dict_map(self.storage_account, ['cloud_type'], {'s3_rrs': 'S3_RRS', 'hp': 'HP'})
+        dict_map(self.storage_account, ['enable_ssl'], {True: 'Enabled', False: 'Disabled'})
         dict_upper(self.storage_account, ['access_key', 'encryption_algorithm'])
-        dict_map(self.storage_account, ['access_key', 'encryption_algorithm'], ''none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'')
+        dict_map(self.storage_account, ['access_key', 'encryption_algorithm'], {'none': 'None', 'rsaes_pkcs1_v_1_5': 'RSAES_PKCS1_v_1_5'})
 
         response = None
 
