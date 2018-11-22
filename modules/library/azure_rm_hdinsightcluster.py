@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_hdinsightcluster
 version_added: "2.8"
-short_description: Manage Cluster instance.
+short_description: Manage Azure Cluster instance.
 description:
-    - Create, update and delete instance of Cluster.
+    - Create, update and delete instance of Azure Cluster.
 
 options:
     resource_group:
@@ -116,13 +116,9 @@ options:
             vm_size:
                 description:
                     - The size of the VM
-            os_profile:
+            linux_profile:
                 description:
-                    - The operating system profile.
-                suboptions:
-                    linux_operating_system_profile:
-                        description:
-                            - The Linux OS profile.
+                    - The Linux OS profile.
             virtual_network_profile:
                 description:
                     - The virtual network profile.
@@ -158,7 +154,7 @@ options:
                         description:
                             - The parameters for the script provided.
                             - Required when C(state) is I(present).
-    storageaccounts:
+    storage_accounts:
         description:
             - The list of storage accounts in the cluster.
         type: list
@@ -238,12 +234,11 @@ EXAMPLES = '''
           min_instance_count: 1
           target_instance_count: 2
           vm_size: Standard_D3_V2
-          os_profile:
-            linux_operating_system_profile: {
+          linux_profile: {
   "username": "sshuser",
   "password": "**********"
 }
-      storageaccounts:
+      storage_accounts:
         - name: mystorage
           is_default: True
           container: containername
@@ -315,7 +310,7 @@ class AzureRMClusters(AzureRMModuleBase):
             compute_profile_roles=dict(
                 type='list'
             ),
-            storageaccounts=dict(
+            storage_accounts=dict(
                 type='list'
             ),
             identity=dict(
@@ -350,19 +345,19 @@ class AzureRMClusters(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
-        expand_and_rename(self.parameters, ['cluster_version'], expand='properties')
-        expand_and_rename(self.parameters, ['os_type'], expand='properties')
-        expand_and_rename(self.parameters, ['tier'], expand='properties')
-        expand_and_rename(self.parameters, ['cluster_definition'], expand='properties')
-        expand_and_rename(self.parameters, ['security_profile'], expand='properties')
-        expand_and_rename(self.parameters, ['roles', 'vm_size'], expand='hardware_profile')
-        expand_and_rename(self.parameters, ['compute_profile_roles'], rename='roles', expand='compute_profile')
-        expand_and_rename(self.parameters, ['compute_profile'], expand='properties')
-        expand_and_rename(self.parameters, ['storageaccounts'], expand='storage_profile')
-        expand_and_rename(self.parameters, ['storage_profile'], expand='properties')
-
-        #self.results["expanded"] = self.parameters
-        #return self.results
+        expand(self.parameters, ['cluster_version'], expand='properties')
+        expand(self.parameters, ['os_type'], expand='properties', camelize=True)
+        expand(self.parameters, ['tier'], expand='properties', camelize=True)
+        expand(self.parameters, ['cluster_definition'], expand='properties')
+        expand(self.parameters, ['security_profile', 'directory_type'], camelize=True)
+        expand(self.parameters, ['security_profile'], expand='properties')
+        expand(self.parameters, ['compute_profile_roles', 'vm_size'], expand='hardware_profile')
+        expand(self.parameters, ['compute_profile_roles', 'linux_profile'], rename='linux_operating_system_profile', expand='os_profile')
+        expand(self.parameters, ['compute_profile_roles'], rename='roles', expand='compute_profile')
+        expand(self.parameters, ['compute_profile'], expand='properties')
+        expand(self.parameters, ['storage_accounts'], rename='storageaccounts', expand='storage_profile')
+        expand(self.parameters, ['storage_profile'], expand='properties')
+        expand(self.parameters, ['identity', 'type'], camelize={'system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'})
 
         response = None
 
@@ -476,7 +471,7 @@ class AzureRMClusters(AzureRMModuleBase):
             found = True
             self.log("Response : {0}".format(response))
             self.log("Cluster instance : {0} found".format(response.name))
-        except:
+        except CloudError as e:
             self.log('Did not find the Cluster instance.')
         if found is True:
             return response.as_dict()
@@ -522,33 +517,53 @@ def default_compare(new, old, path):
         return new == old
 
 
-def expand_and_rename(d, path, **kwargs):
-    expand = kwargs.get('expand', None)
+def expand(d, path, **kwargs):
+    expandx = kwargs.get('expand', None)
     rename = kwargs.get('rename', None)
     camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
     if isinstance(d, list):
         for i in range(len(d)):
-            expand_and_rename(d[i], path, **kwargs)
+            expand(d[i], path, **kwargs)
     elif isinstance(d, dict):
         if len(path) == 1:
             old_name = path[0]
-            if expand is None:
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if old_value is not None:
+                if map is not None:
+                    new_value = map.get(old_value, None)
+                if new_value is None:
+                    if camelize:
+                        new_value = _snake_to_camel(old_value, True)
+                    elif camelize_lower:
+                        new_value = _snake_to_camel(old_value, False)
+                    elif upper:
+                        new_value = old_value.upper()
+            if expandx is None:
                 # just rename
-                old_value = d.get(old_name, None)
-                if old_value is not None:
+                if new_name != old_name:
                     d.pop(old_name, None)
-                    d[rename] = old_value
             else:
                 # expand and rename
-                old_value = d.get(old_name, None)
-                if old_value is not None:
-                    d[expand] = d.get(expand, {})
-                    d.get(expand, {})[rename if (rename is not None) else old_name] = old_value
-                    d.pop(old_name, None)
+                d[expandx] = d.get(expandx, {})
+                d.pop(old_name, None)
+                d = d[expandx]
+            d[new_name] = new_value
         else:
             sd = d.get(path[0], None)
             if sd is not None:
-                expand_and_rename(sd, path[1:], **kwargs)
+                expand(sd, path[1:], **kwargs)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

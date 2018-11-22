@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_hdinsightextension
 version_added: "2.8"
-short_description: Manage Extension instance.
+short_description: Manage Azure Extension instance.
 description:
-    - Create, update and delete instance of Extension.
+    - Create, update and delete instance of Azure Extension.
 
 options:
     resource_group:
@@ -136,9 +136,12 @@ class AzureRMExtension(AzureRMModuleBase):
     def exec_module(self, **kwargs):
         """Main module execution method"""
 
-        for key in list(self.module_arg_spec.keys()) + ['tags']:
+        for key in list(self.module_arg_spec.keys()):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
+            elif kwargs[key] is not None:
+                self.parameters[key] = kwargs[key]
+
 
         response = None
 
@@ -293,6 +296,55 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expandx = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if old_value is not None:
+                if map is not None:
+                    new_value = map.get(old_value, None)
+                if new_value is None:
+                    if camelize:
+                        new_value = _snake_to_camel(old_value, True)
+                    elif camelize_lower:
+                        new_value = _snake_to_camel(old_value, False)
+                    elif upper:
+                        new_value = old_value.upper()
+            if expandx is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expandx] = d.get(expandx, {})
+                d.pop(old_name, None)
+                d = d[expandx]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

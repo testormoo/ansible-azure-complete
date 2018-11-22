@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   vars:
-    resource_group: testrgxyzabc
+    resource_group: testrgxyzabcx
   roles:
     - modules
 
@@ -48,30 +48,28 @@
               #restAuthCredential.isEnabled: True
               restAuthCredential.username: http-user
               restAuthCredential.password: MuABCPassword!!@123 
-        storage_profile:
-          storageaccounts:
-            - name: storage{{ resource_group }}.blob.core.windows.net 
-              is_default: yes
-              container: "cluster{{ resource_group }}"
-              key: "{{ storage_output['response']['keys'][0]['value'] }}"
-        compute_profile:
-          roles:
-            - name: headnode
-              target_instance_count: 2
-              hardware_profile:
-                vm_size: Standard_D3
-              os_profile:
-                linux_operating_system_profile:
-                  username: sshuser
-                  password: MuABCPassword!!@123
-            - name: workernode
-              target_instance_count: 2
-              hardware_profile:
-                vm_size: Standard_D3
-              os_profile:
-                linux_operating_system_profile:
-                  username: sshuser
-                  password: MuABCPassword!!@123
+        storageaccounts:
+          - name: storage{{ resource_group }}.blob.core.windows.net 
+            is_default: yes
+            container: "cluster{{ resource_group }}"
+            key: "{{ storage_output['response']['keys'][0]['value'] }}"
+        compute_profile_roles:
+          - name: headnode
+            target_instance_count: 2
+            hardware_profile:
+              vm_size: Standard_D3
+            os_profile:
+              linux_operating_system_profile:
+                username: sshuser
+                password: MuABCPassword!!@123
+          - name: workernode
+            target_instance_count: 2
+            hardware_profile:
+              vm_size: Standard_D3
+            os_profile:
+              linux_operating_system_profile:
+                username: sshuser
+                password: MuABCPassword!!@123
             #- name: zookeepernode
             #  target_instance_count: 3
             #  hardware_profile:
@@ -82,6 +80,8 @@
             #      password: MuABCPassword!!@123
       #check_mode: yes
       register: output
+    - debug:
+        var: output
     - name: Assert the resource instance is well created
       assert:
         that:

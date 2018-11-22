@@ -17,9 +17,9 @@ DOCUMENTATION = '''
 ---
 module: azure_rm_hdinsightapplication
 version_added: "2.8"
-short_description: Manage Application instance.
+short_description: Manage Azure Application instance.
 description:
-    - Create, update and delete instance of Application.
+    - Create, update and delete instance of Azure Application.
 
 options:
     resource_group:
@@ -338,22 +338,16 @@ class AzureRMApplications(AzureRMModuleBase):
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             elif kwargs[key] is not None:
-                if key == "compute_profile":
-                    self.parameters.setdefault("properties", {})["compute_profile"] = kwargs[key]
-                elif key == "install_script_actions":
-                    self.parameters.setdefault("properties", {})["install_script_actions"] = kwargs[key]
-                elif key == "uninstall_script_actions":
-                    self.parameters.setdefault("properties", {})["uninstall_script_actions"] = kwargs[key]
-                elif key == "https_endpoints":
-                    self.parameters.setdefault("properties", {})["https_endpoints"] = kwargs[key]
-                elif key == "ssh_endpoints":
-                    self.parameters.setdefault("properties", {})["ssh_endpoints"] = kwargs[key]
-                elif key == "application_type":
-                    self.parameters.setdefault("properties", {})["application_type"] = kwargs[key]
-                elif key == "errors":
-                    self.parameters.setdefault("properties", {})["errors"] = kwargs[key]
-                elif key == "additional_properties":
-                    self.parameters.setdefault("properties", {})["additional_properties"] = kwargs[key]
+                self.parameters[key] = kwargs[key]
+
+        expand(self.parameters, ['compute_profile'], expand='properties')
+        expand(self.parameters, ['install_script_actions'], expand='properties')
+        expand(self.parameters, ['uninstall_script_actions'], expand='properties')
+        expand(self.parameters, ['https_endpoints'], expand='properties')
+        expand(self.parameters, ['ssh_endpoints'], expand='properties')
+        expand(self.parameters, ['application_type'], expand='properties')
+        expand(self.parameters, ['errors'], expand='properties')
+        expand(self.parameters, ['additional_properties'], expand='properties')
 
         response = None
 
@@ -510,6 +504,55 @@ def default_compare(new, old, path):
         return True
     else:
         return new == old
+
+
+def expand(d, path, **kwargs):
+    expandx = kwargs.get('expand', None)
+    rename = kwargs.get('rename', None)
+    camelize = kwargs.get('camelize', False)
+    camelize_lower = kwargs.get('camelize_lower', False)
+    upper = kwargs.get('upper', False)
+    map = kwargs.get('map', None)
+    if isinstance(d, list):
+        for i in range(len(d)):
+            expand(d[i], path, **kwargs)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_name = path[0]
+            new_name = old_name if rename is None else rename
+            old_value = d.get(old_name, None)
+            new_value = None
+            if old_value is not None:
+                if map is not None:
+                    new_value = map.get(old_value, None)
+                if new_value is None:
+                    if camelize:
+                        new_value = _snake_to_camel(old_value, True)
+                    elif camelize_lower:
+                        new_value = _snake_to_camel(old_value, False)
+                    elif upper:
+                        new_value = old_value.upper()
+            if expandx is None:
+                # just rename
+                if new_name != old_name:
+                    d.pop(old_name, None)
+            else:
+                # expand and rename
+                d[expandx] = d.get(expandx, {})
+                d.pop(old_name, None)
+                d = d[expandx]
+            d[new_name] = new_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                expand(sd, path[1:], **kwargs)
+
+
+def _snake_to_camel(snake, capitalize_first=False):
+    if capitalize_first:
+        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
+    else:
+        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
