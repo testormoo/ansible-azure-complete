@@ -525,10 +525,10 @@ class AzureRMFormula(AzureRMModuleBase):
                 type='str'
             ),
             formula_content=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     bulk_creation_parameters=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             instance_count=dict(
                                 type='int'
@@ -588,13 +588,13 @@ class AzureRMFormula(AzureRMModuleBase):
                         type='str'
                     ),
                     artifacts=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             artifact_id=dict(
                                 type='str'
                             ),
                             parameters=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -619,7 +619,7 @@ class AzureRMFormula(AzureRMModuleBase):
                         )
                     ),
                     artifact_deployment_status=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             deployment_status=dict(
                                 type='str'
@@ -633,7 +633,7 @@ class AzureRMFormula(AzureRMModuleBase):
                         )
                     ),
                     gallery_image_reference=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             offer=dict(
                                 type='str'
@@ -653,10 +653,10 @@ class AzureRMFormula(AzureRMModuleBase):
                         )
                     ),
                     compute_vm=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             statuses=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     code=dict(
                                         type='str'
@@ -685,7 +685,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                 type='list'
                             ),
                             data_disks=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -704,7 +704,7 @@ class AzureRMFormula(AzureRMModuleBase):
                         )
                     ),
                     network_interface=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             virtual_network_id=dict(
                                 type='str'
@@ -731,10 +731,10 @@ class AzureRMFormula(AzureRMModuleBase):
                                 type='str'
                             ),
                             shared_public_ip_address_configuration=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     inbound_nat_rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             transport_protocol=dict(
                                                 type='str',
@@ -754,13 +754,13 @@ class AzureRMFormula(AzureRMModuleBase):
                         )
                     ),
                     applicable_schedule=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             location=dict(
                                 type='str'
                             ),
                             lab_vms_shutdown=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     location=dict(
                                         type='str'
@@ -772,7 +772,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     weekly_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             weekdays=dict(
                                                 type='list'
@@ -783,7 +783,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         )
                                     ),
                                     daily_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             time=dict(
                                                 type='str'
@@ -791,7 +791,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         )
                                     ),
                                     hourly_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             minute=dict(
                                                 type='int'
@@ -802,7 +802,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     notification_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             status=dict(
                                                 type='bool'
@@ -821,7 +821,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                 )
                             ),
                             lab_vms_startup=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     location=dict(
                                         type='str'
@@ -833,7 +833,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     weekly_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             weekdays=dict(
                                                 type='list'
@@ -844,7 +844,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         )
                                     ),
                                     daily_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             time=dict(
                                                 type='str'
@@ -852,7 +852,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         )
                                     ),
                                     hourly_recurrence=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             minute=dict(
                                                 type='int'
@@ -863,7 +863,7 @@ class AzureRMFormula(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     notification_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             status=dict(
                                                 type='bool'
@@ -909,7 +909,7 @@ class AzureRMFormula(AzureRMModuleBase):
                 )
             ),
             vm=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     lab_vm_id=dict(
                         type='str'
@@ -1107,8 +1107,38 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def main():

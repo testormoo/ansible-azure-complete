@@ -165,7 +165,7 @@ class AzureRMMySQLServer(AzureRMModuleBase):
                 required=True
             ),
             sku=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -406,8 +406,69 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_rename(d, path, new_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_rename(d[i], path, new_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[new_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_rename(sd, path[1:], new_name)
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
 
 
 def main():

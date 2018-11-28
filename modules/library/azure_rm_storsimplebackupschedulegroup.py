@@ -123,7 +123,7 @@ class AzureRMBackupScheduleGroup(AzureRMModuleBase):
                 required=True
             ),
             start_time=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     hour=dict(
                         type='int'
@@ -330,7 +330,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

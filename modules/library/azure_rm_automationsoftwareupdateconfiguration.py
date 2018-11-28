@@ -384,7 +384,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                 type='str'
             ),
             update_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     operating_system=dict(
                         type='str',
@@ -392,7 +392,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                                  'linux']
                     ),
                     windows=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             included_update_classifications=dict(
                                 type='str',
@@ -418,7 +418,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                         )
                     ),
                     linux=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             included_package_classifications=dict(
                                 type='str',
@@ -448,10 +448,10 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                         type='list'
                     ),
                     targets=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             azure_queries=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     scope=dict(
                                         type='list'
@@ -460,7 +460,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                                         type='list'
                                     ),
                                     tag_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             filter_operator=dict(
                                                 type='str',
@@ -476,7 +476,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                 )
             ),
             schedule_info=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     start_time=dict(
                         type='datetime'
@@ -511,7 +511,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                         type='str'
                     ),
                     advanced_schedule=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             week_days=dict(
                                 type='list'
@@ -520,7 +520,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                                 type='list'
                             ),
                             monthly_occurrences=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     occurrence=dict(
                                         type='int'
@@ -551,7 +551,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                 )
             ),
             error=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     code=dict(
                         type='str'
@@ -562,10 +562,10 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                 )
             ),
             tasks=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     pre_task=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             parameters=dict(
                                 type='dict'
@@ -576,7 +576,7 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                         )
                     ),
                     post_task=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             parameters=dict(
                                 type='dict'
@@ -781,8 +781,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
 
 
 def main():

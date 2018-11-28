@@ -747,7 +747,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 type='str'
             ),
             sku=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -761,7 +761,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 )
             ),
             plan=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -778,7 +778,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 )
             ),
             upgrade_policy=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     mode=dict(
                         type='str',
@@ -787,7 +787,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                  'rolling']
                     ),
                     rolling_upgrade_policy=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             max_batch_instance_percent=dict(
                                 type='int'
@@ -804,7 +804,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     automatic_os_upgrade_policy=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             enable_automatic_os_upgrade=dict(
                                 type='str'
@@ -817,10 +817,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 )
             ),
             virtual_machine_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     os_profile=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             computer_name_prefix=dict(
                                 type='str'
@@ -836,7 +836,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 type='str'
                             ),
                             windows_configuration=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     provision_vm_agent=dict(
                                         type='str'
@@ -848,7 +848,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     additional_unattend_content=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             pass_name=dict(
                                                 type='str',
@@ -869,7 +869,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         )
                                     ),
                                     win_rm=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             listeners=dict(
                                                 type='list'
@@ -879,14 +879,14 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 )
                             ),
                             linux_configuration=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     disable_password_authentication=dict(
                                         type='str',
                                         no_log=True
                                     ),
                                     ssh=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             public_keys=dict(
                                                 type='list'
@@ -899,10 +899,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 )
                             ),
                             secrets=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     source_vault=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -910,7 +910,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         )
                                     ),
                                     vault_certificates=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             certificate_url=dict(
                                                 type='str'
@@ -925,10 +925,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     storage_profile=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             image_reference=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -948,7 +948,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 )
                             ),
                             os_disk=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -969,7 +969,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                                  'attach']
                                     ),
                                     diff_disk_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             option=dict(
                                                 type='str',
@@ -986,7 +986,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                                  'linux']
                                     ),
                                     image=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             uri=dict(
                                                 type='str'
@@ -997,7 +997,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         type='list'
                                     ),
                                     managed_disk=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             storage_account_type=dict(
                                                 type='str',
@@ -1011,7 +1011,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 )
                             ),
                             data_disks=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -1038,7 +1038,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         type='int'
                                     ),
                                     managed_disk=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             storage_account_type=dict(
                                                 type='str',
@@ -1054,7 +1054,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     additional_capabilities=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             ultra_ssd_enabled=dict(
                                 type='str'
@@ -1062,10 +1062,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     network_profile=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             health_probe=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1073,7 +1073,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                 )
                             ),
                             network_interface_configurations=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1088,7 +1088,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     network_security_group=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1096,7 +1096,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         )
                                     ),
                                     dns_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             dns_servers=dict(
                                                 type='list'
@@ -1104,7 +1104,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                                         )
                                     ),
                                     ip_configurations=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1148,10 +1148,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     diagnostics_profile=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             boot_diagnostics=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     enabled=dict(
                                         type='str'
@@ -1164,10 +1164,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                         )
                     ),
                     extension_profile=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             extensions=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -1225,7 +1225,7 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 type='int'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str',
@@ -1453,8 +1453,59 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

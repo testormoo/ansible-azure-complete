@@ -342,7 +342,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 type='str'
             ),
             email_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -353,7 +353,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             sms_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -367,7 +367,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             webhook_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -378,7 +378,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             itsm_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -398,7 +398,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             azure_app_push_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -409,7 +409,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             automation_runbook_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     automation_account_id=dict(
                         type='str'
@@ -432,7 +432,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             voice_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -446,7 +446,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             logic_app_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -460,7 +460,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             azure_function_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -477,7 +477,7 @@ class AzureRMActionGroup(AzureRMModuleBase):
                 )
             ),
             arm_role_receivers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -668,7 +668,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

@@ -186,7 +186,7 @@ class AzureRMDomainService(AzureRMModuleBase):
                 type='str'
             ),
             ldaps_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     ldaps=dict(
                         type='bool'
@@ -204,7 +204,7 @@ class AzureRMDomainService(AzureRMModuleBase):
                 )
             ),
             notification_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     notify_global_admins=dict(
                         type='bool'
@@ -218,7 +218,7 @@ class AzureRMDomainService(AzureRMModuleBase):
                 )
             ),
             domain_security_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     ntlm_v1=dict(
                         type='bool'
@@ -424,7 +424,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

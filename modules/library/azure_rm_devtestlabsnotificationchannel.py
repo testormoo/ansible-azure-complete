@@ -135,7 +135,7 @@ class AzureRMNotificationChannel(AzureRMModuleBase):
                 type='str'
             ),
             events=dict(
-                type='list'
+                type='list',
                 options=dict(
                     event_name=dict(
                         type='str',
@@ -330,7 +330,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

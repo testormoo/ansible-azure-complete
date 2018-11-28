@@ -645,7 +645,7 @@ class AzureRMJob(AzureRMModuleBase):
                 type='datetime'
             ),
             action=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str',
@@ -656,10 +656,10 @@ class AzureRMJob(AzureRMModuleBase):
                                  'service_bus_topic']
                     ),
                     request=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             authentication=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     type=dict(
                                         type='str'
@@ -681,7 +681,7 @@ class AzureRMJob(AzureRMModuleBase):
                         )
                     ),
                     queue_message=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             storage_account=dict(
                                 type='str'
@@ -698,10 +698,10 @@ class AzureRMJob(AzureRMModuleBase):
                         )
                     ),
                     service_bus_queue_message=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             authentication=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sas_key=dict(
                                         type='str'
@@ -717,7 +717,7 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             brokered_message_properties=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     content_type=dict(
                                         type='str'
@@ -781,10 +781,10 @@ class AzureRMJob(AzureRMModuleBase):
                         )
                     ),
                     service_bus_topic_message=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             authentication=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sas_key=dict(
                                         type='str'
@@ -800,7 +800,7 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             brokered_message_properties=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     content_type=dict(
                                         type='str'
@@ -864,7 +864,7 @@ class AzureRMJob(AzureRMModuleBase):
                         )
                     ),
                     retry_policy=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             retry_type=dict(
                                 type='str',
@@ -880,7 +880,7 @@ class AzureRMJob(AzureRMModuleBase):
                         )
                     ),
                     error_action=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             type=dict(
                                 type='str',
@@ -891,10 +891,10 @@ class AzureRMJob(AzureRMModuleBase):
                                          'service_bus_topic']
                             ),
                             request=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     authentication=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             type=dict(
                                                 type='str'
@@ -916,7 +916,7 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             queue_message=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     storage_account=dict(
                                         type='str'
@@ -933,10 +933,10 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             service_bus_queue_message=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     authentication=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             sas_key=dict(
                                                 type='str'
@@ -952,7 +952,7 @@ class AzureRMJob(AzureRMModuleBase):
                                         )
                                     ),
                                     brokered_message_properties=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             content_type=dict(
                                                 type='str'
@@ -1016,10 +1016,10 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             service_bus_topic_message=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     authentication=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             sas_key=dict(
                                                 type='str'
@@ -1035,7 +1035,7 @@ class AzureRMJob(AzureRMModuleBase):
                                         )
                                     ),
                                     brokered_message_properties=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             content_type=dict(
                                                 type='str'
@@ -1099,7 +1099,7 @@ class AzureRMJob(AzureRMModuleBase):
                                 )
                             ),
                             retry_policy=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     retry_type=dict(
                                         type='str',
@@ -1119,7 +1119,7 @@ class AzureRMJob(AzureRMModuleBase):
                 )
             ),
             recurrence=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     frequency=dict(
                         type='str',
@@ -1139,7 +1139,7 @@ class AzureRMJob(AzureRMModuleBase):
                         type='datetime'
                     ),
                     schedule=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             week_days=dict(
                                 type='list'
@@ -1154,7 +1154,7 @@ class AzureRMJob(AzureRMModuleBase):
                                 type='list'
                             ),
                             monthly_occurrences=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     day=dict(
                                         type='str',
@@ -1385,7 +1385,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 
@@ -1402,6 +1402,21 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def main():

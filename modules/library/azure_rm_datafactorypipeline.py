@@ -207,7 +207,7 @@ class AzureRMPipeline(AzureRMModuleBase):
                 type='str'
             ),
             activities=dict(
-                type='list'
+                type='list',
                 options=dict(
                     additional_properties=dict(
                         type='dict'
@@ -219,7 +219,7 @@ class AzureRMPipeline(AzureRMModuleBase):
                         type='str'
                     ),
                     depends_on=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             additional_properties=dict(
                                 type='dict'
@@ -233,7 +233,7 @@ class AzureRMPipeline(AzureRMModuleBase):
                         )
                     ),
                     user_properties=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -261,7 +261,7 @@ class AzureRMPipeline(AzureRMModuleBase):
                 type='list'
             ),
             folder=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -454,7 +454,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

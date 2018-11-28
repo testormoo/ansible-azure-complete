@@ -135,7 +135,7 @@ class AzureRMDscCompilationJob(AzureRMModuleBase):
                 required=True
             ),
             configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -344,7 +344,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

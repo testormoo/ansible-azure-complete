@@ -789,7 +789,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                 type='str'
             ),
             host_identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     qualifier=dict(
                         type='str'
@@ -800,7 +800,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                 )
             ),
             guest_identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     qualifier=dict(
                         type='str'
@@ -811,16 +811,16 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                 )
             ),
             content=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     a_s2=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             receive_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -831,7 +831,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -842,7 +842,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             message_connection_settings=dict(
                                                 type='dict'
@@ -870,10 +870,10 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                 )
                             ),
                             send_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -884,7 +884,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -895,7 +895,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             message_connection_settings=dict(
                                                 type='dict'
@@ -925,13 +925,13 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                         )
                     ),
                     x12=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             receive_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -942,7 +942,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -953,7 +953,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             validation_settings=dict(
                                                 type='dict'
@@ -996,10 +996,10 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                 )
                             ),
                             send_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1010,7 +1010,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1021,7 +1021,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             validation_settings=dict(
                                                 type='dict'
@@ -1066,13 +1066,13 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                         )
                     ),
                     edifact=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             receive_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1083,7 +1083,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1094,7 +1094,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             validation_settings=dict(
                                                 type='dict'
@@ -1134,10 +1134,10 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                 )
                             ),
                             send_agreement=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     sender_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1148,7 +1148,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     receiver_business_identity=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             qualifier=dict(
                                                 type='str'
@@ -1159,7 +1159,7 @@ class AzureRMIntegrationAccountAgreement(AzureRMModuleBase):
                                         )
                                     ),
                                     protocol_settings=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             validation_settings=dict(
                                                 type='dict'
@@ -1389,8 +1389,38 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def main():

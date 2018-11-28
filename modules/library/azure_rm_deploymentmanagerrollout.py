@@ -183,7 +183,7 @@ class AzureRMRollout(AzureRMModuleBase):
                 type='str'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str'
@@ -203,7 +203,7 @@ class AzureRMRollout(AzureRMModuleBase):
                 type='str'
             ),
             step_groups=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -212,7 +212,7 @@ class AzureRMRollout(AzureRMModuleBase):
                         type='list'
                     ),
                     pre_deployment_steps=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             step_id=dict(
                                 type='str'
@@ -223,7 +223,7 @@ class AzureRMRollout(AzureRMModuleBase):
                         type='str'
                     ),
                     post_deployment_steps=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             step_id=dict(
                                 type='str'
@@ -412,7 +412,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

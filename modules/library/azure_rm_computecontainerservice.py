@@ -269,7 +269,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 type='str'
             ),
             orchestrator_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     orchestrator_type=dict(
                         type='str',
@@ -281,7 +281,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             custom_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     orchestrator=dict(
                         type='str'
@@ -289,7 +289,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             service_principal_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     client_id=dict(
                         type='str'
@@ -300,7 +300,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             master_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     count=dict(
                         type='int'
@@ -311,7 +311,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             agent_pool_profiles=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -375,7 +375,7 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             windows_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     admin_username=dict(
                         type='str'
@@ -387,16 +387,16 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             linux_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     admin_username=dict(
                         type='str'
                     ),
                     ssh=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             public_keys=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     key_data=dict(
                                         type='str'
@@ -408,10 +408,10 @@ class AzureRMContainerService(AzureRMModuleBase):
                 )
             ),
             diagnostics_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     vm_diagnostics=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             enabled=dict(
                                 type='str'
@@ -608,8 +608,38 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def main():

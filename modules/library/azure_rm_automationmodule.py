@@ -148,13 +148,13 @@ class AzureRMModule(AzureRMModuleBase):
                 required=True
             ),
             content_link=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     uri=dict(
                         type='str'
                     ),
                     content_hash=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             algorithm=dict(
                                 type='str'
@@ -364,7 +364,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

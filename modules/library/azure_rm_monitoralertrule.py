@@ -159,10 +159,10 @@ class AzureRMAlertRule(AzureRMModuleBase):
                 type='str'
             ),
             condition=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     data_source=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             resource_uri=dict(
                                 type='str'
@@ -178,7 +178,7 @@ class AzureRMAlertRule(AzureRMModuleBase):
                 )
             ),
             actions=dict(
-                type='list'
+                type='list',
                 options=dict(
                     odatatype=dict(
                         type='str'
@@ -369,7 +369,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

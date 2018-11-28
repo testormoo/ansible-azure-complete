@@ -224,7 +224,7 @@ class AzureRMLink(AzureRMModuleBase):
                 type='dict'
             ),
             mappings=dict(
-                type='list'
+                type='list',
                 options=dict(
                     source_property_name=dict(
                         type='str'
@@ -240,7 +240,7 @@ class AzureRMLink(AzureRMModuleBase):
                 )
             ),
             participant_property_references=dict(
-                type='list'
+                type='list',
                 options=dict(
                     source_property_name=dict(
                         type='str'
@@ -447,7 +447,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

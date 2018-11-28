@@ -315,7 +315,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                          'data_reader']
             ),
             principals=dict(
-                type='list'
+                type='list',
                 options=dict(
                     principal_id=dict(
                         type='str'
@@ -329,7 +329,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             profiles=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -340,7 +340,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             interactions=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -351,7 +351,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             links=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -362,7 +362,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             kpis=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -373,7 +373,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             sas_policies=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -384,7 +384,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             connectors=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -395,7 +395,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             views=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -406,7 +406,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             relationship_links=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -417,7 +417,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             relationships=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -428,7 +428,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             widget_types=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -439,7 +439,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             role_assignments=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -450,7 +450,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             conflation_policies=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -461,7 +461,7 @@ class AzureRMRoleAssignment(AzureRMModuleBase):
                 )
             ),
             segments=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     elements=dict(
                         type='list'
@@ -657,8 +657,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
 
 
 def main():

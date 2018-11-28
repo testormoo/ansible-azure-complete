@@ -220,13 +220,13 @@ class AzureRMStreamingEndpoint(AzureRMModuleBase):
                 type='str'
             ),
             access_control=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     akamai=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             akamai_signature_header_authentication_key_list=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     identifier=dict(
                                         type='str'
@@ -242,10 +242,10 @@ class AzureRMStreamingEndpoint(AzureRMModuleBase):
                         )
                     ),
                     ip=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             allow=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -278,7 +278,7 @@ class AzureRMStreamingEndpoint(AzureRMModuleBase):
                 type='str'
             ),
             cross_site_access_policies=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     client_access_policy=dict(
                         type='str'
@@ -483,7 +483,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

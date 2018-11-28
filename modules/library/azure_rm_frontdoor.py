@@ -411,13 +411,13 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 type='str'
             ),
             routing_rules=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
                     ),
                     frontend_endpoints=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -440,7 +440,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                                  'match_request']
                     ),
                     cache_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             query_parameter_strip_directive=dict(
                                 type='str',
@@ -453,7 +453,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                         )
                     ),
                     backend_pool=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -478,7 +478,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 )
             ),
             load_balancing_settings=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -507,7 +507,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 )
             ),
             health_probe_settings=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -538,13 +538,13 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 )
             ),
             backend_pools=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
                     ),
                     backends=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             address=dict(
                                 type='str'
@@ -570,7 +570,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                         )
                     ),
                     load_balancing_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -578,7 +578,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                         )
                     ),
                     health_probe_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -600,7 +600,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 )
             ),
             frontend_endpoints=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -615,7 +615,7 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                         type='int'
                     ),
                     web_application_firewall_policy_link=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -856,7 +856,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 
@@ -873,6 +873,42 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

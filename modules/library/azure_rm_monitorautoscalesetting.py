@@ -410,13 +410,13 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                 type='str'
             ),
             profiles=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
                     ),
                     capacity=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             minimum=dict(
                                 type='str'
@@ -430,10 +430,10 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                         )
                     ),
                     rules=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             metric_trigger=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     metric_name=dict(
                                         type='str'
@@ -478,7 +478,7 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                                 )
                             ),
                             scale_action=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     direction=dict(
                                         type='str',
@@ -503,7 +503,7 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                         )
                     ),
                     fixed_date=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             time_zone=dict(
                                 type='str'
@@ -517,7 +517,7 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                         )
                     ),
                     recurrence=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             frequency=dict(
                                 type='str',
@@ -531,7 +531,7 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                                          'year']
                             ),
                             schedule=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     time_zone=dict(
                                         type='str'
@@ -552,13 +552,13 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                 )
             ),
             notifications=dict(
-                type='list'
+                type='list',
                 options=dict(
                     operation=dict(
                         type='str'
                     ),
                     email=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             send_to_subscription_administrator=dict(
                                 type='str'
@@ -572,7 +572,7 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                         )
                     ),
                     webhooks=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             service_uri=dict(
                                 type='str'
@@ -783,8 +783,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
 
 
 def main():

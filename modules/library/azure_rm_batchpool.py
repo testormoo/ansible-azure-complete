@@ -568,10 +568,10 @@ class AzureRMPool(AzureRMModuleBase):
                 type='str'
             ),
             deployment_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     cloud_service_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             os_family=dict(
                                 type='str'
@@ -585,10 +585,10 @@ class AzureRMPool(AzureRMModuleBase):
                         )
                     ),
                     virtual_machine_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             image_reference=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     publisher=dict(
                                         type='str'
@@ -608,7 +608,7 @@ class AzureRMPool(AzureRMModuleBase):
                                 )
                             ),
                             os_disk=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     caching=dict(
                                         type='str',
@@ -622,7 +622,7 @@ class AzureRMPool(AzureRMModuleBase):
                                 type='str'
                             ),
                             windows_configuration=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     enable_automatic_updates=dict(
                                         type='str'
@@ -630,7 +630,7 @@ class AzureRMPool(AzureRMModuleBase):
                                 )
                             ),
                             data_disks=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     lun=dict(
                                         type='int'
@@ -659,10 +659,10 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             scale_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     fixed_scale=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             resize_timeout=dict(
                                 type='str'
@@ -683,7 +683,7 @@ class AzureRMPool(AzureRMModuleBase):
                         )
                     ),
                     auto_scale=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             formula=dict(
                                 type='str'
@@ -699,16 +699,16 @@ class AzureRMPool(AzureRMModuleBase):
                 type='bool'
             ),
             network_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     subnet_id=dict(
                         type='str'
                     ),
                     endpoint_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             inbound_nat_pools=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -728,7 +728,7 @@ class AzureRMPool(AzureRMModuleBase):
                                         type='int'
                                     ),
                                     network_security_group_rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             priority=dict(
                                                 type='int'
@@ -753,7 +753,7 @@ class AzureRMPool(AzureRMModuleBase):
                 type='int'
             ),
             task_scheduling_policy=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     node_fill_type=dict(
                         type='str',
@@ -763,7 +763,7 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             user_accounts=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -778,7 +778,7 @@ class AzureRMPool(AzureRMModuleBase):
                                  'admin']
                     ),
                     linux_user_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             uid=dict(
                                 type='int'
@@ -794,7 +794,7 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             metadata=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -805,13 +805,13 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             start_task=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     command_line=dict(
                         type='str'
                     ),
                     resource_files=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             blob_source=dict(
                                 type='str'
@@ -825,7 +825,7 @@ class AzureRMPool(AzureRMModuleBase):
                         )
                     ),
                     environment_settings=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -836,13 +836,13 @@ class AzureRMPool(AzureRMModuleBase):
                         )
                     ),
                     user_identity=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             user_name=dict(
                                 type='str'
                             ),
                             auto_user=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     scope=dict(
                                         type='str',
@@ -867,7 +867,7 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             certificates=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -886,7 +886,7 @@ class AzureRMPool(AzureRMModuleBase):
                 )
             ),
             application_packages=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -1114,8 +1114,74 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+   if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

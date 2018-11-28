@@ -140,7 +140,7 @@ class AzureRMRegistry(AzureRMModuleBase):
                 type='str'
             ),
             sku=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str',
@@ -155,7 +155,7 @@ class AzureRMRegistry(AzureRMModuleBase):
                 type='str'
             ),
             storage_account=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -352,8 +352,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
 
 
 def dict_resource_id(d, path, **kwargs):

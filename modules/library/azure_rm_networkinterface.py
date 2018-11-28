@@ -1057,7 +1057,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                 type='str'
             ),
             virtual_machine=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -1065,7 +1065,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                 )
             ),
             network_security_group=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -1074,7 +1074,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         type='str'
                     ),
                     security_rules=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1101,7 +1101,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='list'
                             ),
                             source_application_security_groups=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1118,7 +1118,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='list'
                             ),
                             destination_application_security_groups=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1153,7 +1153,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         )
                     ),
                     default_security_rules=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1180,7 +1180,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='list'
                             ),
                             source_application_security_groups=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1197,7 +1197,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='list'
                             ),
                             destination_application_security_groups=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1237,25 +1237,25 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                 )
             ),
             ip_configurations=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
                     ),
                     application_gateway_backend_address_pools=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
                             ),
                             backend_ip_configurations=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
                                     ),
                                     application_gateway_backend_address_pools=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1275,7 +1275,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         )
                                     ),
                                     load_balancer_backend_address_pools=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1286,7 +1286,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         )
                                     ),
                                     load_balancer_inbound_nat_rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1331,7 +1331,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                                  'ipv6']
                                     ),
                                     subnet=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1360,7 +1360,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     public_ip_address=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1399,7 +1399,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         )
                                     ),
                                     application_security_groups=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1415,7 +1415,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 )
                             ),
                             backend_addresses=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     fqdn=dict(
                                         type='str'
@@ -1434,7 +1434,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         )
                     ),
                     load_balancer_backend_address_pools=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1445,13 +1445,13 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         )
                     ),
                     load_balancer_inbound_nat_rules=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
                             ),
                             frontend_ip_configuration=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1495,7 +1495,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                  'ipv6']
                     ),
                     subnet=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1504,7 +1504,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='str'
                             ),
                             network_security_group=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1513,7 +1513,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     security_rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1576,7 +1576,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         )
                                     ),
                                     default_security_rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1644,7 +1644,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 )
                             ),
                             route_table=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1653,7 +1653,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     routes=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1683,7 +1683,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 )
                             ),
                             service_endpoints=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     service=dict(
                                         type='str'
@@ -1694,7 +1694,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 )
                             ),
                             resource_navigation_links=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1719,7 +1719,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         type='str'
                     ),
                     public_ip_address=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1728,7 +1728,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                 type='str'
                             ),
                             sku=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     name=dict(
                                         type='str',
@@ -1748,7 +1748,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                                          'ipv6']
                             ),
                             dns_settings=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     domain_name_label=dict(
                                         type='str'
@@ -1776,7 +1776,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                         )
                     ),
                     application_security_groups=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1792,7 +1792,7 @@ class AzureRMNetworkInterface(AzureRMModuleBase):
                 )
             ),
             dns_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     dns_servers=dict(
                         type='list'
@@ -2068,8 +2068,59 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

@@ -666,7 +666,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 type='str'
             ),
             host_name_ssl_states=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -700,7 +700,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 type='str'
             ),
             site_config=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     number_of_workers=dict(
                         type='int'
@@ -748,7 +748,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         type='str'
                     ),
                     app_settings=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -759,7 +759,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         )
                     ),
                     connection_strings=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -784,7 +784,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         )
                     ),
                     handler_mappings=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             extension=dict(
                                 type='str'
@@ -843,7 +843,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                  'classic']
                     ),
                     virtual_applications=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             virtual_path=dict(
                                 type='str'
@@ -855,7 +855,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                 type='str'
                             ),
                             virtual_directories=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     virtual_path=dict(
                                         type='str'
@@ -876,10 +876,10 @@ class AzureRMWebApp(AzureRMModuleBase):
                                  'request_hash']
                     ),
                     experiments=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             ramp_up_rules=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     action_host_name=dict(
                                         type='str'
@@ -910,7 +910,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         )
                     ),
                     limits=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             max_percentage_cpu=dict(
                                 type='float'
@@ -927,13 +927,13 @@ class AzureRMWebApp(AzureRMModuleBase):
                         type='str'
                     ),
                     auto_heal_rules=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             triggers=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     requests=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             count=dict(
                                                 type='int'
@@ -947,7 +947,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                         type='int'
                                     ),
                                     status_codes=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             status=dict(
                                                 type='int'
@@ -967,7 +967,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                         )
                                     ),
                                     slow_requests=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             time_taken=dict(
                                                 type='str'
@@ -983,7 +983,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                 )
                             ),
                             actions=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     action_type=dict(
                                         type='str',
@@ -992,7 +992,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                                                  'custom_action']
                                     ),
                                     custom_action=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             exe=dict(
                                                 type='str'
@@ -1016,7 +1016,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         type='str'
                     ),
                     cors=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             allowed_origins=dict(
                                 type='list'
@@ -1024,7 +1024,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         )
                     ),
                     push=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             kind=dict(
                                 type='str'
@@ -1044,7 +1044,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         )
                     ),
                     api_definition=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             url=dict(
                                 type='str'
@@ -1058,7 +1058,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         type='str'
                     ),
                     ip_security_restrictions=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             ip_address=dict(
                                 type='str'
@@ -1083,7 +1083,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 type='str'
             ),
             hosting_environment_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -1106,7 +1106,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 type='int'
             ),
             cloning_info=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     correlation_id=dict(
                         type='str'
@@ -1144,7 +1144,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 )
             ),
             snapshot_info=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     kind=dict(
                         type='str'
@@ -1153,7 +1153,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                         type='str'
                     ),
                     recovery_target=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             location=dict(
                                 type='str'
@@ -1178,7 +1178,7 @@ class AzureRMWebApp(AzureRMModuleBase):
                 type='str'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str',
@@ -1380,7 +1380,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 
@@ -1397,6 +1397,42 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

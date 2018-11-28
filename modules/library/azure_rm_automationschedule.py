@@ -198,7 +198,7 @@ class AzureRMSchedule(AzureRMModuleBase):
                 type='str'
             ),
             advanced_schedule=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     week_days=dict(
                         type='list'
@@ -207,7 +207,7 @@ class AzureRMSchedule(AzureRMModuleBase):
                         type='list'
                     ),
                     monthly_occurrences=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             occurrence=dict(
                                 type='int'
@@ -413,7 +413,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

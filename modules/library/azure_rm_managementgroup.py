@@ -121,10 +121,10 @@ class AzureRMManagementGroup(AzureRMModuleBase):
                 type='str'
             ),
             details=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     parent=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -310,7 +310,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

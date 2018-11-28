@@ -364,7 +364,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 required=True
             ),
             template_parameters=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -390,13 +390,13 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 type='str'
             ),
             request=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     description=dict(
                         type='str'
                     ),
                     query_parameters=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -419,7 +419,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                         )
                     ),
                     headers=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -442,7 +442,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                         )
                     ),
                     representations=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             content_type=dict(
                                 type='str'
@@ -457,7 +457,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                                 type='str'
                             ),
                             form_parameters=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -484,7 +484,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                 )
             ),
             responses=dict(
-                type='list'
+                type='list',
                 options=dict(
                     status_code=dict(
                         type='int'
@@ -493,7 +493,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                         type='str'
                     ),
                     representations=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             content_type=dict(
                                 type='str'
@@ -508,7 +508,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                                 type='str'
                             ),
                             form_parameters=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -533,7 +533,7 @@ class AzureRMApiOperation(AzureRMModuleBase):
                         )
                     ),
                     headers=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -762,7 +762,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

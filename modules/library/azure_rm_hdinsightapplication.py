@@ -288,10 +288,10 @@ class AzureRMApplication(AzureRMModuleBase):
                 required=True
             ),
             compute_profile=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     roles=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -303,7 +303,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 type='int'
                             ),
                             hardware_profile=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     vm_size=dict(
                                         type='str'
@@ -311,7 +311,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             os_profile=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     linux_operating_system_profile=dict(
                                         type='dict'
@@ -319,7 +319,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             virtual_network_profile=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -330,7 +330,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             data_disks_groups=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     disks_per_node=dict(
                                         type='int'
@@ -338,7 +338,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             script_actions=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -356,7 +356,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 )
             ),
             install_script_actions=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -373,7 +373,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 )
             ),
             uninstall_script_actions=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -390,7 +390,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 )
             ),
             https_endpoints=dict(
-                type='list'
+                type='list',
                 options=dict(
                     additional_properties=dict(
                         type='dict'
@@ -410,7 +410,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 )
             ),
             ssh_endpoints=dict(
-                type='list'
+                type='list',
                 options=dict(
                     location=dict(
                         type='str'
@@ -427,7 +427,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 type='str'
             ),
             errors=dict(
-                type='list'
+                type='list',
                 options=dict(
                     code=dict(
                         type='str'
@@ -637,8 +637,45 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_expand(d, path, outer_dict_name):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_expand(d[i], path, outer_dict_name)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.pop(path[0], None)
+            if old_value is not None:
+                d[outer_dict_name] = d.get(outer_dict_name, {})
+                d[outer_dict_name] = old_value
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_expand(sd, path[1:], outer_dict_name)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

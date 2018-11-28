@@ -140,7 +140,7 @@ class AzureRMAvailabilitySet(AzureRMModuleBase):
                 type='int'
             ),
             virtual_machines=dict(
-                type='list'
+                type='list',
                 options=dict(
                     id=dict(
                         type='str'
@@ -148,7 +148,7 @@ class AzureRMAvailabilitySet(AzureRMModuleBase):
                 )
             ),
             sku=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
@@ -346,8 +346,29 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

@@ -155,7 +155,7 @@ class AzureRMFactory(AzureRMModuleBase):
                 type='dict'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str'
@@ -163,7 +163,7 @@ class AzureRMFactory(AzureRMModuleBase):
                 )
             ),
             repo_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     account_name=dict(
                         type='str'
@@ -371,7 +371,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

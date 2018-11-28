@@ -181,7 +181,7 @@ class AzureRMAssignment(AzureRMModuleBase):
                 type='str'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str',
@@ -213,7 +213,7 @@ class AzureRMAssignment(AzureRMModuleBase):
                 type='dict'
             ),
             locks=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     mode=dict(
                         type='str',
@@ -405,7 +405,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

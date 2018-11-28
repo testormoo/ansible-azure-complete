@@ -593,7 +593,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 type='str'
             ),
             virtual_network_gateway1=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -602,7 +602,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     ip_configurations=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -613,7 +613,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                          'dynamic']
                             ),
                             subnet=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -621,7 +621,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             public_ip_address=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -650,7 +650,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     gateway_default_site=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -658,7 +658,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     sku=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             name=dict(
                                 type='str',
@@ -686,10 +686,10 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     vpn_client_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             vpn_client_address_pool=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     address_prefixes=dict(
                                         type='list'
@@ -697,7 +697,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             vpn_client_root_certificates=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -711,7 +711,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             vpn_client_revoked_certificates=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -736,7 +736,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     bgp_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             asn=dict(
                                 type='int'
@@ -755,7 +755,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 )
             ),
             virtual_network_gateway2=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -764,7 +764,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     ip_configurations=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -775,7 +775,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                          'dynamic']
                             ),
                             subnet=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -783,7 +783,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             public_ip_address=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -812,7 +812,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     gateway_default_site=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -820,7 +820,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     sku=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             name=dict(
                                 type='str',
@@ -848,10 +848,10 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     vpn_client_configuration=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             vpn_client_address_pool=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     address_prefixes=dict(
                                         type='list'
@@ -859,7 +859,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             vpn_client_root_certificates=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -873,7 +873,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                                 )
                             ),
                             vpn_client_revoked_certificates=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -898,7 +898,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         )
                     ),
                     bgp_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             asn=dict(
                                 type='int'
@@ -917,7 +917,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 )
             ),
             local_network_gateway2=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -926,7 +926,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     local_network_address_space=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             address_prefixes=dict(
                                 type='list'
@@ -937,7 +937,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                         type='str'
                     ),
                     bgp_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             asn=dict(
                                 type='int'
@@ -969,7 +969,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 type='str'
             ),
             peer=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -983,7 +983,7 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 type='str'
             ),
             ipsec_policies=dict(
-                type='list'
+                type='list',
                 options=dict(
                     sa_life_time_seconds=dict(
                         type='int'
@@ -1275,8 +1275,74 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_upper(d, path):
+   if isinstance(d, list):
+        for i in range(len(d)):
+            dict_upper(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = old_value.upper()
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_upper(sd, path[1:])
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

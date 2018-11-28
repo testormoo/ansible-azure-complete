@@ -235,7 +235,7 @@ class AzureRMPrediction(AzureRMModuleBase):
                 type='str'
             ),
             mappings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     score=dict(
                         type='str'
@@ -252,7 +252,7 @@ class AzureRMPrediction(AzureRMModuleBase):
                 type='str'
             ),
             grades=dict(
-                type='list'
+                type='list',
                 options=dict(
                     grade_name=dict(
                         type='str'
@@ -450,7 +450,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

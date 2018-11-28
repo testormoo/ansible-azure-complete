@@ -333,10 +333,10 @@ class AzureRMCluster(AzureRMModuleBase):
                          'lowpriority']
             ),
             scale_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     manual=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             target_node_count=dict(
                                 type='int'
@@ -351,7 +351,7 @@ class AzureRMCluster(AzureRMModuleBase):
                         )
                     ),
                     auto_scale=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             minimum_node_count=dict(
                                 type='int'
@@ -367,10 +367,10 @@ class AzureRMCluster(AzureRMModuleBase):
                 )
             ),
             virtual_machine_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     image_reference=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             publisher=dict(
                                 type='str'
@@ -389,16 +389,16 @@ class AzureRMCluster(AzureRMModuleBase):
                 )
             ),
             node_setup=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     setup_task=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             command_line=dict(
                                 type='str'
                             ),
                             environment_variables=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -417,10 +417,10 @@ class AzureRMCluster(AzureRMModuleBase):
                         )
                     ),
                     mount_volumes=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             azure_file_shares=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     account_name=dict(
                                         type='str'
@@ -429,7 +429,7 @@ class AzureRMCluster(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     credentials=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             account_key=dict(
                                                 type='str'
@@ -451,7 +451,7 @@ class AzureRMCluster(AzureRMModuleBase):
                                 )
                             ),
                             azure_blob_file_systems=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     account_name=dict(
                                         type='str'
@@ -460,7 +460,7 @@ class AzureRMCluster(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     credentials=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             account_key=dict(
                                                 type='str'
@@ -479,10 +479,10 @@ class AzureRMCluster(AzureRMModuleBase):
                                 )
                             ),
                             file_servers=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     file_server=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -501,7 +501,7 @@ class AzureRMCluster(AzureRMModuleBase):
                                 )
                             ),
                             unmanaged_file_systems=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     mount_command=dict(
                                         type='str'
@@ -516,7 +516,7 @@ class AzureRMCluster(AzureRMModuleBase):
                 )
             ),
             user_account_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     admin_user_name=dict(
                         type='str'
@@ -531,7 +531,7 @@ class AzureRMCluster(AzureRMModuleBase):
                 )
             ),
             subnet=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -728,7 +728,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

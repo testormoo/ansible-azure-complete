@@ -164,13 +164,13 @@ class AzureRMFileServer(AzureRMModuleBase):
                 type='str'
             ),
             ssh_configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     public_ips_to_allow=dict(
                         type='list'
                     ),
                     user_account_settings=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             admin_user_name=dict(
                                 type='str'
@@ -187,7 +187,7 @@ class AzureRMFileServer(AzureRMModuleBase):
                 )
             ),
             data_disks=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     disk_size_in_gb=dict(
                         type='int'
@@ -203,7 +203,7 @@ class AzureRMFileServer(AzureRMModuleBase):
                 )
             ),
             subnet=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -400,8 +400,38 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def dict_resource_id(d, path, **kwargs):

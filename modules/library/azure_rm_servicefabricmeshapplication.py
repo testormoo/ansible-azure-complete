@@ -426,7 +426,7 @@ class AzureRMApplication(AzureRMModuleBase):
                 type='str'
             ),
             services=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -437,7 +437,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                  'windows']
                     ),
                     code_packages=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -446,7 +446,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 type='str'
                             ),
                             image_registry_credential=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     server=dict(
                                         type='str'
@@ -467,7 +467,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 type='list'
                             ),
                             environment_variables=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -478,7 +478,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             settings=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -489,7 +489,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             labels=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -500,7 +500,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             endpoints=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -511,10 +511,10 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             resources=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     requests=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             memory_in_gb=dict(
                                                 type='float'
@@ -525,7 +525,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                         )
                                     ),
                                     limits=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             memory_in_gb=dict(
                                                 type='float'
@@ -538,7 +538,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             volume_refs=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -552,7 +552,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             volumes=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -564,7 +564,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     creation_parameters=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             description=dict(
                                                 type='str'
@@ -577,7 +577,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             diagnostics=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     enabled=dict(
                                         type='str'
@@ -588,7 +588,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             reliable_collections_refs=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -601,13 +601,13 @@ class AzureRMApplication(AzureRMModuleBase):
                         )
                     ),
                     network_refs=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
                             ),
                             endpoint_refs=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
@@ -617,7 +617,7 @@ class AzureRMApplication(AzureRMModuleBase):
                         )
                     ),
                     diagnostics=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             enabled=dict(
                                 type='str'
@@ -634,13 +634,13 @@ class AzureRMApplication(AzureRMModuleBase):
                         type='int'
                     ),
                     auto_scaling_policies=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
                             ),
                             trigger=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     kind=dict(
                                         type='str'
@@ -648,7 +648,7 @@ class AzureRMApplication(AzureRMModuleBase):
                                 )
                             ),
                             mechanism=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     kind=dict(
                                         type='str'
@@ -660,10 +660,10 @@ class AzureRMApplication(AzureRMModuleBase):
                 )
             ),
             diagnostics=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     sinks=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -873,8 +873,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
 
 
 def main():

@@ -200,7 +200,7 @@ class AzureRMMetricAlert(AzureRMModuleBase):
                 type='str'
             ),
             criteria=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     additional_properties=dict(
                         type='dict'
@@ -214,7 +214,7 @@ class AzureRMMetricAlert(AzureRMModuleBase):
                 type='str'
             ),
             actions=dict(
-                type='list'
+                type='list',
                 options=dict(
                     action_group_id=dict(
                         type='str'
@@ -408,7 +408,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

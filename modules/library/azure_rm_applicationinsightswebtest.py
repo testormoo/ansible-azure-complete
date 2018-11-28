@@ -201,7 +201,7 @@ class AzureRMWebTest(AzureRMModuleBase):
                 type='str'
             ),
             locations=dict(
-                type='list'
+                type='list',
                 options=dict(
                     location=dict(
                         type='str'
@@ -209,7 +209,7 @@ class AzureRMWebTest(AzureRMModuleBase):
                 )
             ),
             configuration=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     web_test=dict(
                         type='str'
@@ -397,7 +397,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

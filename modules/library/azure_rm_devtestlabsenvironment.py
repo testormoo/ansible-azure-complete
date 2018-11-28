@@ -142,13 +142,13 @@ class AzureRMEnvironment(AzureRMModuleBase):
                 type='str'
             ),
             deployment_properties=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     arm_template_id=dict(
                         type='str'
                     ),
                     parameters=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -352,7 +352,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

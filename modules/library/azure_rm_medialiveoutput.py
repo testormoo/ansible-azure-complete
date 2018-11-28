@@ -157,7 +157,7 @@ class AzureRMLiveOutput(AzureRMModuleBase):
                 type='str'
             ),
             hls=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     fragments_per_ts_segment=dict(
                         type='int'
@@ -359,7 +359,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

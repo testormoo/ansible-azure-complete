@@ -241,7 +241,7 @@ class AzureRMAccount(AzureRMModuleBase):
                 type='str'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str'
@@ -252,7 +252,7 @@ class AzureRMAccount(AzureRMModuleBase):
                 type='str'
             ),
             encryption_config=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     type=dict(
                         type='str',
@@ -260,7 +260,7 @@ class AzureRMAccount(AzureRMModuleBase):
                                  'service_managed']
                     ),
                     key_vault_meta_info=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             key_vault_resource_id=dict(
                                 type='str'
@@ -279,7 +279,7 @@ class AzureRMAccount(AzureRMModuleBase):
                 type='bool'
             ),
             firewall_rules=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -293,7 +293,7 @@ class AzureRMAccount(AzureRMModuleBase):
                 )
             ),
             virtual_network_rules=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -310,7 +310,7 @@ class AzureRMAccount(AzureRMModuleBase):
                 type='bool'
             ),
             trusted_id_providers=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -530,7 +530,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

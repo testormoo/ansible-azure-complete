@@ -142,7 +142,7 @@ class AzureRMUser(AzureRMModuleBase):
                 type='str'
             ),
             identity=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     principal_name=dict(
                         type='str'
@@ -162,7 +162,7 @@ class AzureRMUser(AzureRMModuleBase):
                 )
             ),
             secret_store=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     key_vault_uri=dict(
                         type='str'
@@ -357,7 +357,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

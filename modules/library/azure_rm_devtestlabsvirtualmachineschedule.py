@@ -188,7 +188,7 @@ class AzureRMVirtualMachineSchedule(AzureRMModuleBase):
                 type='str'
             ),
             weekly_recurrence=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     weekdays=dict(
                         type='list'
@@ -199,7 +199,7 @@ class AzureRMVirtualMachineSchedule(AzureRMModuleBase):
                 )
             ),
             daily_recurrence=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     time=dict(
                         type='str'
@@ -207,7 +207,7 @@ class AzureRMVirtualMachineSchedule(AzureRMModuleBase):
                 )
             ),
             hourly_recurrence=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     minute=dict(
                         type='int'
@@ -218,7 +218,7 @@ class AzureRMVirtualMachineSchedule(AzureRMModuleBase):
                 type='str'
             ),
             notification_settings=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     status=dict(
                         type='bool'
@@ -426,8 +426,23 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
 
 
 def main():

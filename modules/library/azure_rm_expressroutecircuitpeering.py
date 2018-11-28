@@ -784,7 +784,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                 type='int'
             ),
             microsoft_peering_config=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     advertised_public_prefixes=dict(
                         type='list'
@@ -811,7 +811,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                 )
             ),
             stats=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     primarybytes_in=dict(
                         type='int'
@@ -834,7 +834,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                 type='str'
             ),
             route_filter=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     id=dict(
                         type='str'
@@ -843,7 +843,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                         type='str'
                     ),
                     rules=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -868,7 +868,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                         )
                     ),
                     peerings=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -907,7 +907,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 type='int'
                             ),
                             microsoft_peering_config=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     advertised_public_prefixes=dict(
                                         type='list'
@@ -934,7 +934,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 )
                             ),
                             stats=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     primarybytes_in=dict(
                                         type='int'
@@ -957,7 +957,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 type='str'
                             ),
                             route_filter=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -966,7 +966,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     rules=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -991,7 +991,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         )
                                     ),
                                     peerings=dict(
-                                        type='list'
+                                        type='list',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1055,7 +1055,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 )
                             ),
                             ipv6_peering_config=dict(
-                                type='dict'
+                                type='dict',
                                 options=dict(
                                     primary_peer_address_prefix=dict(
                                         type='str'
@@ -1064,7 +1064,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     microsoft_peering_config=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             advertised_public_prefixes=dict(
                                                 type='list'
@@ -1091,7 +1091,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         )
                                     ),
                                     route_filter=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1120,7 +1120,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                 )
             ),
             ipv6_peering_config=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     primary_peer_address_prefix=dict(
                         type='str'
@@ -1129,7 +1129,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                         type='str'
                     ),
                     microsoft_peering_config=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             advertised_public_prefixes=dict(
                                 type='list'
@@ -1156,7 +1156,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                         )
                     ),
                     route_filter=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             id=dict(
                                 type='str'
@@ -1165,7 +1165,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 type='str'
                             ),
                             rules=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1190,7 +1190,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                 )
                             ),
                             peerings=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     id=dict(
                                         type='str'
@@ -1229,7 +1229,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         type='int'
                                     ),
                                     microsoft_peering_config=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             advertised_public_prefixes=dict(
                                                 type='list'
@@ -1256,7 +1256,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         )
                                     ),
                                     stats=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             primarybytes_in=dict(
                                                 type='int'
@@ -1279,7 +1279,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         type='str'
                                     ),
                                     route_filter=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             id=dict(
                                                 type='str'
@@ -1296,7 +1296,7 @@ class AzureRMExpressRouteCircuitPeering(AzureRMModuleBase):
                                         )
                                     ),
                                     ipv6_peering_config=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             primary_peer_address_prefix=dict(
                                                 type='str'
@@ -1547,8 +1547,59 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
+
+
+def dict_camelize(d, path, camelize_first):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_camelize(d[i], path, camelize_first)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_camelize(sd, path[1:], camelize_first)
+
+
+def dict_map(d, path, map):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_map(d[i], path, map)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                d[path[0]] = map.get(old_value, old_value)
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_map(sd, path[1:], map)
+
+
+def dict_resource_id(d, path, **kwargs):
+    if isinstance(d, list):
+        for i in range(len(d)):
+            dict_resource_id(d[i], path)
+    elif isinstance(d, dict):
+        if len(path) == 1:
+            old_value = d.get(path[0], None)
+            if old_value is not None:
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
+        else:
+            sd = d.get(path[0], None)
+            if sd is not None:
+                dict_resource_id(sd, path[1:])
 
 
 def main():

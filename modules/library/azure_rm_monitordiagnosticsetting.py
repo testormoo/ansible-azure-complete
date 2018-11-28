@@ -191,7 +191,7 @@ class AzureRMDiagnosticSetting(AzureRMModuleBase):
                 type='str'
             ),
             metrics=dict(
-                type='list'
+                type='list',
                 options=dict(
                     time_grain=dict(
                         type='str'
@@ -203,7 +203,7 @@ class AzureRMDiagnosticSetting(AzureRMModuleBase):
                         type='str'
                     ),
                     retention_policy=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             enabled=dict(
                                 type='str'
@@ -216,7 +216,7 @@ class AzureRMDiagnosticSetting(AzureRMModuleBase):
                 )
             ),
             logs=dict(
-                type='list'
+                type='list',
                 options=dict(
                     category=dict(
                         type='str'
@@ -225,7 +225,7 @@ class AzureRMDiagnosticSetting(AzureRMModuleBase):
                         type='str'
                     ),
                     retention_policy=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             enabled=dict(
                                 type='str'
@@ -423,7 +423,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 

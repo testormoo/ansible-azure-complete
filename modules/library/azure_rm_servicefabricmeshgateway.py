@@ -273,13 +273,13 @@ class AzureRMGateway(AzureRMModuleBase):
                 type='str'
             ),
             source_network=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
                     ),
                     endpoint_refs=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -289,13 +289,13 @@ class AzureRMGateway(AzureRMModuleBase):
                 )
             ),
             destination_network=dict(
-                type='dict'
+                type='dict',
                 options=dict(
                     name=dict(
                         type='str'
                     ),
                     endpoint_refs=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
@@ -305,7 +305,7 @@ class AzureRMGateway(AzureRMModuleBase):
                 )
             ),
             tcp=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -314,7 +314,7 @@ class AzureRMGateway(AzureRMModuleBase):
                         type='int'
                     ),
                     destination=dict(
-                        type='dict'
+                        type='dict',
                         options=dict(
                             application_name=dict(
                                 type='str'
@@ -330,7 +330,7 @@ class AzureRMGateway(AzureRMModuleBase):
                 )
             ),
             http=dict(
-                type='list'
+                type='list',
                 options=dict(
                     name=dict(
                         type='str'
@@ -339,19 +339,19 @@ class AzureRMGateway(AzureRMModuleBase):
                         type='int'
                     ),
                     hosts=dict(
-                        type='list'
+                        type='list',
                         options=dict(
                             name=dict(
                                 type='str'
                             ),
                             routes=dict(
-                                type='list'
+                                type='list',
                                 options=dict(
                                     name=dict(
                                         type='str'
                                     ),
                                     match=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             path=dict(
                                                 type='dict'
@@ -362,7 +362,7 @@ class AzureRMGateway(AzureRMModuleBase):
                                         )
                                     ),
                                     destination=dict(
-                                        type='dict'
+                                        type='dict',
                                         options=dict(
                                             application_name=dict(
                                                 type='str'
@@ -566,7 +566,7 @@ def default_compare(new, old, path, result):
         if new == old:
             return True
         else:
-            result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
+            result['compare'] = 'changed [' + path + '] ' + str(new) + ' != ' + str(old)
             return False
 
 
