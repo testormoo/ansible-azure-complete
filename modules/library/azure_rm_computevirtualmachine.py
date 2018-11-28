@@ -771,6 +771,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -805,33 +806,572 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
             ),
             plan=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    publisher=dict(
+                        type='str'
+                    ),
+                    product=dict(
+                        type='str'
+                    ),
+                    promotion_code=dict(
+                        type='str'
+                    )
+                )
             ),
             hardware_profile=dict(
                 type='dict'
+                options=dict(
+                    vm_size=dict(
+                        type='str',
+                        choices=['basic_a0',
+                                 'basic_a1',
+                                 'basic_a2',
+                                 'basic_a3',
+                                 'basic_a4',
+                                 'standard_a0',
+                                 'standard_a1',
+                                 'standard_a2',
+                                 'standard_a3',
+                                 'standard_a4',
+                                 'standard_a5',
+                                 'standard_a6',
+                                 'standard_a7',
+                                 'standard_a8',
+                                 'standard_a9',
+                                 'standard_a10',
+                                 'standard_a11',
+                                 'standard_a1_v2',
+                                 'standard_a2_v2',
+                                 'standard_a4_v2',
+                                 'standard_a8_v2',
+                                 'standard_a2m_v2',
+                                 'standard_a4m_v2',
+                                 'standard_a8m_v2',
+                                 'standard_b1s',
+                                 'standard_b1ms',
+                                 'standard_b2s',
+                                 'standard_b2ms',
+                                 'standard_b4ms',
+                                 'standard_b8ms',
+                                 'standard_d1',
+                                 'standard_d2',
+                                 'standard_d3',
+                                 'standard_d4',
+                                 'standard_d11',
+                                 'standard_d12',
+                                 'standard_d13',
+                                 'standard_d14',
+                                 'standard_d1_v2',
+                                 'standard_d2_v2',
+                                 'standard_d3_v2',
+                                 'standard_d4_v2',
+                                 'standard_d5_v2',
+                                 'standard_d2_v3',
+                                 'standard_d4_v3',
+                                 'standard_d8_v3',
+                                 'standard_d16_v3',
+                                 'standard_d32_v3',
+                                 'standard_d64_v3',
+                                 'standard_d2s_v3',
+                                 'standard_d4s_v3',
+                                 'standard_d8s_v3',
+                                 'standard_d16s_v3',
+                                 'standard_d32s_v3',
+                                 'standard_d64s_v3',
+                                 'standard_d11_v2',
+                                 'standard_d12_v2',
+                                 'standard_d13_v2',
+                                 'standard_d14_v2',
+                                 'standard_d15_v2',
+                                 'standard_ds1',
+                                 'standard_ds2',
+                                 'standard_ds3',
+                                 'standard_ds4',
+                                 'standard_ds11',
+                                 'standard_ds12',
+                                 'standard_ds13',
+                                 'standard_ds14',
+                                 'standard_ds1_v2',
+                                 'standard_ds2_v2',
+                                 'standard_ds3_v2',
+                                 'standard_ds4_v2',
+                                 'standard_ds5_v2',
+                                 'standard_ds11_v2',
+                                 'standard_ds12_v2',
+                                 'standard_ds13_v2',
+                                 'standard_ds14_v2',
+                                 'standard_ds15_v2',
+                                 'standard_ds13-4_v2',
+                                 'standard_ds13-2_v2',
+                                 'standard_ds14-8_v2',
+                                 'standard_ds14-4_v2',
+                                 'standard_e2_v3',
+                                 'standard_e4_v3',
+                                 'standard_e8_v3',
+                                 'standard_e16_v3',
+                                 'standard_e32_v3',
+                                 'standard_e64_v3',
+                                 'standard_e2s_v3',
+                                 'standard_e4s_v3',
+                                 'standard_e8s_v3',
+                                 'standard_e16s_v3',
+                                 'standard_e32s_v3',
+                                 'standard_e64s_v3',
+                                 'standard_e32-16_v3',
+                                 'standard_e32-8s_v3',
+                                 'standard_e64-32s_v3',
+                                 'standard_e64-16s_v3',
+                                 'standard_f1',
+                                 'standard_f2',
+                                 'standard_f4',
+                                 'standard_f8',
+                                 'standard_f16',
+                                 'standard_f1s',
+                                 'standard_f2s',
+                                 'standard_f4s',
+                                 'standard_f8s',
+                                 'standard_f16s',
+                                 'standard_f2s_v2',
+                                 'standard_f4s_v2',
+                                 'standard_f8s_v2',
+                                 'standard_f16s_v2',
+                                 'standard_f32s_v2',
+                                 'standard_f64s_v2',
+                                 'standard_f72s_v2',
+                                 'standard_g1',
+                                 'standard_g2',
+                                 'standard_g3',
+                                 'standard_g4',
+                                 'standard_g5',
+                                 'standard_gs1',
+                                 'standard_gs2',
+                                 'standard_gs3',
+                                 'standard_gs4',
+                                 'standard_gs5',
+                                 'standard_gs4-8',
+                                 'standard_gs4-4',
+                                 'standard_gs5-16',
+                                 'standard_gs5-8',
+                                 'standard_h8',
+                                 'standard_h16',
+                                 'standard_h8m',
+                                 'standard_h16m',
+                                 'standard_h16r',
+                                 'standard_h16mr',
+                                 'standard_l4s',
+                                 'standard_l8s',
+                                 'standard_l16s',
+                                 'standard_l32s',
+                                 'standard_m64s',
+                                 'standard_m64ms',
+                                 'standard_m128s',
+                                 'standard_m128ms',
+                                 'standard_m64-32ms',
+                                 'standard_m64-16ms',
+                                 'standard_m128-64ms',
+                                 'standard_m128-32ms',
+                                 'standard_nc6',
+                                 'standard_nc12',
+                                 'standard_nc24',
+                                 'standard_nc24r',
+                                 'standard_nc6s_v2',
+                                 'standard_nc12s_v2',
+                                 'standard_nc24s_v2',
+                                 'standard_nc24rs_v2',
+                                 'standard_nc6s_v3',
+                                 'standard_nc12s_v3',
+                                 'standard_nc24s_v3',
+                                 'standard_nc24rs_v3',
+                                 'standard_nd6s',
+                                 'standard_nd12s',
+                                 'standard_nd24s',
+                                 'standard_nd24rs',
+                                 'standard_nv6',
+                                 'standard_nv12',
+                                 'standard_nv24']
+                    )
+                )
             ),
             storage_profile=dict(
                 type='dict'
+                options=dict(
+                    image_reference=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            publisher=dict(
+                                type='str'
+                            ),
+                            offer=dict(
+                                type='str'
+                            ),
+                            sku=dict(
+                                type='str'
+                            ),
+                            version=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    os_disk=dict(
+                        type='dict'
+                        options=dict(
+                            os_type=dict(
+                                type='str',
+                                choices=['windows',
+                                         'linux']
+                            ),
+                            encryption_settings=dict(
+                                type='dict'
+                                options=dict(
+                                    disk_encryption_key=dict(
+                                        type='dict'
+                                        options=dict(
+                                            secret_url=dict(
+                                                type='str'
+                                            ),
+                                            source_vault=dict(
+                                                type='dict'
+                                            )
+                                        )
+                                    ),
+                                    key_encryption_key=dict(
+                                        type='dict'
+                                        options=dict(
+                                            key_url=dict(
+                                                type='str'
+                                            ),
+                                            source_vault=dict(
+                                                type='dict'
+                                            )
+                                        )
+                                    ),
+                                    enabled=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            name=dict(
+                                type='str'
+                            ),
+                            vhd=dict(
+                                type='dict'
+                                options=dict(
+                                    uri=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            image=dict(
+                                type='dict'
+                                options=dict(
+                                    uri=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            caching=dict(
+                                type='str',
+                                choices=['none',
+                                         'read_only',
+                                         'read_write']
+                            ),
+                            write_accelerator_enabled=dict(
+                                type='str'
+                            ),
+                            diff_disk_settings=dict(
+                                type='dict'
+                                options=dict(
+                                    option=dict(
+                                        type='str',
+                                        choices=['local']
+                                    )
+                                )
+                            ),
+                            create_option=dict(
+                                type='str',
+                                choices=['from_image',
+                                         'empty',
+                                         'attach']
+                            ),
+                            disk_size_gb=dict(
+                                type='int'
+                            ),
+                            managed_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    storage_account_type=dict(
+                                        type='str',
+                                        choices=['standard_lrs',
+                                                 'premium_lrs',
+                                                 'standard_ssd_lrs',
+                                                 'ultra_ssd_lrs']
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    data_disks=dict(
+                        type='list'
+                        options=dict(
+                            lun=dict(
+                                type='int'
+                            ),
+                            name=dict(
+                                type='str'
+                            ),
+                            vhd=dict(
+                                type='dict'
+                                options=dict(
+                                    uri=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            image=dict(
+                                type='dict'
+                                options=dict(
+                                    uri=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            caching=dict(
+                                type='str',
+                                choices=['none',
+                                         'read_only',
+                                         'read_write']
+                            ),
+                            write_accelerator_enabled=dict(
+                                type='str'
+                            ),
+                            create_option=dict(
+                                type='str',
+                                choices=['from_image',
+                                         'empty',
+                                         'attach']
+                            ),
+                            disk_size_gb=dict(
+                                type='int'
+                            ),
+                            managed_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    storage_account_type=dict(
+                                        type='str',
+                                        choices=['standard_lrs',
+                                                 'premium_lrs',
+                                                 'standard_ssd_lrs',
+                                                 'ultra_ssd_lrs']
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             additional_capabilities=dict(
                 type='dict'
+                options=dict(
+                    ultra_ssd_enabled=dict(
+                        type='str'
+                    )
+                )
             ),
             os_profile=dict(
                 type='dict'
+                options=dict(
+                    computer_name=dict(
+                        type='str'
+                    ),
+                    admin_username=dict(
+                        type='str'
+                    ),
+                    admin_password=dict(
+                        type='str',
+                        no_log=True
+                    ),
+                    custom_data=dict(
+                        type='str'
+                    ),
+                    windows_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            provision_vm_agent=dict(
+                                type='str'
+                            ),
+                            enable_automatic_updates=dict(
+                                type='str'
+                            ),
+                            time_zone=dict(
+                                type='str'
+                            ),
+                            additional_unattend_content=dict(
+                                type='list'
+                                options=dict(
+                                    pass_name=dict(
+                                        type='str',
+                                        choices=['oobe_system']
+                                    ),
+                                    component_name=dict(
+                                        type='str',
+                                        choices=['microsoft-_windows-_shell-_setup']
+                                    ),
+                                    setting_name=dict(
+                                        type='str',
+                                        choices=['auto_logon',
+                                                 'first_logon_commands']
+                                    ),
+                                    content=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            win_rm=dict(
+                                type='dict'
+                                options=dict(
+                                    listeners=dict(
+                                        type='list'
+                                        options=dict(
+                                            protocol=dict(
+                                                type='str',
+                                                choices=['http',
+                                                         'https']
+                                            ),
+                                            certificate_url=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    linux_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            disable_password_authentication=dict(
+                                type='str',
+                                no_log=True
+                            ),
+                            ssh=dict(
+                                type='dict'
+                                options=dict(
+                                    public_keys=dict(
+                                        type='list'
+                                        options=dict(
+                                            path=dict(
+                                                type='str'
+                                            ),
+                                            key_data=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            provision_vm_agent=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    secrets=dict(
+                        type='list'
+                        options=dict(
+                            source_vault=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            vault_certificates=dict(
+                                type='list'
+                                options=dict(
+                                    certificate_url=dict(
+                                        type='str'
+                                    ),
+                                    certificate_store=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    allow_extension_operations=dict(
+                        type='str'
+                    )
+                )
             ),
             network_profile=dict(
                 type='dict'
+                options=dict(
+                    network_interfaces=dict(
+                        type='list'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            primary=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             diagnostics_profile=dict(
                 type='dict'
+                options=dict(
+                    boot_diagnostics=dict(
+                        type='dict'
+                        options=dict(
+                            enabled=dict(
+                                type='str'
+                            ),
+                            storage_uri=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             availability_set=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             license_type=dict(
                 type='str'
             ),
             identity=dict(
                 type='dict'
+                options=dict(
+                    type=dict(
+                        type='str',
+                        choices=['system_assigned',
+                                 'user_assigned',
+                                 'system_assigned, _user_assigned',
+                                 'none']
+                    ),
+                    user_assigned_identities=dict(
+                        type='dict'
+                    )
+                )
             ),
             zones=dict(
                 type='list'
@@ -867,14 +1407,17 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
 
         dict_camelize(self.parameters, ['hardware_profile', 'vm_size'], True)
         dict_map(self.parameters, ['hardware_profile', 'vm_size'], {'basic_a0': 'Basic_A0', 'basic_a1': 'Basic_A1', 'basic_a2': 'Basic_A2', 'basic_a3': 'Basic_A3', 'basic_a4': 'Basic_A4', 'standard_a0': 'Standard_A0', 'standard_a1': 'Standard_A1', 'standard_a2': 'Standard_A2', 'standard_a3': 'Standard_A3', 'standard_a4': 'Standard_A4', 'standard_a5': 'Standard_A5', 'standard_a6': 'Standard_A6', 'standard_a7': 'Standard_A7', 'standard_a8': 'Standard_A8', 'standard_a9': 'Standard_A9', 'standard_a10': 'Standard_A10', 'standard_a11': 'Standard_A11', 'standard_a1_v2': 'Standard_A1_v2', 'standard_a2_v2': 'Standard_A2_v2', 'standard_a4_v2': 'Standard_A4_v2', 'standard_a8_v2': 'Standard_A8_v2', 'standard_a2m_v2': 'Standard_A2m_v2', 'standard_a4m_v2': 'Standard_A4m_v2', 'standard_a8m_v2': 'Standard_A8m_v2', 'standard_b1s': 'Standard_B1s', 'standard_b1ms': 'Standard_B1ms', 'standard_b2s': 'Standard_B2s', 'standard_b2ms': 'Standard_B2ms', 'standard_b4ms': 'Standard_B4ms', 'standard_b8ms': 'Standard_B8ms', 'standard_d1': 'Standard_D1', 'standard_d2': 'Standard_D2', 'standard_d3': 'Standard_D3', 'standard_d4': 'Standard_D4', 'standard_d11': 'Standard_D11', 'standard_d12': 'Standard_D12', 'standard_d13': 'Standard_D13', 'standard_d14': 'Standard_D14', 'standard_d1_v2': 'Standard_D1_v2', 'standard_d2_v2': 'Standard_D2_v2', 'standard_d3_v2': 'Standard_D3_v2', 'standard_d4_v2': 'Standard_D4_v2', 'standard_d5_v2': 'Standard_D5_v2', 'standard_d2_v3': 'Standard_D2_v3', 'standard_d4_v3': 'Standard_D4_v3', 'standard_d8_v3': 'Standard_D8_v3', 'standard_d16_v3': 'Standard_D16_v3', 'standard_d32_v3': 'Standard_D32_v3', 'standard_d64_v3': 'Standard_D64_v3', 'standard_d2s_v3': 'Standard_D2s_v3', 'standard_d4s_v3': 'Standard_D4s_v3', 'standard_d8s_v3': 'Standard_D8s_v3', 'standard_d16s_v3': 'Standard_D16s_v3', 'standard_d32s_v3': 'Standard_D32s_v3', 'standard_d64s_v3': 'Standard_D64s_v3', 'standard_d11_v2': 'Standard_D11_v2', 'standard_d12_v2': 'Standard_D12_v2', 'standard_d13_v2': 'Standard_D13_v2', 'standard_d14_v2': 'Standard_D14_v2', 'standard_d15_v2': 'Standard_D15_v2', 'standard_ds1': 'Standard_DS1', 'standard_ds2': 'Standard_DS2', 'standard_ds3': 'Standard_DS3', 'standard_ds4': 'Standard_DS4', 'standard_ds11': 'Standard_DS11', 'standard_ds12': 'Standard_DS12', 'standard_ds13': 'Standard_DS13', 'standard_ds14': 'Standard_DS14', 'standard_ds1_v2': 'Standard_DS1_v2', 'standard_ds2_v2': 'Standard_DS2_v2', 'standard_ds3_v2': 'Standard_DS3_v2', 'standard_ds4_v2': 'Standard_DS4_v2', 'standard_ds5_v2': 'Standard_DS5_v2', 'standard_ds11_v2': 'Standard_DS11_v2', 'standard_ds12_v2': 'Standard_DS12_v2', 'standard_ds13_v2': 'Standard_DS13_v2', 'standard_ds14_v2': 'Standard_DS14_v2', 'standard_ds15_v2': 'Standard_DS15_v2', 'standard_ds13-4_v2': 'Standard_DS13-4_v2', 'standard_ds13-2_v2': 'Standard_DS13-2_v2', 'standard_ds14-8_v2': 'Standard_DS14-8_v2', 'standard_ds14-4_v2': 'Standard_DS14-4_v2', 'standard_e2_v3': 'Standard_E2_v3', 'standard_e4_v3': 'Standard_E4_v3', 'standard_e8_v3': 'Standard_E8_v3', 'standard_e16_v3': 'Standard_E16_v3', 'standard_e32_v3': 'Standard_E32_v3', 'standard_e64_v3': 'Standard_E64_v3', 'standard_e2s_v3': 'Standard_E2s_v3', 'standard_e4s_v3': 'Standard_E4s_v3', 'standard_e8s_v3': 'Standard_E8s_v3', 'standard_e16s_v3': 'Standard_E16s_v3', 'standard_e32s_v3': 'Standard_E32s_v3', 'standard_e64s_v3': 'Standard_E64s_v3', 'standard_e32-16_v3': 'Standard_E32-16_v3', 'standard_e32-8s_v3': 'Standard_E32-8s_v3', 'standard_e64-32s_v3': 'Standard_E64-32s_v3', 'standard_e64-16s_v3': 'Standard_E64-16s_v3', 'standard_f1': 'Standard_F1', 'standard_f2': 'Standard_F2', 'standard_f4': 'Standard_F4', 'standard_f8': 'Standard_F8', 'standard_f16': 'Standard_F16', 'standard_f1s': 'Standard_F1s', 'standard_f2s': 'Standard_F2s', 'standard_f4s': 'Standard_F4s', 'standard_f8s': 'Standard_F8s', 'standard_f16s': 'Standard_F16s', 'standard_f2s_v2': 'Standard_F2s_v2', 'standard_f4s_v2': 'Standard_F4s_v2', 'standard_f8s_v2': 'Standard_F8s_v2', 'standard_f16s_v2': 'Standard_F16s_v2', 'standard_f32s_v2': 'Standard_F32s_v2', 'standard_f64s_v2': 'Standard_F64s_v2', 'standard_f72s_v2': 'Standard_F72s_v2', 'standard_g1': 'Standard_G1', 'standard_g2': 'Standard_G2', 'standard_g3': 'Standard_G3', 'standard_g4': 'Standard_G4', 'standard_g5': 'Standard_G5', 'standard_gs1': 'Standard_GS1', 'standard_gs2': 'Standard_GS2', 'standard_gs3': 'Standard_GS3', 'standard_gs4': 'Standard_GS4', 'standard_gs5': 'Standard_GS5', 'standard_gs4-8': 'Standard_GS4-8', 'standard_gs4-4': 'Standard_GS4-4', 'standard_gs5-16': 'Standard_GS5-16', 'standard_gs5-8': 'Standard_GS5-8', 'standard_h8': 'Standard_H8', 'standard_h16': 'Standard_H16', 'standard_h8m': 'Standard_H8m', 'standard_h16m': 'Standard_H16m', 'standard_h16r': 'Standard_H16r', 'standard_h16mr': 'Standard_H16mr', 'standard_l4s': 'Standard_L4s', 'standard_l8s': 'Standard_L8s', 'standard_l16s': 'Standard_L16s', 'standard_l32s': 'Standard_L32s', 'standard_m64s': 'Standard_M64s', 'standard_m64ms': 'Standard_M64ms', 'standard_m128s': 'Standard_M128s', 'standard_m128ms': 'Standard_M128ms', 'standard_m64-32ms': 'Standard_M64-32ms', 'standard_m64-16ms': 'Standard_M64-16ms', 'standard_m128-64ms': 'Standard_M128-64ms', 'standard_m128-32ms': 'Standard_M128-32ms', 'standard_nc6': 'Standard_NC6', 'standard_nc12': 'Standard_NC12', 'standard_nc24': 'Standard_NC24', 'standard_nc24r': 'Standard_NC24r', 'standard_nc6s_v2': 'Standard_NC6s_v2', 'standard_nc12s_v2': 'Standard_NC12s_v2', 'standard_nc24s_v2': 'Standard_NC24s_v2', 'standard_nc24rs_v2': 'Standard_NC24rs_v2', 'standard_nc6s_v3': 'Standard_NC6s_v3', 'standard_nc12s_v3': 'Standard_NC12s_v3', 'standard_nc24s_v3': 'Standard_NC24s_v3', 'standard_nc24rs_v3': 'Standard_NC24rs_v3', 'standard_nd6s': 'Standard_ND6s', 'standard_nd12s': 'Standard_ND12s', 'standard_nd24s': 'Standard_ND24s', 'standard_nd24rs': 'Standard_ND24rs', 'standard_nv6': 'Standard_NV6', 'standard_nv12': 'Standard_NV12', 'standard_nv24': 'Standard_NV24'})
+        dict_resource_id(self.parameters, ['storage_profile', 'image_reference', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'os_type'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'diff_disk_settings', 'option'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'create_option'], True)
+        dict_resource_id(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'storage_account_type'], True)
         dict_map(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'create_option'], True)
+        dict_resource_id(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], True)
         dict_map(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
         dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'pass_name'], True)
@@ -882,6 +1425,9 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
         dict_map(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'component_name'], {'microsoft-_windows-_shell-_setup': 'Microsoft-Windows-Shell-Setup'})
         dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'additional_unattend_content', 'setting_name'], True)
         dict_camelize(self.parameters, ['os_profile', 'windows_configuration', 'win_rm', 'listeners', 'protocol'], True)
+        dict_resource_id(self.parameters, ['os_profile', 'secrets', 'source_vault', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['network_profile', 'network_interfaces', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['availability_set', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['identity', 'type'], True)
         dict_map(self.parameters, ['identity', 'type'], {'system_assigned, _user_assigned': 'SystemAssigned, UserAssigned'})
 
@@ -930,17 +1476,18 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
                 return self.results
 
             self.delete_virtualmachine()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_virtualmachine():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Virtual Machine instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_virtualmachine(self):
@@ -1000,12 +1547,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -1046,89 +1587,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

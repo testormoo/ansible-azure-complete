@@ -550,6 +550,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -587,9 +588,428 @@ class AzureRMRouteFilter(AzureRMModuleBase):
             ),
             rules=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    access=dict(
+                        type='str',
+                        choices=['allow',
+                                 'deny']
+                    ),
+                    route_filter_rule_type=dict(
+                        type='str'
+                    ),
+                    communities=dict(
+                        type='list'
+                    ),
+                    name=dict(
+                        type='str'
+                    ),
+                    location=dict(
+                        type='str'
+                    )
+                )
             ),
             peerings=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    peering_type=dict(
+                        type='str',
+                        choices=['azure_public_peering',
+                                 'azure_private_peering',
+                                 'microsoft_peering']
+                    ),
+                    state=dict(
+                        type='bool'
+                    ),
+                    azure_asn=dict(
+                        type='int'
+                    ),
+                    peer_asn=dict(
+                        type='int'
+                    ),
+                    primary_peer_address_prefix=dict(
+                        type='str'
+                    ),
+                    secondary_peer_address_prefix=dict(
+                        type='str'
+                    ),
+                    primary_azure_port=dict(
+                        type='str'
+                    ),
+                    secondary_azure_port=dict(
+                        type='str'
+                    ),
+                    shared_key=dict(
+                        type='str'
+                    ),
+                    vlan_id=dict(
+                        type='int'
+                    ),
+                    microsoft_peering_config=dict(
+                        type='dict'
+                        options=dict(
+                            advertised_public_prefixes=dict(
+                                type='list'
+                            ),
+                            advertised_communities=dict(
+                                type='list'
+                            ),
+                            advertised_public_prefixes_state=dict(
+                                type='str',
+                                choices=['not_configured',
+                                         'configuring',
+                                         'configured',
+                                         'validation_needed']
+                            ),
+                            legacy_mode=dict(
+                                type='int'
+                            ),
+                            customer_asn=dict(
+                                type='int'
+                            ),
+                            routing_registry_name=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    stats=dict(
+                        type='dict'
+                        options=dict(
+                            primarybytes_in=dict(
+                                type='int'
+                            ),
+                            primarybytes_out=dict(
+                                type='int'
+                            ),
+                            secondarybytes_in=dict(
+                                type='int'
+                            ),
+                            secondarybytes_out=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    gateway_manager_etag=dict(
+                        type='str'
+                    ),
+                    last_modified_by=dict(
+                        type='str'
+                    ),
+                    route_filter=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            location=dict(
+                                type='str'
+                            ),
+                            rules=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    access=dict(
+                                        type='str',
+                                        choices=['allow',
+                                                 'deny']
+                                    ),
+                                    route_filter_rule_type=dict(
+                                        type='str'
+                                    ),
+                                    communities=dict(
+                                        type='list'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    location=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            peerings=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    peering_type=dict(
+                                        type='str',
+                                        choices=['azure_public_peering',
+                                                 'azure_private_peering',
+                                                 'microsoft_peering']
+                                    ),
+                                    state=dict(
+                                        type='bool'
+                                    ),
+                                    azure_asn=dict(
+                                        type='int'
+                                    ),
+                                    peer_asn=dict(
+                                        type='int'
+                                    ),
+                                    primary_peer_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    secondary_peer_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    primary_azure_port=dict(
+                                        type='str'
+                                    ),
+                                    secondary_azure_port=dict(
+                                        type='str'
+                                    ),
+                                    shared_key=dict(
+                                        type='str'
+                                    ),
+                                    vlan_id=dict(
+                                        type='int'
+                                    ),
+                                    microsoft_peering_config=dict(
+                                        type='dict'
+                                        options=dict(
+                                            advertised_public_prefixes=dict(
+                                                type='list'
+                                            ),
+                                            advertised_communities=dict(
+                                                type='list'
+                                            ),
+                                            advertised_public_prefixes_state=dict(
+                                                type='str',
+                                                choices=['not_configured',
+                                                         'configuring',
+                                                         'configured',
+                                                         'validation_needed']
+                                            ),
+                                            legacy_mode=dict(
+                                                type='int'
+                                            ),
+                                            customer_asn=dict(
+                                                type='int'
+                                            ),
+                                            routing_registry_name=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    stats=dict(
+                                        type='dict'
+                                        options=dict(
+                                            primarybytes_in=dict(
+                                                type='int'
+                                            ),
+                                            primarybytes_out=dict(
+                                                type='int'
+                                            ),
+                                            secondarybytes_in=dict(
+                                                type='int'
+                                            ),
+                                            secondarybytes_out=dict(
+                                                type='int'
+                                            )
+                                        )
+                                    ),
+                                    gateway_manager_etag=dict(
+                                        type='str'
+                                    ),
+                                    last_modified_by=dict(
+                                        type='str'
+                                    ),
+                                    route_filter=dict(
+                                        type='dict'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            ),
+                                            rules=dict(
+                                                type='list'
+                                            ),
+                                            peerings=dict(
+                                                type='list'
+                                            )
+                                        )
+                                    ),
+                                    ipv6_peering_config=dict(
+                                        type='dict'
+                                        options=dict(
+                                            primary_peer_address_prefix=dict(
+                                                type='str'
+                                            ),
+                                            secondary_peer_address_prefix=dict(
+                                                type='str'
+                                            ),
+                                            microsoft_peering_config=dict(
+                                                type='dict'
+                                            ),
+                                            route_filter=dict(
+                                                type='dict'
+                                            ),
+                                            state=dict(
+                                                type='bool'
+                                            )
+                                        )
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    ipv6_peering_config=dict(
+                        type='dict'
+                        options=dict(
+                            primary_peer_address_prefix=dict(
+                                type='str'
+                            ),
+                            secondary_peer_address_prefix=dict(
+                                type='str'
+                            ),
+                            microsoft_peering_config=dict(
+                                type='dict'
+                                options=dict(
+                                    advertised_public_prefixes=dict(
+                                        type='list'
+                                    ),
+                                    advertised_communities=dict(
+                                        type='list'
+                                    ),
+                                    advertised_public_prefixes_state=dict(
+                                        type='str',
+                                        choices=['not_configured',
+                                                 'configuring',
+                                                 'configured',
+                                                 'validation_needed']
+                                    ),
+                                    legacy_mode=dict(
+                                        type='int'
+                                    ),
+                                    customer_asn=dict(
+                                        type='int'
+                                    ),
+                                    routing_registry_name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            route_filter=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    location=dict(
+                                        type='str'
+                                    ),
+                                    rules=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            access=dict(
+                                                type='str',
+                                                choices=['allow',
+                                                         'deny']
+                                            ),
+                                            route_filter_rule_type=dict(
+                                                type='str'
+                                            ),
+                                            communities=dict(
+                                                type='list'
+                                            ),
+                                            name=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    peerings=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            peering_type=dict(
+                                                type='str',
+                                                choices=['azure_public_peering',
+                                                         'azure_private_peering',
+                                                         'microsoft_peering']
+                                            ),
+                                            state=dict(
+                                                type='bool'
+                                            ),
+                                            azure_asn=dict(
+                                                type='int'
+                                            ),
+                                            peer_asn=dict(
+                                                type='int'
+                                            ),
+                                            primary_peer_address_prefix=dict(
+                                                type='str'
+                                            ),
+                                            secondary_peer_address_prefix=dict(
+                                                type='str'
+                                            ),
+                                            primary_azure_port=dict(
+                                                type='str'
+                                            ),
+                                            secondary_azure_port=dict(
+                                                type='str'
+                                            ),
+                                            shared_key=dict(
+                                                type='str'
+                                            ),
+                                            vlan_id=dict(
+                                                type='int'
+                                            ),
+                                            microsoft_peering_config=dict(
+                                                type='dict'
+                                            ),
+                                            stats=dict(
+                                                type='dict'
+                                            ),
+                                            gateway_manager_etag=dict(
+                                                type='str'
+                                            ),
+                                            last_modified_by=dict(
+                                                type='str'
+                                            ),
+                                            route_filter=dict(
+                                                type='dict'
+                                            ),
+                                            ipv6_peering_config=dict(
+                                                type='dict'
+                                            ),
+                                            name=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            state=dict(
+                                type='bool'
+                            )
+                        )
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -620,17 +1040,27 @@ class AzureRMRouteFilter(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.route_filter_parameters[key] = kwargs[key]
 
+        dict_resource_id(self.route_filter_parameters, ['id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.route_filter_parameters, ['rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['rules', 'access'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['peerings', 'peering_type'], True)
         dict_map(self.route_filter_parameters, ['peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.route_filter_parameters, ['peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'route_filter', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'route_filter', 'rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['peerings', 'route_filter', 'rules', 'access'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'peering_type'], True)
         dict_map(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'route_filter', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_map(self.route_filter_parameters, ['peerings', 'route_filter', 'peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'microsoft_peering_config', 'advertised_public_prefixes_state'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'rules', 'access'], True)
+        dict_resource_id(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'peering_type'], True)
         dict_map(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'route_filter', 'peerings', 'state'], {True: 'Enabled', False: 'Disabled'})
         dict_map(self.route_filter_parameters, ['peerings', 'ipv6_peering_config', 'state'], {True: 'Enabled', False: 'Disabled'})
@@ -680,17 +1110,18 @@ class AzureRMRouteFilter(AzureRMModuleBase):
                 return self.results
 
             self.delete_routefilter()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_routefilter():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Route Filter instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_routefilter(self):
@@ -750,12 +1181,6 @@ class AzureRMRouteFilter(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -796,89 +1221,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

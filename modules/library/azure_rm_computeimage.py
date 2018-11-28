@@ -200,6 +200,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -234,9 +235,112 @@ class AzureRMImage(AzureRMModuleBase):
             ),
             source_virtual_machine=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             storage_profile=dict(
                 type='dict'
+                options=dict(
+                    os_disk=dict(
+                        type='dict'
+                        options=dict(
+                            os_type=dict(
+                                type='str',
+                                choices=['windows',
+                                         'linux']
+                            ),
+                            os_state=dict(
+                                type='str',
+                                choices=['generalized',
+                                         'specialized']
+                            ),
+                            snapshot=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            managed_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            blob_uri=dict(
+                                type='str'
+                            ),
+                            caching=dict(
+                                type='str',
+                                choices=['none',
+                                         'read_only',
+                                         'read_write']
+                            ),
+                            disk_size_gb=dict(
+                                type='int'
+                            ),
+                            storage_account_type=dict(
+                                type='str',
+                                choices=['standard_lrs',
+                                         'premium_lrs',
+                                         'standard_ssd_lrs',
+                                         'ultra_ssd_lrs']
+                            )
+                        )
+                    ),
+                    data_disks=dict(
+                        type='list'
+                        options=dict(
+                            lun=dict(
+                                type='int'
+                            ),
+                            snapshot=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            managed_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            blob_uri=dict(
+                                type='str'
+                            ),
+                            caching=dict(
+                                type='str',
+                                choices=['none',
+                                         'read_only',
+                                         'read_write']
+                            ),
+                            disk_size_gb=dict(
+                                type='int'
+                            ),
+                            storage_account_type=dict(
+                                type='str',
+                                choices=['standard_lrs',
+                                         'premium_lrs',
+                                         'standard_ssd_lrs',
+                                         'ultra_ssd_lrs']
+                            )
+                        )
+                    ),
+                    zone_resilient=dict(
+                        type='str'
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -267,11 +371,16 @@ class AzureRMImage(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['source_virtual_machine', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'os_type'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'os_state'], True)
+        dict_resource_id(self.parameters, ['storage_profile', 'os_disk', 'snapshot', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['storage_profile', 'os_disk', 'managed_disk', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'os_disk', 'storage_account_type'], True)
         dict_map(self.parameters, ['storage_profile', 'os_disk', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
+        dict_resource_id(self.parameters, ['storage_profile', 'data_disks', 'snapshot', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['storage_profile', 'data_disks', 'managed_disk', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'caching'], True)
         dict_camelize(self.parameters, ['storage_profile', 'data_disks', 'storage_account_type'], True)
         dict_map(self.parameters, ['storage_profile', 'data_disks', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
@@ -321,17 +430,18 @@ class AzureRMImage(AzureRMModuleBase):
                 return self.results
 
             self.delete_image()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_image():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Image instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_image(self):
@@ -391,12 +501,6 @@ class AzureRMImage(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -437,89 +541,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

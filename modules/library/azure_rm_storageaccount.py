@@ -254,6 +254,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -285,6 +286,27 @@ class AzureRMStorageAccount(AzureRMModuleBase):
             ),
             sku=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str',
+                        choices=['standard_lrs',
+                                 'standard_grs',
+                                 'standard_ragrs',
+                                 'standard_zrs',
+                                 'premium_lrs',
+                                 'premium_zrs']
+                    ),
+                    restrictions=dict(
+                        type='list'
+                        options=dict(
+                            reason_code=dict(
+                                type='str',
+                                choices=['quota_id',
+                                         'not_available_for_subscription']
+                            )
+                        )
+                    )
+                )
             ),
             kind=dict(
                 type='str',
@@ -299,15 +321,116 @@ class AzureRMStorageAccount(AzureRMModuleBase):
             ),
             identity=dict(
                 type='dict'
+                options=dict(
+                    type=dict(
+                        type='str'
+                    )
+                )
             ),
             custom_domain=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    use_sub_domain=dict(
+                        type='str'
+                    )
+                )
             ),
             encryption=dict(
                 type='dict'
+                options=dict(
+                    services=dict(
+                        type='dict'
+                        options=dict(
+                            blob=dict(
+                                type='dict'
+                                options=dict(
+                                    enabled=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            file=dict(
+                                type='dict'
+                                options=dict(
+                                    enabled=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    key_source=dict(
+                        type='str',
+                        choices=['microsoft._storage',
+                                 'microsoft._keyvault']
+                    ),
+                    key_vault_properties=dict(
+                        type='dict'
+                        options=dict(
+                            key_name=dict(
+                                type='str'
+                            ),
+                            key_version=dict(
+                                type='str'
+                            ),
+                            key_vault_uri=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             network_rule_set=dict(
                 type='dict'
+                options=dict(
+                    bypass=dict(
+                        type='str',
+                        choices=['none',
+                                 'logging',
+                                 'metrics',
+                                 'azure_services']
+                    ),
+                    virtual_network_rules=dict(
+                        type='list'
+                        options=dict(
+                            virtual_network_resource_id=dict(
+                                type='str'
+                            ),
+                            action=dict(
+                                type='str',
+                                choices=['allow']
+                            ),
+                            state=dict(
+                                type='str',
+                                choices=['provisioning',
+                                         'deprovisioning',
+                                         'succeeded',
+                                         'failed',
+                                         'network_source_deleted']
+                            )
+                        )
+                    ),
+                    ip_rules=dict(
+                        type='list'
+                        options=dict(
+                            ip_address_or_range=dict(
+                                type='str'
+                            ),
+                            action=dict(
+                                type='str',
+                                choices=['allow']
+                            )
+                        )
+                    ),
+                    default_action=dict(
+                        type='str',
+                        choices=['allow',
+                                 'deny']
+                    )
+                )
             ),
             access_tier=dict(
                 type='str',
@@ -410,17 +533,18 @@ class AzureRMStorageAccount(AzureRMModuleBase):
                 return self.results
 
             self.delete_storageaccount()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_storageaccount():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Storage Account instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_storageaccount(self):
@@ -484,12 +608,6 @@ class AzureRMStorageAccount(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -530,89 +648,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

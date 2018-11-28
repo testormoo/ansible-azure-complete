@@ -607,6 +607,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -645,9 +646,534 @@ class AzureRMJob(AzureRMModuleBase):
             ),
             action=dict(
                 type='dict'
+                options=dict(
+                    type=dict(
+                        type='str',
+                        choices=['http',
+                                 'https',
+                                 'storage_queue',
+                                 'service_bus_queue',
+                                 'service_bus_topic']
+                    ),
+                    request=dict(
+                        type='dict'
+                        options=dict(
+                            authentication=dict(
+                                type='dict'
+                                options=dict(
+                                    type=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            uri=dict(
+                                type='str'
+                            ),
+                            method=dict(
+                                type='str'
+                            ),
+                            body=dict(
+                                type='str'
+                            ),
+                            headers=dict(
+                                type='dict'
+                            )
+                        )
+                    ),
+                    queue_message=dict(
+                        type='dict'
+                        options=dict(
+                            storage_account=dict(
+                                type='str'
+                            ),
+                            queue_name=dict(
+                                type='str'
+                            ),
+                            sas_token=dict(
+                                type='str'
+                            ),
+                            message=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    service_bus_queue_message=dict(
+                        type='dict'
+                        options=dict(
+                            authentication=dict(
+                                type='dict'
+                                options=dict(
+                                    sas_key=dict(
+                                        type='str'
+                                    ),
+                                    sas_key_name=dict(
+                                        type='str'
+                                    ),
+                                    type=dict(
+                                        type='str',
+                                        choices=['not_specified',
+                                                 'shared_access_key']
+                                    )
+                                )
+                            ),
+                            brokered_message_properties=dict(
+                                type='dict'
+                                options=dict(
+                                    content_type=dict(
+                                        type='str'
+                                    ),
+                                    correlation_id=dict(
+                                        type='str'
+                                    ),
+                                    force_persistence=dict(
+                                        type='str'
+                                    ),
+                                    label=dict(
+                                        type='str'
+                                    ),
+                                    message_id=dict(
+                                        type='str'
+                                    ),
+                                    partition_key=dict(
+                                        type='str'
+                                    ),
+                                    reply_to=dict(
+                                        type='str'
+                                    ),
+                                    reply_to_session_id=dict(
+                                        type='str'
+                                    ),
+                                    scheduled_enqueue_time_utc=dict(
+                                        type='datetime'
+                                    ),
+                                    session_id=dict(
+                                        type='str'
+                                    ),
+                                    time_to_live=dict(
+                                        type='str'
+                                    ),
+                                    to=dict(
+                                        type='str'
+                                    ),
+                                    via_partition_key=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            custom_message_properties=dict(
+                                type='dict'
+                            ),
+                            message=dict(
+                                type='str'
+                            ),
+                            namespace=dict(
+                                type='str'
+                            ),
+                            transport_type=dict(
+                                type='str',
+                                choices=['not_specified',
+                                         'net_messaging',
+                                         'amqp']
+                            ),
+                            queue_name=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    service_bus_topic_message=dict(
+                        type='dict'
+                        options=dict(
+                            authentication=dict(
+                                type='dict'
+                                options=dict(
+                                    sas_key=dict(
+                                        type='str'
+                                    ),
+                                    sas_key_name=dict(
+                                        type='str'
+                                    ),
+                                    type=dict(
+                                        type='str',
+                                        choices=['not_specified',
+                                                 'shared_access_key']
+                                    )
+                                )
+                            ),
+                            brokered_message_properties=dict(
+                                type='dict'
+                                options=dict(
+                                    content_type=dict(
+                                        type='str'
+                                    ),
+                                    correlation_id=dict(
+                                        type='str'
+                                    ),
+                                    force_persistence=dict(
+                                        type='str'
+                                    ),
+                                    label=dict(
+                                        type='str'
+                                    ),
+                                    message_id=dict(
+                                        type='str'
+                                    ),
+                                    partition_key=dict(
+                                        type='str'
+                                    ),
+                                    reply_to=dict(
+                                        type='str'
+                                    ),
+                                    reply_to_session_id=dict(
+                                        type='str'
+                                    ),
+                                    scheduled_enqueue_time_utc=dict(
+                                        type='datetime'
+                                    ),
+                                    session_id=dict(
+                                        type='str'
+                                    ),
+                                    time_to_live=dict(
+                                        type='str'
+                                    ),
+                                    to=dict(
+                                        type='str'
+                                    ),
+                                    via_partition_key=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            custom_message_properties=dict(
+                                type='dict'
+                            ),
+                            message=dict(
+                                type='str'
+                            ),
+                            namespace=dict(
+                                type='str'
+                            ),
+                            transport_type=dict(
+                                type='str',
+                                choices=['not_specified',
+                                         'net_messaging',
+                                         'amqp']
+                            ),
+                            topic_path=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    retry_policy=dict(
+                        type='dict'
+                        options=dict(
+                            retry_type=dict(
+                                type='str',
+                                choices=['none',
+                                         'fixed']
+                            ),
+                            retry_interval=dict(
+                                type='str'
+                            ),
+                            retry_count=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    error_action=dict(
+                        type='dict'
+                        options=dict(
+                            type=dict(
+                                type='str',
+                                choices=['http',
+                                         'https',
+                                         'storage_queue',
+                                         'service_bus_queue',
+                                         'service_bus_topic']
+                            ),
+                            request=dict(
+                                type='dict'
+                                options=dict(
+                                    authentication=dict(
+                                        type='dict'
+                                        options=dict(
+                                            type=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    uri=dict(
+                                        type='str'
+                                    ),
+                                    method=dict(
+                                        type='str'
+                                    ),
+                                    body=dict(
+                                        type='str'
+                                    ),
+                                    headers=dict(
+                                        type='dict'
+                                    )
+                                )
+                            ),
+                            queue_message=dict(
+                                type='dict'
+                                options=dict(
+                                    storage_account=dict(
+                                        type='str'
+                                    ),
+                                    queue_name=dict(
+                                        type='str'
+                                    ),
+                                    sas_token=dict(
+                                        type='str'
+                                    ),
+                                    message=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            service_bus_queue_message=dict(
+                                type='dict'
+                                options=dict(
+                                    authentication=dict(
+                                        type='dict'
+                                        options=dict(
+                                            sas_key=dict(
+                                                type='str'
+                                            ),
+                                            sas_key_name=dict(
+                                                type='str'
+                                            ),
+                                            type=dict(
+                                                type='str',
+                                                choices=['not_specified',
+                                                         'shared_access_key']
+                                            )
+                                        )
+                                    ),
+                                    brokered_message_properties=dict(
+                                        type='dict'
+                                        options=dict(
+                                            content_type=dict(
+                                                type='str'
+                                            ),
+                                            correlation_id=dict(
+                                                type='str'
+                                            ),
+                                            force_persistence=dict(
+                                                type='str'
+                                            ),
+                                            label=dict(
+                                                type='str'
+                                            ),
+                                            message_id=dict(
+                                                type='str'
+                                            ),
+                                            partition_key=dict(
+                                                type='str'
+                                            ),
+                                            reply_to=dict(
+                                                type='str'
+                                            ),
+                                            reply_to_session_id=dict(
+                                                type='str'
+                                            ),
+                                            scheduled_enqueue_time_utc=dict(
+                                                type='datetime'
+                                            ),
+                                            session_id=dict(
+                                                type='str'
+                                            ),
+                                            time_to_live=dict(
+                                                type='str'
+                                            ),
+                                            to=dict(
+                                                type='str'
+                                            ),
+                                            via_partition_key=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    custom_message_properties=dict(
+                                        type='dict'
+                                    ),
+                                    message=dict(
+                                        type='str'
+                                    ),
+                                    namespace=dict(
+                                        type='str'
+                                    ),
+                                    transport_type=dict(
+                                        type='str',
+                                        choices=['not_specified',
+                                                 'net_messaging',
+                                                 'amqp']
+                                    ),
+                                    queue_name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            service_bus_topic_message=dict(
+                                type='dict'
+                                options=dict(
+                                    authentication=dict(
+                                        type='dict'
+                                        options=dict(
+                                            sas_key=dict(
+                                                type='str'
+                                            ),
+                                            sas_key_name=dict(
+                                                type='str'
+                                            ),
+                                            type=dict(
+                                                type='str',
+                                                choices=['not_specified',
+                                                         'shared_access_key']
+                                            )
+                                        )
+                                    ),
+                                    brokered_message_properties=dict(
+                                        type='dict'
+                                        options=dict(
+                                            content_type=dict(
+                                                type='str'
+                                            ),
+                                            correlation_id=dict(
+                                                type='str'
+                                            ),
+                                            force_persistence=dict(
+                                                type='str'
+                                            ),
+                                            label=dict(
+                                                type='str'
+                                            ),
+                                            message_id=dict(
+                                                type='str'
+                                            ),
+                                            partition_key=dict(
+                                                type='str'
+                                            ),
+                                            reply_to=dict(
+                                                type='str'
+                                            ),
+                                            reply_to_session_id=dict(
+                                                type='str'
+                                            ),
+                                            scheduled_enqueue_time_utc=dict(
+                                                type='datetime'
+                                            ),
+                                            session_id=dict(
+                                                type='str'
+                                            ),
+                                            time_to_live=dict(
+                                                type='str'
+                                            ),
+                                            to=dict(
+                                                type='str'
+                                            ),
+                                            via_partition_key=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    custom_message_properties=dict(
+                                        type='dict'
+                                    ),
+                                    message=dict(
+                                        type='str'
+                                    ),
+                                    namespace=dict(
+                                        type='str'
+                                    ),
+                                    transport_type=dict(
+                                        type='str',
+                                        choices=['not_specified',
+                                                 'net_messaging',
+                                                 'amqp']
+                                    ),
+                                    topic_path=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            retry_policy=dict(
+                                type='dict'
+                                options=dict(
+                                    retry_type=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'fixed']
+                                    ),
+                                    retry_interval=dict(
+                                        type='str'
+                                    ),
+                                    retry_count=dict(
+                                        type='int'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             recurrence=dict(
                 type='dict'
+                options=dict(
+                    frequency=dict(
+                        type='str',
+                        choices=['minute',
+                                 'hour',
+                                 'day',
+                                 'week',
+                                 'month']
+                    ),
+                    interval=dict(
+                        type='int'
+                    ),
+                    count=dict(
+                        type='int'
+                    ),
+                    end_time=dict(
+                        type='datetime'
+                    ),
+                    schedule=dict(
+                        type='dict'
+                        options=dict(
+                            week_days=dict(
+                                type='list'
+                            ),
+                            hours=dict(
+                                type='list'
+                            ),
+                            minutes=dict(
+                                type='list'
+                            ),
+                            month_days=dict(
+                                type='list'
+                            ),
+                            monthly_occurrences=dict(
+                                type='list'
+                                options=dict(
+                                    day=dict(
+                                        type='str',
+                                        choices=['monday',
+                                                 'tuesday',
+                                                 'wednesday',
+                                                 'thursday',
+                                                 'friday',
+                                                 'saturday',
+                                                 'sunday']
+                                    ),
+                                    occurrence=dict(
+                                        type='int'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -748,17 +1274,18 @@ class AzureRMJob(AzureRMModuleBase):
                 return self.results
 
             self.delete_job()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_job():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Job instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_job(self):
@@ -820,12 +1347,6 @@ class AzureRMJob(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -881,74 +1402,6 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

@@ -553,6 +553,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -593,12 +594,366 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
             ),
             virtual_network_gateway1=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    location=dict(
+                        type='str'
+                    ),
+                    ip_configurations=dict(
+                        type='list'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            private_ip_allocation_method=dict(
+                                type='str',
+                                choices=['static',
+                                         'dynamic']
+                            ),
+                            subnet=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            public_ip_address=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            name=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    gateway_type=dict(
+                        type='str',
+                        choices=['vpn',
+                                 'express_route']
+                    ),
+                    vpn_type=dict(
+                        type='str',
+                        choices=['policy_based',
+                                 'route_based']
+                    ),
+                    enable_bgp=dict(
+                        type='str'
+                    ),
+                    active_active=dict(
+                        type='str'
+                    ),
+                    gateway_default_site=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    sku=dict(
+                        type='dict'
+                        options=dict(
+                            name=dict(
+                                type='str',
+                                choices=['basic',
+                                         'high_performance',
+                                         'standard',
+                                         'ultra_performance',
+                                         'vpn_gw1',
+                                         'vpn_gw2',
+                                         'vpn_gw3']
+                            ),
+                            tier=dict(
+                                type='str',
+                                choices=['basic',
+                                         'high_performance',
+                                         'standard',
+                                         'ultra_performance',
+                                         'vpn_gw1',
+                                         'vpn_gw2',
+                                         'vpn_gw3']
+                            ),
+                            capacity=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    vpn_client_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            vpn_client_address_pool=dict(
+                                type='dict'
+                                options=dict(
+                                    address_prefixes=dict(
+                                        type='list'
+                                    )
+                                )
+                            ),
+                            vpn_client_root_certificates=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    public_cert_data=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            vpn_client_revoked_certificates=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    thumbprint=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            vpn_client_protocols=dict(
+                                type='list'
+                            ),
+                            radius_server_address=dict(
+                                type='str'
+                            ),
+                            radius_server_secret=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    bgp_settings=dict(
+                        type='dict'
+                        options=dict(
+                            asn=dict(
+                                type='int'
+                            ),
+                            bgp_peering_address=dict(
+                                type='str'
+                            ),
+                            peer_weight=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    resource_guid=dict(
+                        type='str'
+                    )
+                )
             ),
             virtual_network_gateway2=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    location=dict(
+                        type='str'
+                    ),
+                    ip_configurations=dict(
+                        type='list'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            private_ip_allocation_method=dict(
+                                type='str',
+                                choices=['static',
+                                         'dynamic']
+                            ),
+                            subnet=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            public_ip_address=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            name=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    gateway_type=dict(
+                        type='str',
+                        choices=['vpn',
+                                 'express_route']
+                    ),
+                    vpn_type=dict(
+                        type='str',
+                        choices=['policy_based',
+                                 'route_based']
+                    ),
+                    enable_bgp=dict(
+                        type='str'
+                    ),
+                    active_active=dict(
+                        type='str'
+                    ),
+                    gateway_default_site=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    sku=dict(
+                        type='dict'
+                        options=dict(
+                            name=dict(
+                                type='str',
+                                choices=['basic',
+                                         'high_performance',
+                                         'standard',
+                                         'ultra_performance',
+                                         'vpn_gw1',
+                                         'vpn_gw2',
+                                         'vpn_gw3']
+                            ),
+                            tier=dict(
+                                type='str',
+                                choices=['basic',
+                                         'high_performance',
+                                         'standard',
+                                         'ultra_performance',
+                                         'vpn_gw1',
+                                         'vpn_gw2',
+                                         'vpn_gw3']
+                            ),
+                            capacity=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    vpn_client_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            vpn_client_address_pool=dict(
+                                type='dict'
+                                options=dict(
+                                    address_prefixes=dict(
+                                        type='list'
+                                    )
+                                )
+                            ),
+                            vpn_client_root_certificates=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    public_cert_data=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            vpn_client_revoked_certificates=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    thumbprint=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            vpn_client_protocols=dict(
+                                type='list'
+                            ),
+                            radius_server_address=dict(
+                                type='str'
+                            ),
+                            radius_server_secret=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    bgp_settings=dict(
+                        type='dict'
+                        options=dict(
+                            asn=dict(
+                                type='int'
+                            ),
+                            bgp_peering_address=dict(
+                                type='str'
+                            ),
+                            peer_weight=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    resource_guid=dict(
+                        type='str'
+                    )
+                )
             ),
             local_network_gateway2=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    location=dict(
+                        type='str'
+                    ),
+                    local_network_address_space=dict(
+                        type='dict'
+                        options=dict(
+                            address_prefixes=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    gateway_ip_address=dict(
+                        type='str'
+                    ),
+                    bgp_settings=dict(
+                        type='dict'
+                        options=dict(
+                            asn=dict(
+                                type='int'
+                            ),
+                            bgp_peering_address=dict(
+                                type='str'
+                            ),
+                            peer_weight=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    resource_guid=dict(
+                        type='str'
+                    )
+                )
             ),
             connection_type=dict(
                 type='str',
@@ -615,6 +970,11 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
             ),
             peer=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             enable_bgp=dict(
                 type='str'
@@ -624,6 +984,71 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
             ),
             ipsec_policies=dict(
                 type='list'
+                options=dict(
+                    sa_life_time_seconds=dict(
+                        type='int'
+                    ),
+                    sa_data_size_kilobytes=dict(
+                        type='int'
+                    ),
+                    ipsec_encryption=dict(
+                        type='str',
+                        choices=['none',
+                                 'des',
+                                 'des3',
+                                 'aes128',
+                                 'aes192',
+                                 'aes256',
+                                 'gcmaes128',
+                                 'gcmaes192',
+                                 'gcmaes256']
+                    ),
+                    ipsec_integrity=dict(
+                        type='str',
+                        choices=['md5',
+                                 'sha1',
+                                 'sha256',
+                                 'gcmaes128',
+                                 'gcmaes192',
+                                 'gcmaes256']
+                    ),
+                    ike_encryption=dict(
+                        type='str',
+                        choices=['des',
+                                 'des3',
+                                 'aes128',
+                                 'aes192',
+                                 'aes256']
+                    ),
+                    ike_integrity=dict(
+                        type='str',
+                        choices=['md5',
+                                 'sha1',
+                                 'sha256',
+                                 'sha384']
+                    ),
+                    dh_group=dict(
+                        type='str',
+                        choices=['none',
+                                 'dh_group1',
+                                 'dh_group2',
+                                 'dh_group14',
+                                 'dh_group2048',
+                                 'ecp256',
+                                 'ecp384',
+                                 'dh_group24']
+                    ),
+                    pfs_group=dict(
+                        type='str',
+                        choices=['none',
+                                 'pfs1',
+                                 'pfs2',
+                                 'pfs2048',
+                                 'ecp256',
+                                 'ecp384',
+                                 'pfs24']
+                    )
+                )
             ),
             resource_guid=dict(
                 type='str'
@@ -657,18 +1082,35 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'ip_configurations', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway1', 'ip_configurations', 'private_ip_allocation_method'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'ip_configurations', 'subnet', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'ip_configurations', 'public_ip_address', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway1', 'gateway_type'], True)
         dict_camelize(self.parameters, ['virtual_network_gateway1', 'vpn_type'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'gateway_default_site', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway1', 'sku', 'name'], True)
         dict_camelize(self.parameters, ['virtual_network_gateway1', 'sku', 'tier'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'vpn_client_configuration', 'vpn_client_root_certificates', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway1', 'vpn_client_configuration', 'vpn_client_revoked_certificates', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'ip_configurations', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'ip_configurations', 'private_ip_allocation_method'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'ip_configurations', 'subnet', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'ip_configurations', 'public_ip_address', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'gateway_type'], True)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'vpn_type'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'gateway_default_site', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'name'], True)
         dict_camelize(self.parameters, ['virtual_network_gateway2', 'sku', 'tier'], True)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'vpn_client_configuration', 'vpn_client_root_certificates', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_gateway2', 'vpn_client_configuration', 'vpn_client_revoked_certificates', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['local_network_gateway2', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['connection_type'], True)
         dict_map(self.parameters, ['connection_type'], {'ipsec': 'IPsec', 'vpn_client': 'VPNClient'})
+        dict_resource_id(self.parameters, ['peer', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_upper(self.parameters, ['ipsec_policies', 'ipsec_encryption'])
         dict_map(self.parameters, ['ipsec_policies', 'ipsec_encryption'], {'none': 'None'})
         dict_upper(self.parameters, ['ipsec_policies', 'ipsec_integrity'])
@@ -724,17 +1166,18 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
                 return self.results
 
             self.delete_virtualnetworkgatewayconnection()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_virtualnetworkgatewayconnection():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Virtual Network Gateway Connection instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_virtualnetworkgatewayconnection(self):
@@ -794,12 +1237,6 @@ class AzureRMVirtualNetworkGatewayConnection(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -840,89 +1277,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

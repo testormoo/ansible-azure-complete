@@ -291,6 +291,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -333,18 +334,209 @@ class AzureRMCluster(AzureRMModuleBase):
             ),
             scale_settings=dict(
                 type='dict'
+                options=dict(
+                    manual=dict(
+                        type='dict'
+                        options=dict(
+                            target_node_count=dict(
+                                type='int'
+                            ),
+                            node_deallocation_option=dict(
+                                type='str',
+                                choices=['requeue',
+                                         'terminate',
+                                         'waitforjobcompletion',
+                                         'unknown']
+                            )
+                        )
+                    ),
+                    auto_scale=dict(
+                        type='dict'
+                        options=dict(
+                            minimum_node_count=dict(
+                                type='int'
+                            ),
+                            maximum_node_count=dict(
+                                type='int'
+                            ),
+                            initial_node_count=dict(
+                                type='int'
+                            )
+                        )
+                    )
+                )
             ),
             virtual_machine_configuration=dict(
                 type='dict'
+                options=dict(
+                    image_reference=dict(
+                        type='dict'
+                        options=dict(
+                            publisher=dict(
+                                type='str'
+                            ),
+                            offer=dict(
+                                type='str'
+                            ),
+                            sku=dict(
+                                type='str'
+                            ),
+                            version=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             node_setup=dict(
                 type='dict'
+                options=dict(
+                    setup_task=dict(
+                        type='dict'
+                        options=dict(
+                            command_line=dict(
+                                type='str'
+                            ),
+                            environment_variables=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    value=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            run_elevated=dict(
+                                type='str'
+                            ),
+                            std_out_err_path_prefix=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    mount_volumes=dict(
+                        type='dict'
+                        options=dict(
+                            azure_file_shares=dict(
+                                type='list'
+                                options=dict(
+                                    account_name=dict(
+                                        type='str'
+                                    ),
+                                    azure_file_url=dict(
+                                        type='str'
+                                    ),
+                                    credentials=dict(
+                                        type='dict'
+                                        options=dict(
+                                            account_key=dict(
+                                                type='str'
+                                            ),
+                                            account_key_secret_reference=dict(
+                                                type='dict'
+                                            )
+                                        )
+                                    ),
+                                    relative_mount_path=dict(
+                                        type='str'
+                                    ),
+                                    file_mode=dict(
+                                        type='str'
+                                    ),
+                                    directory_mode=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            azure_blob_file_systems=dict(
+                                type='list'
+                                options=dict(
+                                    account_name=dict(
+                                        type='str'
+                                    ),
+                                    container_name=dict(
+                                        type='str'
+                                    ),
+                                    credentials=dict(
+                                        type='dict'
+                                        options=dict(
+                                            account_key=dict(
+                                                type='str'
+                                            ),
+                                            account_key_secret_reference=dict(
+                                                type='dict'
+                                            )
+                                        )
+                                    ),
+                                    relative_mount_path=dict(
+                                        type='str'
+                                    ),
+                                    mount_options=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            file_servers=dict(
+                                type='list'
+                                options=dict(
+                                    file_server=dict(
+                                        type='dict'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    source_directory=dict(
+                                        type='str'
+                                    ),
+                                    relative_mount_path=dict(
+                                        type='str'
+                                    ),
+                                    mount_options=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            unmanaged_file_systems=dict(
+                                type='list'
+                                options=dict(
+                                    mount_command=dict(
+                                        type='str'
+                                    ),
+                                    relative_mount_path=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             user_account_settings=dict(
                 type='dict'
+                options=dict(
+                    admin_user_name=dict(
+                        type='str'
+                    ),
+                    admin_user_ssh_public_key=dict(
+                        type='str'
+                    ),
+                    admin_user_password=dict(
+                        type='str',
+                        no_log=True
+                    )
+                )
             ),
             subnet=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -375,6 +567,8 @@ class AzureRMCluster(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['node_setup', 'mount_volumes', 'file_servers', 'file_server', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnet', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
 
         response = None
 
@@ -421,17 +615,18 @@ class AzureRMCluster(AzureRMModuleBase):
                 return self.results
 
             self.delete_cluster()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_cluster():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Cluster instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_cluster(self):
@@ -495,12 +690,6 @@ class AzureRMCluster(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -543,87 +732,25 @@ def default_compare(new, old, path, result):
             return False
 
 
-def dict_camelize(d, path, camelize_first):
+def dict_resource_id(d, path, **kwargs):
     if isinstance(d, list):
         for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
+            dict_resource_id(d[i], path)
     elif isinstance(d, dict):
         if len(path) == 1:
             old_value = d.get(path[0], None)
             if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
         else:
             sd = d.get(path[0], None)
             if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+                dict_resource_id(sd, path[1:])
 
 
 def main():

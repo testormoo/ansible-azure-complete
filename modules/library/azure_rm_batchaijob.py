@@ -306,6 +306,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -346,48 +347,227 @@ class AzureRMJob(AzureRMModuleBase):
             ),
             cluster=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             node_count=dict(
                 type='int'
             ),
             container_settings=dict(
                 type='dict'
+                options=dict(
+                    image_source_registry=dict(
+                        type='dict'
+                        options=dict(
+                            server_url=dict(
+                                type='str'
+                            ),
+                            image=dict(
+                                type='str'
+                            ),
+                            credentials=dict(
+                                type='dict'
+                                options=dict(
+                                    username=dict(
+                                        type='str'
+                                    ),
+                                    password=dict(
+                                        type='str',
+                                        no_log=True
+                                    ),
+                                    password_secret_reference=dict(
+                                        type='dict',
+                                        no_log=True
+                                        options=dict(
+                                            source_vault=dict(
+                                                type='dict'
+                                            ),
+                                            secret_url=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             cntk_settings=dict(
                 type='dict'
+                options=dict(
+                    language_type=dict(
+                        type='str'
+                    ),
+                    config_file_path=dict(
+                        type='str'
+                    ),
+                    python_script_file_path=dict(
+                        type='str'
+                    ),
+                    python_interpreter_path=dict(
+                        type='str'
+                    ),
+                    command_line_args=dict(
+                        type='str'
+                    ),
+                    process_count=dict(
+                        type='int'
+                    )
+                )
             ),
             tensor_flow_settings=dict(
                 type='dict'
+                options=dict(
+                    python_script_file_path=dict(
+                        type='str'
+                    ),
+                    python_interpreter_path=dict(
+                        type='str'
+                    ),
+                    master_command_line_args=dict(
+                        type='str'
+                    ),
+                    worker_command_line_args=dict(
+                        type='str'
+                    ),
+                    parameter_server_command_line_args=dict(
+                        type='str'
+                    ),
+                    worker_count=dict(
+                        type='int'
+                    ),
+                    parameter_server_count=dict(
+                        type='int'
+                    )
+                )
             ),
             caffe_settings=dict(
                 type='dict'
+                options=dict(
+                    config_file_path=dict(
+                        type='str'
+                    ),
+                    python_script_file_path=dict(
+                        type='str'
+                    ),
+                    python_interpreter_path=dict(
+                        type='str'
+                    ),
+                    command_line_args=dict(
+                        type='str'
+                    ),
+                    process_count=dict(
+                        type='int'
+                    )
+                )
             ),
             caffe2_settings=dict(
                 type='dict'
+                options=dict(
+                    python_script_file_path=dict(
+                        type='str'
+                    ),
+                    python_interpreter_path=dict(
+                        type='str'
+                    ),
+                    command_line_args=dict(
+                        type='str'
+                    )
+                )
             ),
             chainer_settings=dict(
                 type='dict'
+                options=dict(
+                    python_script_file_path=dict(
+                        type='str'
+                    ),
+                    python_interpreter_path=dict(
+                        type='str'
+                    ),
+                    command_line_args=dict(
+                        type='str'
+                    ),
+                    process_count=dict(
+                        type='int'
+                    )
+                )
             ),
             custom_toolkit_settings=dict(
                 type='dict'
+                options=dict(
+                    command_line=dict(
+                        type='str'
+                    )
+                )
             ),
             job_preparation=dict(
                 type='dict'
+                options=dict(
+                    command_line=dict(
+                        type='str'
+                    )
+                )
             ),
             std_out_err_path_prefix=dict(
                 type='str'
             ),
             input_directories=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    path=dict(
+                        type='str'
+                    )
+                )
             ),
             output_directories=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    path_prefix=dict(
+                        type='str'
+                    ),
+                    path_suffix=dict(
+                        type='str'
+                    ),
+                    type=dict(
+                        type='str',
+                        choices=['model',
+                                 'logs',
+                                 'summary',
+                                 'custom']
+                    ),
+                    create_new=dict(
+                        type='str'
+                    )
+                )
             ),
             environment_variables=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    value=dict(
+                        type='str'
+                    )
+                )
             ),
             constraints=dict(
                 type='dict'
+                options=dict(
+                    max_wall_clock_time=dict(
+                        type='str'
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -418,6 +598,9 @@ class AzureRMJob(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['cluster', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['input_directories', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['output_directories', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
 
         response = None
 
@@ -464,17 +647,18 @@ class AzureRMJob(AzureRMModuleBase):
                 return self.results
 
             self.delete_job()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_job():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Job instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_job(self):
@@ -537,12 +721,6 @@ class AzureRMJob(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -583,89 +761,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

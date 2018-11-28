@@ -527,6 +527,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -568,36 +569,332 @@ class AzureRMPool(AzureRMModuleBase):
             ),
             deployment_configuration=dict(
                 type='dict'
+                options=dict(
+                    cloud_service_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            os_family=dict(
+                                type='str'
+                            ),
+                            target_os_version=dict(
+                                type='str'
+                            ),
+                            current_os_version=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    virtual_machine_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            image_reference=dict(
+                                type='dict'
+                                options=dict(
+                                    publisher=dict(
+                                        type='str'
+                                    ),
+                                    offer=dict(
+                                        type='str'
+                                    ),
+                                    sku=dict(
+                                        type='str'
+                                    ),
+                                    version=dict(
+                                        type='str'
+                                    ),
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            os_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    caching=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'read_only',
+                                                 'read_write']
+                                    )
+                                )
+                            ),
+                            node_agent_sku_id=dict(
+                                type='str'
+                            ),
+                            windows_configuration=dict(
+                                type='dict'
+                                options=dict(
+                                    enable_automatic_updates=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            data_disks=dict(
+                                type='list'
+                                options=dict(
+                                    lun=dict(
+                                        type='int'
+                                    ),
+                                    caching=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'read_only',
+                                                 'read_write']
+                                    ),
+                                    disk_size_gb=dict(
+                                        type='int'
+                                    ),
+                                    storage_account_type=dict(
+                                        type='str',
+                                        choices=['standard_lrs',
+                                                 'premium_lrs']
+                                    )
+                                )
+                            ),
+                            license_type=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             scale_settings=dict(
                 type='dict'
+                options=dict(
+                    fixed_scale=dict(
+                        type='dict'
+                        options=dict(
+                            resize_timeout=dict(
+                                type='str'
+                            ),
+                            target_dedicated_nodes=dict(
+                                type='int'
+                            ),
+                            target_low_priority_nodes=dict(
+                                type='int'
+                            ),
+                            node_deallocation_option=dict(
+                                type='str',
+                                choices=['requeue',
+                                         'terminate',
+                                         'task_completion',
+                                         'retained_data']
+                            )
+                        )
+                    ),
+                    auto_scale=dict(
+                        type='dict'
+                        options=dict(
+                            formula=dict(
+                                type='str'
+                            ),
+                            evaluation_interval=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             inter_node_communication=dict(
                 type='bool'
             ),
             network_configuration=dict(
                 type='dict'
+                options=dict(
+                    subnet_id=dict(
+                        type='str'
+                    ),
+                    endpoint_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            inbound_nat_pools=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    protocol=dict(
+                                        type='str',
+                                        choices=['tcp',
+                                                 'udp']
+                                    ),
+                                    backend_port=dict(
+                                        type='int'
+                                    ),
+                                    frontend_port_range_start=dict(
+                                        type='int'
+                                    ),
+                                    frontend_port_range_end=dict(
+                                        type='int'
+                                    ),
+                                    network_security_group_rules=dict(
+                                        type='list'
+                                        options=dict(
+                                            priority=dict(
+                                                type='int'
+                                            ),
+                                            access=dict(
+                                                type='str',
+                                                choices=['allow',
+                                                         'deny']
+                                            ),
+                                            source_address_prefix=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             max_tasks_per_node=dict(
                 type='int'
             ),
             task_scheduling_policy=dict(
                 type='dict'
+                options=dict(
+                    node_fill_type=dict(
+                        type='str',
+                        choices=['spread',
+                                 'pack']
+                    )
+                )
             ),
             user_accounts=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    password=dict(
+                        type='str',
+                        no_log=True
+                    ),
+                    elevation_level=dict(
+                        type='str',
+                        choices=['non_admin',
+                                 'admin']
+                    ),
+                    linux_user_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            uid=dict(
+                                type='int'
+                            ),
+                            gid=dict(
+                                type='int'
+                            ),
+                            ssh_private_key=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             metadata=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    value=dict(
+                        type='str'
+                    )
+                )
             ),
             start_task=dict(
                 type='dict'
+                options=dict(
+                    command_line=dict(
+                        type='str'
+                    ),
+                    resource_files=dict(
+                        type='list'
+                        options=dict(
+                            blob_source=dict(
+                                type='str'
+                            ),
+                            file_path=dict(
+                                type='str'
+                            ),
+                            file_mode=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    environment_settings=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            value=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    user_identity=dict(
+                        type='dict'
+                        options=dict(
+                            user_name=dict(
+                                type='str'
+                            ),
+                            auto_user=dict(
+                                type='dict'
+                                options=dict(
+                                    scope=dict(
+                                        type='str',
+                                        choices=['task',
+                                                 'pool']
+                                    ),
+                                    elevation_level=dict(
+                                        type='str',
+                                        choices=['non_admin',
+                                                 'admin']
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    max_task_retry_count=dict(
+                        type='int'
+                    ),
+                    wait_for_success=dict(
+                        type='str'
+                    )
+                )
             ),
             certificates=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    store_location=dict(
+                        type='str',
+                        choices=['current_user',
+                                 'local_machine']
+                    ),
+                    store_name=dict(
+                        type='str'
+                    ),
+                    visibility=dict(
+                        type='list'
+                    )
+                )
             ),
             application_packages=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    version=dict(
+                        type='str'
+                    )
+                )
             ),
             application_licenses=dict(
                 type='list'
@@ -640,6 +937,7 @@ class AzureRMPool(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'image_reference', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'os_disk', 'caching'], True)
         dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'data_disks', 'caching'], True)
         dict_camelize(self.parameters, ['deployment_configuration', 'virtual_machine_configuration', 'data_disks', 'storage_account_type'], True)
@@ -652,7 +950,9 @@ class AzureRMPool(AzureRMModuleBase):
         dict_camelize(self.parameters, ['user_accounts', 'elevation_level'], True)
         dict_camelize(self.parameters, ['start_task', 'user_identity', 'auto_user', 'scope'], True)
         dict_camelize(self.parameters, ['start_task', 'user_identity', 'auto_user', 'elevation_level'], True)
+        dict_resource_id(self.parameters, ['certificates', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['certificates', 'store_location'], True)
+        dict_resource_id(self.parameters, ['application_packages', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
 
         response = None
 
@@ -696,17 +996,18 @@ class AzureRMPool(AzureRMModuleBase):
                 return self.results
 
             self.delete_pool()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_pool():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Pool instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_pool(self):
@@ -775,12 +1076,6 @@ class AzureRMPool(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -821,89 +1116,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

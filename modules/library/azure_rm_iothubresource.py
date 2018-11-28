@@ -447,6 +447,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -481,15 +482,192 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             ),
             authorization_policies=dict(
                 type='list'
+                options=dict(
+                    key_name=dict(
+                        type='str'
+                    ),
+                    primary_key=dict(
+                        type='str'
+                    ),
+                    secondary_key=dict(
+                        type='str'
+                    ),
+                    rights=dict(
+                        type='str',
+                        choices=['registry_read',
+                                 'registry_write',
+                                 'service_connect',
+                                 'device_connect',
+                                 'registry_read, _registry_write',
+                                 'registry_read, _service_connect',
+                                 'registry_read, _device_connect',
+                                 'registry_write, _service_connect',
+                                 'registry_write, _device_connect',
+                                 'service_connect, _device_connect',
+                                 'registry_read, _registry_write, _service_connect',
+                                 'registry_read, _registry_write, _device_connect',
+                                 'registry_read, _service_connect, _device_connect',
+                                 'registry_write, _service_connect, _device_connect',
+                                 'registry_read, _registry_write, _service_connect, _device_connect']
+                    )
+                )
             ),
             ip_filter_rules=dict(
                 type='list'
+                options=dict(
+                    filter_name=dict(
+                        type='str'
+                    ),
+                    action=dict(
+                        type='str',
+                        choices=['accept',
+                                 'reject']
+                    ),
+                    ip_mask=dict(
+                        type='str'
+                    )
+                )
             ),
             event_hub_endpoints=dict(
                 type='dict'
             ),
             routing=dict(
                 type='dict'
+                options=dict(
+                    endpoints=dict(
+                        type='dict'
+                        options=dict(
+                            service_bus_queues=dict(
+                                type='list'
+                                options=dict(
+                                    connection_string=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    subscription_id=dict(
+                                        type='str'
+                                    ),
+                                    resource_group=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            service_bus_topics=dict(
+                                type='list'
+                                options=dict(
+                                    connection_string=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    subscription_id=dict(
+                                        type='str'
+                                    ),
+                                    resource_group=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            event_hubs=dict(
+                                type='list'
+                                options=dict(
+                                    connection_string=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    subscription_id=dict(
+                                        type='str'
+                                    ),
+                                    resource_group=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            storage_containers=dict(
+                                type='list'
+                                options=dict(
+                                    connection_string=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    subscription_id=dict(
+                                        type='str'
+                                    ),
+                                    resource_group=dict(
+                                        type='str'
+                                    ),
+                                    container_name=dict(
+                                        type='str'
+                                    ),
+                                    file_name_format=dict(
+                                        type='str'
+                                    ),
+                                    batch_frequency_in_seconds=dict(
+                                        type='int'
+                                    ),
+                                    max_chunk_size_in_bytes=dict(
+                                        type='int'
+                                    ),
+                                    encoding=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    routes=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            source=dict(
+                                type='str',
+                                choices=['invalid',
+                                         'device_messages',
+                                         'twin_change_events',
+                                         'device_lifecycle_events',
+                                         'device_job_lifecycle_events']
+                            ),
+                            condition=dict(
+                                type='str'
+                            ),
+                            endpoint_names=dict(
+                                type='list'
+                            ),
+                            is_enabled=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    fallback_route=dict(
+                        type='dict'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            source=dict(
+                                type='str'
+                            ),
+                            condition=dict(
+                                type='str'
+                            ),
+                            endpoint_names=dict(
+                                type='list'
+                            ),
+                            is_enabled=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             storage_endpoints=dict(
                 type='dict'
@@ -502,12 +680,39 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             ),
             cloud_to_device=dict(
                 type='dict'
+                options=dict(
+                    max_delivery_count=dict(
+                        type='int'
+                    ),
+                    default_ttl_as_iso8601=dict(
+                        type='str'
+                    ),
+                    feedback=dict(
+                        type='dict'
+                        options=dict(
+                            lock_duration_as_iso8601=dict(
+                                type='str'
+                            ),
+                            ttl_as_iso8601=dict(
+                                type='str'
+                            ),
+                            max_delivery_count=dict(
+                                type='int'
+                            )
+                        )
+                    )
+                )
             ),
             comments=dict(
                 type='str'
             ),
             operations_monitoring_properties=dict(
                 type='dict'
+                options=dict(
+                    events=dict(
+                        type='dict'
+                    )
+                )
             ),
             features=dict(
                 type='str',
@@ -516,6 +721,21 @@ class AzureRMIotHubResource(AzureRMModuleBase):
             ),
             sku=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str',
+                        choices=['f1',
+                                 's1',
+                                 's2',
+                                 's3',
+                                 'b1',
+                                 'b2',
+                                 'b3']
+                    ),
+                    capacity=dict(
+                        type='int'
+                    )
+                )
             ),
             if_match=dict(
                 type='str'
@@ -610,17 +830,18 @@ class AzureRMIotHubResource(AzureRMModuleBase):
                 return self.results
 
             self.delete_iothubresource()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_iothubresource():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Iot Hub Resource instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_iothubresource(self):
@@ -680,12 +901,6 @@ class AzureRMIotHubResource(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -726,89 +941,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

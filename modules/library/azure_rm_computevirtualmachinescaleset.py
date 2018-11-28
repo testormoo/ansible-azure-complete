@@ -713,6 +713,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -747,15 +748,469 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
             ),
             sku=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    tier=dict(
+                        type='str'
+                    ),
+                    capacity=dict(
+                        type='int'
+                    )
+                )
             ),
             plan=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    publisher=dict(
+                        type='str'
+                    ),
+                    product=dict(
+                        type='str'
+                    ),
+                    promotion_code=dict(
+                        type='str'
+                    )
+                )
             ),
             upgrade_policy=dict(
                 type='dict'
+                options=dict(
+                    mode=dict(
+                        type='str',
+                        choices=['automatic',
+                                 'manual',
+                                 'rolling']
+                    ),
+                    rolling_upgrade_policy=dict(
+                        type='dict'
+                        options=dict(
+                            max_batch_instance_percent=dict(
+                                type='int'
+                            ),
+                            max_unhealthy_instance_percent=dict(
+                                type='int'
+                            ),
+                            max_unhealthy_upgraded_instance_percent=dict(
+                                type='int'
+                            ),
+                            pause_time_between_batches=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    automatic_os_upgrade_policy=dict(
+                        type='dict'
+                        options=dict(
+                            enable_automatic_os_upgrade=dict(
+                                type='str'
+                            ),
+                            disable_automatic_rollback=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             virtual_machine_profile=dict(
                 type='dict'
+                options=dict(
+                    os_profile=dict(
+                        type='dict'
+                        options=dict(
+                            computer_name_prefix=dict(
+                                type='str'
+                            ),
+                            admin_username=dict(
+                                type='str'
+                            ),
+                            admin_password=dict(
+                                type='str',
+                                no_log=True
+                            ),
+                            custom_data=dict(
+                                type='str'
+                            ),
+                            windows_configuration=dict(
+                                type='dict'
+                                options=dict(
+                                    provision_vm_agent=dict(
+                                        type='str'
+                                    ),
+                                    enable_automatic_updates=dict(
+                                        type='str'
+                                    ),
+                                    time_zone=dict(
+                                        type='str'
+                                    ),
+                                    additional_unattend_content=dict(
+                                        type='list'
+                                        options=dict(
+                                            pass_name=dict(
+                                                type='str',
+                                                choices=['oobe_system']
+                                            ),
+                                            component_name=dict(
+                                                type='str',
+                                                choices=['microsoft-_windows-_shell-_setup']
+                                            ),
+                                            setting_name=dict(
+                                                type='str',
+                                                choices=['auto_logon',
+                                                         'first_logon_commands']
+                                            ),
+                                            content=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    win_rm=dict(
+                                        type='dict'
+                                        options=dict(
+                                            listeners=dict(
+                                                type='list'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            linux_configuration=dict(
+                                type='dict'
+                                options=dict(
+                                    disable_password_authentication=dict(
+                                        type='str',
+                                        no_log=True
+                                    ),
+                                    ssh=dict(
+                                        type='dict'
+                                        options=dict(
+                                            public_keys=dict(
+                                                type='list'
+                                            )
+                                        )
+                                    ),
+                                    provision_vm_agent=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            secrets=dict(
+                                type='list'
+                                options=dict(
+                                    source_vault=dict(
+                                        type='dict'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    vault_certificates=dict(
+                                        type='list'
+                                        options=dict(
+                                            certificate_url=dict(
+                                                type='str'
+                                            ),
+                                            certificate_store=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    storage_profile=dict(
+                        type='dict'
+                        options=dict(
+                            image_reference=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    publisher=dict(
+                                        type='str'
+                                    ),
+                                    offer=dict(
+                                        type='str'
+                                    ),
+                                    sku=dict(
+                                        type='str'
+                                    ),
+                                    version=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            os_disk=dict(
+                                type='dict'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    caching=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'read_only',
+                                                 'read_write']
+                                    ),
+                                    write_accelerator_enabled=dict(
+                                        type='str'
+                                    ),
+                                    create_option=dict(
+                                        type='str',
+                                        choices=['from_image',
+                                                 'empty',
+                                                 'attach']
+                                    ),
+                                    diff_disk_settings=dict(
+                                        type='dict'
+                                        options=dict(
+                                            option=dict(
+                                                type='str',
+                                                choices=['local']
+                                            )
+                                        )
+                                    ),
+                                    disk_size_gb=dict(
+                                        type='int'
+                                    ),
+                                    os_type=dict(
+                                        type='str',
+                                        choices=['windows',
+                                                 'linux']
+                                    ),
+                                    image=dict(
+                                        type='dict'
+                                        options=dict(
+                                            uri=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    vhd_containers=dict(
+                                        type='list'
+                                    ),
+                                    managed_disk=dict(
+                                        type='dict'
+                                        options=dict(
+                                            storage_account_type=dict(
+                                                type='str',
+                                                choices=['standard_lrs',
+                                                         'premium_lrs',
+                                                         'standard_ssd_lrs',
+                                                         'ultra_ssd_lrs']
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            data_disks=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    lun=dict(
+                                        type='int'
+                                    ),
+                                    caching=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'read_only',
+                                                 'read_write']
+                                    ),
+                                    write_accelerator_enabled=dict(
+                                        type='str'
+                                    ),
+                                    create_option=dict(
+                                        type='str',
+                                        choices=['from_image',
+                                                 'empty',
+                                                 'attach']
+                                    ),
+                                    disk_size_gb=dict(
+                                        type='int'
+                                    ),
+                                    managed_disk=dict(
+                                        type='dict'
+                                        options=dict(
+                                            storage_account_type=dict(
+                                                type='str',
+                                                choices=['standard_lrs',
+                                                         'premium_lrs',
+                                                         'standard_ssd_lrs',
+                                                         'ultra_ssd_lrs']
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    additional_capabilities=dict(
+                        type='dict'
+                        options=dict(
+                            ultra_ssd_enabled=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    network_profile=dict(
+                        type='dict'
+                        options=dict(
+                            health_probe=dict(
+                                type='dict'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            network_interface_configurations=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    primary=dict(
+                                        type='str'
+                                    ),
+                                    enable_accelerated_networking=dict(
+                                        type='str'
+                                    ),
+                                    network_security_group=dict(
+                                        type='dict'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    dns_settings=dict(
+                                        type='dict'
+                                        options=dict(
+                                            dns_servers=dict(
+                                                type='list'
+                                            )
+                                        )
+                                    ),
+                                    ip_configurations=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            name=dict(
+                                                type='str'
+                                            ),
+                                            subnet=dict(
+                                                type='dict'
+                                            ),
+                                            primary=dict(
+                                                type='str'
+                                            ),
+                                            public_ip_address_configuration=dict(
+                                                type='dict'
+                                            ),
+                                            private_ip_address_version=dict(
+                                                type='str',
+                                                choices=['ipv4',
+                                                         'ipv6']
+                                            ),
+                                            application_gateway_backend_address_pools=dict(
+                                                type='list'
+                                            ),
+                                            application_security_groups=dict(
+                                                type='list'
+                                            ),
+                                            load_balancer_backend_address_pools=dict(
+                                                type='list'
+                                            ),
+                                            load_balancer_inbound_nat_pools=dict(
+                                                type='list'
+                                            )
+                                        )
+                                    ),
+                                    enable_ip_forwarding=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    diagnostics_profile=dict(
+                        type='dict'
+                        options=dict(
+                            boot_diagnostics=dict(
+                                type='dict'
+                                options=dict(
+                                    enabled=dict(
+                                        type='str'
+                                    ),
+                                    storage_uri=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    extension_profile=dict(
+                        type='dict'
+                        options=dict(
+                            extensions=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    force_update_tag=dict(
+                                        type='str'
+                                    ),
+                                    publisher=dict(
+                                        type='str'
+                                    ),
+                                    type=dict(
+                                        type='str'
+                                    ),
+                                    type_handler_version=dict(
+                                        type='str'
+                                    ),
+                                    auto_upgrade_minor_version=dict(
+                                        type='str'
+                                    ),
+                                    settings=dict(
+                                        type='str'
+                                    ),
+                                    protected_settings=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    license_type=dict(
+                        type='str'
+                    ),
+                    priority=dict(
+                        type='str',
+                        choices=['regular',
+                                 'low']
+                    ),
+                    eviction_policy=dict(
+                        type='str',
+                        choices=['deallocate',
+                                 'delete']
+                    )
+                )
             ),
             overprovision=dict(
                 type='str'
@@ -771,6 +1226,18 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
             ),
             identity=dict(
                 type='dict'
+                options=dict(
+                    type=dict(
+                        type='str',
+                        choices=['system_assigned',
+                                 'user_assigned',
+                                 'system_assigned, _user_assigned',
+                                 'none']
+                    ),
+                    user_assigned_identities=dict(
+                        type='dict'
+                    )
+                )
             ),
             zones=dict(
                 type='list'
@@ -809,6 +1276,8 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
         dict_camelize(self.parameters, ['virtual_machine_profile', 'os_profile', 'windows_configuration', 'additional_unattend_content', 'component_name'], True)
         dict_map(self.parameters, ['virtual_machine_profile', 'os_profile', 'windows_configuration', 'additional_unattend_content', 'component_name'], {'microsoft-_windows-_shell-_setup': 'Microsoft-Windows-Shell-Setup'})
         dict_camelize(self.parameters, ['virtual_machine_profile', 'os_profile', 'windows_configuration', 'additional_unattend_content', 'setting_name'], True)
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'os_profile', 'secrets', 'source_vault', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'storage_profile', 'image_reference', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_machine_profile', 'storage_profile', 'os_disk', 'caching'], True)
         dict_camelize(self.parameters, ['virtual_machine_profile', 'storage_profile', 'os_disk', 'create_option'], True)
         dict_camelize(self.parameters, ['virtual_machine_profile', 'storage_profile', 'os_disk', 'diff_disk_settings', 'option'], True)
@@ -819,6 +1288,10 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
         dict_camelize(self.parameters, ['virtual_machine_profile', 'storage_profile', 'data_disks', 'create_option'], True)
         dict_camelize(self.parameters, ['virtual_machine_profile', 'storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], True)
         dict_map(self.parameters, ['virtual_machine_profile', 'storage_profile', 'data_disks', 'managed_disk', 'storage_account_type'], {'standard_lrs': 'Standard_LRS', 'premium_lrs': 'Premium_LRS', 'standard_ssd_lrs': 'StandardSSD_LRS', 'ultra_ssd_lrs': 'UltraSSD_LRS'})
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'network_profile', 'health_probe', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'network_profile', 'network_interface_configurations', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'network_profile', 'network_interface_configurations', 'network_security_group', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_machine_profile', 'network_profile', 'network_interface_configurations', 'ip_configurations', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_machine_profile', 'network_profile', 'network_interface_configurations', 'ip_configurations', 'private_ip_address_version'], True)
         dict_map(self.parameters, ['virtual_machine_profile', 'network_profile', 'network_interface_configurations', 'ip_configurations', 'private_ip_address_version'], {'ipv4': 'IPv4', 'ipv6': 'IPv6'})
         dict_camelize(self.parameters, ['virtual_machine_profile', 'priority'], True)
@@ -871,17 +1344,18 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
                 return self.results
 
             self.delete_virtualmachinescaleset()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_virtualmachinescaleset():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Virtual Machine Scale Set instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_virtualmachinescaleset(self):
@@ -941,12 +1415,6 @@ class AzureRMVirtualMachineScaleSet(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -987,89 +1455,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

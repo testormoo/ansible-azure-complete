@@ -236,6 +236,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -270,9 +271,122 @@ class AzureRMJob(AzureRMModuleBase):
             ),
             sku=dict(
                 type='dict'
+                options=dict(
+                    name=dict(
+                        type='str',
+                        choices=['data_box',
+                                 'data_box_disk',
+                                 'data_box_heavy']
+                    ),
+                    display_name=dict(
+                        type='str'
+                    ),
+                    family=dict(
+                        type='str'
+                    )
+                )
             ),
             details=dict(
                 type='dict'
+                options=dict(
+                    expected_data_size_in_tera_bytes=dict(
+                        type='int'
+                    ),
+                    contact_details=dict(
+                        type='dict'
+                        options=dict(
+                            contact_name=dict(
+                                type='str'
+                            ),
+                            phone=dict(
+                                type='str'
+                            ),
+                            phone_extension=dict(
+                                type='str'
+                            ),
+                            mobile=dict(
+                                type='str'
+                            ),
+                            email_list=dict(
+                                type='list'
+                            ),
+                            notification_preference=dict(
+                                type='list'
+                                options=dict(
+                                    stage_name=dict(
+                                        type='str',
+                                        choices=['device_prepared',
+                                                 'dispatched',
+                                                 'delivered',
+                                                 'picked_up',
+                                                 'at_azure_dc',
+                                                 'data_copy']
+                                    ),
+                                    send_notification=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    shipping_address=dict(
+                        type='dict'
+                        options=dict(
+                            street_address1=dict(
+                                type='str'
+                            ),
+                            street_address2=dict(
+                                type='str'
+                            ),
+                            street_address3=dict(
+                                type='str'
+                            ),
+                            city=dict(
+                                type='str'
+                            ),
+                            state_or_province=dict(
+                                type='str'
+                            ),
+                            country=dict(
+                                type='str'
+                            ),
+                            postal_code=dict(
+                                type='str'
+                            ),
+                            zip_extended_code=dict(
+                                type='str'
+                            ),
+                            company_name=dict(
+                                type='str'
+                            ),
+                            address_type=dict(
+                                type='str',
+                                choices=['none',
+                                         'residential',
+                                         'commercial']
+                            )
+                        )
+                    ),
+                    destination_account_details=dict(
+                        type='list'
+                        options=dict(
+                            account_id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    preferences=dict(
+                        type='dict'
+                        options=dict(
+                            preferred_data_center_region=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    job_details_type=dict(
+                        type='str'
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -350,17 +464,19 @@ class AzureRMJob(AzureRMModuleBase):
                 return self.results
 
             self.delete_job()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_job():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Job instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'status': response.get('status', None),
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_job(self):
@@ -425,13 +541,6 @@ class AzureRMJob(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'status': d.get('status', None),
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -472,89 +581,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

@@ -346,6 +346,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -384,15 +385,208 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
             ),
             update_configuration=dict(
                 type='dict'
+                options=dict(
+                    operating_system=dict(
+                        type='str',
+                        choices=['windows',
+                                 'linux']
+                    ),
+                    windows=dict(
+                        type='dict'
+                        options=dict(
+                            included_update_classifications=dict(
+                                type='str',
+                                choices=['unclassified',
+                                         'critical',
+                                         'security',
+                                         'update_rollup',
+                                         'feature_pack',
+                                         'service_pack',
+                                         'definition',
+                                         'tools',
+                                         'updates']
+                            ),
+                            excluded_kb_numbers=dict(
+                                type='list'
+                            ),
+                            included_kb_numbers=dict(
+                                type='list'
+                            ),
+                            reboot_setting=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    linux=dict(
+                        type='dict'
+                        options=dict(
+                            included_package_classifications=dict(
+                                type='str',
+                                choices=['unclassified',
+                                         'critical',
+                                         'security',
+                                         'other']
+                            ),
+                            excluded_package_name_masks=dict(
+                                type='list'
+                            ),
+                            included_package_name_masks=dict(
+                                type='list'
+                            ),
+                            reboot_setting=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    duration=dict(
+                        type='str'
+                    ),
+                    azure_virtual_machines=dict(
+                        type='list'
+                    ),
+                    non_azure_computer_names=dict(
+                        type='list'
+                    ),
+                    targets=dict(
+                        type='dict'
+                        options=dict(
+                            azure_queries=dict(
+                                type='list'
+                                options=dict(
+                                    scope=dict(
+                                        type='list'
+                                    ),
+                                    locations=dict(
+                                        type='list'
+                                    ),
+                                    tag_settings=dict(
+                                        type='dict'
+                                        options=dict(
+                                            filter_operator=dict(
+                                                type='str',
+                                                choices=['all',
+                                                         'any']
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             schedule_info=dict(
                 type='dict'
+                options=dict(
+                    start_time=dict(
+                        type='datetime'
+                    ),
+                    expiry_time=dict(
+                        type='datetime'
+                    ),
+                    expiry_time_offset_minutes=dict(
+                        type='float'
+                    ),
+                    is_enabled=dict(
+                        type='str'
+                    ),
+                    next_run=dict(
+                        type='datetime'
+                    ),
+                    next_run_offset_minutes=dict(
+                        type='float'
+                    ),
+                    interval=dict(
+                        type='int'
+                    ),
+                    frequency=dict(
+                        type='str',
+                        choices=['one_time',
+                                 'day',
+                                 'hour',
+                                 'week',
+                                 'month']
+                    ),
+                    time_zone=dict(
+                        type='str'
+                    ),
+                    advanced_schedule=dict(
+                        type='dict'
+                        options=dict(
+                            week_days=dict(
+                                type='list'
+                            ),
+                            month_days=dict(
+                                type='list'
+                            ),
+                            monthly_occurrences=dict(
+                                type='list'
+                                options=dict(
+                                    occurrence=dict(
+                                        type='int'
+                                    ),
+                                    day=dict(
+                                        type='str',
+                                        choices=['monday',
+                                                 'tuesday',
+                                                 'wednesday',
+                                                 'thursday',
+                                                 'friday',
+                                                 'saturday',
+                                                 'sunday']
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    creation_time=dict(
+                        type='datetime'
+                    ),
+                    last_modified_time=dict(
+                        type='datetime'
+                    ),
+                    description=dict(
+                        type='str'
+                    )
+                )
             ),
             error=dict(
                 type='dict'
+                options=dict(
+                    code=dict(
+                        type='str'
+                    ),
+                    message=dict(
+                        type='str'
+                    )
+                )
             ),
             tasks=dict(
                 type='dict'
+                options=dict(
+                    pre_task=dict(
+                        type='dict'
+                        options=dict(
+                            parameters=dict(
+                                type='dict'
+                            ),
+                            source=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    post_task=dict(
+                        type='dict'
+                        options=dict(
+                            parameters=dict(
+                                type='dict'
+                            ),
+                            source=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -474,17 +668,18 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
                 return self.results
 
             self.delete_softwareupdateconfiguration()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_softwareupdateconfiguration():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Software Update Configuration instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_softwareupdateconfiguration(self):
@@ -548,12 +743,6 @@ class AzureRMSoftwareUpdateConfiguration(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -594,89 +783,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

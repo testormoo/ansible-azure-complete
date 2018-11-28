@@ -443,6 +443,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -533,21 +534,299 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
             ),
             artifacts=dict(
                 type='list'
+                options=dict(
+                    artifact_id=dict(
+                        type='str'
+                    ),
+                    parameters=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            value=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    status=dict(
+                        type='str'
+                    ),
+                    deployment_status_message=dict(
+                        type='str'
+                    ),
+                    vm_extension_status_message=dict(
+                        type='str'
+                    ),
+                    install_time=dict(
+                        type='datetime'
+                    )
+                )
             ),
             artifact_deployment_status=dict(
                 type='dict'
+                options=dict(
+                    deployment_status=dict(
+                        type='str'
+                    ),
+                    artifacts_applied=dict(
+                        type='int'
+                    ),
+                    total_artifacts=dict(
+                        type='int'
+                    )
+                )
             ),
             gallery_image_reference=dict(
                 type='dict'
+                options=dict(
+                    offer=dict(
+                        type='str'
+                    ),
+                    publisher=dict(
+                        type='str'
+                    ),
+                    sku=dict(
+                        type='str'
+                    ),
+                    os_type=dict(
+                        type='str'
+                    ),
+                    version=dict(
+                        type='str'
+                    )
+                )
             ),
             compute_vm=dict(
                 type='dict'
+                options=dict(
+                    statuses=dict(
+                        type='list'
+                        options=dict(
+                            code=dict(
+                                type='str'
+                            ),
+                            display_status=dict(
+                                type='str'
+                            ),
+                            message=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    os_type=dict(
+                        type='str'
+                    ),
+                    vm_size=dict(
+                        type='str'
+                    ),
+                    network_interface_id=dict(
+                        type='str'
+                    ),
+                    os_disk_id=dict(
+                        type='str'
+                    ),
+                    data_disk_ids=dict(
+                        type='list'
+                    ),
+                    data_disks=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            disk_uri=dict(
+                                type='str'
+                            ),
+                            managed_disk_id=dict(
+                                type='str'
+                            ),
+                            disk_size_gi_b=dict(
+                                type='int'
+                            )
+                        )
+                    )
+                )
             ),
             network_interface=dict(
                 type='dict'
+                options=dict(
+                    virtual_network_id=dict(
+                        type='str'
+                    ),
+                    subnet_id=dict(
+                        type='str'
+                    ),
+                    public_ip_address_id=dict(
+                        type='str'
+                    ),
+                    public_ip_address=dict(
+                        type='str'
+                    ),
+                    private_ip_address=dict(
+                        type='str'
+                    ),
+                    dns_name=dict(
+                        type='str'
+                    ),
+                    rdp_authority=dict(
+                        type='str'
+                    ),
+                    ssh_authority=dict(
+                        type='str'
+                    ),
+                    shared_public_ip_address_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            inbound_nat_rules=dict(
+                                type='list'
+                                options=dict(
+                                    transport_protocol=dict(
+                                        type='str',
+                                        choices=['tcp',
+                                                 'udp']
+                                    ),
+                                    frontend_port=dict(
+                                        type='int'
+                                    ),
+                                    backend_port=dict(
+                                        type='int'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             applicable_schedule=dict(
                 type='dict'
+                options=dict(
+                    location=dict(
+                        type='str'
+                    ),
+                    lab_vms_shutdown=dict(
+                        type='dict'
+                        options=dict(
+                            location=dict(
+                                type='str'
+                            ),
+                            status=dict(
+                                type='bool'
+                            ),
+                            task_type=dict(
+                                type='str'
+                            ),
+                            weekly_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    weekdays=dict(
+                                        type='list'
+                                    ),
+                                    time=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            daily_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    time=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            hourly_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    minute=dict(
+                                        type='int'
+                                    )
+                                )
+                            ),
+                            time_zone_id=dict(
+                                type='str'
+                            ),
+                            notification_settings=dict(
+                                type='dict'
+                                options=dict(
+                                    status=dict(
+                                        type='bool'
+                                    ),
+                                    time_in_minutes=dict(
+                                        type='int'
+                                    ),
+                                    webhook_url=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            target_resource_id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    lab_vms_startup=dict(
+                        type='dict'
+                        options=dict(
+                            location=dict(
+                                type='str'
+                            ),
+                            status=dict(
+                                type='bool'
+                            ),
+                            task_type=dict(
+                                type='str'
+                            ),
+                            weekly_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    weekdays=dict(
+                                        type='list'
+                                    ),
+                                    time=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            daily_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    time=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            hourly_recurrence=dict(
+                                type='dict'
+                                options=dict(
+                                    minute=dict(
+                                        type='int'
+                                    )
+                                )
+                            ),
+                            time_zone_id=dict(
+                                type='str'
+                            ),
+                            notification_settings=dict(
+                                type='dict'
+                                options=dict(
+                                    status=dict(
+                                        type='bool'
+                                    ),
+                                    time_in_minutes=dict(
+                                        type='int'
+                                    ),
+                                    webhook_url=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            target_resource_id=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             expiration_date=dict(
                 type='datetime'
@@ -645,17 +924,18 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
                 return self.results
 
             self.delete_virtualmachine()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_virtualmachine():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Virtual Machine instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_virtualmachine(self):
@@ -718,12 +998,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -764,89 +1038,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

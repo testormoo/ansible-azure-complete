@@ -389,6 +389,7 @@ status:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -426,9 +427,262 @@ class AzureRMApplication(AzureRMModuleBase):
             ),
             services=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    os_type=dict(
+                        type='str',
+                        choices=['linux',
+                                 'windows']
+                    ),
+                    code_packages=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            image=dict(
+                                type='str'
+                            ),
+                            image_registry_credential=dict(
+                                type='dict'
+                                options=dict(
+                                    server=dict(
+                                        type='str'
+                                    ),
+                                    username=dict(
+                                        type='str'
+                                    ),
+                                    password=dict(
+                                        type='str',
+                                        no_log=True
+                                    )
+                                )
+                            ),
+                            entrypoint=dict(
+                                type='str'
+                            ),
+                            commands=dict(
+                                type='list'
+                            ),
+                            environment_variables=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    value=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            settings=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    value=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            labels=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    value=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            endpoints=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    port=dict(
+                                        type='int'
+                                    )
+                                )
+                            ),
+                            resources=dict(
+                                type='dict'
+                                options=dict(
+                                    requests=dict(
+                                        type='dict'
+                                        options=dict(
+                                            memory_in_gb=dict(
+                                                type='float'
+                                            ),
+                                            cpu=dict(
+                                                type='float'
+                                            )
+                                        )
+                                    ),
+                                    limits=dict(
+                                        type='dict'
+                                        options=dict(
+                                            memory_in_gb=dict(
+                                                type='float'
+                                            ),
+                                            cpu=dict(
+                                                type='float'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            volume_refs=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    read_only=dict(
+                                        type='str'
+                                    ),
+                                    destination_path=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            volumes=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    read_only=dict(
+                                        type='str'
+                                    ),
+                                    destination_path=dict(
+                                        type='str'
+                                    ),
+                                    creation_parameters=dict(
+                                        type='dict'
+                                        options=dict(
+                                            description=dict(
+                                                type='str'
+                                            ),
+                                            kind=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            diagnostics=dict(
+                                type='dict'
+                                options=dict(
+                                    enabled=dict(
+                                        type='str'
+                                    ),
+                                    sink_refs=dict(
+                                        type='list'
+                                    )
+                                )
+                            ),
+                            reliable_collections_refs=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    ),
+                                    do_not_persist_state=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    network_refs=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            endpoint_refs=dict(
+                                type='list'
+                                options=dict(
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    diagnostics=dict(
+                        type='dict'
+                        options=dict(
+                            enabled=dict(
+                                type='str'
+                            ),
+                            sink_refs=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    description=dict(
+                        type='str'
+                    ),
+                    replica_count=dict(
+                        type='int'
+                    ),
+                    auto_scaling_policies=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            trigger=dict(
+                                type='dict'
+                                options=dict(
+                                    kind=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            mechanism=dict(
+                                type='dict'
+                                options=dict(
+                                    kind=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             diagnostics=dict(
                 type='dict'
+                options=dict(
+                    sinks=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            description=dict(
+                                type='str'
+                            ),
+                            kind=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    enabled=dict(
+                        type='str'
+                    ),
+                    default_sink_refs=dict(
+                        type='list'
+                    )
+                )
             ),
             debug_params=dict(
                 type='str'
@@ -506,17 +760,19 @@ class AzureRMApplication(AzureRMModuleBase):
                 return self.results
 
             self.delete_application()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_application():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Application instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None),
+                'status': response.get('status', None)
+                })
         return self.results
 
     def create_update_application(self):
@@ -579,13 +835,6 @@ class AzureRMApplication(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None),
-            'status': d.get('status', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -626,89 +875,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

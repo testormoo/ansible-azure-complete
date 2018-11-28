@@ -479,6 +479,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -516,15 +517,317 @@ class AzureRMVirtualNetwork(AzureRMModuleBase):
             ),
             address_space=dict(
                 type='dict'
+                options=dict(
+                    address_prefixes=dict(
+                        type='list'
+                    )
+                )
             ),
             dhcp_options=dict(
                 type='dict'
+                options=dict(
+                    dns_servers=dict(
+                        type='list'
+                    )
+                )
             ),
             subnets=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    address_prefix=dict(
+                        type='str'
+                    ),
+                    network_security_group=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            location=dict(
+                                type='str'
+                            ),
+                            security_rules=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    description=dict(
+                                        type='str'
+                                    ),
+                                    protocol=dict(
+                                        type='str',
+                                        choices=['tcp',
+                                                 'udp',
+                                                 '*']
+                                    ),
+                                    source_port_range=dict(
+                                        type='str'
+                                    ),
+                                    destination_port_range=dict(
+                                        type='str'
+                                    ),
+                                    source_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    source_address_prefixes=dict(
+                                        type='list'
+                                    ),
+                                    source_application_security_groups=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    destination_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    destination_address_prefixes=dict(
+                                        type='list'
+                                    ),
+                                    destination_application_security_groups=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    source_port_ranges=dict(
+                                        type='list'
+                                    ),
+                                    destination_port_ranges=dict(
+                                        type='list'
+                                    ),
+                                    access=dict(
+                                        type='str',
+                                        choices=['allow',
+                                                 'deny']
+                                    ),
+                                    priority=dict(
+                                        type='int'
+                                    ),
+                                    direction=dict(
+                                        type='str',
+                                        choices=['inbound',
+                                                 'outbound']
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            default_security_rules=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    description=dict(
+                                        type='str'
+                                    ),
+                                    protocol=dict(
+                                        type='str',
+                                        choices=['tcp',
+                                                 'udp',
+                                                 '*']
+                                    ),
+                                    source_port_range=dict(
+                                        type='str'
+                                    ),
+                                    destination_port_range=dict(
+                                        type='str'
+                                    ),
+                                    source_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    source_address_prefixes=dict(
+                                        type='list'
+                                    ),
+                                    source_application_security_groups=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    destination_address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    destination_address_prefixes=dict(
+                                        type='list'
+                                    ),
+                                    destination_application_security_groups=dict(
+                                        type='list'
+                                        options=dict(
+                                            id=dict(
+                                                type='str'
+                                            ),
+                                            location=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    source_port_ranges=dict(
+                                        type='list'
+                                    ),
+                                    destination_port_ranges=dict(
+                                        type='list'
+                                    ),
+                                    access=dict(
+                                        type='str',
+                                        choices=['allow',
+                                                 'deny']
+                                    ),
+                                    priority=dict(
+                                        type='int'
+                                    ),
+                                    direction=dict(
+                                        type='str',
+                                        choices=['inbound',
+                                                 'outbound']
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            resource_guid=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    route_table=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            location=dict(
+                                type='str'
+                            ),
+                            routes=dict(
+                                type='list'
+                                options=dict(
+                                    id=dict(
+                                        type='str'
+                                    ),
+                                    address_prefix=dict(
+                                        type='str'
+                                    ),
+                                    next_hop_type=dict(
+                                        type='str',
+                                        choices=['virtual_network_gateway',
+                                                 'vnet_local',
+                                                 'internet',
+                                                 'virtual_appliance',
+                                                 'none']
+                                    ),
+                                    next_hop_ip_address=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            ),
+                            disable_bgp_route_propagation=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    service_endpoints=dict(
+                        type='list'
+                        options=dict(
+                            service=dict(
+                                type='str'
+                            ),
+                            locations=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    resource_navigation_links=dict(
+                        type='list'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            ),
+                            linked_resource_type=dict(
+                                type='str'
+                            ),
+                            link=dict(
+                                type='str'
+                            ),
+                            name=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             virtual_network_peerings=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    allow_virtual_network_access=dict(
+                        type='str'
+                    ),
+                    allow_forwarded_traffic=dict(
+                        type='str'
+                    ),
+                    allow_gateway_transit=dict(
+                        type='str'
+                    ),
+                    use_remote_gateways=dict(
+                        type='str'
+                    ),
+                    remote_virtual_network=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    remote_address_space=dict(
+                        type='dict'
+                        options=dict(
+                            address_prefixes=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    peering_state=dict(
+                        type='str',
+                        choices=['initiated',
+                                 'connected',
+                                 'disconnected']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             resource_guid=dict(
                 type='str'
@@ -564,13 +867,27 @@ class AzureRMVirtualNetwork(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.parameters[key] = kwargs[key]
 
+        dict_resource_id(self.parameters, ['id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'protocol'], True)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'source_application_security_groups', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'destination_application_security_groups', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'access'], True)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'security_rules', 'direction'], True)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'protocol'], True)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'source_application_security_groups', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'destination_application_security_groups', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'access'], True)
         dict_camelize(self.parameters, ['subnets', 'network_security_group', 'default_security_rules', 'direction'], True)
+        dict_resource_id(self.parameters, ['subnets', 'route_table', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['subnets', 'route_table', 'routes', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['subnets', 'route_table', 'routes', 'next_hop_type'], True)
+        dict_resource_id(self.parameters, ['subnets', 'resource_navigation_links', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_peerings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.parameters, ['virtual_network_peerings', 'remote_virtual_network', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.parameters, ['virtual_network_peerings', 'peering_state'], True)
 
         response = None
@@ -618,17 +935,18 @@ class AzureRMVirtualNetwork(AzureRMModuleBase):
                 return self.results
 
             self.delete_virtualnetwork()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_virtualnetwork():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Virtual Network instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_virtualnetwork(self):
@@ -688,12 +1006,6 @@ class AzureRMVirtualNetwork(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -734,89 +1046,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

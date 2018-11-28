@@ -153,6 +153,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -191,6 +192,11 @@ class AzureRMRoutingRule(AzureRMModuleBase):
             ),
             frontend_endpoints=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             accepted_protocols=dict(
                 type='list'
@@ -209,9 +215,24 @@ class AzureRMRoutingRule(AzureRMModuleBase):
             ),
             cache_configuration=dict(
                 type='dict'
+                options=dict(
+                    query_parameter_strip_directive=dict(
+                        type='str',
+                        choices=['strip_none',
+                                 'strip_all']
+                    ),
+                    dynamic_compression=dict(
+                        type='bool'
+                    )
+                )
             ),
             backend_pool=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             enabled_state=dict(
                 type='bool'
@@ -258,9 +279,12 @@ class AzureRMRoutingRule(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.routing_rule_parameters[key] = kwargs[key]
 
+        dict_resource_id(self.routing_rule_parameters, ['id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.routing_rule_parameters, ['frontend_endpoints', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.routing_rule_parameters, ['forwarding_protocol'], True)
         dict_camelize(self.routing_rule_parameters, ['cache_configuration', 'query_parameter_strip_directive'], True)
         dict_map(self.routing_rule_parameters, ['cache_configuration', 'dynamic_compression'], {True: 'Enabled', False: 'Disabled'})
+        dict_resource_id(self.routing_rule_parameters, ['backend_pool', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_map(self.routing_rule_parameters, ['enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.routing_rule_parameters, ['resource_state'], True)
 
@@ -306,17 +330,18 @@ class AzureRMRoutingRule(AzureRMModuleBase):
                 return self.results
 
             self.delete_routingrule()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_routingrule():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Routing Rule instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_routingrule(self):
@@ -379,12 +404,6 @@ class AzureRMRoutingRule(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -425,89 +444,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

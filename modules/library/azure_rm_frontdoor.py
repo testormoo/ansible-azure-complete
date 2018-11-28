@@ -374,6 +374,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -411,18 +412,229 @@ class AzureRMFrontDoor(AzureRMModuleBase):
             ),
             routing_rules=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    frontend_endpoints=dict(
+                        type='list'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    accepted_protocols=dict(
+                        type='list'
+                    ),
+                    patterns_to_match=dict(
+                        type='list'
+                    ),
+                    custom_forwarding_path=dict(
+                        type='str'
+                    ),
+                    forwarding_protocol=dict(
+                        type='str',
+                        choices=['http_only',
+                                 'https_only',
+                                 'match_request']
+                    ),
+                    cache_configuration=dict(
+                        type='dict'
+                        options=dict(
+                            query_parameter_strip_directive=dict(
+                                type='str',
+                                choices=['strip_none',
+                                         'strip_all']
+                            ),
+                            dynamic_compression=dict(
+                                type='bool'
+                            )
+                        )
+                    ),
+                    backend_pool=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    enabled_state=dict(
+                        type='bool'
+                    ),
+                    resource_state=dict(
+                        type='str',
+                        choices=['creating',
+                                 'enabling',
+                                 'enabled',
+                                 'disabling',
+                                 'disabled',
+                                 'deleting']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             load_balancing_settings=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    sample_size=dict(
+                        type='int'
+                    ),
+                    successful_samples_required=dict(
+                        type='int'
+                    ),
+                    additional_latency_milliseconds=dict(
+                        type='int'
+                    ),
+                    resource_state=dict(
+                        type='str',
+                        choices=['creating',
+                                 'enabling',
+                                 'enabled',
+                                 'disabling',
+                                 'disabled',
+                                 'deleting']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             health_probe_settings=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    path=dict(
+                        type='str'
+                    ),
+                    protocol=dict(
+                        type='str',
+                        choices=['http',
+                                 'https']
+                    ),
+                    interval_in_seconds=dict(
+                        type='int'
+                    ),
+                    resource_state=dict(
+                        type='str',
+                        choices=['creating',
+                                 'enabling',
+                                 'enabled',
+                                 'disabling',
+                                 'disabled',
+                                 'deleting']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             backend_pools=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    backends=dict(
+                        type='list'
+                        options=dict(
+                            address=dict(
+                                type='str'
+                            ),
+                            http_port=dict(
+                                type='int'
+                            ),
+                            https_port=dict(
+                                type='int'
+                            ),
+                            enabled_state=dict(
+                                type='bool'
+                            ),
+                            priority=dict(
+                                type='int'
+                            ),
+                            weight=dict(
+                                type='int'
+                            ),
+                            backend_host_header=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    load_balancing_settings=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    health_probe_settings=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    resource_state=dict(
+                        type='str',
+                        choices=['creating',
+                                 'enabling',
+                                 'enabled',
+                                 'disabling',
+                                 'disabled',
+                                 'deleting']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             frontend_endpoints=dict(
                 type='list'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    ),
+                    host_name=dict(
+                        type='str'
+                    ),
+                    session_affinity_enabled_state=dict(
+                        type='bool'
+                    ),
+                    session_affinity_ttl_seconds=dict(
+                        type='int'
+                    ),
+                    web_application_firewall_policy_link=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    resource_state=dict(
+                        type='str',
+                        choices=['creating',
+                                 'enabling',
+                                 'enabled',
+                                 'disabling',
+                                 'disabled',
+                                 'deleting']
+                    ),
+                    name=dict(
+                        type='str'
+                    )
+                )
             ),
             enabled_state=dict(
                 type='bool'
@@ -465,17 +677,27 @@ class AzureRMFrontDoor(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.front_door_parameters[key] = kwargs[key]
 
+        dict_resource_id(self.front_door_parameters, ['routing_rules', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.front_door_parameters, ['routing_rules', 'frontend_endpoints', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.front_door_parameters, ['routing_rules', 'forwarding_protocol'], True)
         dict_camelize(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'query_parameter_strip_directive'], True)
         dict_map(self.front_door_parameters, ['routing_rules', 'cache_configuration', 'dynamic_compression'], {True: 'Enabled', False: 'Disabled'})
+        dict_resource_id(self.front_door_parameters, ['routing_rules', 'backend_pool', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_map(self.front_door_parameters, ['routing_rules', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['routing_rules', 'resource_state'], True)
+        dict_resource_id(self.front_door_parameters, ['load_balancing_settings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.front_door_parameters, ['load_balancing_settings', 'resource_state'], True)
+        dict_resource_id(self.front_door_parameters, ['health_probe_settings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.front_door_parameters, ['health_probe_settings', 'protocol'], True)
         dict_camelize(self.front_door_parameters, ['health_probe_settings', 'resource_state'], True)
+        dict_resource_id(self.front_door_parameters, ['backend_pools', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_map(self.front_door_parameters, ['backend_pools', 'backends', 'enabled_state'], {True: 'Enabled', False: 'Disabled'})
+        dict_resource_id(self.front_door_parameters, ['backend_pools', 'load_balancing_settings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.front_door_parameters, ['backend_pools', 'health_probe_settings', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.front_door_parameters, ['backend_pools', 'resource_state'], True)
+        dict_resource_id(self.front_door_parameters, ['frontend_endpoints', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_map(self.front_door_parameters, ['frontend_endpoints', 'session_affinity_enabled_state'], {True: 'Enabled', False: 'Disabled'})
+        dict_resource_id(self.front_door_parameters, ['frontend_endpoints', 'web_application_firewall_policy_link', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.front_door_parameters, ['frontend_endpoints', 'resource_state'], True)
         dict_map(self.front_door_parameters, ['enabled_state'], {True: 'Enabled', False: 'Disabled'})
         dict_camelize(self.front_door_parameters, ['resource_state'], True)
@@ -525,17 +747,18 @@ class AzureRMFrontDoor(AzureRMModuleBase):
                 return self.results
 
             self.delete_frontdoor()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_frontdoor():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Front Door instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_frontdoor(self):
@@ -595,12 +818,6 @@ class AzureRMFrontDoor(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -656,74 +873,6 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

@@ -235,6 +235,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -269,27 +270,155 @@ class AzureRMContainerService(AzureRMModuleBase):
             ),
             orchestrator_profile=dict(
                 type='dict'
+                options=dict(
+                    orchestrator_type=dict(
+                        type='str',
+                        choices=['swarm',
+                                 'dcos',
+                                 'custom',
+                                 'kubernetes']
+                    )
+                )
             ),
             custom_profile=dict(
                 type='dict'
+                options=dict(
+                    orchestrator=dict(
+                        type='str'
+                    )
+                )
             ),
             service_principal_profile=dict(
                 type='dict'
+                options=dict(
+                    client_id=dict(
+                        type='str'
+                    ),
+                    secret=dict(
+                        type='str'
+                    )
+                )
             ),
             master_profile=dict(
                 type='dict'
+                options=dict(
+                    count=dict(
+                        type='int'
+                    ),
+                    dns_prefix=dict(
+                        type='str'
+                    )
+                )
             ),
             agent_pool_profiles=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    count=dict(
+                        type='int'
+                    ),
+                    vm_size=dict(
+                        type='str',
+                        choices=['standard_a0',
+                                 'standard_a1',
+                                 'standard_a2',
+                                 'standard_a3',
+                                 'standard_a4',
+                                 'standard_a5',
+                                 'standard_a6',
+                                 'standard_a7',
+                                 'standard_a8',
+                                 'standard_a9',
+                                 'standard_a10',
+                                 'standard_a11',
+                                 'standard_d1',
+                                 'standard_d2',
+                                 'standard_d3',
+                                 'standard_d4',
+                                 'standard_d11',
+                                 'standard_d12',
+                                 'standard_d13',
+                                 'standard_d14',
+                                 'standard_d1_v2',
+                                 'standard_d2_v2',
+                                 'standard_d3_v2',
+                                 'standard_d4_v2',
+                                 'standard_d5_v2',
+                                 'standard_d11_v2',
+                                 'standard_d12_v2',
+                                 'standard_d13_v2',
+                                 'standard_d14_v2',
+                                 'standard_g1',
+                                 'standard_g2',
+                                 'standard_g3',
+                                 'standard_g4',
+                                 'standard_g5',
+                                 'standard_ds1',
+                                 'standard_ds2',
+                                 'standard_ds3',
+                                 'standard_ds4',
+                                 'standard_ds11',
+                                 'standard_ds12',
+                                 'standard_ds13',
+                                 'standard_ds14',
+                                 'standard_gs1',
+                                 'standard_gs2',
+                                 'standard_gs3',
+                                 'standard_gs4',
+                                 'standard_gs5']
+                    ),
+                    dns_prefix=dict(
+                        type='str'
+                    )
+                )
             ),
             windows_profile=dict(
                 type='dict'
+                options=dict(
+                    admin_username=dict(
+                        type='str'
+                    ),
+                    admin_password=dict(
+                        type='str',
+                        no_log=True
+                    )
+                )
             ),
             linux_profile=dict(
                 type='dict'
+                options=dict(
+                    admin_username=dict(
+                        type='str'
+                    ),
+                    ssh=dict(
+                        type='dict'
+                        options=dict(
+                            public_keys=dict(
+                                type='list'
+                                options=dict(
+                                    key_data=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             diagnostics_profile=dict(
                 type='dict'
+                options=dict(
+                    vm_diagnostics=dict(
+                        type='dict'
+                        options=dict(
+                            enabled=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -370,17 +499,18 @@ class AzureRMContainerService(AzureRMModuleBase):
                 return self.results
 
             self.delete_containerservice()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_containerservice():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Container Service instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_containerservice(self):
@@ -440,12 +570,6 @@ class AzureRMContainerService(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -486,89 +610,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

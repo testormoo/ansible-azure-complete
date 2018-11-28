@@ -85,6 +85,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -121,6 +122,16 @@ class AzureRMManagementGroup(AzureRMModuleBase):
             ),
             details=dict(
                 type='dict'
+                options=dict(
+                    parent=dict(
+                        type='dict'
+                        options=dict(
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -151,6 +162,7 @@ class AzureRMManagementGroup(AzureRMModuleBase):
             elif kwargs[key] is not None:
                 self.create_management_group_request[key] = kwargs[key]
 
+        dict_resource_id(self.create_management_group_request, ['details', 'parent', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
 
         response = None
 
@@ -192,17 +204,18 @@ class AzureRMManagementGroup(AzureRMModuleBase):
                 return self.results
 
             self.delete_managementgroup()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_managementgroup():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Management Group instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_managementgroup(self):
@@ -259,12 +272,6 @@ class AzureRMManagementGroup(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -307,87 +314,25 @@ def default_compare(new, old, path, result):
             return False
 
 
-def dict_camelize(d, path, camelize_first):
+def dict_resource_id(d, path, **kwargs):
     if isinstance(d, list):
         for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
+            dict_resource_id(d[i], path)
     elif isinstance(d, dict):
         if len(path) == 1:
             old_value = d.get(path[0], None)
             if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
+                if isinstance(old_value, dict):
+                    resource_id = format_resource_id(val=self.target['name'],
+                                                    subscription_id=self.target.get('subscription_id') or self.subscription_id,
+                                                    namespace=self.target['namespace'],
+                                                    types=self.target['types'],
+                                                    resource_group=self.target.get('resource_group') or self.resource_group)
+                    d[path[0]] = resource_id
         else:
             sd = d.get(path[0], None)
             if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
+                dict_resource_id(sd, path[1:])
 
 
 def main():

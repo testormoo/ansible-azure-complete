@@ -160,6 +160,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -210,6 +211,62 @@ class AzureRMIntegrationAccountBatchConfiguration(AzureRMModuleBase):
             ),
             release_criteria=dict(
                 type='dict'
+                options=dict(
+                    message_count=dict(
+                        type='int'
+                    ),
+                    batch_size=dict(
+                        type='int'
+                    ),
+                    recurrence=dict(
+                        type='dict'
+                        options=dict(
+                            frequency=dict(
+                                type='str',
+                                choices=['not_specified',
+                                         'second',
+                                         'minute',
+                                         'hour',
+                                         'day',
+                                         'week',
+                                         'month',
+                                         'year']
+                            ),
+                            interval=dict(
+                                type='int'
+                            ),
+                            start_time=dict(
+                                type='str'
+                            ),
+                            end_time=dict(
+                                type='str'
+                            ),
+                            time_zone=dict(
+                                type='str'
+                            ),
+                            schedule=dict(
+                                type='dict'
+                                options=dict(
+                                    minutes=dict(
+                                        type='list'
+                                    ),
+                                    hours=dict(
+                                        type='list'
+                                    ),
+                                    week_days=dict(
+                                        type='list'
+                                    ),
+                                    month_days=dict(
+                                        type='list'
+                                    ),
+                                    monthly_occurrences=dict(
+                                        type='list'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -290,17 +347,18 @@ class AzureRMIntegrationAccountBatchConfiguration(AzureRMModuleBase):
                 return self.results
 
             self.delete_integrationaccountbatchconfiguration()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_integrationaccountbatchconfiguration():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Integration Account Batch Configuration instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_integrationaccountbatchconfiguration(self):
@@ -363,12 +421,6 @@ class AzureRMIntegrationAccountBatchConfiguration(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -409,89 +461,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

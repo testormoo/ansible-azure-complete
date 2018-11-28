@@ -626,6 +626,7 @@ state:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -666,6 +667,31 @@ class AzureRMWebApp(AzureRMModuleBase):
             ),
             host_name_ssl_states=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    ssl_state=dict(
+                        type='str',
+                        choices=['disabled',
+                                 'sni_enabled',
+                                 'ip_based_enabled']
+                    ),
+                    virtual_ip=dict(
+                        type='str'
+                    ),
+                    thumbprint=dict(
+                        type='str'
+                    ),
+                    to_update=dict(
+                        type='str'
+                    ),
+                    host_type=dict(
+                        type='str',
+                        choices=['standard',
+                                 'repository']
+                    )
+                )
             ),
             server_farm_id=dict(
                 type='str'
@@ -675,12 +701,394 @@ class AzureRMWebApp(AzureRMModuleBase):
             ),
             site_config=dict(
                 type='dict'
+                options=dict(
+                    number_of_workers=dict(
+                        type='int'
+                    ),
+                    default_documents=dict(
+                        type='list'
+                    ),
+                    net_framework_version=dict(
+                        type='str'
+                    ),
+                    php_version=dict(
+                        type='str'
+                    ),
+                    python_version=dict(
+                        type='str'
+                    ),
+                    node_version=dict(
+                        type='str'
+                    ),
+                    linux_fx_version=dict(
+                        type='str'
+                    ),
+                    request_tracing_enabled=dict(
+                        type='str'
+                    ),
+                    request_tracing_expiration_time=dict(
+                        type='datetime'
+                    ),
+                    remote_debugging_enabled=dict(
+                        type='str'
+                    ),
+                    remote_debugging_version=dict(
+                        type='str'
+                    ),
+                    http_logging_enabled=dict(
+                        type='str'
+                    ),
+                    logs_directory_size_limit=dict(
+                        type='int'
+                    ),
+                    detailed_error_logging_enabled=dict(
+                        type='str'
+                    ),
+                    publishing_username=dict(
+                        type='str'
+                    ),
+                    app_settings=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            value=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    connection_strings=dict(
+                        type='list'
+                        options=dict(
+                            name=dict(
+                                type='str'
+                            ),
+                            connection_string=dict(
+                                type='str'
+                            ),
+                            type=dict(
+                                type='str',
+                                choices=['my_sql',
+                                         'sql_server',
+                                         'sql_azure',
+                                         'custom',
+                                         'notification_hub',
+                                         'service_bus',
+                                         'event_hub',
+                                         'api_hub',
+                                         'doc_db',
+                                         'redis_cache',
+                                         'postgre_sql']
+                            )
+                        )
+                    ),
+                    handler_mappings=dict(
+                        type='list'
+                        options=dict(
+                            extension=dict(
+                                type='str'
+                            ),
+                            script_processor=dict(
+                                type='str'
+                            ),
+                            arguments=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    document_root=dict(
+                        type='str'
+                    ),
+                    scm_type=dict(
+                        type='str',
+                        choices=['none',
+                                 'dropbox',
+                                 'tfs',
+                                 'local_git',
+                                 'git_hub',
+                                 'code_plex_git',
+                                 'code_plex_hg',
+                                 'bitbucket_git',
+                                 'bitbucket_hg',
+                                 'external_git',
+                                 'external_hg',
+                                 'one_drive',
+                                 'vso']
+                    ),
+                    use32_bit_worker_process=dict(
+                        type='str'
+                    ),
+                    web_sockets_enabled=dict(
+                        type='str'
+                    ),
+                    always_on=dict(
+                        type='str'
+                    ),
+                    java_version=dict(
+                        type='str'
+                    ),
+                    java_container=dict(
+                        type='str'
+                    ),
+                    java_container_version=dict(
+                        type='str'
+                    ),
+                    app_command_line=dict(
+                        type='str'
+                    ),
+                    managed_pipeline_mode=dict(
+                        type='str',
+                        choices=['integrated',
+                                 'classic']
+                    ),
+                    virtual_applications=dict(
+                        type='list'
+                        options=dict(
+                            virtual_path=dict(
+                                type='str'
+                            ),
+                            physical_path=dict(
+                                type='str'
+                            ),
+                            preload_enabled=dict(
+                                type='str'
+                            ),
+                            virtual_directories=dict(
+                                type='list'
+                                options=dict(
+                                    virtual_path=dict(
+                                        type='str'
+                                    ),
+                                    physical_path=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    load_balancing=dict(
+                        type='str',
+                        choices=['weighted_round_robin',
+                                 'least_requests',
+                                 'least_response_time',
+                                 'weighted_total_traffic',
+                                 'request_hash']
+                    ),
+                    experiments=dict(
+                        type='dict'
+                        options=dict(
+                            ramp_up_rules=dict(
+                                type='list'
+                                options=dict(
+                                    action_host_name=dict(
+                                        type='str'
+                                    ),
+                                    reroute_percentage=dict(
+                                        type='float'
+                                    ),
+                                    change_step=dict(
+                                        type='float'
+                                    ),
+                                    change_interval_in_minutes=dict(
+                                        type='int'
+                                    ),
+                                    min_reroute_percentage=dict(
+                                        type='float'
+                                    ),
+                                    max_reroute_percentage=dict(
+                                        type='float'
+                                    ),
+                                    change_decision_callback_url=dict(
+                                        type='str'
+                                    ),
+                                    name=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    limits=dict(
+                        type='dict'
+                        options=dict(
+                            max_percentage_cpu=dict(
+                                type='float'
+                            ),
+                            max_memory_in_mb=dict(
+                                type='int'
+                            ),
+                            max_disk_size_in_mb=dict(
+                                type='int'
+                            )
+                        )
+                    ),
+                    auto_heal_enabled=dict(
+                        type='str'
+                    ),
+                    auto_heal_rules=dict(
+                        type='dict'
+                        options=dict(
+                            triggers=dict(
+                                type='dict'
+                                options=dict(
+                                    requests=dict(
+                                        type='dict'
+                                        options=dict(
+                                            count=dict(
+                                                type='int'
+                                            ),
+                                            time_interval=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    private_bytes_in_kb=dict(
+                                        type='int'
+                                    ),
+                                    status_codes=dict(
+                                        type='list'
+                                        options=dict(
+                                            status=dict(
+                                                type='int'
+                                            ),
+                                            sub_status=dict(
+                                                type='int'
+                                            ),
+                                            win32_status=dict(
+                                                type='int'
+                                            ),
+                                            count=dict(
+                                                type='int'
+                                            ),
+                                            time_interval=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    slow_requests=dict(
+                                        type='dict'
+                                        options=dict(
+                                            time_taken=dict(
+                                                type='str'
+                                            ),
+                                            count=dict(
+                                                type='int'
+                                            ),
+                                            time_interval=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            actions=dict(
+                                type='dict'
+                                options=dict(
+                                    action_type=dict(
+                                        type='str',
+                                        choices=['recycle',
+                                                 'log_event',
+                                                 'custom_action']
+                                    ),
+                                    custom_action=dict(
+                                        type='dict'
+                                        options=dict(
+                                            exe=dict(
+                                                type='str'
+                                            ),
+                                            parameters=dict(
+                                                type='str'
+                                            )
+                                        )
+                                    ),
+                                    min_process_execution_time=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    tracing_options=dict(
+                        type='str'
+                    ),
+                    vnet_name=dict(
+                        type='str'
+                    ),
+                    cors=dict(
+                        type='dict'
+                        options=dict(
+                            allowed_origins=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    push=dict(
+                        type='dict'
+                        options=dict(
+                            kind=dict(
+                                type='str'
+                            ),
+                            is_push_enabled=dict(
+                                type='str'
+                            ),
+                            tag_whitelist_json=dict(
+                                type='str'
+                            ),
+                            tags_requiring_auth=dict(
+                                type='str'
+                            ),
+                            dynamic_tags_json=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    api_definition=dict(
+                        type='dict'
+                        options=dict(
+                            url=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    auto_swap_slot_name=dict(
+                        type='str'
+                    ),
+                    local_my_sql_enabled=dict(
+                        type='str'
+                    ),
+                    ip_security_restrictions=dict(
+                        type='list'
+                        options=dict(
+                            ip_address=dict(
+                                type='str'
+                            ),
+                            subnet_mask=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    http20_enabled=dict(
+                        type='str'
+                    ),
+                    min_tls_version=dict(
+                        type='str',
+                        choices=['1.0',
+                                 '1.1',
+                                 '1.2']
+                    )
+                )
             ),
             scm_site_also_stopped=dict(
                 type='str'
             ),
             hosting_environment_profile=dict(
                 type='dict'
+                options=dict(
+                    id=dict(
+                        type='str'
+                    )
+                )
             ),
             client_affinity_enabled=dict(
                 type='str'
@@ -699,15 +1107,84 @@ class AzureRMWebApp(AzureRMModuleBase):
             ),
             cloning_info=dict(
                 type='dict'
+                options=dict(
+                    correlation_id=dict(
+                        type='str'
+                    ),
+                    overwrite=dict(
+                        type='str'
+                    ),
+                    clone_custom_host_names=dict(
+                        type='str'
+                    ),
+                    clone_source_control=dict(
+                        type='str'
+                    ),
+                    source_web_app_id=dict(
+                        type='str'
+                    ),
+                    hosting_environment=dict(
+                        type='str'
+                    ),
+                    app_settings_overrides=dict(
+                        type='dict'
+                    ),
+                    configure_load_balancing=dict(
+                        type='str'
+                    ),
+                    traffic_manager_profile_id=dict(
+                        type='str'
+                    ),
+                    traffic_manager_profile_name=dict(
+                        type='str'
+                    ),
+                    ignore_quotas=dict(
+                        type='str'
+                    )
+                )
             ),
             snapshot_info=dict(
                 type='dict'
+                options=dict(
+                    kind=dict(
+                        type='str'
+                    ),
+                    snapshot_time=dict(
+                        type='str'
+                    ),
+                    recovery_target=dict(
+                        type='dict'
+                        options=dict(
+                            location=dict(
+                                type='str'
+                            ),
+                            id=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    overwrite=dict(
+                        type='str'
+                    ),
+                    recover_configuration=dict(
+                        type='str'
+                    ),
+                    ignore_conflicting_host_names=dict(
+                        type='str'
+                    )
+                )
             ),
             https_only=dict(
                 type='str'
             ),
             identity=dict(
                 type='dict'
+                options=dict(
+                    type=dict(
+                        type='str',
+                        choices=['system_assigned']
+                    )
+                )
             ),
             state=dict(
                 type='str',
@@ -747,6 +1224,8 @@ class AzureRMWebApp(AzureRMModuleBase):
         dict_camelize(self.site_envelope, ['site_config', 'managed_pipeline_mode'], True)
         dict_camelize(self.site_envelope, ['site_config', 'load_balancing'], True)
         dict_camelize(self.site_envelope, ['site_config', 'auto_heal_rules', 'actions', 'action_type'], True)
+        dict_resource_id(self.site_envelope, ['hosting_environment_profile', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
+        dict_resource_id(self.site_envelope, ['snapshot_info', 'recovery_target', 'id'], subscription_id=self.subscription_id, resource_group=self.resource_group)
         dict_camelize(self.site_envelope, ['identity', 'type'], True)
 
         response = None
@@ -791,17 +1270,19 @@ class AzureRMWebApp(AzureRMModuleBase):
                 return self.results
 
             self.delete_webapp()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_webapp():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Web App instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None),
+                'state': response.get('state', None)
+                })
         return self.results
 
     def create_update_webapp(self):
@@ -861,13 +1342,6 @@ class AzureRMWebApp(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None),
-            'state': d.get('state', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -923,74 +1397,6 @@ def dict_camelize(d, path, camelize_first):
             sd = d.get(path[0], None)
             if sd is not None:
                 dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():

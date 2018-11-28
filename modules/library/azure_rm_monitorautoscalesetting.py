@@ -376,6 +376,7 @@ id:
 
 import time
 from ansible.module_utils.azure_rm_common import AzureRMModuleBase
+from ansible.module_utils.common.dict_transformations import _snake_to_camel
 
 try:
     from msrestazure.azure_exceptions import CloudError
@@ -410,9 +411,178 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
             ),
             profiles=dict(
                 type='list'
+                options=dict(
+                    name=dict(
+                        type='str'
+                    ),
+                    capacity=dict(
+                        type='dict'
+                        options=dict(
+                            minimum=dict(
+                                type='str'
+                            ),
+                            maximum=dict(
+                                type='str'
+                            ),
+                            default=dict(
+                                type='str'
+                            )
+                        )
+                    ),
+                    rules=dict(
+                        type='list'
+                        options=dict(
+                            metric_trigger=dict(
+                                type='dict'
+                                options=dict(
+                                    metric_name=dict(
+                                        type='str'
+                                    ),
+                                    metric_resource_uri=dict(
+                                        type='str'
+                                    ),
+                                    time_grain=dict(
+                                        type='str'
+                                    ),
+                                    statistic=dict(
+                                        type='str',
+                                        choices=['average',
+                                                 'min',
+                                                 'max',
+                                                 'sum']
+                                    ),
+                                    time_window=dict(
+                                        type='str'
+                                    ),
+                                    time_aggregation=dict(
+                                        type='str',
+                                        choices=['average',
+                                                 'minimum',
+                                                 'maximum',
+                                                 'total',
+                                                 'count',
+                                                 'last']
+                                    ),
+                                    operator=dict(
+                                        type='str',
+                                        choices=['equals',
+                                                 'not_equals',
+                                                 'greater_than',
+                                                 'greater_than_or_equal',
+                                                 'less_than',
+                                                 'less_than_or_equal']
+                                    ),
+                                    threshold=dict(
+                                        type='float'
+                                    )
+                                )
+                            ),
+                            scale_action=dict(
+                                type='dict'
+                                options=dict(
+                                    direction=dict(
+                                        type='str',
+                                        choices=['none',
+                                                 'increase',
+                                                 'decrease']
+                                    ),
+                                    type=dict(
+                                        type='str',
+                                        choices=['change_count',
+                                                 'percent_change_count',
+                                                 'exact_count']
+                                    ),
+                                    value=dict(
+                                        type='str'
+                                    ),
+                                    cooldown=dict(
+                                        type='str'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    fixed_date=dict(
+                        type='dict'
+                        options=dict(
+                            time_zone=dict(
+                                type='str'
+                            ),
+                            start=dict(
+                                type='datetime'
+                            ),
+                            end=dict(
+                                type='datetime'
+                            )
+                        )
+                    ),
+                    recurrence=dict(
+                        type='dict'
+                        options=dict(
+                            frequency=dict(
+                                type='str',
+                                choices=['none',
+                                         'second',
+                                         'minute',
+                                         'hour',
+                                         'day',
+                                         'week',
+                                         'month',
+                                         'year']
+                            ),
+                            schedule=dict(
+                                type='dict'
+                                options=dict(
+                                    time_zone=dict(
+                                        type='str'
+                                    ),
+                                    days=dict(
+                                        type='list'
+                                    ),
+                                    hours=dict(
+                                        type='list'
+                                    ),
+                                    minutes=dict(
+                                        type='list'
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             notifications=dict(
                 type='list'
+                options=dict(
+                    operation=dict(
+                        type='str'
+                    ),
+                    email=dict(
+                        type='dict'
+                        options=dict(
+                            send_to_subscription_administrator=dict(
+                                type='str'
+                            ),
+                            send_to_subscription_co_administrators=dict(
+                                type='str'
+                            ),
+                            custom_emails=dict(
+                                type='list'
+                            )
+                        )
+                    ),
+                    webhooks=dict(
+                        type='list'
+                        options=dict(
+                            service_uri=dict(
+                                type='str'
+                            ),
+                            properties=dict(
+                                type='dict'
+                            )
+                        )
+                    )
+                )
             ),
             enabled=dict(
                 type='str'
@@ -504,17 +674,18 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
                 return self.results
 
             self.delete_autoscalesetting()
-            # make sure instance is actually deleted, for some Azure resources, instance is hanging around
-            # for some time after deletion -- this should be really fixed in Azure.
-            while self.get_autoscalesetting():
-                time.sleep(20)
+            # This currently doesnt' work as there is a bug in SDK / Service
+            if isinstance(response, LROPoller) or isinstance(response, AzureOperationPoller):
+                response = self.get_poller_result(response)
         else:
             self.log("Autoscale Setting instance unchanged")
             self.results['changed'] = False
             response = old_response
 
         if self.state == 'present':
-            self.results.update(self.format_response(response))
+            self.results.update({
+                'id': response.get('id', None)
+                })
         return self.results
 
     def create_update_autoscalesetting(self):
@@ -574,12 +745,6 @@ class AzureRMAutoscaleSetting(AzureRMModuleBase):
 
         return False
 
-    def format_response(self, d):
-        d = {
-            'id': d.get('id', None)
-        }
-        return d
-
 
 def default_compare(new, old, path, result):
     if new is None:
@@ -620,89 +785,6 @@ def default_compare(new, old, path, result):
         else:
             result['compare'] = 'changed [' + path + '] ' + new + ' != ' + old
             return False
-
-
-def dict_camelize(d, path, camelize_first):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_camelize(d[i], path, camelize_first)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = _snake_to_camel(old_value, camelize_first)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_camelize(sd, path[1:], camelize_first)
-
-
-def dict_map(d, path, map):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_map(d[i], path, map)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = map.get(old_value, old_value)
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_map(sd, path[1:], map)
-
-
-def dict_upper(d, path):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_upper(d[i], path)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.get(path[0], None)
-            if old_value is not None:
-                d[path[0]] = old_value.upper()
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_upper(sd, path[1:])
-
-
-def dict_rename(d, path, new_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_rename(d[i], path, new_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[new_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_rename(sd, path[1:], new_name)
-
-
-def dict_expand(d, path, outer_dict_name):
-    if isinstance(d, list):
-        for i in range(len(d)):
-            dict_expand(d[i], path, outer_dict_name)
-    elif isinstance(d, dict):
-        if len(path) == 1:
-            old_value = d.pop(path[0], None)
-            if old_value is not None:
-                d[outer_dict_name] = d.get(outer_dict_name, {})
-                d[outer_dict_name] = old_value
-        else:
-            sd = d.get(path[0], None)
-            if sd is not None:
-                dict_expand(sd, path[1:], outer_dict_name)
-
-
-def _snake_to_camel(snake, capitalize_first=False):
-    if capitalize_first:
-        return ''.join(x.capitalize() or '_' for x in snake.split('_'))
-    else:
-        return snake.split('_')[0] + ''.join(x.capitalize() or '_' for x in snake.split('_')[1:])
 
 
 def main():
