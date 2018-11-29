@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Returns the extended properties of a product.
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}/products/{productName}/listDetails
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        subresource:
+          - type: products
+            name: Microsoft.OSTCExtensions.VMAccessForLinux.1.4.7.1
+          - type: listDetails
+        body:

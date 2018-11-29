@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: RoleAssignmentArtifact_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}/artifacts/{artifactName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+          - type: artifacts
+            name: ownerAssignment
+        body:

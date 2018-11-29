@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Assignment_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-11-11-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Blueprint/blueprintAssignments/{assignmentName}
+        provider: Blueprint
+        resource_type: blueprintAssignments
+        resource_name: assignSimpleBlueprint
+        body:

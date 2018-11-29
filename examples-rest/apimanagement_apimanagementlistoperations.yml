@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementListOperations
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /providers/Microsoft.ApiManagement/operations
+        provider: ApiManagement
+        resource_type: operations

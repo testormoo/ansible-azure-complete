@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Returns a list of all registrations.
+      azure_rm_resource_facts:
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations

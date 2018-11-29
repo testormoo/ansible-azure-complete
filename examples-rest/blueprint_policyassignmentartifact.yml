@@ -1,0 +1,51 @@
+- hosts: localhost
+  tasks:
+    - name: PolicyAssignmentArtifact
+      azure_rm_resource:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}/artifacts/{artifactName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+          - type: artifacts
+            name: costCenterPolicy
+        body:
+- hosts: localhost
+  tasks:
+    - name: PolicyAssignmentArtifact
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}/artifacts/{artifactName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+          - type: artifacts
+            name: costCenterPolicy
+- hosts: localhost
+  tasks:
+    - name: PolicyAssignmentArtifact
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}/versions/{versionId}/artifacts/{artifactName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+          - type: versions
+            name: V2
+          - type: artifacts
+            name: costCenterPolicy

@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Create test job
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}/draft/testJob
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+          - type: draft
+          - type: testJob
+        body:
+          parameters:
+            key01: value01
+            key02: value02
+          runOn:

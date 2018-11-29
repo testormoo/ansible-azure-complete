@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update file server
+      azure_rm_resource:
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/fileServers/{fileServerName}
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: fileServers
+        resource_name: demo_nfs
+        body:
+          location: eastus
+          properties:
+            sshConfiguration:
+              userAccountSettings:
+                adminUserPassword: admin_user_password
+                adminUserName: admin_user_name
+            dataDisks:
+              diskSizeInGB: 10
+              storageAccountType: Standard_LRS
+              diskCount: 2
+            vmSize: STANDARD_NC6

@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Returns a list of products.
+      azure_rm_resource_facts:
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}/products
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        subresource:
+          - type: products
+- hosts: localhost
+  tasks:
+    - name: Returns a list of products.
+      azure_rm_resource_facts:
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}/customerSubscriptions
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        subresource:
+          - type: customerSubscriptions

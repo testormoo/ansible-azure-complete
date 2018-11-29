@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: GetPool
+      azure_rm_resource_facts:
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/pools/{poolName}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: pools
+            name: testpool

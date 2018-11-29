@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List hybrid worker groups by Automation Account
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/hybridRunbookWorkerGroups
+        resource_group: udtest
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: testaccount
+        subresource:
+          - type: hybridRunbookWorkerGroups

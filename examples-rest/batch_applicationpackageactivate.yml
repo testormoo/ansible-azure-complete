@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: ApplicationPackageActivate
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/applications/{applicationId}/versions/{version}/activate
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: applications
+            name: app1
+          - type: versions
+            name: 1
+          - type: activate
+        body:
+          format: zip

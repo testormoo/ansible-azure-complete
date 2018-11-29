@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get the linked workspace of an automation account
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/linkedWorkspace
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContosoAutomationAccount
+        subresource:
+          - type: linkedWorkspace

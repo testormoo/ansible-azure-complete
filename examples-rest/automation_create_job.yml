@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Create job
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/jobs/{jobName}
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: jobs
+            name: foo
+        body:
+          properties:
+            runbook:
+              name: TestRunbook
+            parameters:
+              key01: value01
+              key02: value02
+            runOn:

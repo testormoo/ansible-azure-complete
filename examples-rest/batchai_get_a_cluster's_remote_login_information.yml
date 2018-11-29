@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get a cluster's remote-login-information
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/clusters/{clusterName}/listRemoteLoginInformation
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: clusters
+        resource_name: demo_cluster
+        subresource:
+          - type: listRemoteLoginInformation
+        body:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List connections by automation account, first 100
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connections
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount28
+        subresource:
+          - type: connections

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: EdgeNodes_List
+      azure_rm_resource_facts:
+        api_version: '2017-10-12'
+        # url: /providers/Microsoft.Cdn/edgenodes
+        provider: Cdn
+        resource_type: edgenodes

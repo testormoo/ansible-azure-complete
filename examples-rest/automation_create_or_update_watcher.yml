@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update watcher
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/watchers/{watcherName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyTestAutomationAccount
+        subresource:
+          - type: watchers
+            name: MyTestWatcher
+        body:
+          name: MyTestWatcher
+          type:
+          location:
+          tags:
+          etag:
+          properties:
+            executionFrequencyInSeconds: 60
+            scriptName: MyTestWatcherRunbook
+            scriptParameters:
+            description: This is a test watcher.
+            scriptRunOn: MyTestHybridWorkerGroup
+            creationTime: 2016-11-01T11:22:47.7333333+00:00
+            lastModifiedBy:
+            lastModifiedTime: 2016-11-01T11:22:47.7333333+00:00

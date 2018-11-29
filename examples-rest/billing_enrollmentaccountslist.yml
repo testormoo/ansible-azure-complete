@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: EnrollmentAccountsList
+      azure_rm_resource_facts:
+        api_version: '2018-03-01-preview'
+        # url: /providers/Microsoft.Billing/enrollmentAccounts
+        provider: Billing
+        resource_type: enrollmentAccounts

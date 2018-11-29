@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Update watcher
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/watchers/{watcherName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyTestAutomationAccount
+        subresource:
+          - type: watchers
+            name: MyTestWatcher
+        body:
+          name: MyTestWatcher
+          properties:
+            executionFrequencyInSeconds: 600

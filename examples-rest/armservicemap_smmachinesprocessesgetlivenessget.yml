@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: SMMachinesProcessesGetLivenessGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/machines/{machineName}/processes/{processName}/liveness
+        resource_group: rg-sm
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: D6F79F14-E563-469B-84B5-9286D2803B2F
+        subresource:
+          - type: features
+          - type: serviceMap
+          - type: machines
+            name: m-36b83664-0822-4fb3-99a3-8332754f3eae
+          - type: processes
+            name: p-bbf99526b8fc5e7ee4f75568958a040d08489160
+          - type: liveness

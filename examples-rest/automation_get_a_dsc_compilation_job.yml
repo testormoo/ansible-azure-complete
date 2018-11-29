@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a DSC Compilation job
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/compilationjobs/{compilationJobName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: compilationjobs
+            name: TestCompilationJob

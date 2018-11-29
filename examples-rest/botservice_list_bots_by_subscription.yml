@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Bots by Subscription
+      azure_rm_resource_facts:
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.BotService/botServices
+        provider: BotService
+        resource_type: botServices

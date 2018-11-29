@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update connection type
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connectionTypes/{connectionTypeName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount22
+        subresource:
+          - type: connectionTypes
+            name: myCT
+        body:
+          name: myCT
+          properties:
+            isGlobal: False
+            fieldDefinitions:
+              myStringField:
+                isEncrypted: False
+                isOptional: False
+                type: string
+              myBoolField:
+                isEncrypted: False
+                isOptional: False
+                type: bool
+              myStringFieldEncrypted:
+                isEncrypted: True
+                isOptional: False
+                type: string

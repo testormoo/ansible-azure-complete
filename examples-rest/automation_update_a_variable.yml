@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Update a variable
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/variables/{variableName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: sampleAccount9
+        subresource:
+          - type: variables
+            name: sampleVariable
+        body:
+          name: sampleVariable
+          properties:
+            value: "ComputerName3.domain.com"

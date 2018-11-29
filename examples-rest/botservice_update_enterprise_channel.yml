@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Update Enterprise Channel
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/enterpriseChannels/{resourceName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: enterpriseChannels
+        resource_name: contoso-dl
+        body:
+          location: West US
+          sku:
+            name: S1
+          etag: etag1
+          tags:
+            tag1: value1
+            tag2: value2
+          id: someid
+          properties:
+            state: Stopping
+            nodes:
+              - id: 00000000-0000-0000-0000-000000000000
+                state: Stopping
+                name: Node 1
+                azureSku: Int1
+                azureLocation: WestUs

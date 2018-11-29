@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a python 2 package
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/python2Packages/{packageName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: python2Packages
+            name: OmsCompositeResources
+        body:
+          properties:
+            contentLink:
+              uri: https://teststorage.blob.core.windows.net/dsccomposite/OmsCompositeResources.zip
+              contentHash:
+                algorithm: sha265
+                value: 07E108A962B81DD9C9BAA89BB47C0F6EE52B29E83758B07795E408D258B2B87A
+              version: 1.0.0.0
+          tags:

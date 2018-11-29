@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete webhook
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/webhooks/{webhookName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: webhooks
+            name: TestWebhook
+        body:

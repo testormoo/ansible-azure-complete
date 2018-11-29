@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementGetGroup
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/groups/{groupId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: groups
+            name: 59306a29e4bbd510dc24e5f9

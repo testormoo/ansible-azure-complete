@@ -1,0 +1,38 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update cluster
+      azure_rm_resource:
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/clusters/{clusterName}
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: clusters
+        resource_name: demo_cluster
+        body:
+          location: eastus
+          properties:
+            scaleSettings:
+              manual:
+                nodeDeallocationOption: requeue
+                targetNodeCount: 1
+            userAccountSettings:
+              adminUserPassword: admin_user_password
+              adminUserSshPublicKey: ssh-rsa AAAAB3NzaC1yc...
+              adminUserName: admin_user_name
+            nodeSetup:
+              mountVolumes:
+                fileServers:
+                  - fileServer:
+                      id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/demo_resource_group/providers/Microsoft.BatchAI/fileservers/fileservercedd134b
+                    mountOptions: rw
+                    relativeMountPath: nfs
+                azureFileShares:
+                  - relativeMountPath: azfiles
+                    directoryMode: 0777
+                    accountName: storage_account_name
+                    azureFileUrl: https://storage_account_name.file.core.windows.net/azure_file_share_name
+                    fileMode: 0777
+                    credentials:
+                      accountKey: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000==
+            vmPriority: dedicated
+            vmSize: STANDARD_NC6

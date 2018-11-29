@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: PublishedBlueprint_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}/versions/{versionId}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+          - type: versions
+            name: v2
+        body:

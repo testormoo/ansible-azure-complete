@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a schedule
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/schedules/{scheduleName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: schedules
+            name: mySchedule
+        body:
+          name: mySchedule
+          properties:
+            description: my description of schedule goes here
+            startTime: 2017-03-27T17:28:57.2494819Z
+            expiryTime: 2017-04-01T17:28:57.2494819Z
+            interval: 1
+            frequency: Hour
+            advancedSchedule:

@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Update runbook
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+        body:
+          properties:
+            description: Updated Description of the Runbook
+            logVerbose: False
+            logProgress: True
+            logActivityTrace: 1

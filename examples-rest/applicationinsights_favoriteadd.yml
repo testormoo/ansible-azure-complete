@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: FavoriteAdd
+      azure_rm_resource:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/favorites/{favoriteId}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-ai-component
+        subresource:
+          - type: favorites
+            name: deadb33f-8bee-4d3b-a059-9be8dac93960
+        body:

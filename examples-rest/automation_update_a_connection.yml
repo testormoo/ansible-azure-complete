@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Update a connection
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connections/{connectionName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount28
+        subresource:
+          - type: connections
+            name: myConnection
+        body:
+          name: myConnection
+          properties:
+            description: my description goes here
+            fieldDefinitionValues:
+              AutomationCertificateName: myCertificateName
+              SubscriptionID: b5e4748c-f69a-467c-8749-e2f9c8cd3009

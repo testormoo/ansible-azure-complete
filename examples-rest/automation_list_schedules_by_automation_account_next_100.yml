@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List schedules by automation account, next 100
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/schedules
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: schedules

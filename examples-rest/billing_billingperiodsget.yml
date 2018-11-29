@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: BillingPeriodsGet
+      azure_rm_resource_facts:
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}
+        provider: Billing
+        resource_type: billingPeriods
+        resource_name: 201702-1

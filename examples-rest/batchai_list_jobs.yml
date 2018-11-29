@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: List jobs
+      azure_rm_resource_facts:
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.BatchAI/jobs
+        provider: BatchAI
+        resource_type: jobs
+- hosts: localhost
+  tasks:
+    - name: List jobs
+      azure_rm_resource_facts:
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/jobs
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: jobs

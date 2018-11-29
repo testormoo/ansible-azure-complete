@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: AnalyticsItemList
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/components/{resourceName}/{scopePath}
+        resource_group: my-resource-group
+        provider: insights
+        resource_type: components
+        resource_name: my-component
+            name: analyticsItems

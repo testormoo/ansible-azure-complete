@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Update hybrid worker group
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/hybridRunbookWorkerGroups/{hybridRunbookWorkerGroupName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: testaccount
+        subresource:
+          - type: hybridRunbookWorkerGroups
+            name: TestHybridGroup
+        body:
+          credential:
+            name: myRunAsCredentialName

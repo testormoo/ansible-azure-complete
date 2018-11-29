@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a DSC Node
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/nodes/{nodeId}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount9
+        subresource:
+          - type: nodes
+            name: e1243a76-a9bd-432f-bde3-ad8f317ee786
+        body:

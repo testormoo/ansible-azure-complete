@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Generate webhook uri
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/webhooks/generateUri
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: webhooks
+          - type: generateUri
+        body:

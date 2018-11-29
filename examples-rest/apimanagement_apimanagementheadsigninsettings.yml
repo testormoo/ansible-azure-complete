@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementHeadSignInSettings
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/portalsettings/signin
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: portalsettings
+          - type: signin
+        body:

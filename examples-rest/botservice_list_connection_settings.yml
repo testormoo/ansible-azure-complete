@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List Connection Settings
+      azure_rm_resource_facts:
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/connections
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: connections

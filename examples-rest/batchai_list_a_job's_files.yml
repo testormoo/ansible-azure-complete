@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List a job's files
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/jobs/{jobName}/listOutputFiles
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: jobs
+        resource_name: demo_job
+        subresource:
+          - type: listOutputFiles
+        body:

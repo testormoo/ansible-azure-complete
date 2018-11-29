@@ -1,0 +1,49 @@
+- hosts: localhost
+  tasks:
+    - name: Create or Update Configuration
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/configurations/{configurationName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount18
+        subresource:
+          - type: configurations
+            name: SetupServer
+        body:
+          properties:
+            source:
+              hash:
+                algorithm: sha256
+                value: A9E5DB56BA21513F61E0B3868816FDC6D4DF5131F5617D7FF0D769674BD5072F
+              type: embeddedContent
+              value: Configuration SetupServer {
+    Node localhost {
+                               WindowsFeature IIS {
+                               Name = "Web-Server";
+            Ensure = "Present"
+        }
+    }
+}
+            description: sample configuration
+          name: SetupServer
+          location: East US 2
+- hosts: localhost
+  tasks:
+    - name: Create or Update Configuration
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/configurations/{configurationName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount18
+        subresource:
+          - type: configurations
+            name: SetupServer
+        body:
+          name: SetupServer
+          tags:
+            Hello: World

@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: SMMachinesPortsListAcceptingProcessesGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/machines/{machineName}/ports/{portName}/acceptingProcesses
+        resource_group: rg-sm
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: D6F79F14-E563-469B-84B5-9286D2803B2F
+        subresource:
+          - type: features
+          - type: serviceMap
+          - type: machines
+            name: m-1bc28d72-0e81-4aff-b1e3-ae12e8da155e
+          - type: ports
+            name: b-c0a80101_8000
+          - type: acceptingProcesses

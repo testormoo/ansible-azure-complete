@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Start Watcher
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/watchers/{watcherName}/start
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyTestAutomationAccount
+        subresource:
+          - type: watchers
+            name: MyTestWatcher
+          - type: start
+        body:
+- hosts: localhost
+  tasks:
+    - name: Start Watcher
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/watchers/{watcherName}/stop
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyTestAutomationAccount
+        subresource:
+          - type: watchers
+            name: MyTestWatcher
+          - type: stop
+        body:

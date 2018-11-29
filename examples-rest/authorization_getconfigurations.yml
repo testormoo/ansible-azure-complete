@@ -1,0 +1,175 @@
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Authorization/permissions
+        provider: Authorization
+        resource_type: permissions
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{parentResourcePath}/{resourceType}/{resourceName}/providers/Microsoft.Authorization/permissions
+        provider: Authorization
+        resource_type: permissions
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /providers/Microsoft.Authorization/providerOperations/{resourceProviderNamespace}
+        provider: Authorization
+        resource_type: providerOperations
+        resource_name: resourceProviderNamespace
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /providers/Microsoft.Authorization/providerOperations
+        provider: Authorization
+        resource_type: providerOperations
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{parentResourcePath}/{resourceType}/{resourceName}/providers/Microsoft.Authorization/roleAssignments
+        provider: Authorization
+        resource_type: roleAssignments
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Authorization/roleAssignments
+        resource_group: rgname
+        provider: Authorization
+        resource_type: roleAssignments
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}
+        provider: Authorization
+        resource_type: roleAssignments
+        resource_name: roleAssignmentName
+        body:
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}
+        provider: Authorization
+        resource_type: roleAssignments
+        resource_name: roleAssignmentName
+        body:
+          properties:
+            roleDefinitionId: /subscriptions/4004a9fd-d58e-48dc-aeb2-4a4aec58606f/providers/Microsoft.Authorization/roleDefinitions/de139f84-1756-47ae-9be6-808fbbe84772
+            principalId: d93a38bc-d029-4160-bfb0-fbda779ac214
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}
+        provider: Authorization
+        resource_type: roleAssignments
+        resource_name: roleAssignmentName
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-07-01'
+        # url: /{roleAssignmentId}
+        body:
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        api_version: '2015-07-01'
+        # url: /{roleAssignmentId}
+        body:
+          properties:
+            roleDefinitionId: /subscriptions/4004a9fd-d58e-48dc-aeb2-4a4aec58606f/providers/Microsoft.Authorization/roleDefinitions/de139f84-1756-47ae-9be6-808fbbe84772
+            principalId: d93a38bc-d029-4160-bfb0-fbda779ac214
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{roleAssignmentId}
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments
+        provider: Authorization
+        resource_type: roleAssignments
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleAssignments
+        provider: Authorization
+        resource_type: roleAssignments
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}
+        provider: Authorization
+        resource_type: roleDefinitions
+        resource_name: roleDefinitionId
+        body:
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}
+        provider: Authorization
+        resource_type: roleDefinitions
+        resource_name: roleDefinitionId
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}
+        provider: Authorization
+        resource_type: roleDefinitions
+        resource_name: roleDefinitionId
+        body:
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{scope}/providers/Microsoft.Authorization/roleDefinitions
+        provider: Authorization
+        resource_type: roleDefinitions
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /{roleDefinitionId}
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2015-07-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Authorization/classicAdministrators
+        provider: Authorization
+        resource_type: classicAdministrators

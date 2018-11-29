@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an existing connection
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connections/{connectionName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount28
+        subresource:
+          - type: connections
+            name: myConnection
+        body:

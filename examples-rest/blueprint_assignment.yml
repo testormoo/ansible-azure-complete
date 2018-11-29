@@ -1,0 +1,27 @@
+- hosts: localhost
+  tasks:
+    - name: Assignment
+      azure_rm_resource:
+        api_version: '2017-11-11-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Blueprint/blueprintAssignments/{assignmentName}
+        provider: Blueprint
+        resource_type: blueprintAssignments
+        resource_name: assignSimpleBlueprint
+        body:
+- hosts: localhost
+  tasks:
+    - name: Assignment
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Blueprint/blueprintAssignments/{assignmentName}
+        provider: Blueprint
+        resource_type: blueprintAssignments
+        resource_name: assignSimpleBlueprint
+- hosts: localhost
+  tasks:
+    - name: Assignment
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Blueprint/blueprintAssignments
+        provider: Blueprint
+        resource_type: blueprintAssignments

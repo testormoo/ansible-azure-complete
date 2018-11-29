@@ -1,0 +1,74 @@
+- hosts: localhost
+  tasks:
+    - name: Update Connection Setting
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/Connections/{connectionName}/listWithSecrets
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: Connections
+            name: sampleConnection
+          - type: listWithSecrets
+        body:
+- hosts: localhost
+  tasks:
+    - name: Update Connection Setting
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/Connections/{connectionName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: Connections
+            name: sampleConnection
+        body:
+          location: global
+          etag: etag1
+          id: someid
+          name: The Name of the Connection Setting
+          properties:
+            clientId: sampleclientid
+            clientSecret: samplesecret
+            scopes: samplescope
+            serviceProviderId: serviceproviderid
+            serviceProviderDisplayName: serviceProviderDisplayName
+            parameters:
+              - key: key1
+                value: value1
+              - key: key2
+                value: value2
+- hosts: localhost
+  tasks:
+    - name: Update Connection Setting
+      azure_rm_resource_facts:
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/Connections/{connectionName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: Connections
+            name: sampleConnection
+- hosts: localhost
+  tasks:
+    - name: Update Connection Setting
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/Connections/{connectionName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: Connections
+            name: sampleConnection
+        body:

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementHeadLogger
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/loggers/{loggerid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: loggers
+            name: templateLogger
+        body:

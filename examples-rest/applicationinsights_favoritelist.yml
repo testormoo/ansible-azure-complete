@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: FavoriteList
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/favorites/{favoriteId}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-ai-component
+        subresource:
+          - type: favorites
+            name: deadb33f-5e0d-4064-8ebb-1a4ed0313eb2
+        body:
+- hosts: localhost
+  tasks:
+    - name: FavoriteList
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/favorites/{favoriteId}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-ai-component
+        subresource:
+          - type: favorites
+            name: deadb33f-5e0d-4064-8ebb-1a4ed0313eb2
+        body:

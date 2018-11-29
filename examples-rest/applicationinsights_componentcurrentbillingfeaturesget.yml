@@ -1,0 +1,48 @@
+- hosts: localhost
+  tasks:
+    - name: ComponentCurrentBillingFeaturesGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/currentbillingfeatures
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: currentbillingfeatures
+- hosts: localhost
+  tasks:
+    - name: ComponentCurrentBillingFeaturesGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/quotastatus
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: quotastatus
+- hosts: localhost
+  tasks:
+    - name: ComponentCurrentBillingFeaturesGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/featurecapabilities
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: featurecapabilities
+- hosts: localhost
+  tasks:
+    - name: ComponentCurrentBillingFeaturesGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/getavailablebillingfeatures
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: getavailablebillingfeatures

@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: WorkbookGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroup/{resourceGroupName}/providers/microsoft.insights/workbooks/{resourceName}
+        provider: insights
+        resource_type: workbooks
+        resource_name: deadb33f-5e0d-4064-8ebb-1a4ed0313eb2

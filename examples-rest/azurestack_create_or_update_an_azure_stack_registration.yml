@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update an Azure Stack registration.
+      azure_rm_resource:
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        body:

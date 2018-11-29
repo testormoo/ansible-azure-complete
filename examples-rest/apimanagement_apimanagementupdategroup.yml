@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateGroup
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/groups/{groupId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: groups
+            name: tempgroup
+        body:
+          properties:
+            displayName: temp group

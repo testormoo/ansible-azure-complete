@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateTenantAccess
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{accessName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: access
+        body:
+          enabled: True

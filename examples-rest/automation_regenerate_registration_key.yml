@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Regenerate registration key
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/agentRegistrationInformation/regenerateKey
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount18
+        subresource:
+          - type: agentRegistrationInformation
+          - type: regenerateKey
+        body:
+          keyName: primary

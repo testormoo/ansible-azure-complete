@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApplicationPackageDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/applications/{applicationId}/versions/{version}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: applications
+            name: app1
+          - type: versions
+            name: 1
+        body:

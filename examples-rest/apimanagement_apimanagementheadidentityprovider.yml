@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementHeadIdentityProvider
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/identityProviders/{identityProviderName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: identityProviders
+            name: aadB2C
+        body:

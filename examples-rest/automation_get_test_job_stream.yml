@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Get test job stream
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}/draft/testJob/streams/{jobStreamId}
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+          - type: draft
+          - type: testJob
+          - type: streams
+            name: 851b2101-686f-40e2-8a4b-5b8df08afbd1_00636535684910693884_00000000000000000001

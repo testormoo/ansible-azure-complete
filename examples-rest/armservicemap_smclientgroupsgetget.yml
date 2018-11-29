@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: SMClientGroupsGetGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/clientGroups/{clientGroupName}
+        resource_group: rg-sm
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: D6F79F14-E563-469B-84B5-9286D2803B2F
+        subresource:
+          - type: features
+          - type: serviceMap
+          - type: clientGroups
+            name: m!m-A4AB1C69-03E9-42D2-B822-B42555569FB4!b!b-c0a8010a_10000

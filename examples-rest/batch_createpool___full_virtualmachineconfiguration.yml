@@ -1,0 +1,57 @@
+- hosts: localhost
+  tasks:
+    - name: CreatePool - Full VirtualMachineConfiguration
+      azure_rm_resource:
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/pools/{poolName}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: pools
+            name: testpool
+        body:
+          properties:
+            vmSize: STANDARD_D4
+            deploymentConfiguration:
+              virtualMachineConfiguration:
+                imageReference:
+                  publisher: MicrosoftWindowsServer
+                  offer: WindowsServer
+                  sku: 2016-Datacenter-SmallDisk
+                  version: latest
+                nodeAgentSkuId: batch.node.windows amd64
+                osDisk:
+                  caching: ReadWrite
+                windowsConfiguration:
+                  enableAutomaticUpdates: False
+                licenseType: Windows_Server
+                dataDisks:
+                  - lun: 0
+                    caching: ReadWrite
+                    diskSizeGB: 30
+                    storageAccountType: Premium_LRS
+                  - lun: 1
+                    caching: None
+                    diskSizeGB: 200
+                    storageAccountType: Standard_LRS
+            networkConfiguration:
+              endpointConfiguration:
+                inboundNatPools:
+                  - name: testnat
+                    protocol: TCP
+                    backendPort: 12001
+                    frontendPortRangeStart: 15000
+                    frontendPortRangeEnd: 15100
+                    networkSecurityGroupRules:
+                      - access: Allow
+                        sourceAddressPrefix: 192.100.12.45
+                        priority: 150
+                      - access: Deny
+                        sourceAddressPrefix: *
+                        priority: 3500
+            scaleSettings:
+              autoScale:
+                formula: $TargetDedicatedNodes=1
+                evaluationInterval: PT5M

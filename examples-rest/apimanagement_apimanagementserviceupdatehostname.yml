@@ -1,0 +1,39 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementServiceUpdateHostName
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/updatehostname
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: updatehostname
+        body:
+          update:
+            - type: Proxy
+              hostname: internalproxy2.contoso.com
+              certificate:
+                expiry: 2018-03-17T21:55:07+00:00
+                thumbprint: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                subject: CN=*.contoso.com
+            - type: Portal
+              hostname: internalportal2.contoso.com
+              certificate:
+                expiry: 2018-03-17T21:55:07+00:00
+                thumbprint: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                subject: CN=*.contoso.com
+            - type: Management
+              hostname: internalmgmt2.contoso.com
+              certificate:
+                expiry: 2018-03-17T21:55:07+00:00
+                thumbprint: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                subject: CN=*.contoso.com
+            - type: Scm
+              hostname: internalscm2.contoso.com
+              certificate:
+                expiry: 2018-03-17T21:55:07+00:00
+                thumbprint: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                subject: CN=*.contoso.com

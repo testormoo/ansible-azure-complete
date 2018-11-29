@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateIdentityProvider
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/identityProviders/{identityProviderName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: identityProviders
+            name: facebook
+        body:
+          properties:
+            clientId: updatedfacebookid
+            clientSecret: updatedfacebooksecret

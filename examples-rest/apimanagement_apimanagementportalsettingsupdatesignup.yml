@@ -1,0 +1,41 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementPortalSettingsUpdateSignUp
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/portalsettings/signup
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: portalsettings
+          - type: signup
+        body:
+          properties:
+            enabled: True
+            termsOfService:
+              enabled: True
+              text: Terms of service text.
+              consentRequired: True
+- hosts: localhost
+  tasks:
+    - name: ApiManagementPortalSettingsUpdateSignUp
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/portalsettings/signup
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: portalsettings
+          - type: signup
+        body:
+          properties:
+            enabled: True
+            termsOfService:
+              enabled: True
+              text: Terms of service text.
+              consentRequired: True

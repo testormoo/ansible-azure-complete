@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementHeadSubscription
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/subscriptions/{sid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: subscriptions
+            name: 5931a769d8d14f0ad8ce13b8
+        body:

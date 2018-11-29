@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get a list of fields of a given type across all accessible modules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/objectDataTypes/{typeName}/fields
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyAutomationAccount
+        subresource:
+          - type: objectDataTypes
+            name: MyCustomType
+          - type: fields

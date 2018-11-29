@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: InvoicesGetLatest
+      azure_rm_resource_facts:
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/invoices/latest
+        provider: Billing
+        resource_type: invoices
+        resource_type: latest

@@ -1,0 +1,39 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateApiOperation
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/apis/{apiId}/operations/{operationId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: apis
+            name: echo-api
+          - type: operations
+            name: operationId
+        body:
+          properties:
+            displayName: Retrieve resource
+            method: GET
+            urlTemplate: /resource
+            templateParameters:
+            request:
+              queryParameters:
+                - name: param1
+                  description: A sample parameter that is required and has a default value of "sample".
+                  type: string
+                  defaultValue: sample
+                  required: True
+                  values:
+            responses:
+              - statusCode: 200
+                description: Returned in all cases.
+                representations:
+                headers:
+              - statusCode: 500
+                description: Server Error.
+                representations:
+                headers:

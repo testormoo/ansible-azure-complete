@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateEmailTemplate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/templates/{templateName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: templates
+            name: applicationApprovedNotificationMessage
+        body:
+          properties:
+            subject: Your application $AppName is published in the gallery
+            body: <!DOCTYPE html >
+<html>
+  <head />
+  <body>
+    <p style="font-size:12pt;font-family:'Segoe UI'">Dear $DevFirstName $DevLastName,</p>
+    <p style="font-size:12pt;font-family:'Segoe UI'">
+          We are happy to let you know that your request to publish the $AppName application in the gallery has been approved. Your application has been published and can be viewed <a href="http://$DevPortalUrl/Applications/Details/$AppId">here</a>.
+        </p>
+    <p style="font-size:12pt;font-family:'Segoe UI'">Best,</p>
+    <p style="font-size:12pt;font-family:'Segoe UI'">The $OrganizationName API Team</p>
+  </body>
+</html>

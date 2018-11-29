@@ -1,0 +1,84 @@
+- hosts: localhost
+  tasks:
+    - name: CreatePool - Full Example
+      azure_rm_resource:
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/pools/{poolName}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: pools
+            name: testpool
+        body:
+          properties:
+            displayName: my-pool-name
+            vmSize: STANDARD_D4
+            interNodeCommunication: Enabled
+            maxTasksPerNode: 13
+            taskSchedulingPolicy:
+              nodeFillType: Pack
+            deploymentConfiguration:
+              cloudServiceConfiguration:
+                osFamily: 4
+                targetOSVersion: WA-GUEST-OS-4.45_201708-01
+            networkConfiguration:
+              subnetId: /subscriptions/subid/resourceGroups/rg1234/providers/Microsoft.Network/virtualNetworks/network1234/subnets/subnet123
+              endpointConfiguration:
+                inboundNatPools:
+                  - name: testnat
+                    protocol: TCP
+                    backendPort: 12001
+                    frontendPortRangeStart: 15000
+                    frontendPortRangeEnd: 15100
+                    networkSecurityGroupRules:
+                      - access: Allow
+                        sourceAddressPrefix: 192.100.12.45
+                        priority: 150
+                      - access: Deny
+                        sourceAddressPrefix: *
+                        priority: 3500
+            scaleSettings:
+              fixedScale:
+                targetDedicatedNodes: 6
+                targetLowPriorityNodes: 28
+                resizeTimeout: PT8M
+                nodeDeallocationOption: TaskCompletion
+            metadata:
+              - name: metadata-1
+                value: value-1
+              - name: metadata-2
+                value: value-2
+            startTask:
+              commandLine: cmd /c SET
+              resourceFiles:
+                - blobSource: https://testaccount.blob.core.windows.net/example-blob-file
+                  filePath: c:\temp\gohere
+                  fileMode: 777
+              environmentSettings:
+                - name: MYSET
+                  value: 1234
+              userIdentity:
+                autoUser:
+                  scope: Pool
+                  elevationLevel: Admin
+              maxTaskRetryCount: 6
+              waitForSuccess: True
+            userAccounts:
+              - name: username1
+                password: examplepassword
+                elevationLevel: Admin
+                linuxUserConfiguration:
+                  sshPrivateKey: sshprivatekeyvalue
+                  uid: 1234
+                  gid: 4567
+            applicationPackages:
+              - id: /subscriptions/subid/resourceGroups/default-azurebatch-japaneast/providers/Microsoft.Batch/batchAccounts/sampleacct/pools/testpool/applications/app_1234
+                version: asdf
+            certificates:
+              - id: /subscriptions/subid/resourceGroups/default-azurebatch-japaneast/providers/Microsoft.Batch/batchAccounts/sampleacct/pools/testpool/certificates/SHA1-1234567
+                storeLocation: LocalMachine
+                storeName: MY
+                visibility:
+            applicationLicenses:

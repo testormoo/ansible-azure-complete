@@ -1,0 +1,42 @@
+- hosts: localhost
+  tasks:
+    - name: Blueprint
+      azure_rm_resource:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+        body:
+- hosts: localhost
+  tasks:
+    - name: Blueprint
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints/{blueprintName}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints
+            name: simpleBlueprint
+- hosts: localhost
+  tasks:
+    - name: Blueprint
+      azure_rm_resource_facts:
+        api_version: '2017-11-11-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupName}/providers/Microsoft.Blueprint/blueprints
+        provider: Management
+        resource_type: managementGroups
+        resource_name: ContosoOnlineGroup
+        subresource:
+          - type: providers
+        provider: Blueprint
+          - type: blueprints

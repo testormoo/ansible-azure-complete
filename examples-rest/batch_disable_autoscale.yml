@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Disable AutoScale
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/pools/{poolName}/disableAutoScale
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: pools
+            name: testpool
+          - type: disableAutoScale
+        body:

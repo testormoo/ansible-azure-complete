@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a source control sync job
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/sourceControls/{sourceControlName}/sourceControlSyncJobs/{sourceControlSyncJobId}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: sourceControls
+            name: MySourceControl
+          - type: sourceControlSyncJobs
+            name: ce6fe3e3-9db3-4096-a6b4-82bfb4c10a9a
+        body:
+          properties:
+            commitId: 9de0980bfb45026a3d97a1b0522d98a9f604226e

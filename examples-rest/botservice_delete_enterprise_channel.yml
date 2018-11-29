@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete Enterprise Channel
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/enterpriseChannels/{resourceName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: enterpriseChannels
+        resource_name: contoso-dl
+        body:

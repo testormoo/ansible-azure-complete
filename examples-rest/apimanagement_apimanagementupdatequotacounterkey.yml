@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUpdateQuotaCounterKey
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/quotas/{quotaCounterKey}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: quotas
+            name: ba
+        body:
+          callsCount: 0
+          kbTransferred: 2.5630078125

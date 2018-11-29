@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementServiceCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ApiManagement/checkNameAvailability
+        provider: ApiManagement
+        resource_type: checkNameAvailability
+        body:
+          name: apimService1

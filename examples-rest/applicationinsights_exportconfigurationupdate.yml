@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ExportConfigurationUpdate
+      azure_rm_resource:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/exportconfiguration/{exportId}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: exportconfiguration
+            name: uGOoki0jQsyEs3IdQ83Q4QsNr4=
+        body:

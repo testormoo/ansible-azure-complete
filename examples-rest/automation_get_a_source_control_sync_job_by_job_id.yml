@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get a source control sync job by job id
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/sourceControls/{sourceControlName}/sourceControlSyncJobs/{sourceControlSyncJobId}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: sourceControls
+            name: MySourceControl
+          - type: sourceControlSyncJobs
+            name: ce6fe3e3-9db3-4096-a6b4-82bfb4c10a9a

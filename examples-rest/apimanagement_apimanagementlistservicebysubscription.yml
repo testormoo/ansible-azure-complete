@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementListServiceBySubscription
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ApiManagement/service
+        provider: ApiManagement
+        resource_type: service

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: BatchAccountRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/regenerateKeys
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: regenerateKeys
+        body:
+          keyName: Primary

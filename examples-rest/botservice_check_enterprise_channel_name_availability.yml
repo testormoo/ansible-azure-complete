@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Check Enterprise Channel Name Availability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-12'
+        # url: /providers/Microsoft.BotService/checkEnterpriseChannelNameAvailability
+        provider: BotService
+        resource_type: checkEnterpriseChannelNameAvailability
+        body:
+          name: enterpriseChannelName
+          type: string

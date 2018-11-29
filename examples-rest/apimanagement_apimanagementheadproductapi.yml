@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementHeadProductApi
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/products/{productId}/apis/{apiId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: products
+            name: 5931a75ae4bbd512a88c680b
+          - type: apis
+            name: 59306a29e4bbd510dc24e5f9
+        body:

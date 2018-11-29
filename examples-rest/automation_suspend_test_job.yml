@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Suspend test job
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}/draft/testJob/suspend
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+          - type: draft
+          - type: testJob
+          - type: suspend
+        body:

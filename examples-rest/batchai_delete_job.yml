@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete job
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/jobs/{jobName}
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: jobs
+        resource_name: demo_job
+        body:

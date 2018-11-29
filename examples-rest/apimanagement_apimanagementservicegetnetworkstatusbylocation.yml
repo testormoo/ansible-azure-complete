@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementServiceGetNetworkStatusByLocation
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/locations/{locationName}/networkstatus
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: locations
+            name: North Central US
+          - type: networkstatus

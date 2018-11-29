@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List DSC Compilation job streams
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/compilationjobs/{jobId}/streams
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: compilationjobs
+            name: 836d4e06-2d88-46b4-8500-7febd4906838
+          - type: streams

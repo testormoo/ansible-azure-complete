@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Publish runbook draft
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}/publish
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+          - type: publish
+        body:

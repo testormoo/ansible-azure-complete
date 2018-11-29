@@ -1,0 +1,27 @@
+- hosts: localhost
+  tasks:
+    - name: ComponentPurge
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/purge
+        resource_group: OIAutoRest5123
+        provider: Insights
+        resource_type: components
+        resource_name: aztest5048
+        subresource:
+          - type: purge
+        body:
+- hosts: localhost
+  tasks:
+    - name: ComponentPurge
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/operations/{purgeId}
+        resource_group: OIAutoRest5123
+        provider: Insights
+        resource_type: components
+        resource_name: aztest5048
+        subresource:
+          - type: operations
+            name: purge-970318e7-b859-4edb-8903-83b1b54d0b74

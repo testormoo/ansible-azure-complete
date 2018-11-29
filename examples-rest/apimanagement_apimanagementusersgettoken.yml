@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementUsersGetToken
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/users/{uid}/token
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: users
+            name: 57f2af53bb17172280f44057
+          - type: token
+        body:
+          keyType: primary
+          expiry: 2017-05-13T10:39:35Z

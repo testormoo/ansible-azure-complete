@@ -1,0 +1,66 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementTenantAccessRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{accessName}/regeneratePrimaryKey
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: access
+          - type: regeneratePrimaryKey
+        body:
+- hosts: localhost
+  tasks:
+    - name: ApiManagementTenantAccessRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{accessName}/regenerateSecondaryKey
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: access
+          - type: regenerateSecondaryKey
+        body:
+- hosts: localhost
+  tasks:
+    - name: ApiManagementTenantAccessRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{accessName}/git/regeneratePrimaryKey
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: access
+          - type: git
+          - type: regeneratePrimaryKey
+        body:
+- hosts: localhost
+  tasks:
+    - name: ApiManagementTenantAccessRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{accessName}/git/regenerateSecondaryKey
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: access
+          - type: git
+          - type: regenerateSecondaryKey
+        body:

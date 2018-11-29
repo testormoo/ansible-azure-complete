@@ -1,0 +1,56 @@
+- hosts: localhost
+  tasks:
+    - name: Update Bot
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        body:
+          location: West US
+          sku:
+            name: S1
+          tags:
+            tag1: value1
+            tag2: value2
+          etag: etag1
+          name: samplename
+          type: sampletype
+          kind: sdk
+          id: someid
+          properties:
+            description: The description of the bot
+            developerAppInsightKey: appinsightskey
+            developerAppInsightsApiKey: appinsightsapikey
+            developerAppInsightsApplicationId: appinsightsappid
+            displayName: The Name of the bot
+            endpoint: http://mybot.coffee
+            iconUrl: http://myicon
+            luisAppIds:
+            luisKey: luiskey
+            msaAppId: msaappid
+- hosts: localhost
+  tasks:
+    - name: Update Bot
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/channels/{channelName}
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: channels
+            name: EmailChannel
+        body:
+          location: global
+          properties:
+            channelName: EmailChannel
+            properties:
+              emailAddress: a@b.com
+              password: pwd
+              isEnabled: True

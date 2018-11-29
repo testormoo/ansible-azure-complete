@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: check Name Availability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-12'
+        # url: /providers/Microsoft.BotService/checkNameAvailability
+        provider: BotService
+        resource_type: checkNameAvailability
+        body:
+          name: testbotname
+          type: string

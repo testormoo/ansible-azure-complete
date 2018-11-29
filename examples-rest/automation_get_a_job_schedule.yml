@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a job schedule
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/jobSchedules/{jobScheduleId}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: jobSchedules
+            name: 0fa462ba-3aa2-4138-83ca-9ebc3bc55cdc

@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Update a source control
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/sourceControls/{sourceControlName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: sampleAccount9
+        subresource:
+          - type: sourceControls
+            name: sampleSourceControl
+        body:
+          properties:
+            branch: master
+            folderPath: /folderOne/folderTwo
+            autoSync: True
+            publishRunbook: True
+            securityToken:
+              accessToken: 3a326f7a0dcd343ea58fee21f2fd5fb4c1234567
+              tokenType: PersonalAccessToken
+            description: my description

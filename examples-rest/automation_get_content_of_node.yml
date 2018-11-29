@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Get content of node
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/nodes/{nodeId}/reports/{reportId}/content
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount33
+        subresource:
+          - type: nodes
+            name: nodeId
+          - type: reports
+            name: reportId
+          - type: content

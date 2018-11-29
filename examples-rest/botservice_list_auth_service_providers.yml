@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: List Auth Service Providers
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.BotService/listAuthServiceProviders
+        provider: BotService
+        resource_type: listAuthServiceProviders
+        body:

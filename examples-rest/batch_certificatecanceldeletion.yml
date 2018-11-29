@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: CertificateCancelDeletion
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/certificates/{certificateName}/cancelDelete
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: certificates
+            name: SHA1-0A0E4F50D51BEADEAC1D35AFC5116098E7902E6E
+          - type: cancelDelete
+        body:

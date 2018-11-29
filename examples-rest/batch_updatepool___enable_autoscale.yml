@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: UpdatePool - Enable Autoscale
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}/pools/{poolName}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        subresource:
+          - type: pools
+            name: testpool
+        body:
+          properties:
+            scaleSettings:
+              autoScale:
+                formula: $TargetDedicatedNodes=34

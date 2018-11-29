@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Endpoints_Get
+      azure_rm_resource_facts:
+        api_version: '2017-10-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/profiles/{profileName}/endpoints/{endpointName}
+        resource_group: RG
+        provider: Cdn
+        resource_type: profiles
+        resource_name: profile1
+        subresource:
+          - type: endpoints
+            name: endpoint1

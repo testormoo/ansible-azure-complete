@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get Operations
+      azure_rm_resource_facts:
+        api_version: '2018-07-12'
+        # url: /providers/Microsoft.BotService/operations
+        provider: BotService
+        resource_type: operations

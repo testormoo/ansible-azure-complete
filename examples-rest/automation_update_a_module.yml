@@ -1,0 +1,38 @@
+- hosts: localhost
+  tasks:
+    - name: Update a module
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/modules/{moduleName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyAutomationAccount
+        subresource:
+          - type: modules
+            name: MyModule
+        body:
+          properties:
+            contentLink:
+              uri: https://teststorage.blob.core.windows.net/mycontainer/MyModule.zip
+              contentHash:
+                algorithm: sha265
+                value: 07E108A962B81DD9C9BAA89BB47C0F6EE52B29E83758B07795E408D258B2B87A
+              version: 1.0.0.0
+- hosts: localhost
+  tasks:
+    - name: Update a module
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/python2Packages/{packageName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyAutomationAccount
+        subresource:
+          - type: python2Packages
+            name: MyPython2Package
+        body:
+          tags:

@@ -1,0 +1,27 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementGetNotification
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/notifications/{notificationName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: notifications
+            name: RequestPublisherNotificationMessage
+- hosts: localhost
+  tasks:
+    - name: ApiManagementGetNotification
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/notifications/{notificationName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: notifications
+            name: RequestPublisherNotificationMessage
+        body:

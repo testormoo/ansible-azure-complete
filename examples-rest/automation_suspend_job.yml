@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Suspend job
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/jobs/{jobName}/suspend
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: jobs
+            name: foo
+          - type: suspend
+        body:

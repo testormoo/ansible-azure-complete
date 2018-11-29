@@ -1,0 +1,49 @@
+- hosts: localhost
+  tasks:
+    - name: Create software update configuration
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/softwareUpdateConfigurations/{softwareUpdateConfigurationName}
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myaccount
+        subresource:
+          - type: softwareUpdateConfigurations
+            name: testpatch
+        body:
+          properties:
+            updateConfiguration:
+              operatingSystem: Windows
+              duration: PT2H0M
+              windows:
+                excludedKbNumbers:
+                includedUpdateClassifications: Critical
+                rebootSetting: IfRequired
+              azureVirtualMachines:
+              nonAzureComputerNames:
+              targets:
+                - azureQueries:
+                    scope:
+                    tagSettings:
+                      tags:
+                        - tag1:
+                        - tag2:
+                      filterOperator: All
+                    locations:
+            scheduleInfo:
+              frequency: Hour
+              startTime: 2017-10-19T12:22:57+00:00
+              timeZone: America/Los_Angeles
+              interval: 1
+              expiryTime: 2018-11-09T11:22:57+00:00
+              advancedSchedule:
+                weekDays:
+            tasks:
+              preTask:
+                source: HelloWorld
+                parameters:
+                  COMPUTERNAME: Computer1
+              postTask:
+                source: GetCache
+                parameters:

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get lists of an automation account
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/listKeys
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: MyAutomationAccount
+        subresource:
+          - type: listKeys
+        body:

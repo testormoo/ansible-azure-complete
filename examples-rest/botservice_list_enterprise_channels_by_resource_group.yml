@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List Enterprise Channels by Resource Group
+      azure_rm_resource_facts:
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/enterpriseChannels
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: enterpriseChannels

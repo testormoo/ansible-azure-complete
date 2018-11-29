@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: webTestDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/webtests/{webTestName}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: webtests
+        resource_name: my-webtest-01-mywebservice
+        body:

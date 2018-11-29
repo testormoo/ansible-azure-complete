@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Returns Azure Stack Activation Key.
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}/getactivationkey
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        subresource:
+          - type: getactivationkey
+        body:

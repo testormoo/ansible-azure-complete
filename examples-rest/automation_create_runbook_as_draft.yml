@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Create runbook as draft
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: runbooks
+            name: Get-AzureVMTutorial
+        body:
+          properties:
+            logVerbose: False
+            logProgress: False
+            runbookType: PowerShellWorkflow
+            description: Description of the Runbook
+            draft:
+          name: Get-AzureVMTutorial
+          location: East US 2
+          tags:
+            tag01: value01
+            tag02: value02

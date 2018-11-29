@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: List Channel
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BotService/botServices/{resourceName}/channels/{channelName}/listChannelWithKeys
+        resource_group: OneResourceGroupName
+        provider: BotService
+        resource_type: botServices
+        resource_name: samplebotname
+        subresource:
+          - type: channels
+            name: EmailChannel
+          - type: listChannelWithKeys
+        body:
+          location: global

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Deletes a customer subscription under a registration.
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.AzureStack/registrations/{registrationName}/customerSubscriptions/{customerSubscriptionName}
+        resource_group: azurestack
+        provider: AzureStack
+        resource_type: registrations
+        resource_name: testregistration
+        subresource:
+          - type: customerSubscriptions
+            name: E09A4E93-29A7-4EBA-A6D4-76202383F07F
+        body:

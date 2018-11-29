@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: ProactiveDetectionConfigurationGet
+      azure_rm_resource_facts:
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}/ProactiveDetectionConfigs/{ConfigurationId}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        subresource:
+          - type: ProactiveDetectionConfigs
+            name: slowpageloadtime

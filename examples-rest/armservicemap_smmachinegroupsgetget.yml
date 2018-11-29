@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: SMMachineGroupsGetGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/machineGroups/{machineGroupName}
+        resource_group: rg-sm
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: D6F79F14-E563-469B-84B5-9286D2803B2F
+        subresource:
+          - type: features
+          - type: serviceMap
+          - type: machineGroups
+            name: 07597c56-5395-4815-839c-c4e7bddbac18

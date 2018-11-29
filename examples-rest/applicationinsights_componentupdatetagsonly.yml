@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: ComponentUpdateTagsOnly
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2015-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/components/{resourceName}
+        resource_group: my-resource-group
+        provider: Insights
+        resource_type: components
+        resource_name: my-component
+        body:

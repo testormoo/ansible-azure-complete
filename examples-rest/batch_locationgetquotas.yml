@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: LocationGetQuotas
+      azure_rm_resource_facts:
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Batch/locations/{locationName}/quotas
+        provider: Batch
+        resource_type: locations
+        resource_name: japaneast
+        subresource:
+          - type: quotas

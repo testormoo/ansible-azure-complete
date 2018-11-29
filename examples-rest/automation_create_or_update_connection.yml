@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update connection
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connections/{connectionName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount28
+        subresource:
+          - type: connections
+            name: mysConnection
+        body:
+          name: mysConnection
+          properties:
+            description: my description goes here
+            connectionType:
+              name: Azure
+            fieldDefinitionValues:
+              AutomationCertificateName: mysCertificateName
+              SubscriptionID: subid

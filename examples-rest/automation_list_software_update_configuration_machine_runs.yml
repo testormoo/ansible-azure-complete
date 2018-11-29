@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: List software update configuration machine runs
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/softwareUpdateConfigurationRuns
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myaccount
+        subresource:
+          - type: softwareUpdateConfigurationRuns
+- hosts: localhost
+  tasks:
+    - name: List software update configuration machine runs
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/softwareUpdateConfigurationMachineRuns
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myaccount
+        subresource:
+          - type: softwareUpdateConfigurationMachineRuns

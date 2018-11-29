@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update automation account
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount9
+        body:
+          properties:
+            sku:
+              name: Free
+          name: myAutomationAccount9
+          location: East US 2

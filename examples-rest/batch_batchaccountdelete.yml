@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: BatchAccountDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Batch/batchAccounts/{accountName}
+        resource_group: default-azurebatch-japaneast
+        provider: Batch
+        resource_type: batchAccounts
+        resource_name: sampleacct
+        body:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementServiceDeleteService
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        body:

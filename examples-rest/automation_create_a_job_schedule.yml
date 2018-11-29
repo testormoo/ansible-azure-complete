@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create a job schedule
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/jobSchedules/{jobScheduleId}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: ContoseAutomationAccount
+        subresource:
+          - type: jobSchedules
+            name: 0fa462ba-3aa2-4138-83ca-9ebc3bc55cdc
+        body:
+          properties:
+            schedule:
+              name: ScheduleNameGoesHere332204b5-debe-4348-a5c7-6357457189f2
+            runbook:
+              name: TestRunbook
+            parameters:
+              jobscheduletag01: jobschedulevalue01
+              jobscheduletag02: jobschedulevalue02

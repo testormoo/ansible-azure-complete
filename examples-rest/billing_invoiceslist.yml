@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: InvoicesList
+      azure_rm_resource_facts:
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/invoices
+        provider: Billing
+        resource_type: invoices

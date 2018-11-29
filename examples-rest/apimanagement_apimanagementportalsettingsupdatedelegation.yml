@@ -1,0 +1,43 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementPortalSettingsUpdateDelegation
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/portalsettings/delegation
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: portalsettings
+          - type: delegation
+        body:
+          properties:
+            url: http://contoso.com/delegation
+            validationKey: nVF7aKIvr9mV/RM5lOD0sYoi8ThXTRHQP7o66hvUmjCDkPKR3qxPu/otJcNciz2aQdqPuzJH3ECG4TU2yZjQ7Q==
+            subscriptions:
+              enabled: True
+            userRegistration:
+              enabled: True
+- hosts: localhost
+  tasks:
+    - name: ApiManagementPortalSettingsUpdateDelegation
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/portalsettings/delegation
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: portalsettings
+          - type: delegation
+        body:
+          properties:
+            url: http://contoso.com/delegation
+            validationKey: nVF7aKIvr9mV/RM5lOD0sYoi8ThXTRHQP7o66hvUmjCDkPKR3qxPu/otJcNciz2aQdqPuzJH3ECG4TU2yZjQ7Q==
+            subscriptions:
+              enabled: True
+            userRegistration:
+              enabled: True

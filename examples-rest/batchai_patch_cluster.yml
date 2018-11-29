@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Patch cluster
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/clusters/{clusterName}
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: clusters
+        resource_name: demo_cluster
+        body:
+          properties:
+            scaleSettings:
+              autoScale:
+                minimumNodeCount: 0
+                maximumNodeCount: 10

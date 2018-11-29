@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: BatchAccountList
+      azure_rm_resource_facts:
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Batch/batchAccounts
+        provider: Batch
+        resource_type: batchAccounts

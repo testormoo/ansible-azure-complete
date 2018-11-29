@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: LocationCheckNameAvailability_AlreadyExists
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-09-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Batch/locations/{locationName}/checkNameAvailability
+        provider: Batch
+        resource_type: locations
+        resource_name: japaneast
+        subresource:
+          - type: checkNameAvailability
+        body:
+          name: existingaccountname
+          type: Microsoft.Batch/batchAccounts

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get cluster
+      azure_rm_resource_facts:
+        api_version: '2017-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.BatchAI/clusters/{clusterName}
+        resource_group: demo_resource_group
+        provider: BatchAI
+        resource_type: clusters
+        resource_name: demo_cluster

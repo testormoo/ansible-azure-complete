@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: CheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-12'
+        # url: /providers/Microsoft.Cdn/checkNameAvailability
+        provider: Cdn
+        resource_type: checkNameAvailability
+        body:

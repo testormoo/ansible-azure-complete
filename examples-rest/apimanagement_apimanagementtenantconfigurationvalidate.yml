@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementTenantConfigurationValidate
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/tenant/{configurationName}/validate
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: tenant
+            name: configuration
+          - type: validate
+        body:
+          branch: master

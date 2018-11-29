@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a hybrid worker group
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/hybridRunbookWorkerGroups/{hybridRunbookWorkerGroupName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount20
+        subresource:
+          - type: hybridRunbookWorkerGroups
+            name: myGroup
+        body:

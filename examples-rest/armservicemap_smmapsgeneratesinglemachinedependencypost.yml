@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: SMMapsGenerateSingleMachineDependencyPost
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/features/serviceMap/generateMap
+        resource_group: rg-sm
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: D6F79F14-E563-469B-84B5-9286D2803B2F
+        subresource:
+          - type: features
+          - type: serviceMap
+          - type: generateMap
+        body:

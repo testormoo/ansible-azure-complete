@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementListNotificationRecipientUser
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/notifications/{notificationName}/recipientUsers
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: notifications
+            name: RequestPublisherNotificationMessage
+          - type: recipientUsers

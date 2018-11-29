@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get software update configuration machine run
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/softwareUpdateConfigurationMachineRuns/{softwareUpdateConfigurationMachineRunId}
+        resource_group: mygroup
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myaccount
+        subresource:
+          - type: softwareUpdateConfigurationMachineRuns
+            name: ca440719-34a4-4234-a1a9-3f84faf7788f

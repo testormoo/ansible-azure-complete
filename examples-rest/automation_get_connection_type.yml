@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get connection type
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/connectionTypes/{connectionTypeName}
+        resource_group: rg
+        provider: Automation
+        resource_type: automationAccounts
+        resource_name: myAutomationAccount22
+        subresource:
+          - type: connectionTypes
+            name: myCT

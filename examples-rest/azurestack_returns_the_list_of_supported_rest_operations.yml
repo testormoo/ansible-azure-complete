@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Returns the list of supported REST operations.
+      azure_rm_resource_facts:
+        api_version: '2017-06-01'
+        # url: /providers/Microsoft.AzureStack/operations
+        provider: AzureStack
+        resource_type: operations
