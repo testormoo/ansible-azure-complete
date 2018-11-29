@@ -1,5 +1,10 @@
 # Azure DevTest Labs
 
+## Additional Documentation
+
+https://docs.microsoft.com/en-us/azure/lab-services/
+
+
 ## Prerequisites
 
 - Ansible 2.7
