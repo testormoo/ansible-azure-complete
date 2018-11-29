@@ -107,31 +107,6 @@ options:
                     value:
                         description:
                             - The value of the artifact parameter.
-            status:
-                description:
-                    - The status of the artifact.
-            deployment_status_message:
-                description:
-                    - The I(status) message from the deployment.
-            vm_extension_status_message:
-                description:
-                    - The I(status) message from the virtual machine extension.
-            install_time:
-                description:
-                    - The time that the artifact starts to install on the virtual machine.
-    artifact_deployment_status:
-        description:
-            - The artifact deployment status for the virtual machine.
-        suboptions:
-            deployment_status:
-                description:
-                    - The deployment status of the artifact.
-            artifacts_applied:
-                description:
-                    - The total count of the artifacts that were successfully applied.
-            total_artifacts:
-                description:
-                    - The total count of the artifacts that were tentatively applied.
     gallery_image_reference:
         description:
             - The Microsoft Azure Marketplace image reference of the virtual machine.
@@ -155,20 +130,6 @@ options:
         description:
             - The compute virtual machine properties.
         suboptions:
-            statuses:
-                description:
-                    - Gets the statuses of the virtual machine.
-                type: list
-                suboptions:
-                    code:
-                        description:
-                            - Gets the status Code.
-                    display_status:
-                        description:
-                            - Gets the short localizable label for the status.
-                    message:
-                        description:
-                            - Gets the message associated with the status.
             os_type:
                 description:
                     - Gets the OS type of the virtual machine.
@@ -388,12 +349,6 @@ options:
     storage_type:
         description:
             - Storage type to use for virtual machine (i.e. Standard, Premium).
-    virtual_machine_creation_source:
-        description:
-            - Tells source of creation of lab virtual machine. Output property only.
-        choices:
-            - 'from_custom_image'
-            - 'from_gallery_image'
     environment_id:
         description:
             - The resource ID of the environment that contains this virtual machine, if any.
@@ -548,32 +503,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
                                 type='str'
                             )
                         )
-                    ),
-                    status=dict(
-                        type='str'
-                    ),
-                    deployment_status_message=dict(
-                        type='str'
-                    ),
-                    vm_extension_status_message=dict(
-                        type='str'
-                    ),
-                    install_time=dict(
-                        type='datetime'
-                    )
-                )
-            ),
-            artifact_deployment_status=dict(
-                type='dict',
-                options=dict(
-                    deployment_status=dict(
-                        type='str'
-                    ),
-                    artifacts_applied=dict(
-                        type='int'
-                    ),
-                    total_artifacts=dict(
-                        type='int'
                     )
                 )
             ),
@@ -600,20 +529,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
             compute_vm=dict(
                 type='dict',
                 options=dict(
-                    statuses=dict(
-                        type='list',
-                        options=dict(
-                            code=dict(
-                                type='str'
-                            ),
-                            display_status=dict(
-                                type='str'
-                            ),
-                            message=dict(
-                                type='str'
-                            )
-                        )
-                    ),
                     os_type=dict(
                         type='str'
                     ),
@@ -837,11 +752,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
             storage_type=dict(
                 type='str'
             ),
-            virtual_machine_creation_source=dict(
-                type='str',
-                choices=['from_custom_image',
-                         'from_gallery_image']
-            ),
             environment_id=dict(
                 type='str'
             ),
@@ -880,7 +790,6 @@ class AzureRMVirtualMachine(AzureRMModuleBase):
         dict_map(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_shutdown', 'notification_settings', 'status'], {True: 'Enabled', False: 'Disabled'})
         dict_map(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_startup', 'status'], {True: 'Enabled', False: 'Disabled'})
         dict_map(self.lab_virtual_machine, ['applicable_schedule', 'lab_vms_startup', 'notification_settings', 'status'], {True: 'Enabled', False: 'Disabled'})
-        dict_camelize(self.lab_virtual_machine, ['virtual_machine_creation_source'], True)
 
         response = None
 
