@@ -53,3 +53,13 @@ Virtual Network can be created without specifying any parameters
   register: output_vn
 ```
 
+## Known Issues
+
+**Artifacts source can only be assigned to VM only if its name is the same as lab name**. Otherwise following error occurs:
+
+“Error creating the Virtual Machine instance: Azure Error: UnknownArtifactSourceUsed\nMessage: Artifact source lababcxyz is not present in lab lababcxyz.”
+
+**security_token needed even if GitHub repo is public**
+
+Security token should be optional.
+
