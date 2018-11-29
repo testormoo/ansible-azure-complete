@@ -56,12 +56,12 @@
       azure_rm_devtestlabsartifactsource:
         resource_group: "{{ resource_group }}"
         lab_name: "lab{{ rpfx}}"
-        name: "artifacts{{ rpfx }}"
+        name: "lab{{ rpfx }}"
         display_name: My Artifacts Source
         location: eastus
-        uri: https://github.com/zikalino/ansible-hatchery.git
+        uri: https://github.com/zikalino/azure-devtestlab.git
         source_type: git_hub
-        folder_path: /tests
+        folder_path: /Artifacts
         security_token: "{{ github_token }}"
       register: artifacts_output
 
@@ -72,7 +72,7 @@
       azure_rm_devtestlabsartifactsource_facts:
         resource_group: "{{ resource_group }}"
         lab_name: "lab{{ rpfx}}"
-        name: "artifacts{{ rpfx }}"
+        name: "lab{{ rpfx }}"
       register: output
     - debug:
         var: output
