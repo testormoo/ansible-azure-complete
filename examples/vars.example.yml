@@ -1,0 +1,7 @@
+---
+# resource group
+resource_group: SampleRG
+
+# Your GitHub token
+github_token: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+

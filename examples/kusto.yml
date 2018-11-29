@@ -1,0 +1,35 @@
+
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  vars:
+    resource_group: zimsansiblefest
+    vm_name: ansiblefesttestvm
+    location: eastus
+  roles:
+    - modules
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    - name: Create Kusto Cluster
+      azure_rm_kustocluster:
+        resource_group: "{{ resource_group }}"
+        name: kustocluster
+        location: eastus
+      register: output
+    - debug:
+        var: output
+
+    - name: Create Kusto Database
+      azure_rm_kustodatabase:
+        resource_group: "{{ resource_group }}"
+        cluster_name: kustocluster
+        name: kustodb
+        location: eastus
+      register: output
+    - debug:
+        var: output

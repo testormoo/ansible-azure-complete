@@ -1,0 +1,28 @@
+
+---
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  vars:
+    resource_group: zimsansiblefest
+    vm_name: ansiblefesttestvm
+    location: eastus
+  roles:
+    - modules
+  tasks:
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: "{{ location }}"
+
+    - name: Create (or update) Event Subscription
+      azure_rm_eventgrideventsubscription:
+        scope: subscriptions/5b4b650e-28b9-4790-b3ab-ddbd88d727c4
+        name: examplesubscription3
+        filter:
+          is_subject_case_sensitive: False
+    - name: Create (or update) Domain
+      azure_rm_eventgriddomain:
+        resource_group: "{{ resource_group }}"
+        name: exampledomain1
+        location: westus2
