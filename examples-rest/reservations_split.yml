@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Split
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /providers/Microsoft.Capacity/reservationOrders/{reservationOrderId}/split
+        provider: Capacity
+        resource_type: reservationOrders
+        resource_name: 276e7ae4-84d0-4da6-ab4b-d6b94f3557da
+        subresource:
+          - type: split
+        body:

@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Create a stream blob input with CSV serialization
+      azure_rm_resource:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/inputs/{inputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj6695
+        subresource:
+          - type: inputs
+            name: input8899
+        body:

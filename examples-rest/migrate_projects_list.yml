@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Projects_List
+      azure_rm_resource_facts:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Migrate/projects
+        provider: Migrate
+        resource_type: projects
+- hosts: localhost
+  tasks:
+    - name: Projects_List
+      azure_rm_resource_facts:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Migrate/projects
+        provider: Migrate
+        resource_type: projects

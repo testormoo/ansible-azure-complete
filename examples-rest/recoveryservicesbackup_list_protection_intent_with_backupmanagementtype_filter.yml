@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List protection intent with backupManagementType filter
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupProtectionIntents
+        resource_group: myRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: myVault
+        subresource:
+          - type: backupProtectionIntents

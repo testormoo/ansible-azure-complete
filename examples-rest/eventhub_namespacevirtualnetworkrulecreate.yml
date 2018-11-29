@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceVirtualNetworkRuleCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/virtualnetworkrules/{virtualNetworkRuleName}
+        resource_group: ResourceGroup
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-6019
+        subresource:
+          - type: virtualnetworkrules
+            name: sdk-VirtualNetworkRules-9191
+        body:
+          properties:
+            virtualNetworkSubnetId: /subscriptions/Subscription/resourceGroups/sbehvnettest/providers/Microsoft.Network/virtualNetworks/sbehvnettest/subnets/default

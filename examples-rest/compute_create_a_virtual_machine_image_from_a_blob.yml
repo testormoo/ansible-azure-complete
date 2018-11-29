@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Create a virtual machine image from a blob.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: images
+        resource_name: myImage
+        body:
+          location: West US
+          properties:
+            storageProfile:
+              osDisk:
+                osType: Linux
+                blobUri: https://mystorageaccount.blob.core.windows.net/osimages/osimage.vhd
+                osState: Generalized

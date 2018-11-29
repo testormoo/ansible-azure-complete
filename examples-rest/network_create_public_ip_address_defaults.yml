@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create public IP address defaults
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses/{publicIpAddressName}
+        resource_group: rg1
+        provider: Network
+        resource_type: publicIPAddresses
+        resource_name: test-ip
+        body:

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: FirewallRuleCreate
+      azure_rm_resource:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}/firewallRules/{firewallRuleName}
+        resource_group: TestGroup
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: firewallRules
+            name: rule1
+        body:
+          properties:
+            startIpAddress: 0.0.0.0
+            endIpAddress: 255.255.255.255

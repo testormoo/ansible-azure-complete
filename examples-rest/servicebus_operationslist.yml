@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: OperationsList
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /providers/Microsoft.ServiceBus/operations
+        provider: ServiceBus
+        resource_type: operations

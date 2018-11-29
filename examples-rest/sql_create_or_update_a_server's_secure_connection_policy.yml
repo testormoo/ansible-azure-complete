@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a server's secure connection policy
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/connectionPolicies/{connectionPolicyName}
+        resource_group: test-1234
+        provider: Sql
+        resource_type: servers
+        resource_name: test-5678
+        subresource:
+          - type: connectionPolicies
+            name: default
+        body:
+          properties:
+            connectionType: Proxy

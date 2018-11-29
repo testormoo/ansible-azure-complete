@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: DefaultSecurityRuleList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkSecurityGroups/{networkSecurityGroupName}/defaultSecurityRules
+        resource_group: testrg
+        provider: Network
+        resource_type: networkSecurityGroups
+        resource_name: nsg1
+        subresource:
+          - type: defaultSecurityRules

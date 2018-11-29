@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters

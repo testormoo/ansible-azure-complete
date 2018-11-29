@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Profile-PATCH-MonitorConfig
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}
+        resource_group: azuresdkfornetautoresttrafficmanager2583
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azuresdkfornetautoresttrafficmanager6192
+        body:
+          properties:
+            monitorConfig:
+              protocol: HTTP
+              port: 80
+              path: /testpath.aspx
+              intervalInSeconds: 30
+              timeoutInSeconds: 6
+              toleratedNumberOfFailures: 4
+              customHeaders:
+                - name: header-1
+                  value: value-1
+                - name: header-2
+                  value: value-2

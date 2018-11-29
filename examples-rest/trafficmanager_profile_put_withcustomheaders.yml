@@ -1,0 +1,46 @@
+- hosts: localhost
+  tasks:
+    - name: Profile-PUT-WithCustomHeaders
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}
+        resource_group: azuresdkfornetautoresttrafficmanager2583
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azuresdkfornetautoresttrafficmanager6192
+        body:
+          properties:
+            profileStatus: Enabled
+            trafficRoutingMethod: Performance
+            dnsConfig:
+              relativeName: azuresdkfornetautoresttrafficmanager6192
+              ttl: 35
+            monitorConfig:
+              protocol: HTTP
+              port: 80
+              path: /testpath.aspx
+              intervalInSeconds: 10
+              timeoutInSeconds: 5
+              toleratedNumberOfFailures: 2
+              customHeaders:
+                - name: header-1
+                  value: value-1
+                - name: header-2
+                  value: value-2
+              expectedStatusCodeRanges:
+                - min: 200
+                  max: 205
+                - min: 400
+                  max: 410
+            trafficViewEnrollmentStatus: Disabled
+            endpoints:
+              - name: My external endpoint
+                type: Microsoft.network/TrafficManagerProfiles/ExternalEndpoints
+                properties:
+                  target: foobar.contoso.com
+                  endpointStatus: Enabled
+                  endpointLocation: North Europe
+                  customHeaders:
+                    - name: header-2
+                      value: value-2-overriden
+          location: global

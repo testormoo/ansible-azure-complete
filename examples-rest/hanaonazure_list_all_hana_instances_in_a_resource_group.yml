@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List all HANA instances in a resource group
+      azure_rm_resource_facts:
+        api_version: '2017-11-03-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances
+        resource_group: myResourceGroup
+        provider: HanaOnAzure
+        resource_type: hanaInstances

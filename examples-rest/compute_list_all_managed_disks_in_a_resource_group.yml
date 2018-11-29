@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List all managed disks in a resource group.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: disks

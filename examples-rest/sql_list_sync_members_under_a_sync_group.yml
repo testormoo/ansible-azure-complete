@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: List sync members under a sync group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/syncGroups/{syncGroupName}/syncMembers
+        resource_group: syncgroupcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncgroupcrud-8475
+        subresource:
+          - type: databases
+            name: syncgroupcrud-4328
+          - type: syncGroups
+            name: syncgroupcrud-3187
+          - type: syncMembers

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Get Azure Storage Protection Container Operation Result
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/operationResults/{operationId}
+        resource_group: test-rg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testvault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: storagecontainer;Storage;test-rg;teststorage
+          - type: operationResults
+            name: 00000000-0000-0000-0000-000000000000

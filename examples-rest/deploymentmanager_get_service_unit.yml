@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get service unit
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DeploymentManager/serviceTopologies/{serviceTopologyName}/services/{serviceName}/serviceUnits/{serviceUnitName}
+        resource_group: myResourceGroup
+        provider: DeploymentManager
+        resource_type: serviceTopologies
+        resource_name: myTopology
+        subresource:
+          - type: services
+            name: myService
+          - type: serviceUnits
+            name: myServiceUnit

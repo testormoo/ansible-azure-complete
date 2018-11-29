@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List log profiles
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/logprofiles
+        provider: insights
+        resource_type: logprofiles

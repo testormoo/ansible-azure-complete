@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ValidateProbe
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-12'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Cdn/validateProbe
+        provider: Cdn
+        resource_type: validateProbe
+        body:

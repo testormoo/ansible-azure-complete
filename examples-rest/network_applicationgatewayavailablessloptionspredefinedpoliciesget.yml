@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ApplicationGatewayAvailableSslOptionsPredefinedPoliciesGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/applicationGatewayAvailableSslOptions/default/predefinedPolicies
+        provider: Network
+        resource_type: applicationGatewayAvailableSslOptions
+        resource_type: default
+        resource_type: predefinedPolicies

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: NameAvailabilityTest_NameAvailablePOST21
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-04-01'
+        # url: /providers/Microsoft.Network/checkTrafficManagerNameAvailability
+        provider: Network
+        resource_type: checkTrafficManagerNameAvailability
+        body:
+          name: azsmnet5403
+          type: microsoft.network/trafficmanagerprofiles

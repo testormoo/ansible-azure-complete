@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get Topology
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkWatchers/{networkWatcherName}/topology
+        resource_group: rg1
+        provider: Network
+        resource_type: networkWatchers
+        resource_name: nw1
+        subresource:
+          - type: topology
+        body:
+          targetResourceGroupName: rg2

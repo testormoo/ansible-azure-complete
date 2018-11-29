@@ -1,0 +1,36 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Streaming Policy with commonEncryptionCenc only
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingPolicies/{streamingPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingPolicies
+            name: UserCreatedSecureStreamingPolicyWithCommonEncryptionCencOnly
+        body:
+          properties:
+            defaultContentKeyPolicyName: PolicyWithPlayReadyOptionAndOpenRestriction
+            commonEncryptionCenc:
+              enabledProtocols:
+                download: False
+                dash: True
+                hls: False
+                smoothStreaming: True
+              clearTracks:
+                - trackSelections:
+                    - property: FourCC
+                      operation: Equal
+                      value: hev1
+              contentKeys:
+                defaultKey:
+                  label: cencDefaultKey
+              drm:
+                playReady:
+                  customLicenseAcquisitionUrlTemplate: https://contoso.com/{AssetAlternativeId}/playready/{ContentKeyId}
+                  playReadyCustomAttributes: PlayReady CustomAttributes
+                widevine:
+                  customLicenseAcquisitionUrlTemplate: https://contoso.com/{AssetAlternativeId}/widevine/{ContentKeyId

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ManagersUpdateExtendedInfo
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/extendedInformation/vaultExtendedInfo
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hManagerForSDKTest
+        subresource:
+          - type: extendedInformation
+          - type: vaultExtendedInfo
+        body:

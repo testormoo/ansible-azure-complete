@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: AccountUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: accountcrud5678
+        body:
+          tags:
+            tagKey1: TagValue1
+          properties:
+            description: new description

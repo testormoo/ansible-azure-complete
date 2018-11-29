@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountListReadOnlyKeys
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/readonlykeys
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: readonlykeys
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountListReadOnlyKeys
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/readonlykeys
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: readonlykeys
+        body:

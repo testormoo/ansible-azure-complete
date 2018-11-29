@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: FirewallRuleDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/firewallRules/{firewallRuleName}
+        resource_group: TestGroup
+        provider: DBforMySQL
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: firewallRules
+            name: rule1
+        body:

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get database security alert policy
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/securityAlertPolicies/{securityAlertPolicyName}
+        resource_group: securityalert-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: securityalert-2080
+        subresource:
+          - type: databases
+            name: testdb
+          - type: securityAlertPolicies
+            name: default

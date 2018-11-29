@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List all workflows in a resource group
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows
+        resource_group: test-resource-group
+        provider: Logic
+        resource_type: workflows

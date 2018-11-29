@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get Operations
+      azure_rm_resource_facts:
+        api_version: '2017-04-18'
+        # url: /providers/Microsoft.CognitiveServices/operations
+        provider: CognitiveServices
+        resource_type: operations

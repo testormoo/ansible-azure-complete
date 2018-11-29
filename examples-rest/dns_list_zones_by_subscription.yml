@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List zones by subscription
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/dnszones
+        provider: Network
+        resource_type: dnszones

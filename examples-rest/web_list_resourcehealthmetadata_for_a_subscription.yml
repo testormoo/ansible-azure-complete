@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List ResourceHealthMetadata for a subscription
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Web/resourceHealthMetadata
+        provider: Web
+        resource_type: resourceHealthMetadata

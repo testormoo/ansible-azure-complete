@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Updates a managed database with minimal properties
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}/databases/{databaseName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: managedInstance
+        subresource:
+          - type: databases
+            name: testdb
+        body:
+          tags:
+            tagKey1: TagValue1

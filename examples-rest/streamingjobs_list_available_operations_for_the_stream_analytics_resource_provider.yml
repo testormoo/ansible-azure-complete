@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List available operations for the Stream Analytics resource provider
+      azure_rm_resource_facts:
+        api_version: '2016-03-01'
+        # url: /providers/Microsoft.StreamAnalytics/operations
+        provider: StreamAnalytics
+        resource_type: operations

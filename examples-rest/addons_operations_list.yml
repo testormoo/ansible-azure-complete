@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Operations_List
+      azure_rm_resource_facts:
+        api_version: '2018-03-01'
+        # url: /providers/Microsoft.Addons/operations
+        provider: Addons
+        resource_type: operations

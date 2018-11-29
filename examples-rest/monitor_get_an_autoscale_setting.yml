@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Get an autoscale setting
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/autoscalesettings/{autoscaleSettingName}
+        provider: insights
+        resource_type: autoscalesettings
+        resource_name: MySetting

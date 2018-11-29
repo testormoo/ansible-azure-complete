@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: EventHubGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/eventhubs/{eventHubName}
+        resource_group: Default-NotificationHubs-AustraliaEast
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-716
+        subresource:
+          - type: eventhubs
+            name: sdk-EventHub-10

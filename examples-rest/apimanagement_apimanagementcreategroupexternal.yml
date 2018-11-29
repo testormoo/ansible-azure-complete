@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateGroupExternal
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/groups/{groupId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: groups
+            name: aadGroup
+        body:
+          properties:
+            displayName: NewGroup (samiraad.onmicrosoft.com)
+            description: new group to test
+            type: external
+            externalId: aad://samiraad.onmicrosoft.com/groups/83cf2753-5831-4675-bc0e-2f8dc067c58d

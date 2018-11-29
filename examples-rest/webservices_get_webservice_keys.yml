@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: GET WebService Keys
+      azure_rm_resource_facts:
+        api_version: '2017-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearning/webServices/{webServiceName}/listKeys
+        resource_group: OneResourceGroupName
+        provider: MachineLearning
+        resource_type: webServices
+        resource_name: TargetWebServiceName
+        subresource:
+          - type: listKeys

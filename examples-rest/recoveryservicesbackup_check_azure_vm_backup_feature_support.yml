@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Check Azure Vm Backup Feature Support
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/providers/Microsoft.RecoveryServices/locations/{azureRegion}/backupValidateFeatures
+        provider: RecoveryServices
+        resource_type: locations
+        resource_name: southeastasia
+        subresource:
+          - type: backupValidateFeatures
+        body:
+          featureType: AzureVMResourceBackup
+          vmSize: Basic_A0
+          vmSku: Premium

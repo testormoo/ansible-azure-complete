@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Update Local Network Gateway Tags
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/localNetworkGateways/{localNetworkGatewayName}
+        resource_group: rg1
+        provider: Network
+        resource_type: localNetworkGateways
+        resource_name: lgw
+        body:
+          tags:
+            tag1: value1
+            tag2: value2

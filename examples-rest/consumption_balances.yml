@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: Balances
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.Consumption/balances
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: balances
+- hosts: localhost
+  tasks:
+    - name: Balances
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/balances
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201702
+          - type: providers
+        provider: Consumption
+          - type: balances

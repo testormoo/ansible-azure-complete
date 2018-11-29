@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a replication link
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/replicationLinks/{linkId}
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6440
+        subresource:
+          - type: databases
+            name: testdb
+          - type: replicationLinks
+            name: 5b301b68-03f6-4b26-b0f4-73ebb8634238
+        body:

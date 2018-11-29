@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Create a database as a point in time restore
+      azure_rm_resource:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}
+        resource_group: TargetResourceGroup
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: targetserver
+        body:
+          location: brazilsouth
+          properties:
+            restorePointInTime: 2017-12-14T00:00:37.467Z
+            createMode: PointInTimeRestore
+            sourceServerId: /subscriptions/ffffffff-ffff-ffff-ffff-ffffffffffff/resourceGroups/SourceResourceGroup/providers/Microsoft.DBforMariaDB/servers/sourceserver
+          sku:
+            name: GP_Gen5_2
+            tier: GeneralPurpose
+            family: Gen5
+            capacity: 2
+          tags:
+            ElasticServer: 1

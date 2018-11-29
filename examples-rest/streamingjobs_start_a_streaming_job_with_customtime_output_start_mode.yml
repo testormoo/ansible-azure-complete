@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Start a streaming job with CustomTime output start mode
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/start
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj59
+        subresource:
+          - type: start
+        body:

@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Security/locations/{ascLocation}/discoveredSecuritySolutions/{discoveredSecuritySolutionName}
+        resource_group: myRg2
+        provider: Security
+        resource_type: locations
+        resource_name: centralus
+        subresource:
+          - type: discoveredSecuritySolutions
+            name: paloalto7

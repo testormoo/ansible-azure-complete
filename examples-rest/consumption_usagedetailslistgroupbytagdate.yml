@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsListGroupByTagDate
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Consumption/usageDetails
+        provider: Consumption
+        resource_type: usageDetails

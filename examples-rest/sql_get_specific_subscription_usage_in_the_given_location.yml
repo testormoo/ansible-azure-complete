@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get specific subscription usage in the given location.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/locations/{locationName}/usages/{usageName}
+        provider: Sql
+        resource_type: locations
+        resource_name: WestUS
+        subresource:
+          - type: usages
+            name: ServerQuota

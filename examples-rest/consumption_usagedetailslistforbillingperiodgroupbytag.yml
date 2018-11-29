@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsListForBillingPeriodGroupByTag
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/usageDetails
+        provider: Billing
+        resource_type: billingPeriods
+        resource_name: 201803
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: usageDetails

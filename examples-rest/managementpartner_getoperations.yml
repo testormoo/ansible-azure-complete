@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: GetOperations
+      azure_rm_resource_facts:
+        api_version: '2018-02-01'
+        # url: /providers/Microsoft.ManagementPartner/operations
+        provider: ManagementPartner
+        resource_type: operations

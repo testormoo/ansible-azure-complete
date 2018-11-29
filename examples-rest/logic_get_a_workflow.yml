@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get a workflow
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}
+        resource_group: test-resource-group
+        provider: Logic
+        resource_type: workflows
+        resource_name: test-workflow

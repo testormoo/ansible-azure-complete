@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List App Service Environment Detector Responses
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/hostingEnvironments/{name}/detectors
+        resource_group: Sample-WestUSResourceGroup
+        provider: Web
+        resource_type: hostingEnvironments
+        resource_name: SampleAppServiceEnvironment
+        subresource:
+          - type: detectors

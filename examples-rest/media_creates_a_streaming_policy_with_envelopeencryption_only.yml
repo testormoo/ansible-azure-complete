@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Streaming Policy with envelopeEncryption only
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingPolicies/{streamingPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingPolicies
+            name: UserCreatedSecureStreamingPolicyWithEnvelopeEncryptionOnly
+        body:
+          properties:
+            defaultContentKeyPolicyName: PolicyWithClearKeyOptionAndTokenRestriction
+            envelopeEncryption:
+              enabledProtocols:
+                dash: True
+                hls: True
+                smoothStreaming: True
+              contentKeys:
+                defaultKey:
+                  label: aesDefaultKey
+              customKeyAcquisitionUrlTemplate: https://contoso.com/{AssetAlternativeId}/envelope/{ContentKeyId}

@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: Create/Update Managed Cluster
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1
+        body:
+          location: location1
+          tags:
+            tier: production
+            archv2:
+          properties:
+            kubernetesVersion:
+            dnsPrefix: dnsprefix1
+            agentPoolProfiles:
+              - name: nodepool1
+                count: 3
+                vmSize: Standard_DS1_v2
+                osType: Linux
+            linuxProfile:
+              adminUsername: azureuser
+              ssh:
+                publicKeys:
+                  - keyData: keydata
+            servicePrincipalProfile:
+              clientId: clientid
+              secret: secret
+            addonProfiles:
+            enableRBAC: False

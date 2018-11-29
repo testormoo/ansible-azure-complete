@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a gallery Image Version.
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/galleries/{galleryName}/images/{galleryImageName}/versions/{galleryImageVersionName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: galleries
+        resource_name: myGalleryName
+        subresource:
+          - type: images
+            name: myGalleryImageName
+          - type: versions
+            name: 1.0.0
+        body:

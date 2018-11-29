@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Apps_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2018-09-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.IoTCentral/IoTApps/{resourceName}
+        resource_group: resRg
+        provider: IoTCentral
+        resource_type: IoTApps
+        resource_name: myIoTCentralApp
+        body:

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Unregister Protection Container
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}
+        resource_group: testRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupFabrics
+            name:
+          - type: protectionContainers
+            name:
+        body:

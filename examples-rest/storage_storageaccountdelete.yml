@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}
+        resource_group: res4228
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto2434
+        body:

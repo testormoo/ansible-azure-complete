@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: RegisteredServers_Get
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}/registeredServers/{serverId}
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        subresource:
+          - type: registeredServers
+            name: 080d4133-bdb5-40a0-96a0-71a6057bfe9a

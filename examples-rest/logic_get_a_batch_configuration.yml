@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a batch configuration
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/batchConfigurations/{batchConfigurationName}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: batchConfigurations
+            name: testBatchConfiguration

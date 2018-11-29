@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Gets a managed database
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}/databases/{databaseName}
+        resource_group: Test1
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: managedInstance
+        subresource:
+          - type: databases
+            name: managedDatabase

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: KustoDatabaseRemovePrincipals
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-07-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Kusto/clusters/{clusterName}/databases/{databaseName}/removePrincipals
+        resource_group: kustorptest
+        provider: Kusto
+        resource_type: clusters
+        resource_name: KustoClusterRPTest4
+        subresource:
+          - type: databases
+            name: databaseName1
+          - type: removePrincipals
+        body:

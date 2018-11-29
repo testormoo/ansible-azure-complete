@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List Keys
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/listKeys
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts
+        resource_name: testAccount
+        subresource:
+          - type: listKeys
+        body:

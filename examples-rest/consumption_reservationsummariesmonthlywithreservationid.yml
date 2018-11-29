@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ReservationSummariesMonthlyWithReservationId
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Capacity/reservationorders/{reservationOrderId}/reservations/{reservationId}/providers/Microsoft.Consumption/reservationSummaries
+        provider: Capacity
+        resource_type: reservationorders
+        resource_name: 00000000-0000-0000-0000-000000000000
+        subresource:
+          - type: reservations
+            name: 00000000-0000-0000-0000-000000000000
+          - type: providers
+        provider: Consumption
+          - type: reservationSummaries

@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: FirewallRuleGet
+      azure_rm_resource_facts:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}/firewallRules/{firewallRuleName}
+        resource_group: TestGroup
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: firewallRules
+            name: rule1

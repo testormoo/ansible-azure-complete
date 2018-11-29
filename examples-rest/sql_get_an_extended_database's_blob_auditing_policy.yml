@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get an extended database's blob auditing policy
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/extendedAuditingSettings/{blobAuditingPolicyName}
+        resource_group: blobauditingtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: blobauditingtest-2080
+        subresource:
+          - type: databases
+            name: testdb
+          - type: extendedAuditingSettings
+            name: default

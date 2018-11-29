@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: OperationsList
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /providers/Microsoft.OperationsManagement/operations
+        provider: OperationsManagement
+        resource_type: operations

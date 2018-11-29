@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: StartTenantBackfill
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01-preview'
+        # url: /providers/Microsoft.Management/startTenantBackfill
+        provider: Management
+        resource_type: startTenantBackfill
+        body:

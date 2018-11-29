@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Get Metric for data
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/metrics
+        provider: insights
+        resource_type: metrics
+- hosts: localhost
+  tasks:
+    - name: Get Metric for data
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/baseline/{metricName}
+        provider: insights
+        resource_type: baseline
+        resource_name: PercentageCpu

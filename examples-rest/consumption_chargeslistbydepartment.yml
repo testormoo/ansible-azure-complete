@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ChargesListByDepartment
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}/providers/Microsoft.Consumption/charges
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 1234
+        subresource:
+          - type: departments
+            name: 42425
+          - type: providers
+        provider: Consumption
+          - type: charges

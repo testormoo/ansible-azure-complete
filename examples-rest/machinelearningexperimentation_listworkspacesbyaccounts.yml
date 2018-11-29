@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: ListWorkspacesByAccounts
+      azure_rm_resource_facts:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: testaccount
+        subresource:
+          - type: workspaces

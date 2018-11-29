@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: Get the long term retention policy for the database.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupLongTermRetentionPolicies/{policyName}
+        resource_group: resourceGroup
+        provider: Sql
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: testDatabase
+          - type: backupLongTermRetentionPolicies
+            name: default
+- hosts: localhost
+  tasks:
+    - name: Get the long term retention policy for the database.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupLongTermRetentionPolicies
+        resource_group: resourceGroup
+        provider: Sql
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: testDatabase
+          - type: backupLongTermRetentionPolicies

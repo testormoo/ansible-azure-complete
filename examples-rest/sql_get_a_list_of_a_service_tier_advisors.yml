@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get a list of a service tier advisors
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/serviceTierAdvisors
+        resource_group: sqlcrudtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-2080
+        subresource:
+          - type: databases
+            name: sqlcrudtest-9187
+          - type: serviceTierAdvisors

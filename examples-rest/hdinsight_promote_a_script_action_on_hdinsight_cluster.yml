@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Promote a script action on HDInsight cluster
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/scriptExecutionHistory/{scriptExecutionId}/promote
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: scriptExecutionHistory
+            name: 391145124054712
+          - type: promote
+        body:

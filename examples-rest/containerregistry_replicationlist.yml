@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: ReplicationList
+      azure_rm_resource_facts:
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/replications
+        resource_group: myResourceGroup
+        provider: ContainerRegistry
+        resource_type: registries
+        resource_name: myRegistry
+        subresource:
+          - type: replications

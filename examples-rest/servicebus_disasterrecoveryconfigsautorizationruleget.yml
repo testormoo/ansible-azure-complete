@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: DisasterRecoveryConfigsAutorizationRuleGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/disasterRecoveryConfigs/{alias}/AuthorizationRules/{authorizationRuleName}
+        resource_group: exampleResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-9080
+        subresource:
+          - type: disasterRecoveryConfigs
+            name: sdk-DisasterRecovery-4879
+          - type: AuthorizationRules
+            name: sdk-Authrules-4879

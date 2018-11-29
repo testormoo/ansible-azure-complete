@@ -1,0 +1,60 @@
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Consumption/usageDetails
+        provider: Consumption
+        resource_type: usageDetails
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.Consumption/usageDetails
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 1234
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: usageDetails
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/departments/{departmentId}/providers/Microsoft.Consumption/usageDetails
+        provider: Billing
+        resource_type: departments
+        resource_name: 1234
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: usageDetails
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/enrollmentAccounts/{enrollmentAccountId}/providers/Microsoft.Consumption/usageDetails
+        provider: Billing
+        resource_type: enrollmentAccounts
+        resource_name: 1234
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: usageDetails
+- hosts: localhost
+  tasks:
+    - name: UsageDetailsList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupId}/providers/Microsoft.Consumption/usageDetails
+        provider: Management
+        resource_type: managementGroups
+        resource_name: managementGroupForTest
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: usageDetails

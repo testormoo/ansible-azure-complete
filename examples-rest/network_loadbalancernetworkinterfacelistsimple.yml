@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: LoadBalancerNetworkInterfaceListSimple
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers/{loadBalancerName}/networkInterfaces
+        resource_group: testrg
+        provider: Network
+        resource_type: loadBalancers
+        resource_name: lb
+        subresource:
+          - type: networkInterfaces

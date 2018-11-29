@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Update Application Gateway tags
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/applicationGateways/{applicationGatewayName}
+        resource_group: rg1
+        provider: Network
+        resource_type: applicationGateways
+        resource_name: AppGw
+        body:
+          tags:
+            tag1: value1
+            tag2: value2

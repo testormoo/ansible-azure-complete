@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: List load balancers in resource group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/applicationSecurityGroups
+        resource_group: rg1
+        provider: Network
+        resource_type: applicationSecurityGroups
+- hosts: localhost
+  tasks:
+    - name: List load balancers in resource group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers
+        resource_group: rg1
+        provider: Network
+        resource_type: loadBalancers

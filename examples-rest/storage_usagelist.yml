@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: UsageList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Storage/locations/{location}/usages
+        provider: Storage
+        resource_type: locations
+        resource_name: eastus2(stage)
+        subresource:
+          - type: usages

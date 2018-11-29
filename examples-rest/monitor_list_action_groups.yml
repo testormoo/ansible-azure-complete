@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: List action groups
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/actionGroups
+        provider: insights
+        resource_type: actionGroups
+- hosts: localhost
+  tasks:
+    - name: List action groups
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/actionGroups
+        resource_group: Default-NotificationRules
+        provider: insights
+        resource_type: actionGroups

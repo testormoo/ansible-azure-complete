@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: GET WebServices by Subscription Id
+      azure_rm_resource_facts:
+        api_version: '2017-01-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.MachineLearning/webServices
+        provider: MachineLearning
+        resource_type: webServices

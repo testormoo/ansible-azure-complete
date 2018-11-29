@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Trigger Azure Vm Discovery
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/refreshContainers
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: refreshContainers
+        body:

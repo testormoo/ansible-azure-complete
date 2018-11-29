@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: Create or Update rule - AlertingAction with Cross-Resource
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/scheduledQueryRules/{ruleName}
+        provider: insights
+        resource_type: scheduledQueryRules
+        resource_name: SampleCrossResourceAlert
+        body:
+          location: eastus
+          tags:
+            hidden-link:/subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/Rac46PostSwapRG/providers/microsoft.insights/components/sampleAI: Resource
+          properties:
+            description: Sample Cross Resource alert
+            enabled: true
+            source:
+              query: union requests, workspace("sampleWorkspace").Update
+              authorizedResources:
+              dataSourceId: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/Rac46PostSwapRG/providers/microsoft.insights/components/sampleAI
+              queryType: ResultCount
+            schedule:
+              frequencyInMinutes: 60
+              timeWindowInMinutes: 60
+            action:
+              severity: 3
+              aznsAction:
+                actionGroup:
+                emailSubject: Cross Resource Mail!!
+              trigger:
+                thresholdOperator: GreaterThan
+                threshold: 5000
+              odata.type: Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction

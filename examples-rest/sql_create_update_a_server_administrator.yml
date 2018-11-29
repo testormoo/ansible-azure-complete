@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Create/Update a server administrator
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/administrators/{administratorName}
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6440
+        subresource:
+          - type: administrators
+            name: activeDirectory
+        body:

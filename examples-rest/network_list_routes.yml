@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List routes
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/routeTables/{routeTableName}/routes
+        resource_group: rg1
+        provider: Network
+        resource_type: routeTables
+        resource_name: testrt
+        subresource:
+          - type: routes

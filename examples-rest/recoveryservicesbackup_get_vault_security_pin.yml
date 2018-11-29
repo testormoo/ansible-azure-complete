@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get Vault Security Pin
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupSecurityPIN
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: SwaggerTest
+        subresource:
+          - type: backupSecurityPIN
+        body:

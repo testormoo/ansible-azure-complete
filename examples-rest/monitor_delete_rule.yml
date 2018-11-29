@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Delete rule
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/scheduledQueryRules/{ruleName}
+        provider: insights
+        resource_type: scheduledQueryRules
+        resource_name: logalertfoo
+        body:

@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: List subscription quota information in West US
+      azure_rm_resource_facts:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.StreamAnalytics/locations/{location}/quotas
+        provider: StreamAnalytics
+        resource_type: locations
+        resource_name: West US
+        subresource:
+          - type: quotas

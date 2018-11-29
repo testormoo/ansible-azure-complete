@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Delete Backend Pool
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/frontDoors/{frontDoorName}/backendPools/{backendPoolName}
+        resource_group: rg1
+        provider: Network
+        resource_type: frontDoors
+        resource_name: frontDoor1
+        subresource:
+          - type: backendPools
+            name: backendPool1
+        body:
+- hosts: localhost
+  tasks:
+    - name: Delete Backend Pool
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/provider/Microsoft.Network/frontDoors/{frontDoorName}/frontendEndpoints/{frontendEndpointName}
+        resource_group: rg1
+        body:

@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: RedisCacheList
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Cache/CheckNameAvailability
+        provider: Cache
+        resource_type: CheckNameAvailability
+        body:
+          type: Microsoft.Cache/Redis
+          name: cacheName
+- hosts: localhost
+  tasks:
+    - name: RedisCacheList
+      azure_rm_resource_facts:
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Cache/Redis
+        provider: Cache
+        resource_type: Redis

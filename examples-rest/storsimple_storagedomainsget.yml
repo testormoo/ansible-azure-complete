@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: StorageDomainsGet
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/storageDomains/{storageDomainName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: storageDomains
+            name: sd-fs-HSDK-4XY4FI2IVG

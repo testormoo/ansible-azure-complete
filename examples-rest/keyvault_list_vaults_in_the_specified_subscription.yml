@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List vaults in the specified subscription
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/vaults
+        provider: KeyVault
+        resource_type: vaults
+- hosts: localhost
+  tasks:
+    - name: List vaults in the specified subscription
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resources

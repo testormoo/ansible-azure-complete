@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a recommended elastic pool
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/recommendedElasticPools/{recommendedElasticPoolName}
+        resource_group: sqlcrudtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-2080
+        subresource:
+          - type: recommendedElasticPools
+            name: ElasticPool1

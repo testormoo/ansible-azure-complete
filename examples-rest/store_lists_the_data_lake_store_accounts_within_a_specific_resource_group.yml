@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Lists the Data Lake Store accounts within a specific resource group
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts

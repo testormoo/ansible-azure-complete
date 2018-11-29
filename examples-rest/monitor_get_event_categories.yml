@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get event categories
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/microsoft.insights/eventcategories
+        provider: insights
+        resource_type: eventcategories

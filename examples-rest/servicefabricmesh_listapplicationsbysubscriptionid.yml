@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ListApplicationsBySubscriptionId
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ServiceFabricMesh/applications
+        provider: ServiceFabricMesh
+        resource_type: applications

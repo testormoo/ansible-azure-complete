@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Create a new server
+      azure_rm_resource:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}
+        resource_group: testrg
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: mariadbtestsvc4
+        body:
+          location: westus
+          properties:
+            administratorLogin: cloudsa
+            administratorLoginPassword: pass$w0rd
+            sslEnforcement: Enabled
+            storageProfile:
+              storageMB: 128000
+              backupRetentionDays: 7
+              geoRedundantBackup: Enabled
+            createMode: Default
+          sku:
+            name: GP_Gen5_2
+            tier: GeneralPurpose
+            capacity: 2
+            family: Gen5
+          tags:
+            ElasticServer: 1

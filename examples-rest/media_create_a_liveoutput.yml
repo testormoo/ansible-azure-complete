@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Create a LiveOutput
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/liveEvents/{liveEventName}/liveOutputs/{liveOutputName}
+        resource_group: mediaresources
+        provider: Media
+        resource_type: mediaservices
+        resource_name: slitestmedia10
+        subresource:
+          - type: liveEvents
+            name: myLiveEvent1
+          - type: liveOutputs
+            name: myLiveOutput1
+        body:
+          properties:
+            description: test live output 1
+            assetName: 6f3264f5-a189-48b4-a29a-a40f22575212
+            archiveWindowLength: PT5M
+            manifestName: testmanifest
+            hls:
+              fragmentsPerTsSegment: 5

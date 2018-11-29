@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: RouteFilterRuleGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/routeFilters/{routeFilterName}/routeFilterRules/{ruleName}
+        resource_group: rg1
+        provider: Network
+        resource_type: routeFilters
+        resource_name: filterName
+        subresource:
+          - type: routeFilterRules
+            name: filterName

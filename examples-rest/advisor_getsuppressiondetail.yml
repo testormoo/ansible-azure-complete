@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: GetSuppressionDetail
+      azure_rm_resource_facts:
+        api_version: '2017-04-19'
+        # url: /{resourceUri}/providers/Microsoft.Advisor/recommendations/{recommendationId}/suppressions/{name}
+        provider: Advisor
+        resource_type: recommendations
+        resource_name: recommendationId
+        subresource:
+          - type: suppressions
+            name: suppressionName1

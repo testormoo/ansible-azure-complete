@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get Protection Policy Operation Status
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupPolicies/{policyName}/operations/{operationId}
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupPolicies
+            name: testPolicy1
+          - type: operations
+            name: 00000000-0000-0000-0000-000000000000

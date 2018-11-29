@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Get Operation Status of Protected Vm
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/operationsStatus/{operationId}
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: IaasVMContainer;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: protectedItems
+            name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: operationsStatus
+            name: 00000000-0000-0000-0000-000000000000

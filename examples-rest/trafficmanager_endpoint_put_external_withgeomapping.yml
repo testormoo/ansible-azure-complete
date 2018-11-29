@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Endpoint-PUT-External-WithGeoMapping
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}/{endpointType}/{endpointName}
+        resource_group: azuresdkfornetautoresttrafficmanager2191
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azuresdkfornetautoresttrafficmanager8224
+            name: ExternalEndpoints
+            name: My%20external%20endpoint
+        body:
+          name: My external endpoint
+          type: Microsoft.network/TrafficManagerProfiles/ExternalEndpoints
+          properties:
+            target: foobar.contoso.com
+            endpointStatus: Enabled
+            geoMapping:

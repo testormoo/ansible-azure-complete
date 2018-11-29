@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateGroup
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/groups/{groupId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: groups
+            name: tempgroup
+        body:
+          properties:
+            displayName: temp group

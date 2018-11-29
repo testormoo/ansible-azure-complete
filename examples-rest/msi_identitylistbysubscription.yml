@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: IdentityListBySubscription
+      azure_rm_resource_facts:
+        api_version: '2015-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ManagedIdentity/userAssignedIdentities
+        provider: ManagedIdentity
+        resource_type: userAssignedIdentities

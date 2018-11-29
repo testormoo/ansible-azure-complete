@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get script execution history by script id
+      azure_rm_resource_facts:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/scriptExecutionHistory/{scriptExecutionId}
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: scriptExecutionHistory
+            name: 391145124054712

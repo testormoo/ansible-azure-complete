@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountDeleteManagementPolicies
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/managementPolicies/{managementPolicyName}
+        resource_group: res6977
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto2527
+        subresource:
+          - type: managementPolicies
+            name: default
+        body:

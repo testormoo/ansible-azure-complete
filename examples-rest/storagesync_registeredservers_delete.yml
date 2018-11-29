@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: RegisteredServers_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}/registeredServers/{serverId}
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        subresource:
+          - type: registeredServers
+            name: 41166691-ab03-43e9-ab3e-0330eda162ac
+        body:

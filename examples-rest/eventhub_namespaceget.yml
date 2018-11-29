@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5849

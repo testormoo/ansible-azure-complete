@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Update a Content Key Policy
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/contentKeyPolicies/{contentKeyPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: contentKeyPolicies
+            name: PolicyWithClearKeyOptionAndTokenRestriction
+        body:
+          properties:
+            description: Updated Policy
+            options:
+              - name: ClearKeyOption
+                configuration:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyClearKeyConfiguration
+                restriction:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyOpenRestriction

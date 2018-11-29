@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: getPendingSubscriptionOperations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.Subscription/subscriptionOperations
+        provider: Subscription
+        resource_type: subscriptionOperations

@@ -1,0 +1,31 @@
+- hosts: localhost
+  tasks:
+    - name: ResourceGroupQuery
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-05-31'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.CostManagement/Query
+        provider: CostManagement
+        resource_type: Query
+        body:
+          type: Usage
+          timeframe: MonthToDate
+          dataset:
+            granularity: Daily
+            configuration:
+              columns:
+            filter:
+              and:
+                - or:
+                    - dimension:
+                        name: ResourceLocation
+                        operator: In
+                        values:
+                    - tag:
+                        name: Environment
+                        operator: In
+                        values:
+                - dimension:
+                    name: ResourceGroup
+                    operator: In
+                    values:

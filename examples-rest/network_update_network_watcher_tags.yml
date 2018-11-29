@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Update network watcher tags
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkWatchers/{networkWatcherName}
+        resource_group: rg1
+        provider: Network
+        resource_type: networkWatchers
+        resource_name: nw1
+        body:
+          tags:
+            tag1: value1
+            tag2: value2

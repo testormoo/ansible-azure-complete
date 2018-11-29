@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountSetManagementPolicies
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/managementPolicies/{managementPolicyName}
+        resource_group: res7687
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto9699
+        subresource:
+          - type: managementPolicies
+            name: default
+        body:

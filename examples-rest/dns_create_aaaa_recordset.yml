@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Create AAAA recordset
+      azure_rm_resource:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+        resource_name: zone1
+            name: AAAA
+            name: record1
+        body:
+          properties:
+            metadata:
+              key1: value1
+            TTL: 3600
+            AAAARecords:
+              - ipv6Address: ::1

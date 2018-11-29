@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Revoke Instant Item Level Recovery for Azure Vm
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/recoveryPoints/{recoveryPointId}/revokeInstantItemRecovery
+        resource_group: PythonSDKBackupTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: PySDKBackupTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: iaasvmcontainer;iaasvmcontainerv2;pysdktestrg;pysdktestv2vm1
+          - type: protectedItems
+            name: vm;iaasvmcontainerv2;pysdktestrg;pysdktestv2vm1
+          - type: recoveryPoints
+            name:
+          - type: revokeInstantItemRecovery
+        body:

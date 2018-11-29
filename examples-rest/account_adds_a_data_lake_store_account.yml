@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Adds a Data Lake Store account
+      azure_rm_resource:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/dataLakeStoreAccounts/{dataLakeStoreAccountName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: dataLakeStoreAccounts
+            name: test_adls_account
+        body:
+          properties:
+            suffix: test_suffix

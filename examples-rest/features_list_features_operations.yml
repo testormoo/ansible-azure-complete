@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Features operations
+      azure_rm_resource_facts:
+        api_version: '2015-12-01'
+        # url: /providers/Microsoft.Features/operations
+        provider: Features
+        resource_type: operations

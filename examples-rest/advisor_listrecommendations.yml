@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ListRecommendations
+      azure_rm_resource_facts:
+        api_version: '2017-04-19'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Advisor/recommendations
+        provider: Advisor
+        resource_type: recommendations

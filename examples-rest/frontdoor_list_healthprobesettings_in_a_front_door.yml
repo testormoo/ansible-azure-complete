@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List HealthProbeSettings in a Front Door
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/frontDoors/{frontDoorName}/healthProbeSettings
+        resource_group: rg1
+        provider: Network
+        resource_type: frontDoors
+        resource_name: frontDoor1
+        subresource:
+          - type: healthProbeSettings

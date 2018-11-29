@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get ProtectionIntent for an item
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/backupProtectionIntent/{intentObjectName}
+        resource_group: myRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: myVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: backupProtectionIntent
+            name: 249D9B07-D2EF-4202-AA64-65F35418564E

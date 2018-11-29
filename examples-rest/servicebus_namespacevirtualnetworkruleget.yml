@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceVirtualNetworkRuleGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/virtualnetworkrules/{virtualNetworkRuleName}
+        resource_group: ResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-6019
+        subresource:
+          - type: virtualnetworkrules
+            name: sdk-VirtualNetworkRules-9191

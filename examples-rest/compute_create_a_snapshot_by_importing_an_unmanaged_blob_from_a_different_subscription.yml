@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create a snapshot by importing an unmanaged blob from a different subscription.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/snapshots/{snapshotName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: snapshots
+        resource_name: mySnapshot1
+        body:

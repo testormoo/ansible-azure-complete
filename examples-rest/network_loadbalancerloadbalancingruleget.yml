@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: LoadBalancerLoadBalancingRuleGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers/{loadBalancerName}/loadBalancingRules/{loadBalancingRuleName}
+        resource_group: testrg
+        provider: Network
+        resource_type: loadBalancers
+        resource_name: lb1
+        subresource:
+          - type: loadBalancingRules
+            name: rule1

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: RedisCacheFirewallRuleDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{cacheName}/firewallRules/{ruleName}
+        resource_group: rg1
+        provider: Cache
+        resource_type: Redis
+        resource_name: cache1
+        subresource:
+          - type: firewallRules
+            name: rule1
+        body:

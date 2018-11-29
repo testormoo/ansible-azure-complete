@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Topics_RegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventGrid/topics/{topicName}/regenerateKey
+        resource_group: examplerg
+        provider: EventGrid
+        resource_type: topics
+        resource_name: exampletopic2
+        subresource:
+          - type: regenerateKey
+        body:

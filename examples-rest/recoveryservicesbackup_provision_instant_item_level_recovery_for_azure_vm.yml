@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Provision Instant Item Level Recovery for Azure Vm
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/recoveryPoints/{recoveryPointId}/provisionInstantItemRecovery
+        resource_group: PythonSDKBackupTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: PySDKBackupTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: iaasvmcontainer;iaasvmcontainerv2;pysdktestrg;pysdktestv2vm1
+          - type: protectedItems
+            name: vm;iaasvmcontainerv2;pysdktestrg;pysdktestv2vm1
+          - type: recoveryPoints
+            name:
+          - type: provisionInstantItemRecovery
+        body:
+          properties:
+            initiatorName: Hello World
+            recoveryPointId: 38823086363464
+            renewExistingRegistration: True
+            virtualMachineId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/pysdktestrg/providers/Microsoft.Compute/virtualMachines/pysdktestv2vm1
+            objectType: IaasVMILRRegistrationRequest

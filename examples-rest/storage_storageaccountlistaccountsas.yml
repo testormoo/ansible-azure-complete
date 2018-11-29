@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountListAccountSAS
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/ListAccountSas
+        resource_group: res7985
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto8588
+        subresource:
+          - type: ListAccountSas
+        body:
+          signedServices: b
+          signedResourceTypes: s
+          signedPermission: r
+          signedProtocol: https,http
+          signedStart: 2017-05-24T10:42:03.1567373Z
+          signedExpiry: 2017-05-24T11:42:03.1567373Z
+          keyToSign: key1

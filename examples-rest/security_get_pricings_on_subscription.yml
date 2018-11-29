@@ -1,0 +1,36 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/pricings
+        provider: Security
+        resource_type: pricings
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Security/pricings
+        resource_group: myRg
+        provider: Security
+        resource_type: pricings
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/pricings/{pricingName}
+        provider: Security
+        resource_type: pricings
+        resource_name: default
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Security/pricings/{pricingName}
+        resource_group: myRg
+        provider: Security
+        resource_type: pricings
+        resource_name: myRg

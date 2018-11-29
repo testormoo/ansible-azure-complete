@@ -1,0 +1,39 @@
+- hosts: localhost
+  tasks:
+    - name: Get Azure Reachability Report
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkWatchers/{networkWatcherName}/azureReachabilityReport
+        resource_group: rg1
+        provider: Network
+        resource_type: networkWatchers
+        resource_name: nw1
+        subresource:
+          - type: azureReachabilityReport
+        body:
+          providerLocation:
+            country: United States
+            state: washington
+          providers:
+          azureLocations:
+          startTime: 2017-09-07T00:00:00Z
+          endTime: 2017-09-10T00:00:00Z
+- hosts: localhost
+  tasks:
+    - name: Get Azure Reachability Report
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkWatchers/{networkWatcherName}/availableProvidersList
+        resource_group: rg1
+        provider: Network
+        resource_type: networkWatchers
+        resource_name: nw1
+        subresource:
+          - type: availableProvidersList
+        body:
+          azureLocations:
+          country: United States
+          state: washington
+          city: seattle

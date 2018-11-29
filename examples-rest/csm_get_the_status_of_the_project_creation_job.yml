@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Get the status of the project creation job
+      azure_rm_resource_facts:
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{rootResourceName}/project/{resourceName}/subContainers/{subContainerName}/status
+        resource_group: VS-Example-Group
+        provider: visualstudio
+        resource_type: account
+        resource_name: ExampleAccount
+        subresource:
+          - type: project
+            name: ExampleProject
+          - type: subContainers
+            name: ExampleProject
+          - type: status

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: IotHubResource_GetKeysForKeyName
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/IotHubs/{resourceName}/IotHubKeys/{keyName}/listkeys
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: IotHubs
+        resource_name: testHub
+        subresource:
+          - type: IotHubKeys
+            name: iothubowner
+          - type: listkeys
+        body:

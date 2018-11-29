@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Service_List
+      azure_rm_resource_facts:
+        api_version: '2018-02-16-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.WindowsIoT/deviceServices
+        provider: WindowsIoT
+        resource_type: deviceServices

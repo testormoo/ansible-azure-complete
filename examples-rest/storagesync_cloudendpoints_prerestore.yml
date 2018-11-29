@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: CloudEndpoints_PreRestore
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}/syncGroups/{syncGroupName}/cloudEndpoints/{cloudEndpointName}/prerestore
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        subresource:
+          - type: syncGroups
+            name: SampleSyncGroup_1
+          - type: cloudEndpoints
+            name: SampleCloudEndpoint_1
+          - type: prerestore
+        body:
+          azureFileShareUri: https://hfsazbackupdevintncus2.file.core.test-cint.azure-test.net/sampleFileShare
+          restoreFileSpec:
+            - path: text1.txt
+              isdir: False
+            - path: MyDir
+              isdir: True
+            - path: MyDir/SubDir
+              isdir: False
+            - path: MyDir/SubDir/File1.pdf
+              isdir: False

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}
+        resource_group: res9407
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto8596
+        body:
+          properties:
+            networkAcls:
+              defaultAction: Allow

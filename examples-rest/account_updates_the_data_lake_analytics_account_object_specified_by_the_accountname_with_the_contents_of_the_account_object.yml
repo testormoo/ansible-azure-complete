@@ -1,0 +1,35 @@
+- hosts: localhost
+  tasks:
+    - name: Updates the Data Lake Analytics account object specified by the accountName with the contents of the account object.
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        body:
+          tags:
+            test_key: test_value
+          properties:
+            computePolicies:
+              - name: test_policy
+                properties:
+                  objectId: 34adfa4f-cedf-4dc0-ba29-b6d1a69ab345
+                  objectType: User
+                  maxDegreeOfParallelismPerJob: 1
+                  minPriorityPerJob: 1
+            firewallRules:
+              - name: test_rule
+                properties:
+                  startIpAddress: 1.1.1.1
+                  endIpAddress: 2.2.2.2
+            firewallState: Enabled
+            firewallAllowAzureIps: Enabled
+            newTier: Consumption
+            maxJobCount: 1
+            maxDegreeOfParallelism: 1
+            maxDegreeOfParallelismPerJob: 1
+            minPriorityPerJob: 1
+            queryStoreRetention: 1

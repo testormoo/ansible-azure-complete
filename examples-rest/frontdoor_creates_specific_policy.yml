@@ -1,0 +1,44 @@
+- hosts: localhost
+  tasks:
+    - name: Creates specific policy
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/FrontDoorWebApplicationFirewallPolicies/{policyName}
+        resource_group: rg1
+        provider: Network
+        resource_type: FrontDoorWebApplicationFirewallPolicies
+        resource_name: Policy1
+        body:
+          properties:
+            customRules:
+              rules:
+                - name: Rule1
+                  priority: 1
+                  ruleType: RateLimitRule
+                  rateLimitThreshold: 1000
+                  matchConditions:
+                    - matchVariable: RemoteAddr
+                      operator: IPMatch
+                      matchValue:
+                  action: Block
+                - name: Rule2
+                  priority: 2
+                  ruleType: MatchRule
+                  matchConditions:
+                    - matchVariable: RemoteAddr
+                      operator: GeoMatch
+                      matchValue:
+                    - matchVariable: RequestHeader
+                      operator: Contains
+                      selector: UserAgent
+                      matchValue:
+                  action: Block
+            managedRules:
+              ruleSets:
+                - ruleSetType: AzureManagedRuleSet
+                  priority: 1
+                  ruleGroupOverrides:
+                    - ruleGroupOverride: SqlInjection
+                      action: Block
+                    - ruleGroupOverride: XSS
+                      action: Log

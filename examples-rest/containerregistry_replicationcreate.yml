@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ReplicationCreate
+      azure_rm_resource:
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/replications/{replicationName}
+        resource_group: myResourceGroup
+        provider: ContainerRegistry
+        resource_type: registries
+        resource_name: myRegistry
+        subresource:
+          - type: replications
+            name: myReplication
+        body:

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List locations
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /providers/Microsoft.ImportExport/locations
+        provider: ImportExport
+        resource_type: locations

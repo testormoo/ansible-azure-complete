@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Update a server's extended blob auditing policy with minimal parameters
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/extendedAuditingSettings/{blobAuditingPolicyName}
+        resource_group: blobauditingtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: blobauditingtest-6440
+        subresource:
+          - type: extendedAuditingSettings
+            name: default
+        body:
+          properties:
+            state: Enabled
+            storageAccountAccessKey: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+            storageEndpoint: https://mystorage.blob.core.windows.net

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: RedisCacheForceReboot
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/forceReboot
+        resource_group: rg1
+        provider: Cache
+        resource_type: Redis
+        resource_name: cache1
+        subresource:
+          - type: forceReboot
+        body:
+          shardId: 0
+          rebootType: AllNodes

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Operationalization Clusters by Subscription
+      azure_rm_resource_facts:
+        api_version: '2017-08-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.MachineLearningCompute/operationalizationClusters
+        provider: MachineLearningCompute
+        resource_type: operationalizationClusters

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: BookShipmentPickupPost
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataBox/jobs/{jobName}/bookShipmentPickUp
+        resource_group: bvttoolrg6
+        provider: DataBox
+        resource_type: jobs
+        resource_name: TJ-636646322037905056
+        subresource:
+          - type: bookShipmentPickUp
+        body:

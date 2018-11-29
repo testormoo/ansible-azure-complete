@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List servers by resource group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: servers

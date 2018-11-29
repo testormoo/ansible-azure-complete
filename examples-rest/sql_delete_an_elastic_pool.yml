@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an elastic pool
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}
+        resource_group: sqlcrudtest-3129
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-228
+        subresource:
+          - type: elasticPools
+            name: sqlcrudtest-3851
+        body:

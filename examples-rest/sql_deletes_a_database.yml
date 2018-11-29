@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Deletes a database.
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+        body:

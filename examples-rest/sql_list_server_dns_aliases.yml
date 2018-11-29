@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List server DNS aliases
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/dnsAliases
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: dns-alias-server
+        subresource:
+          - type: dnsAliases

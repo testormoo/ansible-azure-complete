@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete Azure Vm Protection Policy
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupPolicies/{policyName}
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupPolicies
+            name: testPolicy1
+        body:

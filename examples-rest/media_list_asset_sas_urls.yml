@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: List Asset SAS URLs
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/assets/{assetName}/listContainerSas
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: assets
+            name: ClimbingMountBaker
+          - type: listContainerSas
+        body:
+          permissions: ReadWrite
+          expiryTime: 2018-01-01T10:00:00.007Z
+- hosts: localhost
+  tasks:
+    - name: List Asset SAS URLs
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/assets/{assetName}/listStreamingLocators
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: assets
+            name: ClimbingMountSaintHelens
+          - type: listStreamingLocators
+        body:

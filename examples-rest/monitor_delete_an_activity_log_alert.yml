@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an activity log alert
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/activityLogAlerts/{activityLogAlertName}
+        resource_group: Default-ActivityLogAlerts
+        provider: insights
+        resource_type: activityLogAlerts
+        resource_name: SampleActivityLogAlert
+        body:

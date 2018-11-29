@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ResourceUsage_List
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-12'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Cdn/checkResourceUsage
+        provider: Cdn
+        resource_type: checkResourceUsage
+        body:

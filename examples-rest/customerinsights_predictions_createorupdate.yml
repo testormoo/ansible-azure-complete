@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: Predictions_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/predictions/{predictionName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: predictions
+            name: sdktest
+        body:
+          properties:
+            autoAnalyze: True
+            description:
+              en-us: sdktest
+            displayName:
+              en-us: sdktest
+            grades:
+            involvedInteractionTypes:
+            involvedKpiTypes:
+            involvedRelationships:
+            mappings:
+              score: sdktest_Score
+              reason: sdktest_Reason
+              grade: sdktest_Grade
+            negativeOutcomeExpression: Customers.FirstName = 'Mike'
+            positiveOutcomeExpression: Customers.FirstName = 'David'
+            predictionName: sdktest
+            primaryProfileType: Customers
+            scopeExpression: *
+            scoreLabel: score label

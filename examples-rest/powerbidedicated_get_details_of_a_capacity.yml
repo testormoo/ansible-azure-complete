@@ -1,0 +1,44 @@
+- hosts: localhost
+  tasks:
+    - name: Get details of a capacity
+      azure_rm_resource_facts:
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}
+        resource_group: TestRG
+        provider: PowerBIDedicated
+        resource_type: capacities
+        resource_name: azsdktest
+- hosts: localhost
+  tasks:
+    - name: Get details of a capacity
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}
+        resource_group: TestRG
+        provider: PowerBIDedicated
+        resource_type: capacities
+        resource_name: azsdktest
+        body:
+- hosts: localhost
+  tasks:
+    - name: Get details of a capacity
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}/resume
+        resource_group: TestRG
+        provider: PowerBIDedicated
+        resource_type: capacities
+        resource_name: azsdktest
+        subresource:
+          - type: resume
+        body:
+- hosts: localhost
+  tasks:
+    - name: Get details of a capacity
+      azure_rm_resource_facts:
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.PowerBIDedicated/capacities
+        provider: PowerBIDedicated
+        resource_type: capacities

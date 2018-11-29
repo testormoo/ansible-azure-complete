@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List all workflows in a subscription
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Logic/workflows
+        provider: Logic
+        resource_type: workflows

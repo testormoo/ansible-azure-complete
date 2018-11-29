@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: GetOperations
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /providers/Microsoft.Maps/operations
+        provider: Maps
+        resource_type: operations

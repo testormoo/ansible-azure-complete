@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: KustoOperationsList
+      azure_rm_resource_facts:
+        api_version: '2018-09-07-preview'
+        # url: /providers/Microsoft.Kusto/operations
+        provider: Kusto
+        resource_type: operations

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ManagersList
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.StorSimple/managers
+        provider: StorSimple
+        resource_type: managers

@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Update failover group
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/failoverGroups/{failoverGroupName}
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: failover-group-primary-server
+        subresource:
+          - type: failoverGroups
+            name: failover-group-test-1
+        body:
+          properties:
+            readWriteEndpoint:
+              failoverPolicy: Automatic
+              failoverWithDataLossGracePeriodMinutes: 120
+            databases:

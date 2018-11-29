@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get OpenShift Managed Cluster
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/openShiftManagedClusters/{resourceName}
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: openShiftManagedClusters
+        resource_name: clustername1

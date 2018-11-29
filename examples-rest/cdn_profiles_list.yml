@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Profiles_List
+      azure_rm_resource_facts:
+        api_version: '2017-10-12'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Cdn/profiles
+        provider: Cdn
+        resource_type: profiles

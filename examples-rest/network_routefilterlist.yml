@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: RouteFilterList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/routeFilters
+        provider: Network
+        resource_type: routeFilters

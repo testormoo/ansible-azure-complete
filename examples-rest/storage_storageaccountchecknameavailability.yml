@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Storage/checkNameAvailability
+        provider: Storage
+        resource_type: checkNameAvailability
+        body:

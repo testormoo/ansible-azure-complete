@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: Kpi_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/kpi/{kpiName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: kpi
+            name: kpiTest45453647
+        body:
+          properties:
+            entityType: Profile
+            entityTypeName: testProfile2327128
+            displayName:
+              en-us: Kpi DisplayName
+            description:
+              en-us: Kpi Description
+            calculationWindow: Day
+            function: Sum
+            expression: SavingAccountBalance
+            unit: unit
+            groupBy:
+            thresHolds:
+              lowerLimit: 5
+              upperLimit: 50
+              increasingKpi: True
+            aliases:
+              - aliasName: alias
+                expression: Id+4

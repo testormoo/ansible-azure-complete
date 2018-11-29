@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceAuthorizationRuleCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/AuthorizationRules/{authorizationRuleName}
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-2702
+        subresource:
+          - type: AuthorizationRules
+            name: sdk-Authrules-1746
+        body:
+          properties:
+            rights:

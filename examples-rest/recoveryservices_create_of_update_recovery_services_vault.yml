@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create of Update Recovery Services vault
+      azure_rm_resource:
+        api_version: '2016-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}
+        resource_group: Default-RecoveryServices-ResourceGroup
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: swaggerExample
+        body:

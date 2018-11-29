@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: services_updateMonitoringConfiguration
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/monitoringconfiguration
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleServiceName
+        subresource:
+          - type: monitoringconfiguration
+        body:

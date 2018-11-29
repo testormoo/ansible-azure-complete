@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Start an extension rolling upgrade.
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}/extensionRollingUpgrade
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: {vmss-name}
+        subresource:
+          - type: extensionRollingUpgrade
+        body:

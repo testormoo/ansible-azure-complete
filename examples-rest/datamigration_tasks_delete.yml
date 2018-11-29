@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Tasks_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services/{serviceName}/projects/{projectName}/tasks/{taskName}
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services
+        resource_name: DmsSdkService
+        subresource:
+          - type: projects
+            name: DmsSdkProject
+          - type: tasks
+            name: DmsSdkTask
+        body:

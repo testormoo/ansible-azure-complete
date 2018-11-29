@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: DeleteNetwork
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceFabricMesh/networks/{networkResourceName}
+        resource_group: sbz_demo
+        provider: ServiceFabricMesh
+        resource_type: networks
+        resource_name: sampleNetwork
+        body:

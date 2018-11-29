@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: services_listExportErrorsV2
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/exporterrors/listV2
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleName
+        subresource:
+          - type: exporterrors
+          - type: listV2

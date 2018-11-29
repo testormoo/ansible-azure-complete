@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an action group
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/actionGroups/{actionGroupName}
+        resource_group: Default-NotificationRules
+        provider: insights
+        resource_type: actionGroups
+        resource_name: SampleActionGroup
+        body:

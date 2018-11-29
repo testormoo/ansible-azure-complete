@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an agreement
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/agreements/{agreementName}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: agreements
+            name: testAgreement
+        body:

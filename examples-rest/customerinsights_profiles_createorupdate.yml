@@ -1,0 +1,46 @@
+- hosts: localhost
+  tasks:
+    - name: Profiles_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/profiles/{profileName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: profiles
+            name: TestProfileType396
+        body:
+          properties:
+            strongIds:
+              - keyPropertyNames:
+                strongIdName: Id
+              - keyPropertyNames:
+                strongIdName: ProfileId
+            apiEntitySetName: TestProfileType396
+            fields:
+              - fieldName: Id
+                fieldType: Edm.String
+                isArray: False
+                isRequired: True
+              - fieldName: ProfileId
+                fieldType: Edm.String
+                isArray: False
+                isRequired: True
+              - fieldName: LastName
+                fieldType: Edm.String
+                isArray: False
+                isRequired: True
+              - fieldName: TestProfileType396
+                fieldType: Edm.String
+                isArray: False
+                isRequired: True
+              - fieldName: SavingAccountBalance
+                fieldType: Edm.Int32
+                isArray: False
+                isRequired: True
+            schemaItemTypeLink: SchemaItemTypeLink
+            smallImage: \\Images\\smallImage
+            mediumImage: \\Images\\MediumImage
+            largeImage: \\Images\\LargeImage

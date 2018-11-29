@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Refresh a sync member database schema
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/syncGroups/{syncGroupName}/syncMembers/{syncMemberName}/refreshSchema
+        resource_group: syncgroupcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncgroupcrud-8475
+        subresource:
+          - type: databases
+            name: syncgroupcrud-4328
+          - type: syncGroups
+            name: syncgroupcrud-3187
+          - type: syncMembers
+            name: syncgroupcrud-4879
+          - type: refreshSchema
+        body:

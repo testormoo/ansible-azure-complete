@@ -1,0 +1,37 @@
+- hosts: localhost
+  tasks:
+    - name: Update the short term retention policy for the database.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupShortTermRetentionPolicies/{policyName}
+        resource_group: resourceGroup
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+          - type: backupShortTermRetentionPolicies
+            name: default
+        body:
+          properties:
+            retentionDays: 14
+- hosts: localhost
+  tasks:
+    - name: Update the short term retention policy for the database.
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupShortTermRetentionPolicies/{policyName}
+        resource_group: resourceGroup
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+          - type: backupShortTermRetentionPolicies
+            name: default
+        body:
+          properties:
+            retentionDays: 14

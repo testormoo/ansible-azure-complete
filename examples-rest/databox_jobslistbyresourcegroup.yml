@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: JobsListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataBox/jobs
+        resource_group: SdkRg8120
+        provider: DataBox
+        resource_type: jobs

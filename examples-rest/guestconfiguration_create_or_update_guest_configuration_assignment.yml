@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update guest configuration assignment
+      azure_rm_resource:
+        api_version: '2018-06-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/{guestConfigurationAssignmentName}
+        resource_group: myResourceGroupName
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: myVMName
+        subresource:
+          - type: providers
+        provider: GuestConfiguration
+          - type: guestConfigurationAssignments
+            name: SecureProtocol
+        body:
+          location: westcentralus
+          name: multiconfigassignment2
+          properties:
+            context: Azure policy
+            guestConfiguration:
+              name: AuditSecureProtocol
+              version: 1.0.0.3

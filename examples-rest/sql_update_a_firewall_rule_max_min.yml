@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Update a firewall rule max/min
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/firewallRules/{firewallRuleName}
+        resource_group: firewallrulecrudtest-12
+        provider: Sql
+        resource_type: servers
+        resource_name: firewallrulecrudtest-6285
+        subresource:
+          - type: firewallRules
+            name: firewallrulecrudtest-3927
+        body:
+          properties:
+            startIpAddress: 0.0.0.1
+            endIpAddress: 0.0.0.1

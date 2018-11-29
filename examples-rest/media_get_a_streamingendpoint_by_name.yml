@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a StreamingEndpoint by name
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/streamingEndpoints/{streamingEndpointName}
+        resource_group: mediaresources
+        provider: Media
+        resource_type: mediaservices
+        resource_name: slitestmedia10
+        subresource:
+          - type: streamingEndpoints
+            name: myStreamingEndpoint1

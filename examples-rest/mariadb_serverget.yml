@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ServerGet
+      azure_rm_resource_facts:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}
+        resource_group: testrg
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: mariadbtestsvc4

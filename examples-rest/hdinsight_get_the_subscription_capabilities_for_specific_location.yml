@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Get the subscription capabilities for specific location
+      azure_rm_resource_facts:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.HDInsight/locations/{location}/capabilities
+        provider: HDInsight
+        resource_type: locations
+        resource_name: West US
+        subresource:
+          - type: capabilities

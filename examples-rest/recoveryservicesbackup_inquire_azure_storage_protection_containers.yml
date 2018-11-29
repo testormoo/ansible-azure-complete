@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Inquire Azure Storage Protection Containers
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/inquire
+        resource_group: test-rg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testvault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: storagecontainer;Storage;test-rg;teststorage
+          - type: inquire
+        body:

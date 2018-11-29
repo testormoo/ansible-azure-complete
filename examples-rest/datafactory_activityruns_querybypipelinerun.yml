@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ActivityRuns_QueryByPipelineRun
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/pipelineruns/{runId}/queryActivityruns
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: pipelineruns
+            name: 2f7fdb90-5df1-4b8e-ac2f-064cfa58202b
+          - type: queryActivityruns
+        body:

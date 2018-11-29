@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Create a monitoring extension on Hadoop Linux cluster
+      azure_rm_resource:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/extensions/{extensionName}
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: extensions
+            name: clustermonitoring
+        body:
+          workspaceId: a2090ead-8c9f-4fba-b70e-533e3e003163
+          primaryKey: **********

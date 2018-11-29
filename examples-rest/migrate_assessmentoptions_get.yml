@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: AssessmentOptions_Get
+      azure_rm_resource_facts:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Migrate/locations/{locationName}/assessmentOptions
+        provider: Migrate
+        resource_type: locations
+        resource_name: SoutheastAsia
+        subresource:
+          - type: assessmentOptions

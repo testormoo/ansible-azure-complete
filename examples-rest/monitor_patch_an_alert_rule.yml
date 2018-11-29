@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Patch an alert rule
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/alertrules/{ruleName}
+        provider: insights
+        resource_type: alertrules
+        resource_name: chiricutin
+        body:

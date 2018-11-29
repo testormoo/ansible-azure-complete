@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: ReferenceDataSetsCreate
+      azure_rm_resource:
+        api_version: '2017-11-15'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TimeSeriesInsights/environments/{environmentName}/referenceDataSets/{referenceDataSetName}
+        resource_group: rg1
+        provider: TimeSeriesInsights
+        resource_type: environments
+        resource_name: env1
+        subresource:
+          - type: referenceDataSets
+            name: rds1
+        body:
+          location: West US
+          properties:
+            keyProperties:
+              - name: DeviceId1
+                type: String
+              - name: DeviceFloor
+                type: Double

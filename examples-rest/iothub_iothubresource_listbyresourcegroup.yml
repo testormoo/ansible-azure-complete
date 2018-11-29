@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: IotHubResource_ListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/IotHubs
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: IotHubs

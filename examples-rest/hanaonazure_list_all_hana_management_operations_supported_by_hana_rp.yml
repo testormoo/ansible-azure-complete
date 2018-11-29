@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List all HANA management operations supported by HANA RP
+      azure_rm_resource_facts:
+        api_version: '2017-11-03-preview'
+        # url: /providers/Microsoft.HanaOnAzure/operations
+        provider: HanaOnAzure
+        resource_type: operations

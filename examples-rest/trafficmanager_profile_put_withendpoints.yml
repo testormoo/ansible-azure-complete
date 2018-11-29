@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Profile-PUT-WithEndpoints
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}
+        resource_group: azuresdkfornetautoresttrafficmanager2583
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azuresdkfornetautoresttrafficmanager6192
+        body:
+          properties:
+            profileStatus: Enabled
+            trafficRoutingMethod: Performance
+            dnsConfig:
+              relativeName: azuresdkfornetautoresttrafficmanager6192
+              ttl: 35
+            monitorConfig:
+              protocol: HTTP
+              port: 80
+              path: /testpath.aspx
+              intervalInSeconds: 10
+              timeoutInSeconds: 5
+              toleratedNumberOfFailures: 2
+            endpoints:
+              - name: My external endpoint
+                type: Microsoft.network/TrafficManagerProfiles/ExternalEndpoints
+                properties:
+                  target: foobar.contoso.com
+                  endpointStatus: Enabled
+                  endpointLocation: North Europe
+          location: global

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List protection policies with backupManagementType filter as AzureIaasVm
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupPolicies
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupPolicies

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: RelayNameSpaceUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Relay/namespaces/{namespaceName}
+        resource_group: RG-eg
+        provider: Relay
+        resource_type: namespaces
+        resource_name: sdk-RelayNamespace-01
+        body:
+          tags:
+            tag3: value3
+            tag4: value4
+            tag5: value5
+            tag6: value6

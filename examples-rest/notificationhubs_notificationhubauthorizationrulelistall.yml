@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: notificationhubAuthorizationRuleListAll
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.NotificationHubs/namespaces/{namespaceName}/notificationHubs/{notificationHubName}/AuthorizationRules
+        resource_group: 5ktrial
+        provider: NotificationHubs
+        resource_type: namespaces
+        resource_name: nh-sdk-ns
+        subresource:
+          - type: notificationHubs
+            name: nh-sdk-hub
+          - type: AuthorizationRules

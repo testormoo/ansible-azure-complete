@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: DevicesDeactivate
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/deactivate
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: ManagerForDeleteOperation
+        subresource:
+          - type: devices
+            name: SDK-DELETE
+          - type: deactivate
+        body:

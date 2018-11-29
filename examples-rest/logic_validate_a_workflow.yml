@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: Validate a workflow
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/validate
+        resource_group: test-resource-group
+        provider: Logic
+        resource_type: workflows
+        resource_name: test-workflow
+        subresource:
+          - type: validate
+        body:
+- hosts: localhost
+  tasks:
+    - name: Validate a workflow
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/locations/{location}/workflows/{workflowName}/validate
+        resource_group:
+        provider: Logic
+        resource_type: locations
+        resource_name: brazilsouth
+        subresource:
+          - type: workflows
+            name: test-workflow
+          - type: validate
+        body:

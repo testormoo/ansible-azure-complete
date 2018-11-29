@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceAuthorizationRuleListKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/AuthorizationRules/{authorizationRuleName}/listKeys
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-2702
+        subresource:
+          - type: AuthorizationRules
+            name: sdk-Authrules-1746
+          - type: listKeys
+        body:
+- hosts: localhost
+  tasks:
+    - name: NameSpaceAuthorizationRuleListKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/disasterRecoveryConfigs/{alias}/AuthorizationRules/{authorizationRuleName}/listKeys
+        resource_group: exampleResourceGroup
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-2702
+        subresource:
+          - type: disasterRecoveryConfigs
+            name: sdk-DisasterRecovery-4047
+          - type: AuthorizationRules
+            name: sdk-Authrules-1746
+          - type: listKeys
+        body:

@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/workspaceSettings/{workspaceSettingName}
+        provider: Security
+        resource_type: workspaceSettings
+        resource_name: default
+        body:

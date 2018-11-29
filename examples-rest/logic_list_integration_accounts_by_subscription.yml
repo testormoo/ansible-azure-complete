@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List integration accounts by subscription
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Logic/integrationAccounts
+        provider: Logic
+        resource_type: integrationAccounts

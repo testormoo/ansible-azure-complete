@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: EventSubscriptions_GetFullUrlForResourceGroup
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-15-preview'
+        # url: /{scope}/providers/Microsoft.EventGrid/eventSubscriptions/{eventSubscriptionName}/getFullUrl
+        provider: EventGrid
+        resource_type: eventSubscriptions
+        resource_name: examplesubscription2
+        subresource:
+          - type: getFullUrl
+        body:

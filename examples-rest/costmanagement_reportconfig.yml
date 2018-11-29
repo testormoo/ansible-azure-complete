@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ReportConfig
+      azure_rm_resource_facts:
+        api_version: '2018-05-31'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CostManagement/reportconfigs/{reportConfigName}
+        resource_group: MYDEVTESTRG
+        provider: CostManagement
+        resource_type: reportconfigs
+        resource_name: TestReportConfig

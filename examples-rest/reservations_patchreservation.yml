@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: PatchReservation
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-06-01'
+        # url: /providers/Microsoft.Capacity/reservationOrders/{reservationOrderId}/reservations/{reservationId}
+        provider: Capacity
+        resource_type: reservationOrders
+        resource_name: 276e7ae4-84d0-4da6-ab4b-d6b94f3557da
+        subresource:
+          - type: reservations
+            name: 6ef59113-3482-40da-8d79-787f823e34bc
+        body:
+          properties:
+            appliedScopeType: Shared
+            instanceFlexibility: Off

@@ -1,0 +1,31 @@
+- hosts: localhost
+  tasks:
+    - name: Links_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/links/{linkName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: links
+            name: linkTest4806
+        body:
+          properties:
+            linkName: linkTest4806
+            sourceEntityTypeName: testInteraction1949
+            targetEntityTypeName: testProfile1446
+            sourceEntityType: Interaction
+            targetEntityType: Profile
+            displayName:
+              en-us: Link DisplayName
+            description:
+              en-us: Link Description
+            mappings:
+              - sourcePropertyName: testInteraction1949
+                targetPropertyName: testProfile1446
+                linkType: UpdateAlways
+            participantPropertyReferences:
+              - sourcePropertyName: testInteraction1949
+                targetPropertyName: ProfileId

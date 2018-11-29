@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateEHLogger
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/loggers/{loggerid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: loggers
+            name: loggerId
+        body:
+          properties:
+            loggerType: azureEventHub
+            description: adding a new logger
+            credentials:
+              name: hydraeventhub
+              connectionString: Endpoint=sb://hydraeventhub-ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=********=

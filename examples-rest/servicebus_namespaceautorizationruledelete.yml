@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceAutorizationRuleDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/AuthorizationRules/{authorizationRuleName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-namespace-6914
+        subresource:
+          - type: AuthorizationRules
+            name: sdk-AuthRules-1788
+        body:

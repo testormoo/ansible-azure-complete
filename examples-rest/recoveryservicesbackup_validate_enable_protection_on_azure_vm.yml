@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Validate Enable Protection on Azure Vm
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/providers/Microsoft.RecoveryServices/locations/{azureRegion}/backupPreValidateProtection
+        provider: RecoveryServices
+        resource_type: locations
+        resource_name: southeastasia
+        subresource:
+          - type: backupPreValidateProtection
+        body:
+          resourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/arunaupgrade/providers/Microsoft.Compute/VirtualMachines/upgrade1
+          resourceType: VM
+          vaultId: /Subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRG/providers/Microsoft.RecoveryServices/Vaults/myVault
+          properties:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Patch WebService
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearning/webServices/{webServiceName}
+        resource_group: OneResourceGroupName
+        provider: MachineLearning
+        resource_type: webServices
+        resource_name: TargetWebServiceName
+        body:

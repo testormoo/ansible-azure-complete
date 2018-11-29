@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: BackupsDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/backups/{backupName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-UGU4PITWNI
+          - type: backups
+            name: 315c3461-96ad-41bf-af0b-3a8be5113203
+        body:

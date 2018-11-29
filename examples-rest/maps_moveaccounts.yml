@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: MoveAccounts
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/moveResources
+        resource_group: myResourceGroup
+        body:

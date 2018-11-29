@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateServiceHavingMsi
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        body:
+          location: Japan East
+          properties:
+            publisherEmail: admin@contoso.com
+            publisherName: Contoso
+          sku:
+            name: Developer
+          identity:
+            type: SystemAssigned

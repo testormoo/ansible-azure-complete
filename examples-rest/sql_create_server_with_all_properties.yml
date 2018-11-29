@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Create server with all properties
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-4645
+        body:
+          tags:
+            tagKey1: TagValue1
+          location: Japan East
+          properties:
+            fullyQualifiedDomainName: sqlcrudtest-4645.database.windows.net
+            administratorLogin: dummylogin
+            administratorLoginPassword: Un53cuRE!
+            version: 12.0
+            state: Ready

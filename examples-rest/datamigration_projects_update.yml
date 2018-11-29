@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Projects_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services/{serviceName}/projects/{projectName}
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services
+        resource_name: DmsSdkService
+        subresource:
+          - type: projects
+            name: DmsSdkProject
+        body:
+          properties:
+            sourcePlatform: SQL
+            targetPlatform: SQLDB

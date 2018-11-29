@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a LiveOutput
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/liveEvents/{liveEventName}/liveOutputs/{liveOutputName}
+        resource_group: mediaresources
+        provider: Media
+        resource_type: mediaservices
+        resource_name: slitestmedia10
+        subresource:
+          - type: liveEvents
+            name: myLiveEvent1
+          - type: liveOutputs
+            name: myLiveOutput1
+        body:

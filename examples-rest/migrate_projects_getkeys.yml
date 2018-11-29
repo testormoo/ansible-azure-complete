@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Projects_GetKeys
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.Migrate/projects/{projectName}/keys
+        provider: Migrate
+        resource_type: projects
+        resource_name: project01
+        subresource:
+          - type: keys
+        body:

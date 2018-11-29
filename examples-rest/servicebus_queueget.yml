@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: QueueGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/queues/{queueName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-3174
+        subresource:
+          - type: queues
+            name: sdk-Queues-5647

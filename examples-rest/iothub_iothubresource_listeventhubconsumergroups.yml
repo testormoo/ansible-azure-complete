@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: IotHubResource_ListEventHubConsumerGroups
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/IotHubs/{resourceName}/eventHubEndpoints/{eventHubEndpointName}/ConsumerGroups
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: IotHubs
+        resource_name: testHub
+        subresource:
+          - type: eventHubEndpoints
+            name: events
+          - type: ConsumerGroups
+- hosts: localhost
+  tasks:
+    - name: IotHubResource_ListEventHubConsumerGroups
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/IotHubs/{resourceName}/eventHubEndpoints/{eventHubEndpointName}/ConsumerGroups/{name}
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: IotHubs
+        resource_name: testHub
+        subresource:
+          - type: eventHubEndpoints
+            name: events
+          - type: ConsumerGroups
+            name: test

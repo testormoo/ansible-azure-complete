@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a simple gallery.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/galleries/{galleryName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: galleries
+        resource_name: myGalleryName
+        body:

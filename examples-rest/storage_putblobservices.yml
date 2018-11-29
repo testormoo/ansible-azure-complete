@@ -1,0 +1,36 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/{BlobServicesName}
+        resource_group: res4410
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto8607
+        subresource:
+          - type: blobServices
+            name: default
+        body:
+          properties:
+            cors:
+              corsRules:
+                - allowedOrigins:
+                  allowedMethods:
+                  maxAgeInSeconds: 100
+                  exposedHeaders:
+                  allowedHeaders:
+                - allowedOrigins:
+                  allowedMethods:
+                  maxAgeInSeconds: 2
+                  exposedHeaders:
+                  allowedHeaders:
+                - allowedOrigins:
+                  allowedMethods:
+                  maxAgeInSeconds: 2000
+                  exposedHeaders:
+                  allowedHeaders:
+            defaultServiceVersion: 2017-07-29
+            deleteRetentionPolicy:
+              enabled: True
+              days: 300

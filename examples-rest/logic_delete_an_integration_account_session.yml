@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an integration account session
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/sessions/{sessionName}
+        resource_group: testrg123
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testia123
+        subresource:
+          - type: sessions
+            name: testsession123-ICN
+        body:

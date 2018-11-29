@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List database restore points.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/restorePoints
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: databases
+            name: 3481
+          - type: restorePoints

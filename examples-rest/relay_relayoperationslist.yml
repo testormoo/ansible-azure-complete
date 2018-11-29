@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: RelayOperationsList
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /providers/Microsoft.Relay/operations
+        provider: Relay
+        resource_type: operations

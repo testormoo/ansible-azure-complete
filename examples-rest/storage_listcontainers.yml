@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ListContainers
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers
+        resource_group: res9290
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto1590
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers

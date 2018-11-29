@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a virtual network rule
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/virtualNetworkRules/{virtualNetworkRuleName}
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: vnet-test-svr
+        subresource:
+          - type: virtualNetworkRules
+            name: vnet-firewall-rule
+        body:
+          properties:
+            ignoreMissingVnetServiceEndpoint: False
+            virtualNetworkSubnetId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Network/virtualNetworks/testvnet/subnets/testsubnet

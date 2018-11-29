@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Check Dns Name Availability
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/locations/{location}/CheckDnsNameAvailability
+        provider: Network
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: CheckDnsNameAvailability

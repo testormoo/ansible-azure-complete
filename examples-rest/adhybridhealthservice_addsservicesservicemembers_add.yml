@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: addsServicesServiceMembers_add
+      azure_rm_resource:
+        method: POST
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/addsservices/{serviceName}/servicemembers
+        provider: ADHybridHealthService
+        resource_type: addsservices
+        resource_name: sampleServiceName
+        subresource:
+          - type: servicemembers
+        body:

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Upgrades a data warehouse.
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/upgradeDataWarehouse
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdwdb
+          - type: upgradeDataWarehouse
+        body:

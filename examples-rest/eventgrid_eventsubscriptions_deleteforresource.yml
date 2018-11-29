@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: EventSubscriptions_DeleteForResource
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-09-15-preview'
+        # url: /{scope}/providers/Microsoft.EventGrid/eventSubscriptions/{eventSubscriptionName}
+        provider: EventGrid
+        resource_type: eventSubscriptions
+        resource_name: examplesubscription10
+        body:

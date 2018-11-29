@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Create a new or update an existing dedicated HSM
+      azure_rm_resource:
+        api_version: '2018-10-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs/{name}
+        resource_group: hsm-group
+        provider: HardwareSecurityModules
+        resource_type: dedicatedHSMs
+        resource_name: hsm1
+        body:
+          properties:
+            networkProfile:
+              subnet:
+                id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.Network/virtualNetworks/stamp01/subnets/stamp01
+              networkInterfaces:
+                - id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.Network/networkInterfaces/hsm_vnic
+                  privateIpAddress: 1.0.0.1
+            stampId: stamp01
+          location: westus
+          sku:
+            name: SafeNet Luna Network HSM A790
+          tags:
+            Dept: hsm
+            Environment: dogfood

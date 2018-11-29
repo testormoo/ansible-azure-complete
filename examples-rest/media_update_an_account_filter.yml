@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Update an Account Filter
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/accountFilters/{filterName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: accountFilters
+            name: accountFilterWithTimeWindowAndTrack
+        body:
+          properties:
+            presentationTimeRange:
+              startTimestamp: 10
+              endTimestamp: 170000000
+              presentationWindowDuration: 9223372036854776000
+              liveBackoffDuration: 0
+              timescale: 10000000
+              forceEndTimestamp: False
+            firstQuality:
+              bitrate: 128000

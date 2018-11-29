@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Streaming Locator with secure streaming
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingLocators/{streamingLocatorName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingLocators
+            name: UserCreatedSecureStreamingLocator
+        body:
+          properties:
+            StreamingPolicyName: secureStreamingPolicy
+            AssetName: ClimbingMountRainier
+            StartTime: 2018-03-01T00:00:00Z
+            EndTime: 2028-12-31T23:59:59.9999999Z

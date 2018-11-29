@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: DevicesInstallUpdates
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/install
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: ManagerForSDKTest1
+        subresource:
+          - type: devices
+            name: sugattdeviceforSDK
+          - type: install
+        body:

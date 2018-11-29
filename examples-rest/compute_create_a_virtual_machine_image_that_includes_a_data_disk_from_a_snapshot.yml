@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Create a virtual machine image that includes a data disk from a snapshot.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: images
+        resource_name: myImage
+        body:
+          location: West US
+          properties:
+            storageProfile:
+              osDisk:
+                osType: Linux
+                snapshot:
+                  id: subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/snapshots/mySnapshot
+                osState: Generalized
+              dataDisks:
+                - lun: 1
+                  snapshot:
+                    id: subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/snapshots/mySnapshot2

@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: ImportImageByManifestDigest
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/importImage
+        resource_group: myResourceGroup
+        provider: ContainerRegistry
+        resource_type: registries
+        resource_name: myRegistry
+        subresource:
+          - type: importImage
+        body:
+          source:
+            resourceId: /subscriptions/10000000-0000-0000-0000-000000000000/resourceGroups/sourceResourceGroup/providers/Microsoft.ContainerRegistry/registries/sourceRegistry
+            sourceImage: sourceRepository@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          targetTags:
+          untaggedTargetRepositories:
+          mode: Force

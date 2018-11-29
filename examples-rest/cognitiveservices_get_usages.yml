@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get Usages
+      azure_rm_resource_facts:
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/usages
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts
+        resource_name: TestUsage02
+        subresource:
+          - type: usages

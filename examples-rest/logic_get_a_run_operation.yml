@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get a run operation
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/runs/{runName}/operations/{operationId}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: workflows
+        resource_name: testFlow
+        subresource:
+          - type: runs
+            name: 08586774142730039209110422528
+          - type: operations
+            name: ebdcbbde-c4db-43ec-987c-fd0f7726f43b

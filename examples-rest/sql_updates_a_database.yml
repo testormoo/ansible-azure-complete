@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Updates a database.
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+        body:
+          sku:
+            name: S1
+            tier: Standard
+          properties:
+            collation: SQL_Latin1_General_CP1_CI_AS
+            maxSizeBytes: 1073741824

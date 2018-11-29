@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Generate a sync agent key
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/syncAgents/{syncAgentName}/generateKey
+        resource_group: syncagentcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncagentcrud-8475
+        subresource:
+          - type: syncAgents
+            name: syncagentcrud-3187
+          - type: generateKey
+        body:

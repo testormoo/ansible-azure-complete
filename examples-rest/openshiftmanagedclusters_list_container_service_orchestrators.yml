@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ContainerService/locations/{location}/orchestrators
+        provider: ContainerService
+        resource_type: locations
+        resource_name: location1
+        subresource:
+          - type: orchestrators

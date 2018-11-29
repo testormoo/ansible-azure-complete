@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ApplicationGatewayAvailableSslOptionsGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/applicationGatewayAvailableSslOptions/default
+        provider: Network
+        resource_type: applicationGatewayAvailableSslOptions
+        resource_type: default

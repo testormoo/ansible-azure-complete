@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: DatabaseDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/databases/{databaseName}
+        resource_group: TestGroup
+        provider: DBforPostgreSQL
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: db1
+        body:

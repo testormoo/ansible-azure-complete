@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Register feature
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-12-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Features/providers/{resourceProviderNamespace}/features/{featureName}/register
+        provider: Features
+        resource_type: providers
+        resource_name: Resource Provider Namespace
+        subresource:
+          - type: features
+            name: feature
+          - type: register
+        body:

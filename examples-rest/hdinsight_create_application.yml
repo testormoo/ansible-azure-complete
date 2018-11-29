@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: Create Application
+      azure_rm_resource:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/applications/{applicationName}
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: applications
+            name: hue
+        body:
+          properties:
+            computeProfile:
+              roles:
+                - name: edgenode
+                  targetInstanceCount: 1
+                  hardwareProfile:
+                    vmSize: Standard_D12_v2
+            installScriptActions:
+              - name: app-install-app1
+                uri: https://.../install.sh
+                parameters: -version latest -port 20000
+                roles:
+            uninstallScriptActions:
+            httpsEndpoints:
+              - subDomainSuffix: dss
+                destinationPort: 20000
+                accessModes:
+            provisioningState:
+            applicationType: CustomApplication
+            errors:

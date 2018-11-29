@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: RelationshipLinks_Get
+      azure_rm_resource_facts:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/relationshipLinks/{relationshipLinkName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: relationshipLinks
+            name: Somelink

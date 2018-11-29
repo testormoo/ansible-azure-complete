@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Lists the Azure Storage containers
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/storageAccounts/{storageAccountName}/containers
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: storageAccounts
+            name: test_storage
+          - type: containers

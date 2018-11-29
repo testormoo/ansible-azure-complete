@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ServerListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers
+        resource_group: TestGroup
+        provider: DBforPostgreSQL
+        resource_type: servers

@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: RedisCachePatchSchedulesGet
+      azure_rm_resource_facts:
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/patchSchedules/{default}
+        resource_group: rg1
+        provider: Cache
+        resource_type: Redis
+        resource_name: cache1
+        subresource:
+          - type: patchSchedules
+            name: default

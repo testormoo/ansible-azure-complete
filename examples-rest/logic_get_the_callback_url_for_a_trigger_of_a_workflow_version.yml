@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Get the callback url for a trigger of a workflow version
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/versions/{versionId}/triggers/{triggerName}/listCallbackUrl
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: workflows
+        resource_name: testWorkflowName
+        subresource:
+          - type: versions
+            name: testWorkflowVersionId
+          - type: triggers
+            name: testTriggerName
+          - type: listCallbackUrl
+        body:
+          notAfter: 2017-03-05T08:00:00Z
+          keyType: Primary

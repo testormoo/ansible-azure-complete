@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: List alert rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/alertrules
+        provider: insights
+        resource_type: alertrules
+- hosts: localhost
+  tasks:
+    - name: List alert rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/alertrules
+        provider: insights
+        resource_type: alertrules

@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: FileSharesDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/fileservers/{fileServerName}/shares/{shareName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-DMNJB2PET0
+          - type: fileservers
+            name: HSDK-DMNJB2PET0
+          - type: shares
+            name: Auto-TestFileShare2
+        body:

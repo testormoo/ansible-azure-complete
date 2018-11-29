@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: SubscriptionDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/topics/{topicName}/subscriptions/{subscriptionName}
+        resource_group: ResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5882
+        subresource:
+          - type: topics
+            name: sdk-Topics-1804
+          - type: subscriptions
+            name: sdk-Subscriptions-3670
+        body:

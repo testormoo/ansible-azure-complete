@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an extension resource
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{accountResourceName}/extension/{extensionResourceName}
+        provider: visualstudio
+        resource_type: account
+        resource_name: Example
+        subresource:
+          - type: extension
+            name: ms.example
+        body:

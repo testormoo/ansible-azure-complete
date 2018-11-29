@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ListNetworksByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceFabricMesh/networks
+        resource_group: sbz_demo
+        provider: ServiceFabricMesh
+        resource_type: networks

@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: QueueAuthorizationRuleRegenrateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/queues/{queueName}/authorizationRules/{authorizationRuleName}/regenerateKeys
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-namespace-7982
+        subresource:
+          - type: queues
+            name: sdk-Queues-2317
+          - type: authorizationRules
+            name: sdk-AuthRules-5800
+          - type: regenerateKeys
+        body:
+          keyType: PrimaryKey

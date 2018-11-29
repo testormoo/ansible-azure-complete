@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Lists all the virtual machines under the specified subscription for the specified location.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/virtualMachines
+        provider: Compute
+        resource_type: locations
+        resource_name: eastus
+        subresource:
+          - type: virtualMachines

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: OperationList
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /providers/Microsoft.DBforMySQL/operations
+        provider: DBforMySQL
+        resource_type: operations

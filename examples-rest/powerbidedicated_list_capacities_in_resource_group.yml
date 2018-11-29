@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List capacities in resource group
+      azure_rm_resource_facts:
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities
+        resource_group: TestRG
+        provider: PowerBIDedicated
+        resource_type: capacities

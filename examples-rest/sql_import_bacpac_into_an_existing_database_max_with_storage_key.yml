@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: Import bacpac into an existing database Max with storage key
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/extensions/{extensionName}
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-5961
+        subresource:
+          - type: databases
+            name: testdb
+          - type: extensions
+            name: import
+        body:
+          name: Import
+          type: Microsoft.Sql/servers/databases/extensions
+          properties:
+            operationMode: Import
+            storageKeyType: StorageAccessKey
+            storageKey: sdlfkjdsf+sdlfkjsdlkfsjdfLDKFJSDLKFDFKLjsdfksjdflsdkfD2342309432849328479324/3RSD==
+            storageUri: https://test.blob.core.windows.net/bacpacs/testbacpac.bacpac
+            administratorLogin: dummyLogin
+            administratorLoginPassword: Un53cuRE!
+            authenticationType: SQL

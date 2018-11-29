@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: ContainerGroupsGet_Succeeded
+      azure_rm_resource_facts:
+        api_version: '2017-10-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerInstance/containerGroups/{containerGroupName}
+        resource_group: demo
+        provider: ContainerInstance
+        resource_type: containerGroups
+        resource_name: mycontainers

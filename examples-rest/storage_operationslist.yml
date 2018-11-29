@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: OperationsList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.Storage/operations
+        provider: Storage
+        resource_type: operations

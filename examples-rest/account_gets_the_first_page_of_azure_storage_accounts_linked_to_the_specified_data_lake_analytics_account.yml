@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Gets the first page of Azure Storage accounts linked to the specified Data Lake Analytics account
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/storageAccounts
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: storageAccounts

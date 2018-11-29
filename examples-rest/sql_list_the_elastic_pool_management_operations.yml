@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List the elastic pool management operations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}/operations
+        resource_group: sqlcrudtestgroup
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtestserver
+        subresource:
+          - type: elasticPools
+            name: testpool
+          - type: operations

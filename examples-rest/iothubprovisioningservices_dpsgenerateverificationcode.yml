@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: DPSGenerateVerificationCode
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-22'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/provisioningServices/{provisioningServiceName}/certificates/{certificateName}/generateVerificationCode
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: provisioningServices
+        resource_name: myFirstProvisioningService
+        subresource:
+          - type: certificates
+            name: cert
+          - type: generateVerificationCode
+        body:

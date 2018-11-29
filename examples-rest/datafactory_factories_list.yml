@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Factories_List
+      azure_rm_resource_facts:
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataFactory/factories
+        provider: DataFactory
+        resource_type: factories

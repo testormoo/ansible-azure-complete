@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: Get the short term retention policy for the database.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupShortTermRetentionPolicies/{policyName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+          - type: backupShortTermRetentionPolicies
+            name: default
+- hosts: localhost
+  tasks:
+    - name: Get the short term retention policy for the database.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupShortTermRetentionPolicies
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: testdb
+          - type: backupShortTermRetentionPolicies

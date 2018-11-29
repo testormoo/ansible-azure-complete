@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an IoT spaces service
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-10-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.IoTSpaces/Graph/{resourceName}
+        resource_group: resRg
+        provider: IoTSpaces
+        resource_type: Graph
+        resource_name: myIoTSpacesService
+        body:

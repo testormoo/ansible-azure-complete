@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Create an availability set.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: availabilitySets
+        resource_name: myAvailabilitySet
+        body:
+          location: westus
+          properties:
+            platformFaultDomainCount: 2
+            platformUpdateDomainCount: 20

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Accounts_List
+      azure_rm_resource_facts:
+        api_version: '2017-08-15'
+        # url: /subscriptions/{subscriptionId}/resourceGroup/{resourceGroup}/providers/Microsoft.NetApp/netAppAccounts
+        provider: NetApp
+        resource_type: netAppAccounts

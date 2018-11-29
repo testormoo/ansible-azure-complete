@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Create network interface
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkInterfaces/{networkInterfaceName}
+        resource_group: rg1
+        provider: Network
+        resource_type: networkInterfaces
+        resource_name: test-nic
+        body:
+          properties:
+            enableAcceleratedNetworking: True
+            ipConfigurations:
+              - name: ipconfig1
+                properties:
+                  publicIPAddress:
+                    id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/publicIPAddresses/test-ip
+                  subnet:
+                    id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/rg1-vnet/subnets/default

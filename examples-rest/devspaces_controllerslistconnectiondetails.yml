@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ControllersListConnectionDetails
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevSpaces/controllers/{name}/listConnectionDetails
+        resource_group: myResourceGroup
+        provider: DevSpaces
+        resource_type: controllers
+        resource_name: myControllerResource
+        subresource:
+          - type: listConnectionDetails
+        body:

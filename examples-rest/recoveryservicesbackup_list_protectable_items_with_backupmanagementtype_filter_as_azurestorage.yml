@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List protectable items with backupManagementType filter as AzureStorage
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectableContainers
+        resource_group:
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testvault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectableContainers

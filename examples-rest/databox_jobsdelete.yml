@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: JobsDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataBox/jobs/{jobName}
+        resource_group: SdkRg8120
+        provider: DataBox
+        resource_type: jobs
+        resource_name: SdkJob7196
+        body:

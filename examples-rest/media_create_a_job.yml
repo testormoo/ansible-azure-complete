@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: Create a Job
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/transforms/{transformName}/jobs/{jobName}
+        resource_group: contosoresources
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: transforms
+            name: exampleTransform
+          - type: jobs
+            name: job1
+        body:
+          properties:
+            input:
+              @odata.type: #Microsoft.Media.JobInputAsset
+              assetName: job1-InputAsset
+            outputs:
+              - @odata.type: #Microsoft.Media.JobOutputAsset
+                assetName: job1-OutputAsset
+            correlationData:
+              key1: value1
+              Key 2: Value 2

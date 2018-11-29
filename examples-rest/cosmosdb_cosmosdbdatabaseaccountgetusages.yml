@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountGetUsages
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/usages
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: usages

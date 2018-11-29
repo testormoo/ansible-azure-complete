@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: RelationshipLinks_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/relationshipLinks/{relationshipLinkName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: relationshipLinks
+            name: Somelink
+        body:
+          properties:
+            displayName:
+              en-us: Link DisplayName
+            description:
+              en-us: Link Description
+            interactionType: testInteraction4332
+            linkName: Somelink
+            profilePropertyReferences:
+              - interactionPropertyName: profile1
+                profilePropertyName: ProfileId
+            relatedProfilePropertyReferences:
+              - interactionPropertyName: profile1
+                profilePropertyName: ProfileId
+            relationshipName: testProfile2326994

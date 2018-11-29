@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Create database security alert policy max
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/securityAlertPolicies/{securityAlertPolicyName}
+        resource_group: securityalert-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: securityalert-6440
+        subresource:
+          - type: databases
+            name: testdb
+          - type: securityAlertPolicies
+            name: default
+        body:
+          properties:
+            state: Enabled
+            emailAccountAdmins: Enabled
+            emailAddresses: test@microsoft.com;user@microsoft.com
+            disabledAlerts: Sql_Injection;Usage_Anomaly;
+            retentionDays: 6
+            storageAccountAccessKey: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+            storageEndpoint: https://mystorage.blob.core.windows.net
+            useServerDefault: Enabled

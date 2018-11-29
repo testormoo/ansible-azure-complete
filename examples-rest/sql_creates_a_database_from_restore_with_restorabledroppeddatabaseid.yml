@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a database from restore with restorableDroppedDatabaseId.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr
+        subresource:
+          - type: databases
+            name: dbcopy
+        body:
+          location: southeastasia
+          sku:
+            name: S0
+            tier: Standard
+          properties:
+            createMode: Copy
+            sourceDatabaseId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default-SQL-SouthEastAsia/providers/Microsoft.Sql/servers/testsvr/databases/testdb

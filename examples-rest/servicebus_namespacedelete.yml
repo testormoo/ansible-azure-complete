@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-3285
+        body:

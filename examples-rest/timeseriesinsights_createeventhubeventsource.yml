@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: CreateEventHubEventSource
+      azure_rm_resource:
+        api_version: '2017-11-15'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TimeSeriesInsights/environments/{environmentName}/eventSources/{eventSourceName}
+        resource_group: rg1
+        provider: TimeSeriesInsights
+        resource_type: environments
+        resource_name: env1
+        subresource:
+          - type: eventSources
+            name: es1
+        body:
+          location: West US
+          kind: Microsoft.EventHub
+          properties:
+            eventSourceResourceId: somePathInArm
+            serviceBusNamespace: sbn
+            consumerGroupName: cgn
+            eventHubName: ehn
+            keyName: managementKey
+            sharedAccessKey: someSecretvalue
+            timestampPropertyName: someTimestampProperty

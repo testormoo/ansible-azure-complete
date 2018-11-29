@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Factories_GetGitHubAccessToken
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/getGitHubAccessToken
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: getGitHubAccessToken
+        body:

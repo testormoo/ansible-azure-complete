@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Interactions_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/interactions/{interactionName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: interactions
+            name: TestProfileType396
+        body:
+          properties:
+            idPropertyNames:
+            primaryParticipantProfilePropertyName: profile1
+            apiEntitySetName: TestInteractionType6358
+            fields:
+              - fieldName: TestInteractionType6358
+                fieldType: Edm.String
+                isArray: False
+                isRequired: True
+              - fieldName: profile1
+                fieldType: Edm.String
+            smallImage: \\Images\\smallImage
+            mediumImage: \\Images\\MediumImage
+            largeImage: \\Images\\LargeImage

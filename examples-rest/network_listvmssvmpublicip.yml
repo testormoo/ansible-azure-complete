@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: ListVMSSVMPublicIP
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/virtualMachines/{virtualmachineIndex}/networkInterfaces/{networkInterfaceName}/ipconfigurations/{ipConfigurationName}/publicipaddresses
+        resource_group: vmss-tester
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: vmss1
+        subresource:
+          - type: virtualMachines
+            name: 1
+          - type: networkInterfaces
+            name: nic1
+          - type: ipconfigurations
+            name: ip1
+          - type: publicipaddresses

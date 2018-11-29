@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List all network security groups
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/networkSecurityGroups
+        provider: Network
+        resource_type: networkSecurityGroups

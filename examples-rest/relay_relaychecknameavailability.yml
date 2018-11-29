@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: RelayCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Relay/checkNameAvailability
+        provider: Relay
+        resource_type: checkNameAvailability
+        body:
+          name: sdk-Namespace1321

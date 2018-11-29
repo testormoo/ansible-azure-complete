@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Planned failover of a failover group
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/failoverGroups/{failoverGroupName}/failover
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: failover-group-secondary-server
+        subresource:
+          - type: failoverGroups
+            name: failover-group-test-3
+          - type: failover
+        body:
+- hosts: localhost
+  tasks:
+    - name: Planned failover of a failover group
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/locations/{locationName}/instanceFailoverGroups/{failoverGroupName}/failover
+        resource_group: Default
+        provider: Sql
+        resource_type: locations
+        resource_name: Japan West
+        subresource:
+          - type: instanceFailoverGroups
+            name: failover-group-test-3
+          - type: failover
+        body:

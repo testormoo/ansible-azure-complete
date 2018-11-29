@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: DatabaseCreate
+      azure_rm_resource:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}/databases/{databaseName}
+        resource_group: TestGroup
+        provider: DBforPostgreSQL
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: db1
+        body:
+          properties:
+            charset: UTF8
+            collation: English_United States.1252

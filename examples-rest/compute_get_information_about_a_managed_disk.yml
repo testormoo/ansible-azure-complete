@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get information about a managed disk.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks/{diskName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: disks
+        resource_name: myManagedDisk

@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: Restore Disks
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/recoveryPoints/{recoveryPointId}/restore
+        resource_group: netsdktestrg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: IaasVMContainer;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: protectedItems
+            name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: recoveryPoints
+            name: 348916168024334
+          - type: restore
+        body:
+          properties:
+            objectType: IaasVMRestoreRequest
+            recoveryPointId: 348916168024334
+            recoveryType: RestoreDisks
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg/providers/Microsoft.Compute/virtualMachines/netvmtestv2vm1
+            storageAccountId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testingRg/providers/Microsoft.Storage/storageAccounts/testAccount
+            region: southeastasia
+            createNewCloudService: True
+            originalStorageAccountOption: False
+            encryptionDetails:
+              encryptionEnabled: False

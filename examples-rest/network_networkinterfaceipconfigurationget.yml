@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: NetworkInterfaceIPConfigurationGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkInterfaces/{networkInterfaceName}/ipConfigurations/{ipConfigurationName}
+        resource_group: testrg
+        provider: Network
+        resource_type: networkInterfaces
+        resource_name: mynic
+        subresource:
+          - type: ipConfigurations
+            name: ipconfig1

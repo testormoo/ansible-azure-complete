@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: PUT Operationalization Cluster
+      azure_rm_resource:
+        api_version: '2017-08-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningCompute/operationalizationClusters/{clusterName}
+        resource_group: myResourceGroup
+        provider: MachineLearningCompute
+        resource_type: operationalizationClusters
+        resource_name: myCluster
+        body:
+          location: West US
+          tags:
+            key1: alpha
+            key2: beta
+          properties:
+            description: My Operationalization Cluster
+            clusterType: ACS
+            containerService:
+              orchestratorType: Kubernetes
+              orchestratorProperties:
+                servicePrincipal:
+                  clientId: abcdefghijklmnopqrt
+                  secret: uiuiwueiwuewiue
+            globalServiceConfiguration:
+              ssl:
+                status: Enabled
+                cert: afjdklq2131casfakld=
+                key: flksdafkldsajf=
+                cname: foo.bar.com

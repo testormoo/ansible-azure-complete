@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: LockImmutabilityPolicy
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}/immutabilityPolicies/default/lock
+        resource_group: res2702
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto5009
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers
+            name: container1631
+          - type: immutabilityPolicies
+          - type: default
+          - type: lock
+        body:

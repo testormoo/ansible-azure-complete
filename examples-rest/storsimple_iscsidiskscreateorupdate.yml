@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: IscsiDisksCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/iscsiservers/{iscsiServerName}/disks/{diskName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-0NZI14MDTF
+          - type: iscsiservers
+            name: HSDK-0NZI14MDTF
+          - type: disks
+            name: Auto-TestIscsiDisk1
+        body:

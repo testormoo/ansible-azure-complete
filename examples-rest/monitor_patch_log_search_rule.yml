@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Patch Log Search Rule
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/scheduledQueryRules/{ruleName}
+        provider: insights
+        resource_type: scheduledQueryRules
+        resource_name: logalertfoo
+        body:
+          properties:
+            enabled: true

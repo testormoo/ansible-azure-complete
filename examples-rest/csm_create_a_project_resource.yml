@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Create a project resource
+      azure_rm_resource:
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{rootResourceName}/project/{resourceName}
+        resource_group: VS-Example-Group
+        provider: visualstudio
+        resource_type: account
+        resource_name: ExampleAccount
+        subresource:
+          - type: project
+            name: ExampleProject
+        body:

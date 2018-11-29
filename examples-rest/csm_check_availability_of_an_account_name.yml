@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Check availability of an account name
+      azure_rm_resource:
+        method: POST
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.visualstudio/checkNameAvailability
+        provider: visualstudio
+        resource_type: checkNameAvailability
+        body:

@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Images_GetUploadUrlForData
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/images/getDataImageUploadUrl
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: images
+          - type: getDataImageUploadUrl
+        body:
+          entityType: Profile
+          entityTypeName: Contact
+          relativePath: images/profile1.png

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get an activity log alert
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/activityLogAlerts/{activityLogAlertName}
+        resource_group: Default-ActivityLogAlerts
+        provider: insights
+        resource_type: activityLogAlerts
+        resource_name: SampleActivityLogAlert

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a map
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/maps/{mapName}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: maps
+            name: testMap
+        body:

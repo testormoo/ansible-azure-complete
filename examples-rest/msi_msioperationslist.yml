@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: MsiOperationsList
+      azure_rm_resource_facts:
+        api_version: '2015-08-31-preview'
+        # url: /providers/Microsoft.ManagedIdentity/operations
+        provider: ManagedIdentity
+        resource_type: operations

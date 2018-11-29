@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Gets the specified Data Lake Store trusted identity provider
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts/{accountName}/trustedIdProviders/{trustedIdProviderName}
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: trustedIdProviders
+            name: test_trusted_id_provider_name

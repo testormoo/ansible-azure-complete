@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: DPSCreate
+      azure_rm_resource:
+        api_version: '2018-01-22'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/provisioningServices/{provisioningServiceName}
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: provisioningServices
+        resource_name: myFirstProvisioningService
+        body:

@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Export a database into a new bacpac file with storage key
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/export
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-5961
+        subresource:
+          - type: databases
+            name: testdb
+          - type: export
+        body:
+          storageKeyType: StorageAccessKey
+          storageKey: sdlfkjdsf+sdlfkjsdlkfsjdfLDKFJSDLKFDFKLjsdfksjdflsdkfD2342309432849328479324/3RSD==
+          storageUri: https://test.blob.core.windows.net/bacpacs/testbacpac.bacpac
+          administratorLogin: dummyLogin
+          administratorLoginPassword: Un53cuRE!
+          authenticationType: SQL

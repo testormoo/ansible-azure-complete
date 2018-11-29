@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete managed instance
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}
+        resource_group: testrg
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: testinstance
+        body:

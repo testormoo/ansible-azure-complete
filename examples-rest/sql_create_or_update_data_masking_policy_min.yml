@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update data masking policy min
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/dataMaskingPolicies/{dataMaskingPolicyName}
+        resource_group: sqlcrudtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-2080
+        subresource:
+          - type: databases
+            name: sqlcrudtest-331
+          - type: dataMaskingPolicies
+            name: Default
+        body:
+          properties:
+            dataMaskingState: Enabled

@@ -1,0 +1,36 @@
+- hosts: localhost
+  tasks:
+    - name: BillingAccountQuery
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-05-31'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.CostManagement/Query
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 70664866
+        subresource:
+          - type: providers
+        provider: CostManagement
+          - type: Query
+        body:
+          type: Usage
+          timeframe: MonthToDate
+          dataset:
+            granularity: Daily
+            configuration:
+              columns:
+            filter:
+              and:
+                - or:
+                    - dimension:
+                        name: ResourceLocation
+                        operator: In
+                        values:
+                    - tag:
+                        name: Environment
+                        operator: In
+                        values:
+                - dimension:
+                    name: ResourceGroup
+                    operator: In
+                    values:

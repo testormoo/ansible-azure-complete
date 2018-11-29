@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update rollout
+      azure_rm_resource:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DeploymentManager/rollouts/{rolloutName}
+        resource_group: myResourceGroup
+        provider: DeploymentManager
+        resource_type: rollouts
+        resource_name: myRollout
+        body:

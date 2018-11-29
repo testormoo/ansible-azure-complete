@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateAuthorizationServer
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/authorizationServers/{authsid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: authorizationServers
+            name: newauthServer
+        body:
+          properties:
+            displayName: test2
+            description: test server
+            clientRegistrationEndpoint: https://www.contoso.com/apps
+            authorizationEndpoint: https://www.contoso.com/oauth2/auth
+            authorizationMethods:
+            tokenEndpoint: https://www.contoso.com/oauth2/token
+            supportState: True
+            defaultScope: read write
+            grantTypes:
+            bearerTokenSendingMethods:
+            clientId: 1
+            clientSecret: 2
+            resourceOwnerUsername: un
+            resourceOwnerPassword: pwd

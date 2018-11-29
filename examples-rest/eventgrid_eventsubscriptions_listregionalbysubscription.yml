@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: EventSubscriptions_ListRegionalBySubscription
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.EventGrid/locations/{location}/eventSubscriptions
+        provider: EventGrid
+        resource_type: locations
+        resource_name: westus2
+        subresource:
+          - type: eventSubscriptions

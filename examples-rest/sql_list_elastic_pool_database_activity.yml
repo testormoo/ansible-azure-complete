@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List elastic pool database activity
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}/elasticPoolDatabaseActivity
+        resource_group: sqlcrudtest-4673
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-603
+        subresource:
+          - type: elasticPools
+            name: 7537
+          - type: elasticPoolDatabaseActivity

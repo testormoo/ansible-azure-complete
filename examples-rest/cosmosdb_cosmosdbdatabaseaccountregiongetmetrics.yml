@@ -1,0 +1,133 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/region/{region}/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: region
+            name: North Europe
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/sourceRegion/{sourceRegion}/targetRegion/{targetRegion}/percentile/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: sourceRegion
+            name: West Central US
+          - type: targetRegion
+            name: East US
+          - type: percentile
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/targetRegion/{targetRegion}/percentile/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: targetRegion
+            name: East US
+          - type: percentile
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/percentile/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: percentile
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/region/{region}/databases/{databaseRid}/collections/{collectionRid}/partitions/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: region
+            name: North Europe
+          - type: databases
+            name: databaseRid
+          - type: collections
+            name: collectionRid
+          - type: partitions
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/databases/{databaseRid}/collections/{collectionRid}/partitions/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: databases
+            name: databaseRid
+          - type: collections
+            name: collectionRid
+          - type: partitions
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/databases/{databaseRid}/collections/{collectionRid}/partitionKeyRangeId/{partitionKeyRangeId}/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: databases
+            name: databaseRid
+          - type: collections
+            name: collectionRid
+          - type: partitionKeyRangeId
+            name: 0
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountRegionGetMetrics
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DocumentDB/databaseAccounts/{accountName}/region/{region}/databases/{databaseRid}/collections/{collectionRid}/partitionKeyRangeId/{partitionKeyRangeId}/metrics
+        resource_group: rg1
+        provider: DocumentDB
+        resource_type: databaseAccounts
+        resource_name: ddb1
+        subresource:
+          - type: region
+            name: West US
+          - type: databases
+            name: databaseRid
+          - type: collections
+            name: collectionRid
+          - type: partitionKeyRangeId
+            name: 0
+          - type: metrics

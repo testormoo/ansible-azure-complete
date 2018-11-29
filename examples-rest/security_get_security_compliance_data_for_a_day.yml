@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{scope}/providers/Microsoft.Security/compliances/{complianceName}
+        provider: Security
+        resource_type: compliances
+        resource_name: 2018-01-01Z

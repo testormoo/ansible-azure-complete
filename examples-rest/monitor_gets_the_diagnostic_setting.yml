@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: Gets the diagnostic setting
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/diagnosticSettings/{name}
+        provider: insights
+        resource_type: diagnosticSettings
+        resource_name: mysetting
+- hosts: localhost
+  tasks:
+    - name: Gets the diagnostic setting
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/diagnosticSettings
+        provider: insights
+        resource_type: diagnosticSettings
+- hosts: localhost
+  tasks:
+    - name: Gets the diagnostic setting
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/diagnosticSettingsCategories/{name}
+        provider: insights
+        resource_type: diagnosticSettingsCategories
+        resource_name: WorkflowRuntime
+- hosts: localhost
+  tasks:
+    - name: Gets the diagnostic setting
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/diagnosticSettingsCategories
+        provider: insights
+        resource_type: diagnosticSettingsCategories

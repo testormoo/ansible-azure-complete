@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: LoadBalancerFrontendIPConfigurationGet
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers/{loadBalancerName}/frontendIPConfigurations/{frontendIPConfigurationName}
+        resource_group: testrg
+        provider: Network
+        resource_type: loadBalancers
+        resource_name: lb
+        subresource:
+          - type: frontendIPConfigurations
+            name: frontend

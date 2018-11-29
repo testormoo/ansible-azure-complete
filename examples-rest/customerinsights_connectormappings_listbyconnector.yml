@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ConnectorMappings_ListByConnector
+      azure_rm_resource_facts:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/connectors/{connectorName}/mappings
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: connectors
+            name: testConnector8858
+          - type: mappings

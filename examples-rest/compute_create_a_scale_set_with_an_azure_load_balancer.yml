@@ -1,0 +1,51 @@
+- hosts: localhost
+  tasks:
+    - name: Create a scale set with an azure load balancer.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: {vmss-name}
+        body:
+          sku:
+            tier: Standard
+            capacity: 3
+            name: Standard_D1_v2
+          location: westus
+          properties:
+            overprovision: True
+            virtualMachineProfile:
+              storageProfile:
+                imageReference:
+                  sku: 2016-Datacenter
+                  publisher: MicrosoftWindowsServer
+                  version: latest
+                  offer: WindowsServer
+                osDisk:
+                  caching: ReadWrite
+                  managedDisk:
+                    storageAccountType: Standard_LRS
+                  createOption: FromImage
+              osProfile:
+                computerNamePrefix: {vmss-name}
+                adminUsername: {your-username}
+                adminPassword: {your-password}
+              networkProfile:
+                networkInterfaceConfigurations:
+                  - name: {vmss-name}
+                    properties:
+                      primary: True
+                      enableIPForwarding: True
+                      ipConfigurations:
+                        - name: {vmss-name}
+                          properties:
+                            subnet:
+                              id: /subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/virtualNetworks/{existing-virtual-network-name}/subnets/{existing-subnet-name}
+                            loadBalancerInboundNatPools:
+                              - id: /subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/loadBalancers/{existing-load-balancer-name}/inboundNatPools/{existing-nat-pool-name}
+                            loadBalancerBackendAddressPools:
+                              - id: /subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/loadBalancers/{existing-load-balancer-name}/backendAddressPools/{existing-backend-address-pool-name}
+            upgradePolicy:
+              mode: Manual

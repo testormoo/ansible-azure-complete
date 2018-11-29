@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ManagersCreateExtendedInfo
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/extendedInformation/vaultExtendedInfo
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: ManagerForSDKTest2
+        subresource:
+          - type: extendedInformation
+          - type: vaultExtendedInfo
+        body:

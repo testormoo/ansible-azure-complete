@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: services_getMetricMetadata
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/metricmetadata/{metricName}
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleName
+        subresource:
+          - type: metricmetadata
+            name: SampleMetricName

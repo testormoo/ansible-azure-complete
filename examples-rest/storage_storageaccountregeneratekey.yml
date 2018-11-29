@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountRegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/regenerateKey
+        resource_group: res4167
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto3539
+        subresource:
+          - type: regenerateKey
+        body:

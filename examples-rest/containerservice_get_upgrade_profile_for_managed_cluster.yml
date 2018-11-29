@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get Upgrade Profile for Managed Cluster
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}/upgradeProfiles/default
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1
+        subresource:
+          - type: upgradeProfiles
+          - type: default

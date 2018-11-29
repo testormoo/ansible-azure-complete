@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Validate a vault name
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/checkNameAvailability
+        provider: KeyVault
+        resource_type: checkNameAvailability
+        body:

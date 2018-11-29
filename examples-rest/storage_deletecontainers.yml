@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: DeleteContainers
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}
+        resource_group: res4079
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto4506
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers
+            name: container9689
+        body:

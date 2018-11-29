@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: addsServices_listReplicationDetails
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/addsservices/{serviceName}/replicationdetails
+        provider: ADHybridHealthService
+        resource_type: addsservices
+        resource_name: SampleName
+        subresource:
+          - type: replicationdetails

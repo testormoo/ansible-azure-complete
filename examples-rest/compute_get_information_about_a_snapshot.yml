@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get information about a snapshot.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/snapshots/{snapshotName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: snapshots
+        resource_name: mySnapshot

@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateBackendProxyBackend
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/backends/{backendid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: backends
+            name: proxybackend
+        body:
+          properties:
+            description: description5308
+            url: https://backendname2644/
+            protocol: http
+            tls:
+              validateCertificateChain: True
+              validateCertificateName: True
+            proxy:
+              url: http://192.168.1.1:8080
+              username: Contoso\admin
+              password: opensesame
+            credentials:
+              query:
+                sv:
+              header:
+                x-my-1:
+              authorization:
+                scheme: Basic
+                parameter: opensesma

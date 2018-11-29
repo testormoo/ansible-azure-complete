@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Patch a log profile
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/logprofiles/{logProfileName}
+        provider: insights
+        resource_type: logprofiles
+        resource_name: Rac46PostSwapRG
+        body:

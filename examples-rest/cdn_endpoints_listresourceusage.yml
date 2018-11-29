@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Endpoints_ListResourceUsage
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-12'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/profiles/{profileName}/endpoints/{endpointName}/checkResourceUsage
+        resource_group: RG
+        provider: Cdn
+        resource_type: profiles
+        resource_name: profile1
+        subresource:
+          - type: endpoints
+            name: endpoint1
+          - type: checkResourceUsage
+        body:

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: MonitorInstances_Get
+      azure_rm_resource_facts:
+        api_version: '2018-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceNamespace}/{resourceType}/{resourceName}/providers/Microsoft.WorkloadMonitor/monitorInstances/{monitorInstanceId}
+        resource_group: viv_rg
+        provider: WorkloadMonitor
+        resource_type: monitorInstances
+        resource_name: ComponentId='d91ce384-b682-883a-d02b-129bf37f218b',MonitorId=052f9b7d-7bf0-7f61-966b-f372e207ef4e'

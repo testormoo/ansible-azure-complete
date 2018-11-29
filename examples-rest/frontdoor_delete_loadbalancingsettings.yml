@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete LoadBalancingSettings
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/frontDoors/{frontDoorName}/loadBalancingSettings/{loadBalancingSettingsName}
+        resource_group: rg1
+        provider: Network
+        resource_type: frontDoors
+        resource_name: frontDoor1
+        subresource:
+          - type: loadBalancingSettings
+            name: loadBalancingSettings1
+        body:

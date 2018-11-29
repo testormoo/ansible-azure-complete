@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Operations_List
+      azure_rm_resource_facts:
+        api_version: '2018-08-31-preview'
+        # url: /providers/Microsoft.WorkloadMonitor/operations
+        provider: WorkloadMonitor
+        resource_type: operations

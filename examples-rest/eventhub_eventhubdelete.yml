@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: EventHubDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/eventhubs/{eventHubName}
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5357
+        subresource:
+          - type: eventhubs
+            name: sdk-EventHub-6547
+        body:

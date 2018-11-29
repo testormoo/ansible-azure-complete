@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Lists all of the available GuestConfiguration REST API operations
+      azure_rm_resource_facts:
+        api_version: '2018-06-30-preview'
+        # url: /providers/Microsoft.GuestConfiguration/operations
+        provider: GuestConfiguration
+        resource_type: operations

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: JobsCancelPost
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataBox/jobs/{jobName}/cancel
+        resource_group: SdkRg8120
+        provider: DataBox
+        resource_type: jobs
+        resource_name: SdkJob7196
+        subresource:
+          - type: cancel
+        body:

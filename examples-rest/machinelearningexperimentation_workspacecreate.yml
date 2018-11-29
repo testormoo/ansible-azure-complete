@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: WorkspaceCreate
+      azure_rm_resource:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces/{workspaceName}
+        resource_group: myResourceGroup
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: testaccount
+        subresource:
+          - type: workspaces
+            name: testworkspace
+        body:
+          tags:
+            tagKey1: TagValue1
+          location: East US
+          properties:
+            friendlyName: testName

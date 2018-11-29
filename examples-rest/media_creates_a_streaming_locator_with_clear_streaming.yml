@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Streaming Locator with clear streaming
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingLocators/{streamingLocatorName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingLocators
+            name: UserCreatedClearStreamingLocator
+        body:
+          properties:
+            StreamingPolicyName: clearStreamingPolicy
+            AssetName: ClimbingMountRainier

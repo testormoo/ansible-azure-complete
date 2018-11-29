@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: KustoEventHubConnectionsCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2018-09-07-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Kusto/clusters/{clusterName}/databases/{databaseName}/eventhubconnections/{eventHubConnectionName}
+        resource_group: kustorptest
+        provider: Kusto
+        resource_type: clusters
+        resource_name: KustoClusterRPTest4
+        subresource:
+          - type: databases
+            name: KustoDatabase8
+          - type: eventhubconnections
+            name: kustoeventhubconnection1
+        body:
+          location: westus
+          properties:
+            eventHubResourceId: /subscriptions/12345678-1234-1234-1234-123456789098/resourceGroups/kustorptest/providers/Microsoft.EventHub/namespaces/eventhubTestns1/eventhubs/eventhubTest1
+            consumerGroup: testConsumerGroup1

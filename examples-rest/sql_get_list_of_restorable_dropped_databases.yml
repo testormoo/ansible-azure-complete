@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Get list of restorable dropped databases
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/recoverableDatabases
+        resource_group: recoverabledatabasetest-1234
+        provider: Sql
+        resource_type: servers
+        resource_name: recoverabledatabasetest-7177
+        subresource:
+          - type: recoverableDatabases
+- hosts: localhost
+  tasks:
+    - name: Get list of restorable dropped databases
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/restorableDroppedDatabases
+        resource_group: restorabledroppeddatabasetest-1349
+        provider: Sql
+        resource_type: servers
+        resource_name: restorabledroppeddatabasetest-1840
+        subresource:
+          - type: restorableDroppedDatabases

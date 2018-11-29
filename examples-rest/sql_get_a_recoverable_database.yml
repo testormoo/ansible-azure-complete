@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a recoverable database
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/recoverableDatabases/{databaseName}
+        resource_group: recoverabledatabasetest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: recoverabledatabasetest-2080
+        subresource:
+          - type: recoverableDatabases
+            name: recoverabledatabasetest-9187

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Operations
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /providers/Microsoft.Media/operations
+        provider: Media
+        resource_type: operations

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List of Recovery Services Resources in SubscriptionId
+      azure_rm_resource_facts:
+        api_version: '2016-06-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.RecoveryServices/vaults
+        provider: RecoveryServices
+        resource_type: vaults

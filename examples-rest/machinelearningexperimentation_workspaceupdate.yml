@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: WorkspaceUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces/{workspaceName}
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: accountcrud5678
+        subresource:
+          - type: workspaces
+            name: testworkspace
+        body:
+          properties:
+            friendlyName: testNameNew

@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountCreate
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}
+        resource_group: res9101
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto4445
+        body:
+          sku:
+            name: Standard_GRS
+          kind: Storage
+          location: eastus2euap
+          properties:
+            isHnsEnabled: True
+            azureFilesAadIntegration: True
+          tags:
+            key1: value1
+            key2: value2

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List all job executions in a job agent.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}/executions
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+          - type: executions

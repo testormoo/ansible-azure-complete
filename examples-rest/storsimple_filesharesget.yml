@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: FileSharesGet
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/fileservers/{fileServerName}/shares/{shareName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-4XY4FI2IVG
+          - type: fileservers
+            name: HSDK-4XY4FI2IVG
+          - type: shares
+            name: Auto-TestFileShare1

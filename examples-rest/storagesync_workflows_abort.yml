@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Workflows_Abort
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}/workflows/{workflowId}/abort
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        subresource:
+          - type: workflows
+            name: 7ffd50b3-5574-478d-9ff2-9371bc42ce68
+          - type: abort
+        body:

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get Tenant Activity Logs with select
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/microsoft.insights/eventtypes/management/values
+        provider: insights
+        resource_type: eventtypes
+        resource_type: management
+        resource_type: values

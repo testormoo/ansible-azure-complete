@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateProductBasic
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/products/{productId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: products
+            name: testproduct
+        body:
+          properties:
+            displayName: Test Template ProductName 4

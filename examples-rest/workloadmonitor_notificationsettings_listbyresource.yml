@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: NotificationSettings_ListByResource
+      azure_rm_resource_facts:
+        api_version: '2018-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceNamespace}/{resourceType}/{resourceName}/providers/Microsoft.WorkloadMonitor/notificationSettings
+        resource_group: viv_rg
+        provider: WorkloadMonitor
+        resource_type: notificationSettings

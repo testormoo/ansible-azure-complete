@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Creates or updates the specified compute policy
+      azure_rm_resource:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/computePolicies/{computePolicyName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: computePolicies
+            name: test_policy
+        body:
+          properties:
+            objectId: 776b9091-8916-4638-87f7-9c989a38da98
+            objectType: User
+            maxDegreeOfParallelismPerJob: 10
+            minPriorityPerJob: 30

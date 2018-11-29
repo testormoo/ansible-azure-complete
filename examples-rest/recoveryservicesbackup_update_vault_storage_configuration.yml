@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Update Vault Storage Configuration
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupstorageconfig/vaultstorageconfig
+        resource_group: PythonSDKBackupTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: PySDKBackupTestRsVault
+        subresource:
+          - type: backupstorageconfig
+          - type: vaultstorageconfig
+        body:
+          properties:
+            storageType: LocallyRedundant
+            storageTypeState: Unlocked

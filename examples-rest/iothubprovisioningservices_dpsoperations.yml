@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: DPSOperations
+      azure_rm_resource_facts:
+        api_version: '2018-01-22'
+        # url: /providers/Microsoft.Devices/operations
+        provider: Devices
+        resource_type: operations

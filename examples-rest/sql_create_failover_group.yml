@@ -1,0 +1,48 @@
+- hosts: localhost
+  tasks:
+    - name: Create failover group
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/failoverGroups/{failoverGroupName}
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: failover-group-primary-server
+        subresource:
+          - type: failoverGroups
+            name: failover-group-test-3
+        body:
+          properties:
+            readWriteEndpoint:
+              failoverPolicy: Automatic
+              failoverWithDataLossGracePeriodMinutes: 480
+            readOnlyEndpoint:
+              failoverPolicy: Disabled
+            partnerServers:
+              - id: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/servers/failover-group-secondary-server
+            databases:
+- hosts: localhost
+  tasks:
+    - name: Create failover group
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/locations/{locationName}/instanceFailoverGroups/{failoverGroupName}
+        resource_group: Default
+        provider: Sql
+        resource_type: locations
+        resource_name: Japan East
+        subresource:
+          - type: instanceFailoverGroups
+            name: failover-group-test-3
+        body:
+          properties:
+            readWriteEndpoint:
+              failoverPolicy: Automatic
+              failoverWithDataLossGracePeriodMinutes: 480
+            readOnlyEndpoint:
+              failoverPolicy: Disabled
+            partnerRegions:
+              - location: Japan West
+            managedInstancePairs:
+              - primaryManagedInstanceId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/managedInstances/failover-group-primary-mngdInstance
+                partnerManagedInstanceId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/managedInstances/failover-group-secondary-mngdInstance

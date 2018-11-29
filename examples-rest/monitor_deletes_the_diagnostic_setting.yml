@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Deletes the diagnostic setting
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/diagnosticSettings/{name}
+        provider: insights
+        resource_type: diagnosticSettings
+        resource_name: mysetting
+        body:

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Components_Get
+      azure_rm_resource_facts:
+        api_version: '2018-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceNamespace}/{resourceType}/{resourceName}/providers/Microsoft.WorkloadMonitor/components/{componentId}
+        resource_group: viv_rg
+        provider: WorkloadMonitor
+        resource_type: components
+        resource_name: d91ce384-b682-883a-d02b-129bf37f218b

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List databases by managed instances
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}/databases
+        resource_group: Test1
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: managedInstance
+        subresource:
+          - type: databases

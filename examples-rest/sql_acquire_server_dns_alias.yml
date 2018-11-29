@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Acquire server DNS alias
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/dnsAliases/{dnsAliasName}/acquire
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: dns-alias-new-server
+        subresource:
+          - type: dnsAliases
+            name: dns-alias-name-1
+          - type: acquire
+        body:
+          oldServerDnsAliasId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default/providers/Microsoft.Sql/servers/dns-alias-old-server/dnsAliases/dns-alias-name-1

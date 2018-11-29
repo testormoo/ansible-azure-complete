@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: AliasNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/disasterRecoveryConfigs/CheckNameAvailability
+        resource_group: exampleResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-9080
+        subresource:
+          - type: disasterRecoveryConfigs
+          - type: CheckNameAvailability
+        body:
+          name: sdk-DisasterRecovery-9474

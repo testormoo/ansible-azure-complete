@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Operations_List
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /providers/Microsoft.EventGrid/operations
+        provider: EventGrid
+        resource_type: operations

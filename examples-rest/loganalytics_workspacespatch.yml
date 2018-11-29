@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: WorkspacesPatch
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: oiautorest6685
+        body:
+          properties:
+            customerId: 6c576b6a-75d3-4ff9-bc23-28d524e52f5b
+          location: australiasoutheast

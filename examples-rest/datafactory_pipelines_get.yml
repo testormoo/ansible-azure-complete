@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Pipelines_Get
+      azure_rm_resource_facts:
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/pipelines/{pipelineName}
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: pipelines
+            name: examplePipeline

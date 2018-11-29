@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ManagersUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: ManagerForSDKTest2
+        body:
+          tags:
+            TagName: ForSDKTest

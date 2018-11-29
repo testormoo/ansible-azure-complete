@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: UsagesList
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/usages
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: TestLinkWS
+        subresource:
+          - type: usages

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: StorageSyncServices_Get
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1

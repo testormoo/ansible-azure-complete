@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create a topology with Artifact Source
+      azure_rm_resource:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DeploymentManager/serviceTopologies/{serviceTopologyName}
+        resource_group: myResourceGroup
+        provider: DeploymentManager
+        resource_type: serviceTopologies
+        resource_name: myTopology
+        body:

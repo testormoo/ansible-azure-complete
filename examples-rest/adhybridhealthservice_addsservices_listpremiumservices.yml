@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: addsServices_listPremiumServices
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/addsservices/premiumCheck
+        provider: ADHybridHealthService
+        resource_type: addsservices
+        resource_type: premiumCheck

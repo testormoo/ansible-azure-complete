@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Update a Service Bus Topic output with CSV serialization
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/outputs/{outputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj7094
+        subresource:
+          - type: outputs
+            name: output7886
+        body:

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: TopicTypes_List
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /providers/Microsoft.EventGrid/topicTypes
+        provider: EventGrid
+        resource_type: topicTypes

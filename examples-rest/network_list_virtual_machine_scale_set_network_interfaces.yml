@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List virtual machine scale set network interfaces
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/networkInterfaces
+        resource_group: rg1
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: vmss1
+        subresource:
+          - type: networkInterfaces

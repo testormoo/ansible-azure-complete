@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: RelayNameSpaceListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Relay/namespaces
+        resource_group: RG-eg
+        provider: Relay
+        resource_type: namespaces

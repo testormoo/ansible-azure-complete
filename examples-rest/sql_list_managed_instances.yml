@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List managed instances
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/managedInstances
+        provider: Sql
+        resource_type: managedInstances

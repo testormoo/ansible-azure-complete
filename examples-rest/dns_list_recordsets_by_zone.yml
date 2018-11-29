@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: List recordsets by zone
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/recordsets
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+        resource_name: zone1
+        subresource:
+          - type: recordsets
+- hosts: localhost
+  tasks:
+    - name: List recordsets by zone
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/all
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+        resource_name: zone1
+        subresource:
+          - type: all

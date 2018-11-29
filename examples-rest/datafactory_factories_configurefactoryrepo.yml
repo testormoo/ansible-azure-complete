@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Factories_ConfigureFactoryRepo
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataFactory/locations/{locationId}/configureFactoryRepo
+        provider: DataFactory
+        resource_type: locations
+        resource_name: East US
+        subresource:
+          - type: configureFactoryRepo
+        body:

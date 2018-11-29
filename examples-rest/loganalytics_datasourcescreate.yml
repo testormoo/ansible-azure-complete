@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: DataSourcesCreate
+      azure_rm_resource:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/dataSources/{dataSourceName}
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: AzTest9724
+        subresource:
+          - type: dataSources
+            name: AzTestDS774
+        body:
+          properties:
+            LinkedResourceId: /subscriptions/00000000-0000-0000-0000-00000000000/providers/microsoft.insights/eventtypes/management
+          kind: AzureActivityLog

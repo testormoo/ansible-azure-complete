@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Gets subscription-level properties and limits for Data Lake Store specified by resource location
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataLakeStore/locations/{location}/capability
+        provider: DataLakeStore
+        resource_type: locations
+        resource_name: EastUS2
+        subresource:
+          - type: capability

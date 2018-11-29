@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get Azure Virtual Machine Backup Status
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/providers/Microsoft.RecoveryServices/locations/{azureRegion}/backupStatus
+        provider: RecoveryServices
+        resource_type: locations
+        resource_name: southeastasia
+        subresource:
+          - type: backupStatus
+        body:
+          resourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRg/providers/Microsoft.Compute/VirtualMachines/testVm
+          resourceType: VM

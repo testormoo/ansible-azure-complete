@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Check name Availability
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.IoTSpaces/checkNameAvailability
+        provider: IoTSpaces
+        resource_type: checkNameAvailability
+        body:

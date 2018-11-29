@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: addsServicesUserPreference_add
+      azure_rm_resource:
+        method: POST
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/addsservices/{serviceName}/features/{featureName}/userpreference
+        provider: ADHybridHealthService
+        resource_type: addsservices
+        resource_name: sampleServiceName
+        subresource:
+          - type: features
+            name: SampleFeatureName
+          - type: userpreference
+        body:

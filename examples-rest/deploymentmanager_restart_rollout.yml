@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Restart rollout
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DeploymentManager/rollouts/{rolloutName}/restart
+        resource_group: myResourceGroup
+        provider: DeploymentManager
+        resource_type: rollouts
+        resource_name: myRollout
+        subresource:
+          - type: restart
+        body:

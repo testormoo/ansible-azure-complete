@@ -1,0 +1,27 @@
+- hosts: localhost
+  tasks:
+    - name: Create a new vault or update an existing vault
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}
+        resource_group: sample-resource-group
+        provider: KeyVault
+        resource_type: vaults
+        resource_name: sample-vault
+        body:
+          location: westus
+          properties:
+            tenantId: 00000000-0000-0000-0000-000000000000
+            sku:
+              family: A
+              name: standard
+            accessPolicies:
+              - tenantId: 00000000-0000-0000-0000-000000000000
+                objectId: 00000000-0000-0000-0000-000000000000
+                permissions:
+                  keys:
+                  secrets:
+                  certificates:
+            enabledForDeployment: True
+            enabledForDiskEncryption: True
+            enabledForTemplateDeployment: True

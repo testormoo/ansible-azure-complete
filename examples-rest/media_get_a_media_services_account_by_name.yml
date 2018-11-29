@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Get a Media Services account by name
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaservices
+        resource_name: contosotv
+- hosts: localhost
+  tasks:
+    - name: Get a Media Services account by name
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Media/mediaservices/{accountName}
+        provider: Media
+        resource_type: mediaservices
+        resource_name: contososports

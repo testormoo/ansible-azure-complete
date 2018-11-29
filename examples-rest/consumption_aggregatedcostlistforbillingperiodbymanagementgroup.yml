@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: AggregatedCostListForBillingPeriodByManagementGroup
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/Microsoft.Consumption/aggregatedcost
+        provider: Management
+        resource_type: managementGroups
+        resource_name: managementGroupForTest
+        subresource:
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201807
+          - type: Microsoft.Consumption
+          - type: aggregatedcost

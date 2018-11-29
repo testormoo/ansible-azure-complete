@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Get a guest configuration assignment report by Id for a virtual machine
+      azure_rm_resource_facts:
+        api_version: '2018-06-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/{guestConfigurationAssignmentName}/reports/{reportId}
+        resource_group: myResourceGroupName
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: myvm
+        subresource:
+          - type: providers
+        provider: GuestConfiguration
+          - type: guestConfigurationAssignments
+            name: AuditSecureProtocol
+          - type: reports
+            name: 7367cbb8-ae99-47d0-a33b-a283564d2cb1

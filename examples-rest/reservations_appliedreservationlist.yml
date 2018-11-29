@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: AppliedReservationList
+      azure_rm_resource_facts:
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Capacity/appliedReservations
+        provider: Capacity
+        resource_type: appliedReservations

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Synchronizes Storage Account Keys
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/syncStorageKeys
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaservices
+        resource_name: contososports
+        subresource:
+          - type: syncStorageKeys
+        body:
+          id: contososportsstore

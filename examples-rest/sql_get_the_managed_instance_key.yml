@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get the managed instance key
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}/keys/{keyName}
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: sqlcrudtest-4645
+        subresource:
+          - type: keys
+            name: someVault_someKey_01234567890123456789012345678901

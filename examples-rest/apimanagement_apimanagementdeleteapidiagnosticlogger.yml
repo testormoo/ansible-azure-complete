@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementDeleteApiDiagnosticLogger
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/apis/{apiId}/diagnostics/{diagnosticId}/loggers/{loggerid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: apis
+            name: 57d1f7558aa04f15146d9d8a
+          - type: diagnostics
+            name: default
+          - type: loggers
+            name: applicationinsights
+        body:

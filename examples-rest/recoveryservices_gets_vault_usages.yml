@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Gets vault usages
+      azure_rm_resource_facts:
+        api_version: '2016-06-01'
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/usages
+        resource_group: Default-RecoveryServices-ResourceGroup
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: swaggerExample
+        subresource:
+          - type: usages

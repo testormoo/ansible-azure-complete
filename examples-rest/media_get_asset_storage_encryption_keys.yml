@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Get Asset Storage Encryption Keys
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/assets/{assetName}/getEncryptionKey
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: assets
+            name: ClimbingMountSaintHelens
+          - type: getEncryptionKey
+        body:

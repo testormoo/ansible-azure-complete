@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: StorageSyncServiceCheckNameAvailability_AlreadyExists
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.StorageSync/locations/{locationName}/checkNameAvailability
+        provider: StorageSync
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: checkNameAvailability
+        body:
+          name: newstoragesyncservicename
+          type: Microsoft.StorageSync/storageSyncServices

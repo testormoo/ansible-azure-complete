@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Test the connection for an input
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/inputs/{inputName}/test
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj9597
+        subresource:
+          - type: inputs
+            name: input7225
+          - type: test
+        body:

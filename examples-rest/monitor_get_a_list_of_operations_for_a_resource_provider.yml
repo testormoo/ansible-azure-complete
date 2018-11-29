@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get a list of operations for a resource provider
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/microsoft.insights/operations
+        provider: insights
+        resource_type: operations

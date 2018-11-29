@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List Azure Data Catalog Service
+      azure_rm_resource_facts:
+        api_version: '2016-03-30'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataCatalog/catalogs
+        resource_group: exampleResourceGroup
+        provider: DataCatalog
+        resource_type: catalogs

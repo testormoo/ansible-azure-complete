@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ListBySubscription
+      azure_rm_resource_facts:
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.SignalRService/SignalR
+        provider: SignalRService
+        resource_type: SignalR

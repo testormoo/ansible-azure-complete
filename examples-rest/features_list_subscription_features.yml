@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List subscription Features
+      azure_rm_resource_facts:
+        api_version: '2015-12-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Features/features
+        provider: Features
+        resource_type: features

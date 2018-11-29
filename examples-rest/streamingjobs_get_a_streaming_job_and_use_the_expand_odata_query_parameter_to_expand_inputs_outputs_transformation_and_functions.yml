@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Get a streaming job and use the $expand OData query parameter to expand inputs, outputs, transformation, and functions
+      azure_rm_resource_facts:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj7804

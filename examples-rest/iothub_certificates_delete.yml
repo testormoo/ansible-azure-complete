@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Certificates_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/IotHubs/{resourceName}/certificates/{certificateName}
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: IotHubs
+        resource_name: myhub
+        subresource:
+          - type: certificates
+            name: cert
+        body:

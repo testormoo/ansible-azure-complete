@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get an extension resource
+      azure_rm_resource_facts:
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{accountResourceName}/extension/{extensionResourceName}
+        provider: visualstudio
+        resource_type: account
+        resource_name: ExampleAccount
+        subresource:
+          - type: extension
+            name: ms.example

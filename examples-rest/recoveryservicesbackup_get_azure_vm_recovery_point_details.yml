@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Get Azure Vm Recovery Point Details
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/recoveryPoints/{recoveryPointId}
+        resource_group: rshhtestmdvmrg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: rshvault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: IaasVMContainer;iaasvmcontainerv2;rshhtestmdvmrg;rshmdvmsmall
+          - type: protectedItems
+            name: VM;iaasvmcontainerv2;rshhtestmdvmrg;rshmdvmsmall
+          - type: recoveryPoints
+            name: 26083826328862

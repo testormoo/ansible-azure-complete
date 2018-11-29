@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: ImportImageFromPublicRegistry
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/importImage
+        resource_group: myResourceGroup
+        provider: ContainerRegistry
+        resource_type: registries
+        resource_name: myRegistry
+        subresource:
+          - type: importImage
+        body:
+          source:
+            registryUri: registry.hub.docker.com
+            sourceImage: library/hello-world
+          targetTags:
+          untaggedTargetRepositories:
+          mode: Force

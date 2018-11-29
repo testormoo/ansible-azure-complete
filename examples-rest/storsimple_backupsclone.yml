@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: BackupsClone
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/backups/{backupName}/elements/{elementName}/clone
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-4XY4FI2IVG
+          - type: backups
+            name: 58d33025-e837-41cc-b15f-7c85ced64aab
+          - type: elements
+            name: 2304968f-91af-4f59-8b79-31e321eee40e
+          - type: clone
+        body:

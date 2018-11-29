@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: CreateProject
+      azure_rm_resource:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces/{workspaceName}/projects/{projectName}
+        resource_group: myResourceGroup
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: testaccount
+        subresource:
+          - type: workspaces
+            name: testworkspace
+          - type: projects
+            name: testProject
+        body:
+          tags:
+            tagKey1: TagValue1
+          location: East US
+          properties:
+            friendlyName: testName
+            gitrepo: https://github/abc

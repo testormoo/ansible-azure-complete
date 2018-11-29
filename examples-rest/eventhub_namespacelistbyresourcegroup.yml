@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: NamespaceListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces

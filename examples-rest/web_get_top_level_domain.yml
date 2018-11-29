@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Get Top Level Domain
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DomainRegistration/topLevelDomains/{name}
+        provider: DomainRegistration
+        resource_type: topLevelDomains
+        resource_name: com

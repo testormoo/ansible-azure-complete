@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get Metric Definitions without filter
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/metricDefinitions
+        provider: insights
+        resource_type: metricDefinitions

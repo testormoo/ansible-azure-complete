@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: CloudEndpoints_PostBackup
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}/syncGroups/{syncGroupName}/cloudEndpoints/{cloudEndpointName}/postbackup
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        subresource:
+          - type: syncGroups
+            name: SampleSyncGroup_1
+          - type: cloudEndpoints
+            name: SampleCloudEndpoint_1
+          - type: postbackup
+        body:
+          azureFileShare: https://sampleserver.file.core.test-cint.azure-test.net/sampleFileShare

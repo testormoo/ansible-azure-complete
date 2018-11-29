@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: PipelineRuns_Cancel
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/pipelineruns/{runId}/cancel
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: pipelineruns
+            name: 16ac5348-ff82-4f95-a80d-638c1d47b721
+          - type: cancel
+        body:

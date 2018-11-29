@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Security/locations/{ascLocation}/tasks/{taskName}
+        resource_group: myRg
+        provider: Security
+        resource_type: locations
+        resource_name: westeurope
+        subresource:
+          - type: tasks
+            name: d55b4dc0-779c-c66c-33e5-d7bce24c4222

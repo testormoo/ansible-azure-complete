@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: DatabaseList
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/databases
+        resource_group: TestGroup
+        provider: DBforMySQL
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Check for a server name that already exists
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/checkNameAvailability
+        provider: Sql
+        resource_type: checkNameAvailability
+        body:
+          name: server1
+          type: Microsoft.Sql/servers

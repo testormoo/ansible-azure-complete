@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Enable the receiver
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/actionGroups/{actionGroupName}/subscribe
+        resource_group: Default-NotificationRules
+        provider: insights
+        resource_type: actionGroups
+        resource_name: SampleActionGroup
+        subresource:
+          - type: subscribe
+        body:

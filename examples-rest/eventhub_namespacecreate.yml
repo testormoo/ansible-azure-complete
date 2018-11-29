@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: NamespaceCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5849
+        body:
+          sku:
+            name: Standard
+            tier: Standard
+          location: South Central US
+          tags:
+            tag1: value1
+            tag2: value2

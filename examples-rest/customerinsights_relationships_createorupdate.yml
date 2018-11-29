@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Relationships_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/relationships/{relationshipName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: relationships
+            name: SomeRelationship
+        body:
+          properties:
+            cardinality: OneToOne
+            displayName:
+              en-us: Relationship DisplayName
+            description:
+              en-us: Relationship Description
+            fields:
+            profileType: testProfile2326994
+            relatedProfileType: testProfile2326994

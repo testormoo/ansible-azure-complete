@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Begins the delete process for the Data Lake Analytics account object specified by the account name.
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        body:

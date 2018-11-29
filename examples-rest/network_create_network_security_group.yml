@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create network security group
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkSecurityGroups/{networkSecurityGroupName}
+        resource_group: rg1
+        provider: Network
+        resource_type: networkSecurityGroups
+        resource_name: testnsg
+        body:

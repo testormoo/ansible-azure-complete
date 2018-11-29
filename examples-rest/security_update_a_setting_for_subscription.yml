@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/settings/{settingName}
+        provider: Security
+        resource_type: settings
+        resource_name: MCAS
+        body:

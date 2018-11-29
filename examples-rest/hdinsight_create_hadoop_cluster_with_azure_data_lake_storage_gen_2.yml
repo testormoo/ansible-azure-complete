@@ -1,0 +1,59 @@
+- hosts: localhost
+  tasks:
+    - name: Create Hadoop cluster with Azure Data Lake Storage Gen 2
+      azure_rm_resource:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        body:
+          tags:
+            key1: val1
+          properties:
+            clusterVersion: 3.6
+            osType: Linux
+            tier: Standard
+            clusterDefinition:
+              kind: Hadoop
+              configurations:
+                gateway:
+                  restAuthCredential.isEnabled: true
+                  restAuthCredential.username: admin
+                  restAuthCredential.password: **********
+            storageProfile:
+              storageaccounts:
+                - name: mystorage.dfs.core.windows.net
+                  isDefault: True
+                  fileSystem: default
+                  key: storagekey
+            computeProfile:
+              roles:
+                - name: headnode
+                  minInstanceCount: 1
+                  targetInstanceCount: 2
+                  hardwareProfile:
+                    vmSize: Standard_D3_V2
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********
+                - name: workernode
+                  minInstanceCount: 1
+                  targetInstanceCount: 4
+                  hardwareProfile:
+                    vmSize: Standard_D3_V2
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********
+                - name: zookeepernode
+                  minInstanceCount: 1
+                  targetInstanceCount: 3
+                  hardwareProfile:
+                    vmSize: Small
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********

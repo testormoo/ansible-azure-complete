@@ -1,0 +1,54 @@
+- hosts: localhost
+  tasks:
+    - name: Get Managed Cluster
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}/accessProfiles/{roleName}/listCredential
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1
+        subresource:
+          - type: accessProfiles
+            name: clusterUser
+          - type: listCredential
+        body:
+- hosts: localhost
+  tasks:
+    - name: Get Managed Cluster
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}/listClusterAdminCredential
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1
+        subresource:
+          - type: listClusterAdminCredential
+        body:
+- hosts: localhost
+  tasks:
+    - name: Get Managed Cluster
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}/listClusterUserCredential
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1
+        subresource:
+          - type: listClusterUserCredential
+        body:
+- hosts: localhost
+  tasks:
+    - name: Get Managed Cluster
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/managedClusters/{resourceName}
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: managedClusters
+        resource_name: clustername1

@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: VirtualMachineRunCommandList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/runCommands
+        provider: Compute
+        resource_type: locations
+        resource_name: SoutheastAsia
+        subresource:
+          - type: runCommands

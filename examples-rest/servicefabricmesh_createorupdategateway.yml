@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: CreateOrUpdateGateway
+      azure_rm_resource:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceFabricMesh/gateways/{gatewayResourceName}
+        resource_group: sbz_demo
+        provider: ServiceFabricMesh
+        resource_type: gateways
+        resource_name: sampleGateway
+        body:

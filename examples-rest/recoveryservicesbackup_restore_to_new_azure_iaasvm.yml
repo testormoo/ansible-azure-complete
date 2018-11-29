@@ -1,0 +1,37 @@
+- hosts: localhost
+  tasks:
+    - name: Restore to New Azure IaasVm
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}/recoveryPoints/{recoveryPointId}/restore
+        resource_group: netsdktestrg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: IaasVMContainer;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: protectedItems
+            name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: recoveryPoints
+            name: 348916168024334
+          - type: restore
+        body:
+          properties:
+            objectType: IaasVMRestoreRequest
+            recoveryPointId: 348916168024334
+            recoveryType: AlternateLocation
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg/providers/Microsoft.Compute/virtualMachines/netvmtestv2vm1
+            targetVirtualMachineId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg2/providers/Microsoft.Compute/virtualmachines/RSMDALRVM981435
+            targetResourceGroupId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg2
+            storageAccountId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRg/providers/Microsoft.Storage/storageAccounts/testingAccount
+            virtualNetworkId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRg/providers/Microsoft.Network/virtualNetworks/testNet
+            subnetId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRg/providers/Microsoft.Network/virtualNetworks/testNet/subnets/default
+            region: southeastasia
+            createNewCloudService: False
+            originalStorageAccountOption: False
+            encryptionDetails:
+              encryptionEnabled: False

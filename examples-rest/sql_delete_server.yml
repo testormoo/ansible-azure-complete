@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete server
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6661
+        body:

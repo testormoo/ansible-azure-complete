@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: DisasterRecoveryConfigsAuthorizationRuleListKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/disasterRecoveryConfigs/{alias}/AuthorizationRules/{authorizationRuleName}/listKeys
+        resource_group: exampleResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-2702
+        subresource:
+          - type: disasterRecoveryConfigs
+            name: sdk-DisasterRecovery-4047
+          - type: AuthorizationRules
+            name: sdk-Authrules-1746
+          - type: listKeys
+        body:

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Services_GetProperties
+      azure_rm_resource_facts:
+        api_version: '2018-02-16-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.WindowsIoT/deviceServices/{deviceName}
+        resource_group: res9407
+        provider: WindowsIoT
+        resource_type: deviceServices
+        resource_name: service8596

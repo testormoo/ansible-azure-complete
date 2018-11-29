@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Create virtual network with subnet
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkName}
+        resource_group: rg1
+        provider: Network
+        resource_type: virtualNetworks
+        resource_name: test-vnet
+        body:
+          properties:
+            addressSpace:
+              addressPrefixes:
+            subnets:
+              - name: test-1
+                properties:
+                  addressPrefix: 10.0.0.0/24

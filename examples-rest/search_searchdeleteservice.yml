@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: SearchDeleteService
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-08-19'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Search/searchServices/{searchServiceName}
+        resource_group: rg1
+        provider: Search
+        resource_type: searchServices
+        resource_name: mysearchservice
+        body:

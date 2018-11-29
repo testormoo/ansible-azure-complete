@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Updates the specified Data Lake Store account information
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts/{accountName}
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts
+        resource_name: contosoadla
+        body:
+          tags:
+            test_key: test_value
+          properties:
+            firewallState: Enabled
+            trustedIdProviderState: Enabled
+            defaultGroup: test_default_group
+            newTier: Consumption
+            firewallAllowAzureIps: Enabled
+            encryptionConfig:
+              keyVaultMetaInfo:
+                encryptionKeyVersion: encryption_key_version

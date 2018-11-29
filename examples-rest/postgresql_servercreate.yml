@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: ServerCreate
+      azure_rm_resource:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforPostgreSQL/servers/{serverName}
+        resource_group: TestGroup
+        provider: DBforPostgreSQL
+        resource_type: servers
+        resource_name: testserver
+        body:
+          location: OneBox
+          properties:
+            administratorLogin: cloudsa
+            administratorLoginPassword: password
+            storageMB: 1024
+            sslEnforcement: Enabled
+            createMode: Default
+          sku:
+            name: SkuName
+            tier: Basic
+            capacity: 100
+          tags:
+            ElasticServer: 1

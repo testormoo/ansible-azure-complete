@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get managed instance
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}
+        resource_group: testrg
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: testcl

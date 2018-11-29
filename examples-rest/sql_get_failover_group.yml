@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: Get failover group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/failoverGroups/{failoverGroupName}
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: failover-group-primary-server
+        subresource:
+          - type: failoverGroups
+            name: failover-group-test
+- hosts: localhost
+  tasks:
+    - name: Get failover group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/locations/{locationName}/instanceFailoverGroups/{failoverGroupName}
+        resource_group: Default
+        provider: Sql
+        resource_type: locations
+        resource_name: Japan East
+        subresource:
+          - type: instanceFailoverGroups
+            name: failover-group-test

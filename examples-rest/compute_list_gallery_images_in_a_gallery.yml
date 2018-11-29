@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List gallery images in a gallery.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/galleries/{galleryName}/images
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: galleries
+        resource_name: myGalleryName
+        subresource:
+          - type: images

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: UpdateAccount
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Maps/accounts/{accountName}
+        resource_group: myResourceGroup
+        provider: Maps
+        resource_type: accounts
+        resource_name: myMapsAccount
+        body:

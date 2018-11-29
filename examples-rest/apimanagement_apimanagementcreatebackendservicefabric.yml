@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateBackendServiceFabric
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/backends/{backendid}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: backends
+            name: sfbackend
+        body:
+          properties:
+            description: Service Fabric Test App 1
+            protocol: http
+            url: fabric:/mytestapp/mytestservice
+            properties:
+              serviceFabricCluster:
+                managementEndpoints:
+                clientCertificatethumbprint: EBA029198AA3E76EF0D70482626E5BCF148594A6
+                serverX509Names:
+                  - name: ServerCommonName1
+                    issuerCertificateThumbprint: IssuerCertificateThumbprint1
+                maxPartitionResolutionRetries: 5

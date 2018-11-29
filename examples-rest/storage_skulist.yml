@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: SkuList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Storage/skus
+        provider: Storage
+        resource_type: skus

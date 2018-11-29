@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: DPSCheckName
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-22'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Devices/checkProvisioningServiceNameAvailability
+        provider: Devices
+        resource_type: checkProvisioningServiceNameAvailability
+        body:

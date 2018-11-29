@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Profile-DELETE
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}
+        resource_group: azuresdkfornetautoresttrafficmanager1323
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azuresdkfornetautoresttrafficmanager3880
+        body:

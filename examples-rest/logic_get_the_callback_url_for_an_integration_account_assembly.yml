@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Get the callback url for an integration account assembly
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/assemblies/{assemblyArtifactName}/listContentCallbackUrl
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: assemblies
+            name: testAssembly
+          - type: listContentCallbackUrl
+        body:

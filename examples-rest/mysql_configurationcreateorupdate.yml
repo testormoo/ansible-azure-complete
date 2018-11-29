@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ConfigurationCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/configurations/{configurationName}
+        resource_group: TestGroup
+        provider: DBforMySQL
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: configurations
+            name: event_scheduler
+        body:
+          properties:
+            value: ON
+            source: user-override

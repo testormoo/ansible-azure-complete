@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Enable Protection on Azure IaasVm
+      azure_rm_resource:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: IaasVMContainer;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+          - type: protectedItems
+            name: VM;iaasvmcontainerv2;netsdktestrg;netvmtestv2vm1
+        body:
+          properties:
+            protectedItemType: Microsoft.Compute/virtualMachines
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg/providers/Microsoft.Compute/virtualMachines/netvmtestv2vm1
+            policyId: /Subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/SwaggerTestRg/providers/Microsoft.RecoveryServices/vaults/NetSDKTestRsVault/backupPolicies/DefaultPolicy

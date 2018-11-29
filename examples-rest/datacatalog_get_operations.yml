@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get Operations
+      azure_rm_resource_facts:
+        api_version: '2016-03-30'
+        # url: /providers/Microsoft.DataCatalog/operations
+        provider: DataCatalog
+        resource_type: operations

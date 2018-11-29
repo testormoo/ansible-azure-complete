@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: KustoClustersCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2018-09-07-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Kusto/clusters/{clusterName}
+        resource_group: kustorptest
+        provider: Kusto
+        resource_type: clusters
+        resource_name: KustoClusterRPTest4
+        body:
+          location: westus
+          sku:
+            name: L8
+            capacity: 2
+            tier: Standard

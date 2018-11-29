@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Lists all of the Jobs for the Transform.
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/transforms/{transformName}/jobs
+        resource_group: contosoresources
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: transforms
+            name: exampleTransform
+          - type: jobs

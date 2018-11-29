@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Lists all of the available Data Lake Analytics REST API operations
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /providers/Microsoft.DataLakeAnalytics/operations
+        provider: DataLakeAnalytics
+        resource_type: operations

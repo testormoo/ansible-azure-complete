@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get a workspace
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Databricks/workspaces/{workspaceName}
+        resource_group: rg
+        provider: Databricks
+        resource_type: workspaces
+        resource_name: myWorkspace

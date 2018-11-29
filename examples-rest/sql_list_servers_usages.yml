@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List servers usages
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/usages
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: usages

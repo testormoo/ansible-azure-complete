@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: TopicTypes_ListEventTypes
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /providers/Microsoft.EventGrid/topicTypes/{topicTypeName}/eventTypes
+        provider: EventGrid
+        resource_type: topicTypes
+        resource_name: Microsoft.Storage.StorageAccounts
+        subresource:
+          - type: eventTypes

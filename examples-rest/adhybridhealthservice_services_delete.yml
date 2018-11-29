@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: services_delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleServiceName
+        body:

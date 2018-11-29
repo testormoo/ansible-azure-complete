@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a server communication link
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/communicationLinks/{communicationLinkName}
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-4645
+        subresource:
+          - type: communicationLinks
+            name: link1

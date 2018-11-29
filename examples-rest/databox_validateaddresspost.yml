@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: ValidateAddressPost
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataBox/locations/{location}/validateAddress
+        provider: DataBox
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: validateAddress
+        body:

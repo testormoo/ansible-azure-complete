@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a new managed database by restoring from an external backup
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/managedInstances/{managedInstanceName}/databases/{databaseName}
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: managedInstances
+        resource_name: managedInstance
+        subresource:
+          - type: databases
+            name: managedDatabase
+        body:
+          properties:
+            createMode: RestoreExternalBackup
+            storageContainerUri: https://myaccountname.blob.core.windows.net/backups
+            storageContainerSasToken: sv=2015-12-11&sr=c&sp=rl&sig=1234
+            collation: SQL_Latin1_General_CP1_CI_AS
+          location: southeastasia

@@ -1,0 +1,64 @@
+- hosts: localhost
+  tasks:
+    - name: MarketplacesListForBillingPeriod
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: billingPeriods
+        resource_name: 201801
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesListForBillingPeriod
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201702
+          - type: providers
+        provider: Consumption
+          - type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesListForBillingPeriod
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/departments/{departmentId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: departments
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201702
+          - type: providers
+        provider: Consumption
+          - type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesListForBillingPeriod
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/enrollmentAccounts/{enrollmentAccountId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: enrollmentAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201702
+          - type: providers
+        provider: Consumption
+          - type: marketplaces

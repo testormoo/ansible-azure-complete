@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a firewall rule
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/firewallRules/{firewallRuleName}
+        resource_group: firewallrulecrudtest-9886
+        provider: Sql
+        resource_type: servers
+        resource_name: firewallrulecrudtest-2368
+        subresource:
+          - type: firewallRules
+            name: firewallrulecrudtest-7011
+        body:

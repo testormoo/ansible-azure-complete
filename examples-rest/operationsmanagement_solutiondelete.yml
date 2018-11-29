@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: SolutionDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationsManagement/solutions/{solutionName}
+        provider: OperationsManagement
+        resource_type: solutions
+        resource_name: solution1
+        body:
+- hosts: localhost
+  tasks:
+    - name: SolutionDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{providerName}/{resourceType}/{resourceName}/providers/Microsoft.OperationsManagement/ManagementAssociations/{managementAssociationName}
+        provider: OperationsManagement
+        resource_type: ManagementAssociations
+        resource_name:
+        body:

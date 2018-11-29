@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/openShiftManagedClusters/{resourceName}
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: openShiftManagedClusters
+        resource_name: clustername1
+        body:
+          tags:
+            tier: testing
+            archv3:

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: LinkedServicesCreate
+      azure_rm_resource:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/linkedServices/{linkedServiceName}
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: TestLinkWS
+        subresource:
+          - type: linkedServices
+            name: TestLinkWS/Automation
+        body:
+          properties:
+            resourceId: /subscriptions/00000000-0000-0000-0000-00000000000/resourceGroups/mms-eus/providers/Microsoft.Automation/automationAccounts/testAccount

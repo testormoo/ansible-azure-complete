@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a server's threat detection policy
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
+        resource_group: securityalert-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: securityalert-6440
+        subresource:
+          - type: securityAlertPolicies
+            name: Default

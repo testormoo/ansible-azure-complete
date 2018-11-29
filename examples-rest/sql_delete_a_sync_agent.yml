@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a sync agent
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/syncAgents/{syncAgentName}
+        resource_group: syncagentcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncagentcrud-8475
+        subresource:
+          - type: syncAgents
+            name: syncagentcrud-3187
+        body:

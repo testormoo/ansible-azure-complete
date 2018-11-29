@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Gets Replication usages of vault
+      azure_rm_resource_facts:
+        api_version: '2016-06-01'
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/replicationUsages
+        resource_group: avrai7517RG1
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: avrai7517Vault1
+        subresource:
+          - type: replicationUsages

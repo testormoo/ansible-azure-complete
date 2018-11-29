@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get Account
+      azure_rm_resource_facts:
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts
+        resource_name: testAccount

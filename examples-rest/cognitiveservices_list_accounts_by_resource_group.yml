@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List Accounts by Resource Group
+      azure_rm_resource_facts:
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts

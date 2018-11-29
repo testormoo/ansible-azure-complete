@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List App Service plans
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Web/serverfarms
+        provider: Web
+        resource_type: serverfarms

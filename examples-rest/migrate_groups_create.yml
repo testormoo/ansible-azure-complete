@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Groups_Create
+      azure_rm_resource:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Migrate/projects/{projectName}/groups/{groupName}
+        resource_group: myResourceGroup
+        provider: Migrate
+        resource_type: projects
+        resource_name: project01
+        subresource:
+          - type: groups
+            name: group01
+        body:

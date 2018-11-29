@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Domains_RegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventGrid/domains/{domainName}/regenerateKey
+        resource_group: examplerg
+        provider: EventGrid
+        resource_type: domains
+        resource_name: exampledomain2
+        subresource:
+          - type: regenerateKey
+        body:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Check for a server name that is invalid
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/checkNameAvailability
+        provider: Sql
+        resource_type: checkNameAvailability
+        body:
+          name: SERVER1
+          type: Microsoft.Sql/servers

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get a blob output with CSV serialization
+      azure_rm_resource_facts:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/outputs/{outputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj900
+        subresource:
+          - type: outputs
+            name: output1623

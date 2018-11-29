@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Create Account
+      azure_rm_resource:
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts
+        resource_name: testAccount
+        body:
+          location: West US
+          kind: Face
+          sku:
+            name: S0
+          properties:

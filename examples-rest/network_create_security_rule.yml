@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Create security rule
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/networkSecurityGroups/{networkSecurityGroupName}/securityRules/{securityRuleName}
+        resource_group: rg1
+        provider: Network
+        resource_type: networkSecurityGroups
+        resource_name: testnsg
+        subresource:
+          - type: securityRules
+            name: rule1
+        body:

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: AlertsClear
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/clearAlerts
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hManagerForSDKTest4
+        subresource:
+          - type: clearAlerts
+        body:

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: List IntegrationAccount callback URL
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/listCallbackUrl
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: listCallbackUrl
+        body:
+          notAfter: 2017-03-05T08:00:00Z
+          keyType: Primary

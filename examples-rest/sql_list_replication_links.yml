@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List Replication links
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/replicationLinks
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6440
+        subresource:
+          - type: databases
+            name: testdb
+          - type: replicationLinks

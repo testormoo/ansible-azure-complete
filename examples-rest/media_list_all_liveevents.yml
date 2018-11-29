@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List all LiveEvents
+      azure_rm_resource_facts:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/liveEvents
+        resource_group: mediaresources
+        provider: Media
+        resource_type: mediaservices
+        resource_name: slitestmedia10
+        subresource:
+          - type: liveEvents

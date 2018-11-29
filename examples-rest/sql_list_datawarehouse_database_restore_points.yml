@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List datawarehouse database restore points.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/restorePoints
+        resource_group: Default-SQL-SouthEastAsia
+        provider: Sql
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: testDatabase
+          - type: restorePoints

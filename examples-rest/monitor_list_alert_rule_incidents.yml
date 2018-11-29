@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: List alert rule incidents
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/alertrules/{ruleName}/incidents
+        provider: insights
+        resource_type: alertrules
+        resource_name: myRuleName
+        subresource:
+          - type: incidents

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update specific Backend Pool
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/frontDoors/{frontDoorName}/backendPools/{backendPoolName}
+        resource_group: rg1
+        provider: Network
+        resource_type: frontDoors
+        resource_name: frontDoor1
+        subresource:
+          - type: backendPools
+            name: backendPool1
+        body:

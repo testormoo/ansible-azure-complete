@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountCheckNameExists
+      azure_rm_resource:
+        method: HEAD
+        api_version: '2015-04-08'
+        # url: /providers/Microsoft.DocumentDB/databaseAccountNames/{accountName}
+        provider: DocumentDB
+        resource_type: databaseAccountNames
+        resource_name: ddb1
+        body:

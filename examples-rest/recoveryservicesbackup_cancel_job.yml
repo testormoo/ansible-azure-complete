@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Cancel Job
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupJobs/{jobName}/cancel
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupJobs
+            name: 00000000-0000-0000-0000-000000000000
+          - type: cancel
+        body:

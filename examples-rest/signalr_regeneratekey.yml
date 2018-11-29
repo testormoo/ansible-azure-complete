@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: RegenerateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.SignalRService/SignalR/{resourceName}/regenerateKey
+        resource_group: myResourceGroup
+        provider: SignalRService
+        resource_type: SignalR
+        resource_name: mySignalRService
+        subresource:
+          - type: regenerateKey
+        body:
+          keyType: Primary

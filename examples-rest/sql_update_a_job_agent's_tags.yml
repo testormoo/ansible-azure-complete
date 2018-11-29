@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Update a job agent's tags.
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+        body:
+          tags:
+            mytag1: myvalue1

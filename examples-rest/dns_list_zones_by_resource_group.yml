@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: List zones by resource group
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+- hosts: localhost
+  tasks:
+    - name: List zones by resource group
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/getDnsResourceReference
+        provider: Network
+        resource_type: getDnsResourceReference
+        body:
+          targetResources:
+            - id: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/trafficManagerProfiles/testpp2

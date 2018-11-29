@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: RegionsListBySkuBasic
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.EventHub/sku/{sku}/regions
+        provider: EventHub
+        resource_type: sku
+        resource_name: Basic
+        subresource:
+          - type: regions

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Apps_SubdomainAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.IoTCentral/checkSubdomainAvailability
+        provider: IoTCentral
+        resource_type: checkSubdomainAvailability
+        body:

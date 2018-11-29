@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: LocationCheckNameAvailability_AlreadyExists
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Migrate/locations/{locationName}/checkNameAvailability
+        provider: Migrate
+        resource_type: locations
+        resource_name: eastus
+        subresource:
+          - type: checkNameAvailability
+        body:
+          name: existingprojectname
+          type: Microsoft.Migrate/projects

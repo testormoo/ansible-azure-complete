@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: List ResourceHealthMetadata for a site
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{name}/resourceHealthMetadata
+        resource_group: Default-Web-NorthCentralUS
+        provider: Web
+        resource_type: sites
+        resource_name: newsiteinnewASE-NCUS
+        subresource:
+          - type: resourceHealthMetadata
+- hosts: localhost
+  tasks:
+    - name: List ResourceHealthMetadata for a site
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{name}/slots/{slot}/resourceHealthMetadata
+        resource_group: Default-Web-NorthCentralUS
+        provider: Web
+        resource_type: sites
+        resource_name: newsiteinnewASE-NCUS
+        subresource:
+          - type: slots
+            name: Production
+          - type: resourceHealthMetadata

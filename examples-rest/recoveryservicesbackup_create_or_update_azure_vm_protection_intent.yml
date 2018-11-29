@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Create or Update Azure Vm Protection Intent
+      azure_rm_resource:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/backupProtectionIntent/{intentObjectName}
+        resource_group: myRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: myVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: backupProtectionIntent
+            name: vm;iaasvmcontainerv2;chamsrgtest;chamscandel
+        body:
+          properties:
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/chamsrgtest/providers/Microsoft.Compute/virtualMachines/chamscandel
+            protectionIntentItemType: AzureResourceItem
+            friendlyName: oneboxTestVmIntent
+            policyId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRG/providers/Microsoft.RecoveryServices/vaults/myVault/backupPolicies/myPolicy

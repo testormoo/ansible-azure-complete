@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Get virtual machine scale set network interface
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/virtualMachines/{virtualmachineIndex}/networkInterfaces/{networkInterfaceName}
+        resource_group: rg1
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: vmss1
+        subresource:
+          - type: virtualMachines
+            name: 1
+          - type: networkInterfaces
+            name: nic1
+- hosts: localhost
+  tasks:
+    - name: Get virtual machine scale set network interface
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/virtualMachines/{virtualmachineIndex}/networkInterfaces/{networkInterfaceName}/ipConfigurations/{ipConfigurationName}
+        resource_group: rg1
+        provider: Compute
+        resource_type: virtualMachineScaleSets
+        resource_name: vmss1
+        subresource:
+          - type: virtualMachines
+            name: 2
+          - type: networkInterfaces
+            name: nic1
+          - type: ipConfigurations
+            name: ip1

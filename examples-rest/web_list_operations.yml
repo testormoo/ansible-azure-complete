@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: List operations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.CertificateRegistration/operations
+        provider: CertificateRegistration
+        resource_type: operations
+- hosts: localhost
+  tasks:
+    - name: List operations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.DomainRegistration/operations
+        provider: DomainRegistration
+        resource_type: operations
+- hosts: localhost
+  tasks:
+    - name: List operations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.Web/operations
+        provider: Web
+        resource_type: operations

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List available operations for the Time Series Insights resource provider
+      azure_rm_resource_facts:
+        api_version: '2017-11-15'
+        # url: /providers/Microsoft.TimeSeriesInsights/operations
+        provider: TimeSeriesInsights
+        resource_type: operations

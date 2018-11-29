@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateApiVersionSet
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/api-version-sets/{versionSetId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: api-version-sets
+            name: api1
+        body:
+          properties:
+            displayName: api set 1
+            versioningScheme: Segment
+            description: Version configuration

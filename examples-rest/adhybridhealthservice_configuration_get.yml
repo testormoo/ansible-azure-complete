@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: configuration_get
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/configuration
+        provider: ADHybridHealthService
+        resource_type: configuration

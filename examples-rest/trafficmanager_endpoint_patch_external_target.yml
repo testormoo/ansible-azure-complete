@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Endpoint-PATCH-External-Target
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}/{endpointType}/{endpointName}
+        resource_group: azuresdkfornetautoresttrafficmanager1421
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azsmnet6386
+            name: ExternalEndpoints
+            name: azsmnet7187
+        body:
+          id: /subscriptions/{subscription-id}/resourceGroups/azuresdkfornetautoresttrafficmanager1421/providers/Microsoft.Network/trafficManagerProfiles/azsmnet6386/externalEndpoints/azsmnet7187
+          name: azsmnet7187
+          type: Microsoft.Network/trafficManagerProfiles/externalEndpoints
+          properties:
+            target: another.foobar.contoso.com

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: EHAliasList
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/disasterRecoveryConfigs
+        resource_group: exampleResourceGroup
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-8859
+        subresource:
+          - type: disasterRecoveryConfigs

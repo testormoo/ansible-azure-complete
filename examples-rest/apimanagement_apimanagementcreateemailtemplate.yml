@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateEmailTemplate
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/templates/{templateName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: templates
+            name: newIssueNotificationMessage
+        body:
+          properties:
+            subject: Your request for $IssueName was successfully received.

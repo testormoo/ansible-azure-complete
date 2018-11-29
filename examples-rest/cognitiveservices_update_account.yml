@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Update Account
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-04-18'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}
+        resource_group: contosorg
+        provider: CognitiveServices
+        resource_type: accounts
+        resource_name: testAccount
+        body:
+          sku:
+            name: S0

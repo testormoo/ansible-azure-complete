@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: JobsGet
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/jobs/{jobName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-ARCSX4MVKZ
+          - type: jobs
+            name: 06c7ee19-35a2-4248-bf1b-408009b31b63

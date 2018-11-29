@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Managed Clusters
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ContainerService/managedClusters
+        provider: ContainerService
+        resource_type: managedClusters

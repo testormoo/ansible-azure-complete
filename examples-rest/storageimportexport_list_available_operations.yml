@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List available operations
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /providers/Microsoft.ImportExport/operations
+        provider: ImportExport
+        resource_type: operations

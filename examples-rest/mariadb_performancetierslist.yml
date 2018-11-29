@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: PerformanceTiersList
+      azure_rm_resource_facts:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DBforMariaDB/locations/{locationName}/performanceTiers
+        provider: DBforMariaDB
+        resource_type: locations
+        resource_name: WestUS
+        subresource:
+          - type: performanceTiers

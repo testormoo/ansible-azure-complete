@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List virtual network rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/virtualNetworkRules
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: vnet-test-svr
+        subresource:
+          - type: virtualNetworkRules

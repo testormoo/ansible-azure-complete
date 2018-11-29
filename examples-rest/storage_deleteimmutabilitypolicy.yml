@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: DeleteImmutabilityPolicy
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}/immutabilityPolicies/{immutabilityPolicyName}
+        resource_group: res1581
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto9621
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers
+            name: container4910
+          - type: immutabilityPolicies
+            name: default
+        body:

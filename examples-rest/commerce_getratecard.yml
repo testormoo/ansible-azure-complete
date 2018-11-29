@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: GetRateCard
+      azure_rm_resource_facts:
+        api_version: '2015-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Commerce/RateCard
+        provider: Commerce
+        resource_type: RateCard

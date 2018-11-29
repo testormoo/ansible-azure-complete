@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2017-04-19'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Advisor/configurations
+        provider: Advisor
+        resource_type: configurations
+- hosts: localhost
+  tasks:
+    - name: GetConfigurations
+      azure_rm_resource_facts:
+        api_version: '2017-04-19'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.Advisor/configurations
+        resource_group: resourceGroup
+        provider: Advisor
+        resource_type: configurations

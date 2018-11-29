@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get a restorable dropped database
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/restorableDroppedDatabases/{restorableDroppededDatabaseId}
+        resource_group: restorabledroppeddatabasetest-1257
+        provider: Sql
+        resource_type: servers
+        resource_name: restorabledroppeddatabasetest-2389
+        subresource:
+          - type: restorableDroppedDatabases
+            name: restorabledroppeddatabasetest-7654,131403269876900000

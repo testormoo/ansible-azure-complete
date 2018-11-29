@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: services_listMetricsSum
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/metrics/{metricName}/groups/{groupName}/sum
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleName
+        subresource:
+          - type: metrics
+            name: SampleMetricName
+          - type: groups
+            name: SampleGroupName
+          - type: sum

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List subnets
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkName}/subnets
+        resource_group: subnet-test
+        provider: Network
+        resource_type: virtualNetworks
+        resource_name: vnetname
+        subresource:
+          - type: subnets

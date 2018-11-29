@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces

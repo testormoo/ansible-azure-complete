@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: GetProject
+      azure_rm_resource_facts:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces/{workspaceName}/projects/{projectName}
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: accountcrud5678
+        subresource:
+          - type: workspaces
+            name: testworkspace
+          - type: projects
+            name: testProject

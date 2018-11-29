@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: ChangesForBillingPeriodByEnrollmentAccount
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/enrollmentAccounts/{enrollmentAccountId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/charges
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 1234
+        subresource:
+          - type: enrollmentAccounts
+            name: 42425
+          - type: providers
+        provider: Billing
+          - type: billingPeriods
+            name: 201804
+          - type: providers
+        provider: Consumption
+          - type: charges

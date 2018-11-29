@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: VnetGetUsage
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkName}/usages
+        resource_group: rg1
+        provider: Network
+        resource_type: virtualNetworks
+        resource_name: vnetName
+        subresource:
+          - type: usages

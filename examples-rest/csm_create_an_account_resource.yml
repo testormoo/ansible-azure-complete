@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Create an account resource
+      azure_rm_resource:
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{resourceName}
+        provider: visualstudio
+        resource_type: account
+        resource_name: Example
+        body:

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: StorageSyncServices_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorageSync/storageSyncServices/{storageSyncServiceName}
+        resource_group: SampleResourceGroup_1
+        provider: StorageSync
+        resource_type: storageSyncServices
+        resource_name: SampleStorageSyncService_1
+        body:
+          tags:
+            Environment: Test
+            Dept: IT
+          properties:

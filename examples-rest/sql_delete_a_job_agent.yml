@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a job agent
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+        body:

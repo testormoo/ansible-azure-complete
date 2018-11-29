@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Update a server's threat detection policy with minimal parameters
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
+        resource_group: securityalert-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: securityalert-6440
+        subresource:
+          - type: securityAlertPolicies
+            name: Default
+        body:
+          properties:
+            state: Disabled
+            emailAccountAdmins: True
+            storageAccountAccessKey: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+            storageEndpoint: https://mystorage.blob.core.windows.net

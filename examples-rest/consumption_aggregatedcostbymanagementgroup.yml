@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: AggregatedCostByManagementGroup
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Management/managementGroups/{managementGroupId}/providers/Microsoft.Consumption/aggregatedcost
+        provider: Management
+        resource_type: managementGroups
+        resource_name: managementGroupForTest
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: aggregatedcost

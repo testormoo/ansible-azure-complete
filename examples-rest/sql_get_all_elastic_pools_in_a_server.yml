@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get all elastic pools in a server
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools
+        resource_group: sqlcrudtest-2369
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-8069
+        subresource:
+          - type: elasticPools

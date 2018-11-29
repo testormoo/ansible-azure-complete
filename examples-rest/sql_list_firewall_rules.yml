@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List Firewall Rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/firewallRules
+        resource_group: firewallrulecrudtest-12
+        provider: Sql
+        resource_type: servers
+        resource_name: firewallrulecrudtest-6285
+        subresource:
+          - type: firewallRules

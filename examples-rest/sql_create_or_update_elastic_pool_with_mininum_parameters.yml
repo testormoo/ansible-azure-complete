@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update elastic pool with mininum parameters
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}
+        resource_group: sqlcrudtest-2369
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-8069
+        subresource:
+          - type: elasticPools
+            name: sqlcrudtest-8102
+        body:
+          location: Japan East

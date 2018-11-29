@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: List expression traces
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/runs/{runName}/actions/{actionName}/listExpressionTraces
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: workflows
+        resource_name: testFlow
+        subresource:
+          - type: runs
+            name: 08586776228332053161046300351
+          - type: actions
+            name: testAction
+          - type: listExpressionTraces
+        body:

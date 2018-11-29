@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: AddSubscriptionToManagementGroup
+      azure_rm_resource:
+        api_version: '2018-03-01-preview'
+        # url: /providers/Microsoft.Management/managementGroups/{groupId}/subscriptions/{subscriptionId}
+        provider: Management
+        resource_type: managementGroups
+        resource_name: Group
+        subresource:
+          - type: subscriptions
+            name: 728bcbe4-8d56-4510-86c2-4921b8beefbc
+        body:

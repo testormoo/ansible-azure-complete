@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Export logs which contain all Api requests made to Compute Resource Provider within the given time period broken down by intervals.
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/logAnalytics/apiAccess/getRequestRateByInterval
+        provider: Compute
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: logAnalytics
+          - type: apiAccess
+          - type: getRequestRateByInterval
+        body:
+          intervalLength: FiveMins
+          blobContainerSasUri: https://somesasuri
+          fromTime: 2018-01-21T01:54:06.862601Z
+          toTime: 2018-01-23T01:54:06.862601Z
+          groupByResourceName: True

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Domains_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventGrid/domains/{domainName}
+        resource_group: examplerg
+        provider: EventGrid
+        resource_type: domains
+        resource_name: exampledomain1
+        body:

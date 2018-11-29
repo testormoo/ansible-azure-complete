@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Endpoint-PUT-External-WithLocation
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}/{endpointType}/{endpointName}
+        resource_group: azuresdkfornetautoresttrafficmanager1421
+        provider: Network
+        resource_type: trafficmanagerprofiles
+        resource_name: azsmnet6386
+            name: ExternalEndpoints
+            name: azsmnet7187
+        body:
+          name: azsmnet7187
+          type: Microsoft.network/TrafficManagerProfiles/ExternalEndpoints
+          properties:
+            target: foobar.contoso.com
+            endpointStatus: Enabled
+            endpointLocation: North Europe

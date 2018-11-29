@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Services_Usages
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataMigration/locations/{location}/usages
+        provider: DataMigration
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: usages

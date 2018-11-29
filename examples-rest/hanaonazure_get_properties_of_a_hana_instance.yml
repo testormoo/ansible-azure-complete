@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get properties of a HANA instance
+      azure_rm_resource_facts:
+        api_version: '2017-11-03-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances/{hanaInstanceName}
+        resource_group: myResourceGroup
+        provider: HanaOnAzure
+        resource_type: hanaInstances
+        resource_name: myHanaInstance

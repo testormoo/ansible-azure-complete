@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Update an existing dedicated HSM
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-10-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs/{name}
+        resource_group: hsm-group
+        provider: HardwareSecurityModules
+        resource_type: dedicatedHSMs
+        resource_name: hsm1
+        body:
+          tags:
+            Dept: hsm
+            Environment: dogfood
+            Slice: A

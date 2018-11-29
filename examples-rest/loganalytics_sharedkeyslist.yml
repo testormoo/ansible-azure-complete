@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: SharedKeysList
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}/sharedKeys
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: TestLinkWS
+        subresource:
+          - type: sharedKeys
+        body:

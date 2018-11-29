@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace2924
+        body:
+          sku:
+            name: Standard
+            tier: Standard
+          location: South Central US
+          tags:
+            tag1: value1
+            tag2: value2

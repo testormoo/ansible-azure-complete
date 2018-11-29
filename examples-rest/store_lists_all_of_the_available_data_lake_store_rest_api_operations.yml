@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Lists all of the available Data Lake Store REST API operations
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /providers/Microsoft.DataLakeStore/operations
+        provider: DataLakeStore
+        resource_type: operations

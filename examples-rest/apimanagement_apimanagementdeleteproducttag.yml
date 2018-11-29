@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementDeleteProductTag
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}/products/{productId}/tags/{tagId}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        subresource:
+          - type: products
+            name: 59d5b28d1f7fab116c282650
+          - type: tags
+            name: 59d5b28e1f7fab116402044e
+        body:

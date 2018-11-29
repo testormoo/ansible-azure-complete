@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceIpFilterRuleGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/ipfilterrules/{ipFilterRuleName}
+        resource_group: ResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5232
+        subresource:
+          - type: ipfilterrules
+            name: sdk-IPFilterRules-7337

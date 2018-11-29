@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2018-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.SignalRService/SignalR/{resourceName}
+        resource_group: myResourceGroup
+        provider: SignalRService
+        resource_type: SignalR
+        resource_name: mySignalRService
+        body:
+          location: eastus
+          tags:
+            key1: value1
+          sku:
+            name: Standard_S1
+            tier: Standard
+            capacity: 1
+          properties:
+            hostNamePrefix:

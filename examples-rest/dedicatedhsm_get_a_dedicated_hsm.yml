@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get a dedicated HSM
+      azure_rm_resource_facts:
+        api_version: '2018-10-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs/{name}
+        resource_group: hsm-group
+        provider: HardwareSecurityModules
+        resource_type: dedicatedHSMs
+        resource_name: hsm1

@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a target group with minimal properties.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}/targetGroups/{targetGroupName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+          - type: targetGroups
+            name: targetGroup1
+        body:
+          properties:
+            members:

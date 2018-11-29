@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: MountTargets_Delete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-08-15'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}/providers/Microsoft.NetApp/netAppAccounts/{accountName}/pools/{poolName}/volumes/{volumeName}/mountTargets/{mountTargetName}
+        resource_group: resourceGroup
+        provider: NetApp
+        resource_type: netAppAccounts
+        resource_name: accountName
+        subresource:
+          - type: pools
+            name: poolName
+          - type: volumes
+            name: volumeName
+          - type: mountTargets
+            name: mountTargetName
+        body:

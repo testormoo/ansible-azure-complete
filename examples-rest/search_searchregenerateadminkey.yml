@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: SearchRegenerateAdminKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-08-19'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Search/searchServices/{searchServiceName}/regenerateAdminKey/{keyKind}
+        resource_group: rg1
+        provider: Search
+        resource_type: searchServices
+        resource_name: mysearchservice
+        subresource:
+          - type: regenerateAdminKey
+            name: primary
+        body:

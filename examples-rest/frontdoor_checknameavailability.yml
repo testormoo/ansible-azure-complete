@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: CheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /providers/Microsoft.Network/checkFrontDoorNameAvailability
+        provider: Network
+        resource_type: checkFrontDoorNameAvailability
+        body:

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: PriceSheetExpand
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/pricesheets/default
+        provider: Billing
+        resource_type: billingPeriods
+        resource_name: 201801
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: pricesheets
+          - type: default

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: GetEntities
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01-preview'
+        # url: /providers/Microsoft.Management/getEntities
+        provider: Management
+        resource_type: getEntities
+        body:

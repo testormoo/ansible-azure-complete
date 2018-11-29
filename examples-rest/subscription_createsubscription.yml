@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: createSubscription
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /providers/Microsoft.Billing/enrollmentAccounts/{enrollmentAccountName}/providers/Microsoft.Subscription/createSubscription
+        provider: Billing
+        resource_type: enrollmentAccounts
+        resource_name: 73f8ab6e-cfa0-42be-b886-be6e77c2980c
+        subresource:
+          - type: providers
+        provider: Subscription
+          - type: createSubscription
+        body:

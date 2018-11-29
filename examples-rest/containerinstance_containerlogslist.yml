@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ContainerLogsList
+      azure_rm_resource_facts:
+        api_version: '2017-10-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerInstance/containerGroups/{containerGroupName}/containers/{containerName}/logs
+        resource_group: demo
+        provider: ContainerInstance
+        resource_type: containerGroups
+        resource_name: demo1
+        subresource:
+          - type: containers
+            name: container1
+          - type: logs

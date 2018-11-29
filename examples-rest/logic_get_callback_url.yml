@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get callback url
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/listCallbackUrl
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: workflows
+        resource_name: testWorkflow
+        subresource:
+          - type: listCallbackUrl
+        body:

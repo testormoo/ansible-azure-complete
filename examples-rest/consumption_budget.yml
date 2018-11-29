@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Budget
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Consumption/budgets/{budgetName}
+        provider: Consumption
+        resource_type: budgets
+        resource_name: TestBudget
+- hosts: localhost
+  tasks:
+    - name: Budget
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Consumption/budgets/{budgetName}
+        resource_group: MYDEVTESTRG
+        provider: Consumption
+        resource_type: budgets
+        resource_name: TestBudget

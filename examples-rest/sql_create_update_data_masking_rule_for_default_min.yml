@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Create/Update data masking rule for default min
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/dataMaskingPolicies/{dataMaskingPolicyName}/rules/{dataMaskingRuleName}
+        resource_group: sqlcrudtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-2080
+        subresource:
+          - type: databases
+            name: sqlcrudtest-331
+          - type: dataMaskingPolicies
+            name: Default
+          - type: rules
+            name: rule1
+        body:
+          properties:
+            schemaName: dbo
+            tableName: Table_1
+            columnName: test1
+            maskingFunction: Default

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Update a Transform.
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/transforms/{transformName}
+        resource_group: contosoresources
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: transforms
+            name: transformToUpdate
+        body:
+          properties:
+            description: Example transform to illustrate update.

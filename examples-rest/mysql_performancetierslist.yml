@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: PerformanceTiersList
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DBforMySQL/performanceTiers
+        provider: DBforMySQL
+        resource_type: performanceTiers
+- hosts: localhost
+  tasks:
+    - name: PerformanceTiersList
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DBforMySQL/locations/{locationName}/performanceTiers
+        provider: DBforMySQL
+        resource_type: locations
+        resource_name: WestUS
+        subresource:
+          - type: performanceTiers

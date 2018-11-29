@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: InboundNatRuleCreate
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers/{loadBalancerName}/inboundNatRules/{inboundNatRuleName}
+        resource_group: testrg
+        provider: Network
+        resource_type: loadBalancers
+        resource_name: lb1
+        subresource:
+          - type: inboundNatRules
+            name: natRule1.1
+        body:

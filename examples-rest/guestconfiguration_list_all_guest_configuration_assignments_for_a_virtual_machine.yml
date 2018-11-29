@@ -1,0 +1,30 @@
+- hosts: localhost
+  tasks:
+    - name: List all guest configuration assignments for a virtual machine
+      azure_rm_resource_facts:
+        api_version: '2018-06-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments
+        resource_group: myResourceGroupName
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: myVMName
+        subresource:
+          - type: providers
+        provider: GuestConfiguration
+          - type: guestConfigurationAssignments
+- hosts: localhost
+  tasks:
+    - name: List all guest configuration assignments for a virtual machine
+      azure_rm_resource_facts:
+        api_version: '2018-06-30-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/{guestConfigurationAssignmentName}/reports
+        resource_group: myResourceGroupName
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: myVMName
+        subresource:
+          - type: providers
+        provider: GuestConfiguration
+          - type: guestConfigurationAssignments
+            name: AuditSecureProtocol
+          - type: reports

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: VirtualNetworkGatewaysListConnections
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/{virtualNetworkGatewayName}/connections
+        resource_group: testrg
+        provider: Network
+        resource_type: virtualNetworkGateways
+        resource_name: test-vpn-gateway-1
+        subresource:
+          - type: connections

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get information about a virtual machine image.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/images/{imageName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: images
+        resource_name: myImage

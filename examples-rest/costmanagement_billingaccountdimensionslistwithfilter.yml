@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: BillingAccountDimensionsListWithFilter
+      azure_rm_resource_facts:
+        api_version: '2018-05-31'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.CostManagement/dimensions
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 100
+        subresource:
+          - type: providers
+        provider: CostManagement
+          - type: dimensions

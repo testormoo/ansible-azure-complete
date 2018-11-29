@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ComponentsSummary_List
+      azure_rm_resource_facts:
+        api_version: '2018-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.WorkloadMonitor/componentsSummary
+        provider: WorkloadMonitor
+        resource_type: componentsSummary

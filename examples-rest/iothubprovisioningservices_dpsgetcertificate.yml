@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: DPSGetCertificate
+      azure_rm_resource_facts:
+        api_version: '2018-01-22'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Devices/provisioningServices/{provisioningServiceName}/certificates/{certificateName}
+        resource_group: myResourceGroup
+        provider: Devices
+        resource_type: provisioningServices
+        resource_name: myFirstProvisioningService
+        subresource:
+          - type: certificates
+            name: cert

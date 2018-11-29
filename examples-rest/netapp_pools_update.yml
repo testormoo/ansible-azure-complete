@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Pools_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2017-08-15'
+        # url: /subscriptions/{subscriptionId}/resourceGroup/{resourceGroup}/providers/Microsoft.NetApp/netAppAccounts/{accountName}/pools/{poolName}
+        provider: NetApp
+        resource_type: netAppAccounts
+        resource_name: accountName
+        subresource:
+          - type: pools
+            name: poolName
+        body:

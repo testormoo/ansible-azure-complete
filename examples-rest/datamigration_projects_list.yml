@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Projects_List
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services/{serviceName}/projects
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services
+        resource_name: DmsSdkService
+        subresource:
+          - type: projects

@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: SupportPlanTypes_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Addons/supportProviders/{providerName}/supportPlanTypes/{planTypeName}
+        provider: Addons
+        resource_type: supportProviders
+        resource_name: Canonical
+        subresource:
+          - type: supportPlanTypes
+            name: Standard
+        body:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete App Service plan
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/serverfarms/{name}
+        resource_group: testrg123
+        provider: Web
+        resource_type: serverfarms
+        resource_name: testsf6141
+        body:

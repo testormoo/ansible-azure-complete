@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: List SRV recordsets
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+        resource_name: zone1
+            name: SRV

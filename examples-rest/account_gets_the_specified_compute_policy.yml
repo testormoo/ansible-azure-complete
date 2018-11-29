@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Gets the specified compute policy
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/computePolicies/{computePolicyName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: computePolicies
+            name: test_policy

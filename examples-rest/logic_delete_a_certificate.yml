@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a certificate
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}/certificates/{certificateName}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        subresource:
+          - type: certificates
+            name: testCertificate
+        body:

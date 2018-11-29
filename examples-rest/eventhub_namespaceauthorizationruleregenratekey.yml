@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceAuthorizationRuleRegenrateKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/AuthorizationRules/{authorizationRuleName}/regenerateKeys
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-8980
+        subresource:
+          - type: AuthorizationRules
+            name: sdk-Authrules-8929
+          - type: regenerateKeys
+        body:
+          keyType: PrimaryKey

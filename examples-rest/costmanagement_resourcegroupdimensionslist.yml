@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ResourceGroupDimensionsList
+      azure_rm_resource_facts:
+        api_version: '2018-05-31'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CostManagement/dimensions
+        resource_group: system.orlando
+        provider: CostManagement
+        resource_type: dimensions

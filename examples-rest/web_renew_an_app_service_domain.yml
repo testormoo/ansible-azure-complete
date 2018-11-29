@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Renew an App Service Domain
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DomainRegistration/domains/{domainName}/renew
+        resource_group: RG
+        provider: DomainRegistration
+        resource_type: domains
+        resource_name: example.com
+        subresource:
+          - type: renew
+        body:

@@ -1,0 +1,70 @@
+- hosts: localhost
+  tasks:
+    - name: List database usage metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/metrics
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: databases
+            name: 3481
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: List database usage metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/metricDefinitions
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: databases
+            name: 3481
+          - type: metricDefinitions
+- hosts: localhost
+  tasks:
+    - name: List database usage metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}/metrics
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: elasticPools
+            name: 3481
+          - type: metrics
+- hosts: localhost
+  tasks:
+    - name: List database usage metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}/metricDefinitions
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: elasticPools
+            name: 3481
+          - type: metricDefinitions
+- hosts: localhost
+  tasks:
+    - name: List database usage metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/usages
+        resource_group: sqlcrudtest-6730
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-9007
+        subresource:
+          - type: databases
+            name: 3481
+          - type: usages

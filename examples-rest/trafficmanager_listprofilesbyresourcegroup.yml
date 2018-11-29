@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ListProfilesByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/trafficmanagerprofiles
+        resource_group: azuresdkfornetautoresttrafficmanager3640
+        provider: Network
+        resource_type: trafficmanagerprofiles

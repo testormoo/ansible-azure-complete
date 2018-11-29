@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ListOperations
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /providers/Microsoft.RecoveryServices/operations
+        provider: RecoveryServices
+        resource_type: operations

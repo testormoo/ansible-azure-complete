@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Get Protected Classic Virtual Machine Details
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/protectedItems/{protectedItemName}
+        resource_group: PythonSDKBackupTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: PySDKBackupTestRsVault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: iaasvmcontainer;iaasvmcontainer;iaasvm-rg;iaasvm-1
+          - type: protectedItems
+            name: vm;iaasvmcontainer;iaasvm-rg;iaasvm-1

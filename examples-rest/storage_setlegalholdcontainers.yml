@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: SetLegalHoldContainers
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}/setLegalHold
+        resource_group: res4303
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto7280
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers
+            name: container8723
+          - type: setLegalHold
+        body:

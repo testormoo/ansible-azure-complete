@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Assessments_ListByProject
+      azure_rm_resource_facts:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Migrate/projects/{projectName}/assessments
+        resource_group: myResourceGroup
+        provider: Migrate
+        resource_type: projects
+        resource_name: project01
+        subresource:
+          - type: assessments

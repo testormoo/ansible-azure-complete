@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: configuration_add
+      azure_rm_resource:
+        method: POST
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/configuration
+        provider: ADHybridHealthService
+        resource_type: configuration
+        body:

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: SearchGetService
+      azure_rm_resource_facts:
+        api_version: '2015-08-19'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Search/searchServices/{searchServiceName}
+        resource_group: rg1
+        provider: Search
+        resource_type: searchServices
+        resource_name: mysearchservice

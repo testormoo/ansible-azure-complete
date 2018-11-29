@@ -1,0 +1,28 @@
+- hosts: localhost
+  tasks:
+    - name: Create or Update Simple Azure Vm Protection Policy
+      azure_rm_resource:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupPolicies/{policyName}
+        resource_group: SwaggerTestRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: NetSDKTestRsVault
+        subresource:
+          - type: backupPolicies
+            name: testPolicy1
+        body:
+          properties:
+            backupManagementType: AzureIaasVM
+            timeZone: Pacific Standard Time
+            schedulePolicy:
+              schedulePolicyType: SimpleSchedulePolicy
+              scheduleRunFrequency: Daily
+              scheduleRunTimes:
+            retentionPolicy:
+              retentionPolicyType: LongTermRetentionPolicy
+              dailySchedule:
+                retentionTimes:
+                retentionDuration:
+                  count: 1
+                  durationType: Days

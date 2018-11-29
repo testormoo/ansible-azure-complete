@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: serviceMembers_listConnectors
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/service/{serviceName}/servicemembers/{serviceMemberId}/connectors
+        provider: ADHybridHealthService
+        resource_type: service
+        resource_name: sampleServiceName
+        subresource:
+          - type: servicemembers
+            name: SampleServiceMemberId
+          - type: connectors

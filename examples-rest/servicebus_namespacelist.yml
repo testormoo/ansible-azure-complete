@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceList
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ServiceBus/namespaces
+        provider: ServiceBus
+        resource_type: namespaces

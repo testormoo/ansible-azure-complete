@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerService/containerServices/{containerServiceName}
+        resource_group: rg1
+        provider: ContainerService
+        resource_type: containerServices
+        resource_name: acs1
+        body:
+          location: location1

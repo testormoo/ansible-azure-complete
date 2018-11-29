@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Content Key Policy with multiple options
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/contentKeyPolicies/{contentKeyPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: contentKeyPolicies
+            name: PolicyCreatedWithMultipleOptions
+        body:
+          properties:
+            description: ArmPolicyDescription
+            options:
+              - name: ClearKeyOption
+                configuration:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyClearKeyConfiguration
+                restriction:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyTokenRestriction
+                  issuer: urn:issuer
+                  audience: urn:audience
+                  primaryVerificationKey:
+                    @odata.type: #Microsoft.Media.ContentKeyPolicySymmetricTokenKey
+                    keyValue: AAAAAAAAAAAAAAAAAAAAAA==
+                  restrictionTokenType: Swt
+              - name: widevineoption
+                configuration:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyWidevineConfiguration
+                  widevineTemplate: {"allowed_track_types":"SD_HD","content_key_specs":[{"track_type":"SD","security_level":1,"required_output_protection":{"hdcp":"HDCP_V2"}}],"policy_overrides":{"can_play":true,"can_persist":true,"can_renew":false}}
+                restriction:
+                  @odata.type: #Microsoft.Media.ContentKeyPolicyOpenRestriction

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: WebhookDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}
+        resource_group: myResourceGroup
+        provider: ContainerRegistry
+        resource_type: registries
+        resource_name: myRegistry
+        subresource:
+          - type: webhooks
+            name: myWebhook
+        body:

@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: Create a Media Services account
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaservices
+        resource_name: contososports
+        body:
+          location: South Central US
+          tags:
+            key1: value1
+            key2: value2
+          properties:
+            storageAccounts:
+              - id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/contoso/providers/Microsoft.Storage/storageAccounts/contososportsstore
+                type: Primary

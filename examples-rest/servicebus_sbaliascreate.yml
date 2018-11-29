@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: SBAliasCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/disasterRecoveryConfigs/{alias}
+        resource_group: ardsouzatestRG
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-8860
+        subresource:
+          - type: disasterRecoveryConfigs
+            name: sdk-Namespace-8860
+        body:
+          properties:
+            partnerNamespace: sdk-Namespace-37
+            alternateName: alternameforAlias-Namespace-8860

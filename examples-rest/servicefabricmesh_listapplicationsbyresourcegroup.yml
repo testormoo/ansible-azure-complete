@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ListApplicationsByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceFabricMesh/applications
+        resource_group: sbz_demo
+        provider: ServiceFabricMesh
+        resource_type: applications

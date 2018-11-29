@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: NameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DBforMariaDB/checkNameAvailability
+        provider: DBforMariaDB
+        resource_type: checkNameAvailability
+        body:

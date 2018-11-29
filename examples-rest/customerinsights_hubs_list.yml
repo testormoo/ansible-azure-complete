@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Hubs_List
+      azure_rm_resource_facts:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.CustomerInsights/hubs
+        provider: CustomerInsights
+        resource_type: hubs

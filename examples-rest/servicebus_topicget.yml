@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: TopicGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/topics
+        resource_group: Default-ServiceBus-WestUS
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-1617
+        subresource:
+          - type: topics
+- hosts: localhost
+  tasks:
+    - name: TopicGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/topics/{topicName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-1617
+        subresource:
+          - type: topics
+            name: sdk-Topics-5488

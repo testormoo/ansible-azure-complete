@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ControllersListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevSpaces/controllers
+        resource_group: myResourceGroup
+        provider: DevSpaces
+        resource_type: controllers

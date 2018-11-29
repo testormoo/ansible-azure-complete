@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Update a stream blob input
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/inputs/{inputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj6695
+        subresource:
+          - type: inputs
+            name: input8899
+        body:

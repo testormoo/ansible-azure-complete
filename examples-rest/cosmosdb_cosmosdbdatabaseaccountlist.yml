@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBDatabaseAccountList
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DocumentDB/databaseAccounts
+        provider: DocumentDB
+        resource_type: databaseAccounts

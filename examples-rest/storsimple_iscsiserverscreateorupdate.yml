@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: IscsiServersCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/iscsiservers/{iscsiServerName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-WSJQERQW3F
+          - type: iscsiservers
+            name: HSDK-WSJQERQW3F
+        body:

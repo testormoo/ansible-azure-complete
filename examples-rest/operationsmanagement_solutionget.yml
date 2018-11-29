@@ -1,0 +1,27 @@
+- hosts: localhost
+  tasks:
+    - name: SolutionGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationsManagement/solutions/{solutionName}
+        provider: OperationsManagement
+        resource_type: solutions
+        resource_name: solution1
+- hosts: localhost
+  tasks:
+    - name: SolutionGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{providerName}/{resourceType}/{resourceName}/providers/Microsoft.OperationsManagement/ManagementAssociations/{managementAssociationName}
+        provider: OperationsManagement
+        resource_type: ManagementAssociations
+        resource_name: managementAssociation1
+- hosts: localhost
+  tasks:
+    - name: SolutionGet
+      azure_rm_resource_facts:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationsManagement/ManagementConfigurations/{managementConfigurationName}
+        provider: OperationsManagement
+        resource_type: ManagementConfigurations
+        resource_name:

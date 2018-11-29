@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Calculate baseline
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/calculatebaseline
+        provider: insights
+        resource_type: calculatebaseline
+        body:

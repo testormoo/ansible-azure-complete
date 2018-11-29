@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Update an Azure ML function
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/functions/{functionName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj9093
+        subresource:
+          - type: functions
+            name: function588
+        body:

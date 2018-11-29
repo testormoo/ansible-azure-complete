@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Update System Services in an Operationalizaton Cluster
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-08-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningCompute/operationalizationClusters/{clusterName}/updateSystemServices
+        resource_group: myResourceGroup
+        provider: MachineLearningCompute
+        resource_type: operationalizationClusters
+        resource_name: myCluster
+        subresource:
+          - type: updateSystemServices
+        body:

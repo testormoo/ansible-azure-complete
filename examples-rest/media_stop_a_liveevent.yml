@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Stop a LiveEvent
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaservices/{accountName}/liveEvents/{liveEventName}/stop
+        resource_group: mediaresources
+        provider: Media
+        resource_type: mediaservices
+        resource_name: slitestmedia10
+        subresource:
+          - type: liveEvents
+            name: myLiveEvent1
+          - type: stop
+        body:
+          removeOutputsOnStop: False

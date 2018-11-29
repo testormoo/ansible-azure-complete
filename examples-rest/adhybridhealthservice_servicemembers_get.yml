@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: serviceMembers_get
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/servicemembers/{serviceMemberId}
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: sampleServiceName
+        subresource:
+          - type: servicemembers
+            name: SampleServiceMemberId

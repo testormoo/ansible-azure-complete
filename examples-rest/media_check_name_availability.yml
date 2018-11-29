@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Check Name Availability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Media/locations/{locationName}/checkNameAvailability
+        provider: Media
+        resource_type: locations
+        resource_name: japaneast
+        subresource:
+          - type: checkNameAvailability
+        body:
+          name: contosonew
+          type: Microsoft.Media/MediaService

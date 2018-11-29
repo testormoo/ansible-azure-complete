@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List all route tables
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/routeTables
+        provider: Network
+        resource_type: routeTables

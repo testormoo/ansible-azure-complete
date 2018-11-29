@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: KustoClustersListSkus
+      azure_rm_resource_facts:
+        api_version: '2018-09-07-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Kusto/skus
+        provider: Kusto
+        resource_type: skus

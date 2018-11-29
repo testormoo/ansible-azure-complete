@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Lists available Rest API operations.
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /providers/Microsoft.KeyVault/operations
+        provider: KeyVault
+        resource_type: operations

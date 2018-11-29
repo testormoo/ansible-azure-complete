@@ -1,0 +1,66 @@
+- hosts: localhost
+  tasks:
+    - name: AccountCreate
+      azure_rm_resource:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: accountcrud5678
+        body:
+          tags:
+            tagKey1: TagValue1
+          location: East US
+          properties:
+            vsoAccountId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/accountcrud-1234/providers/microsoft.visualstudio/account/vsotest
+            keyVaultId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/accountcrud-1234/providers/Microsoft.KeyVault/vaults/testkv
+            storageAccount:
+              storageAccountId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/accountcrud-1234/providers/Microsoft.Storage/storageAccounts/testStorageAccount
+              accessKey: key
+- hosts: localhost
+  tasks:
+    - name: AccountCreate
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}
+        resource_group: myResourceGroup
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: myAccount
+        body:
+- hosts: localhost
+  tasks:
+    - name: AccountCreate
+      azure_rm_resource_facts:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts
+        resource_group: accountcrud-1234
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+- hosts: localhost
+  tasks:
+    - name: AccountCreate
+      azure_rm_resource_facts:
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.MachineLearningExperimentation/accounts
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+- hosts: localhost
+  tasks:
+    - name: AccountCreate
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2017-05-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningExperimentation/accounts/{accountName}/workspaces/{workspaceName}/projects/{projectName}
+        resource_group: myResourceGroup
+        provider: MachineLearningExperimentation
+        resource_type: accounts
+        resource_name: myAccount
+        subresource:
+          - type: workspaces
+            name: testworkspace
+          - type: projects
+            name: testProject
+        body:

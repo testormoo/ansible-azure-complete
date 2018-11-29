@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: IdentityCreate
+      azure_rm_resource:
+        api_version: '2015-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{resourceName}
+        resource_group: rgName
+        provider: ManagedIdentity
+        resource_type: userAssignedIdentities
+        resource_name: resourceName
+        body:
+          location: cus
+          tags:
+            key1: value1
+            key2: value2

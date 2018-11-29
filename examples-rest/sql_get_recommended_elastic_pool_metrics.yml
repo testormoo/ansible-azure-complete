@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get recommended elastic pool metrics
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/recommendedElasticPools/{recommendedElasticPoolName}/metrics
+        resource_group: sqlcrudtest-6852
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-2080
+        subresource:
+          - type: recommendedElasticPools
+            name: sqlcrudtest-2080_pool1
+          - type: metrics

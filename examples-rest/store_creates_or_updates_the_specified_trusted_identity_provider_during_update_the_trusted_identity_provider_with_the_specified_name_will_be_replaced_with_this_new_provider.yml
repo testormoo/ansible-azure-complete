@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Creates or updates the specified trusted identity provider. During update, the trusted identity provider with the specified name will be replaced with this new provider
+      azure_rm_resource:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts/{accountName}/trustedIdProviders/{trustedIdProviderName}
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: trustedIdProviders
+            name: test_trusted_id_provider_name
+        body:
+          properties:
+            idProvider: https://sts.windows.net/ea9ec534-a3e3-4e45-ad36-3afc5bb291c1

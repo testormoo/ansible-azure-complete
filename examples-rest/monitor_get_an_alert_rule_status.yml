@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Get an alert rule status
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/metricAlerts/{ruleName}/status
+        resource_group: gigtest
+        provider: Insights
+        resource_type: metricAlerts
+        resource_name: chiricutin
+        subresource:
+          - type: status
+- hosts: localhost
+  tasks:
+    - name: Get an alert rule status
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/metricAlerts/{ruleName}/status/{statusName}
+        resource_group: EastUs
+        provider: Insights
+        resource_type: metricAlerts
+        resource_name: custom1
+        subresource:
+          - type: status
+            name: cmVzb3VyY2VJZD0vc3Vic2NyaXB0aW9ucy8xNGRkZjBjNS03N2M1LTRiNTMtODRmNi1lMWZhNDNhZDY4ZjcvcmVzb3VyY2VHcm91cHMvZ2lndGVzdC9wcm92aWRlcnMvTWljcm9zb2Z0LkNvbXB1dGUvdmlydHVhbE1hY2hpbmVzL2dpZ3dhZG1l

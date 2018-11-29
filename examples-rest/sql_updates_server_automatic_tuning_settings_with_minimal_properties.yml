@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Updates server automatic tuning settings with minimal properties
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/automaticTuning/current
+        resource_group: default-sql-onebox
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr11
+        subresource:
+          - type: automaticTuning
+          - type: current
+        body:
+          properties:
+            desiredState: Auto

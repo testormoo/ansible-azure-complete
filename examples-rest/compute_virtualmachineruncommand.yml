@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: VirtualMachineRunCommand
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/runCommand
+        resource_group: crptestar98131
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: vm3036
+        subresource:
+          - type: runCommand
+        body:
+          commandId: RunPowerShellScript

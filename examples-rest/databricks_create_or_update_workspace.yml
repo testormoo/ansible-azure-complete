@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update workspace
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Databricks/workspaces/{workspaceName}
+        resource_group: rg
+        provider: Databricks
+        resource_type: workspaces
+        resource_name: myWorkspace
+        body:
+          properties:
+            managedResourceGroupId: /subscriptions/subid/resourceGroups/myManagedRG
+          name: myWorkspace
+          location: westus

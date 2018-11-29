@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: CanonicalListSupportPlanInfo_Post
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Addons/supportProviders/canonical/listSupportPlanInfo
+        provider: Addons
+        resource_type: supportProviders
+        resource_type: canonical
+        resource_type: listSupportPlanInfo
+        body:

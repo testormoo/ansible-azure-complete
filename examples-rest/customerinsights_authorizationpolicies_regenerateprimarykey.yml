@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: AuthorizationPolicies_RegeneratePrimaryKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/authorizationPolicies/{authorizationPolicyName}/regeneratePrimaryKey
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: azSdkTestHub
+        subresource:
+          - type: authorizationPolicies
+            name: testPolicy4222
+          - type: regeneratePrimaryKey
+        body:

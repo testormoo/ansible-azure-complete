@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: List rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/scheduledQueryRules
+        provider: insights
+        resource_type: scheduledQueryRules
+- hosts: localhost
+  tasks:
+    - name: List rules
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/scheduledQueryRules
+        provider: insights
+        resource_type: scheduledQueryRules

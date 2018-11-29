@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: ChapSettingsCreateOrUpdate
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/chapSettings/{chapUserName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-WSJQERQW3F
+          - type: chapSettings
+            name: ChapSettingForSDK
+        body:

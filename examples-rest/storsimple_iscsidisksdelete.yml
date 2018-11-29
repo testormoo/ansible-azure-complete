@@ -1,0 +1,19 @@
+- hosts: localhost
+  tasks:
+    - name: IscsiDisksDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/iscsiservers/{iscsiServerName}/disks/{diskName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hAzureSDKOperations
+        subresource:
+          - type: devices
+            name: HSDK-UGU4PITWNI
+          - type: iscsiservers
+            name: HSDK-UGU4PITWNI
+          - type: disks
+            name: ClonedTieredIscsiDiskForSDKTest
+        body:

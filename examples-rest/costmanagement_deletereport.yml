@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: DeleteReport
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-05-31'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/reportconfigs/{reportConfigName}
+        provider: CostManagement
+        resource_type: reportconfigs
+        resource_name: TestReport
+        body:
+- hosts: localhost
+  tasks:
+    - name: DeleteReport
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-05-31'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CostManagement/reportconfigs/{reportConfigName}
+        resource_group: MYDEVTESTRG
+        provider: CostManagement
+        resource_type: reportconfigs
+        resource_name: TestReport
+        body:

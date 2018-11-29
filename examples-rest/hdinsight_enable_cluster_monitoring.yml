@@ -1,0 +1,44 @@
+- hosts: localhost
+  tasks:
+    - name: Enable cluster monitoring
+      azure_rm_resource:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/extensions/clustermonitoring
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: extensions
+          - type: clustermonitoring
+        body:
+          workspaceId: a2090ead-8c9f-4fba-b70e-533e3e003163
+          primaryKey: **********
+- hosts: localhost
+  tasks:
+    - name: Enable cluster monitoring
+      azure_rm_resource_facts:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/extensions/clustermonitoring
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: extensions
+          - type: clustermonitoring
+- hosts: localhost
+  tasks:
+    - name: Enable cluster monitoring
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}/extensions/clustermonitoring
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        subresource:
+          - type: extensions
+          - type: clustermonitoring
+        body:

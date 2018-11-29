@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Update a Job
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/transforms/{transformName}/jobs/{jobName}
+        resource_group: contosoresources
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: transforms
+            name: exampleTransform
+          - type: jobs
+            name: job1
+        body:
+          properties:
+            description: Example job to illustrate update.
+            priority: High

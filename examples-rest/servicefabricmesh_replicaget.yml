@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ReplicaGet
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceFabricMesh/applications/{applicationResourceName}/services/{serviceResourceName}/replicas/{replicaName}
+        resource_group: sbz_demo
+        provider: ServiceFabricMesh
+        resource_type: applications
+        resource_name: helloWorldApp
+        subresource:
+          - type: services
+            name: helloWorldService
+          - type: replicas
+            name: 0

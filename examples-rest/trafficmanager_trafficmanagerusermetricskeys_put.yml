@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: TrafficManagerUserMetricsKeys-PUT
+      azure_rm_resource:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Network/trafficManagerUserMetricsKeys/default
+        provider: Network
+        resource_type: trafficManagerUserMetricsKeys
+        resource_type: default
+        body:

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete an integration account
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/integrationAccounts/{integrationAccountName}
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: integrationAccounts
+        resource_name: testIntegrationAccount
+        body:

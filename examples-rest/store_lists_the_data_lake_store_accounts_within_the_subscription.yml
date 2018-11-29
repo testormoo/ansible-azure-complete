@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Lists the Data Lake Store accounts within the subscription
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataLakeStore/accounts
+        provider: DataLakeStore
+        resource_type: accounts

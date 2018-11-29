@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: LoadBalancerBackendAddressPoolList
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/loadBalancers/{loadBalancerName}/backendAddressPools
+        resource_group: testrg
+        provider: Network
+        resource_type: loadBalancers
+        resource_name: lb
+        subresource:
+          - type: backendAddressPools

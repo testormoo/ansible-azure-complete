@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Tags_Get
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.CostManagement/billingAccounts/{billingAccountId}/providers/Microsoft.Consumption/tags
+        provider: CostManagement
+        resource_type: billingAccounts
+        resource_name: 12345
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: tags

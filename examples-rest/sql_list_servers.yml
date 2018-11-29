@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List servers
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/servers
+        provider: Sql
+        resource_type: servers

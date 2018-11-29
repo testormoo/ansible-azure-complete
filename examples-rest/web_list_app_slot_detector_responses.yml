@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List App Slot Detector Responses
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{siteName}/slots/{slot}/detectors
+        resource_group: Sample-WestUSResourceGroup
+        provider: Web
+        resource_type: sites
+        resource_name: SampleApp
+        subresource:
+          - type: slots
+            name: staging
+          - type: detectors

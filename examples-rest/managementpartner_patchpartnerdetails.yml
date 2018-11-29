@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: PatchPartnerDetails
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-02-01'
+        # url: /providers/Microsoft.ManagementPartner/partners/{partnerId}
+        provider: ManagementPartner
+        resource_type: partners
+        resource_name: 123456
+        body:

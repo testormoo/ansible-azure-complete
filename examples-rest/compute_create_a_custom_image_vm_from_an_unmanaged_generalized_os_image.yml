@@ -1,0 +1,35 @@
+- hosts: localhost
+  tasks:
+    - name: Create a custom-image vm from an unmanaged generalized os image.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: virtualMachines
+        resource_name: {vm-name}
+        body:
+          location: westus
+          properties:
+            hardwareProfile:
+              vmSize: Standard_D1_v2
+            storageProfile:
+              osDisk:
+                name: myVMosdisk
+                image:
+                  uri: http://{existing-storage-account-name}.blob.core.windows.net/{existing-container-name}/{existing-generalized-os-image-blob-name}.vhd
+                osType: Windows
+                createOption: FromImage
+                caching: ReadWrite
+                vhd:
+                  uri: http://{existing-storage-account-name}.blob.core.windows.net/{existing-container-name}/myDisk.vhd
+            osProfile:
+              adminUsername: {your-username}
+              computerName: myVM
+              adminPassword: {your-password}
+            networkProfile:
+              networkInterfaces:
+                - id: /subscriptions/{subscription-id}/resourceGroups/myResourceGroup/providers/Microsoft.Network/networkInterfaces/{existing-nic-name}
+                  properties:
+                    primary: True
+          name: myVM

@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: Validate Operation
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupValidateOperation
+        resource_group: testRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupValidateOperation
+        body:
+          objectType: ValidateIaasVMRestoreOperationRequest
+          restoreRequest:
+            recoveryPointId: 348916168024334
+            objectType: IaasVMRestoreRequest
+            recoveryType: RestoreDisks
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/netsdktestrg/providers/Microsoft.Compute/virtualMachines/netvmtestv2vm1
+            storageAccountId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testingRg/providers/Microsoft.Storage/storageAccounts/testAccount
+            region: southeastasia
+            createNewCloudService: True
+            originalStorageAccountOption: False
+            encryptionDetails:
+              encryptionEnabled: False

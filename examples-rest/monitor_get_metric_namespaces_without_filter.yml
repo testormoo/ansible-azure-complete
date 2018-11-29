@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get Metric Namespaces without filter
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /{resourceUri}/providers/microsoft.insights/metricNamespaces
+        provider: insights
+        resource_type: metricNamespaces

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a Streaming Policy
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingPolicies/{streamingPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingPolicies
+            name: secureStreamingPolicyWithCommonEncryptionCbcsOnly
+        body:

@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a job agent with all properties
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+        body:
+          location: southeastasia
+          sku:
+            name: Agent
+            capacity: 100
+          properties:
+            databaseId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/databases/db1
+          tags:
+            octopus: agent

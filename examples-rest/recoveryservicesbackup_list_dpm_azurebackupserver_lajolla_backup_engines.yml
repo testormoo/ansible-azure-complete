@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List Dpm/AzureBackupServer/Lajolla Backup Engines
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupEngines
+        resource_group: testRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupEngines

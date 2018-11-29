@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Get peering
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworks/{virtualNetworkName}/virtualNetworkPeerings/{virtualNetworkPeeringName}
+        resource_group: peerTest
+        provider: Network
+        resource_type: virtualNetworks
+        resource_name: vnet1
+        subresource:
+          - type: virtualNetworkPeerings
+            name: peer

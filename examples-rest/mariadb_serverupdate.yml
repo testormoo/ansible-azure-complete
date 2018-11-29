@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: ServerUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}
+        resource_group: testrg
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: mariadbtestsvc4
+        body:
+          properties:
+            administratorLoginPassword: newpa$$w0rd
+            sslEnforcement: Disabled

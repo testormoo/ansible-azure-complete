@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Services_List
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataMigration/services
+        provider: DataMigration
+        resource_type: services

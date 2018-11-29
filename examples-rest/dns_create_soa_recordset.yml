@@ -1,0 +1,25 @@
+- hosts: localhost
+  tasks:
+    - name: Create SOA recordset
+      azure_rm_resource:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+        resource_group: rg1
+        provider: Network
+        resource_type: dnsZones
+        resource_name: zone1
+            name: SOA
+            name: @
+        body:
+          properties:
+            metadata:
+              key1: value1
+            TTL: 3600
+            SOARecord:
+              host: ns1.contoso.com
+              email: hostmaster.contoso.com
+              serialNumber: 1
+              refreshTime: 3600
+              retryTime: 300
+              expireTime: 2419200
+              minimumTTL: 300

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ManagersUploadRegistrationCertificate
+      azure_rm_resource:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/certificates/{certificateName}
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: ManagerForSDKTest2
+        subresource:
+          - type: certificates
+            name: windows
+        body:

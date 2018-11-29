@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Lists workspaces
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Databricks/workspaces
+        resource_group: rg
+        provider: Databricks
+        resource_type: workspaces
+- hosts: localhost
+  tasks:
+    - name: Lists workspaces
+      azure_rm_resource_facts:
+        api_version: '2018-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Databricks/workspaces
+        provider: Databricks
+        resource_type: workspaces

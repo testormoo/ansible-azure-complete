@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Services_CheckChildrenNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services/{serviceName}/checkNameAvailability
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services
+        resource_name: DmsSdkService
+        subresource:
+          - type: checkNameAvailability
+        body:
+          requestedName:
+            name: Task1
+            type: tasks

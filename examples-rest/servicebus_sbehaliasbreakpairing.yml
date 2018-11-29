@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: SBEHAliasBreakPairing
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/disasterRecoveryConfigs/{alias}/breakPairing
+        resource_group: ardsouzatestRG
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-8860
+        subresource:
+          - type: disasterRecoveryConfigs
+            name: sdk-DisasterRecovery-3814
+          - type: breakPairing
+        body:

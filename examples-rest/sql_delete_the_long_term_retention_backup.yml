@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Delete the long term retention backup.
+      azure_rm_resource:
+        method: DELETE
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/locations/{locationName}/longTermRetentionServers/{longTermRetentionServerName}/longTermRetentionDatabases/{longTermRetentionDatabaseName}/longTermRetentionBackups/{backupName}
+        provider: Sql
+        resource_type: locations
+        resource_name: japaneast
+        subresource:
+          - type: longTermRetentionServers
+            name: testserver
+          - type: longTermRetentionDatabases
+            name: testDatabase
+          - type: longTermRetentionBackups
+            name: 55555555-6666-7777-8888-999999999999;131637960820000000
+        body:

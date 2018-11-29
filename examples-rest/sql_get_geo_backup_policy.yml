@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get geo backup policy
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/geoBackupPolicies/{geoBackupPolicyName}
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-5961
+        subresource:
+          - type: databases
+            name: testdw
+          - type: geoBackupPolicies
+            name: Default

@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.ServiceBus/CheckNameAvailability
+        provider: ServiceBus
+        resource_type: CheckNameAvailability
+        body:
+          name: sdk-Namespace-2924

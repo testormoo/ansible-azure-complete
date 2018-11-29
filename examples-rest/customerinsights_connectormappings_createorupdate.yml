@@ -1,0 +1,44 @@
+- hosts: localhost
+  tasks:
+    - name: ConnectorMappings_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/connectors/{connectorName}/mappings/{mappingName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: connectors
+            name: testConnector8858
+          - type: mappings
+            name: testMapping12491
+        body:
+          properties:
+            entityType: Interaction
+            entityTypeName: TestInteractionType2967
+            displayName: testMapping12491
+            description: Test mapping
+            mappingProperties:
+              folderPath: http://sample.dne/file
+              fileFilter: unknown
+              hasHeader: False
+              errorManagement:
+                errorManagementType: StopImport
+                errorLimit: 10
+              format:
+                formatType: TextFormat
+                columnDelimiter: |
+              availability:
+                frequency: Hour
+                interval: 5
+              structure:
+                - propertyName: unknwon1
+                  columnName: unknown1
+                  isEncrypted: False
+                - propertyName: unknwon2
+                  columnName: unknown2
+                  isEncrypted: True
+              completeOperation:
+                completionOperationType: DeleteFile
+                destinationFolder: fakePath

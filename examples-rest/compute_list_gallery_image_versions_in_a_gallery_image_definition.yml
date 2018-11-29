@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List gallery Image Versions in a gallery Image Definition.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/galleries/{galleryName}/images/{galleryImageName}/versions
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: galleries
+        resource_name: myGalleryName
+        subresource:
+          - type: images
+            name: myGalleryImageName
+          - type: versions

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Generate an upgraded definition
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/generateUpgradedDefinition
+        resource_group: test-resource-group
+        provider: Logic
+        resource_type: workflows
+        resource_name: test-workflow
+        subresource:
+          - type: generateUpgradedDefinition
+        body:
+          targetSchemaVersion: 2016-06-01

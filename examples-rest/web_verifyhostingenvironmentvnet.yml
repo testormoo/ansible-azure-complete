@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: VerifyHostingEnvironmentVnet
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Web/verifyHostingEnvironmentVnet
+        provider: Web
+        resource_type: verifyHostingEnvironmentVnet
+        body:
+          properties:
+            vnetResourceGroup: vNet123rg
+            vnetName: vNet123
+            vnetSubnetName: vNet123SubNet

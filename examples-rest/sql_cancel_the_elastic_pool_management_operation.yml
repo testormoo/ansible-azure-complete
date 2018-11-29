@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: Cancel the elastic pool management operation
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/elasticPools/{elasticPoolName}/operations/{operationId}/cancel
+        resource_group: sqlcrudtest-7398
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6661
+        subresource:
+          - type: elasticPools
+            name: testpool
+          - type: operations
+            name: f779414b-e748-4925-8cfe-c8598f7660ae
+          - type: cancel
+        body:

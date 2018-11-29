@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Services_ListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services

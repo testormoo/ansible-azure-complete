@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountListKeys
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/listKeys
+        resource_group: res418
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto2220
+        subresource:
+          - type: listKeys
+        body:

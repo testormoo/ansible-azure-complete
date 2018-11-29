@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ReservationOrderList
+      azure_rm_resource_facts:
+        api_version: '2018-06-01'
+        # url: /providers/Microsoft.Capacity/reservationOrders
+        provider: Capacity
+        resource_type: reservationOrders

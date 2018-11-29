@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: RoleAssignments_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}/roleAssignments/{assignmentName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        subresource:
+          - type: roleAssignments
+            name: assignmentName8976
+        body:
+          properties:
+            role: Admin
+            principals:
+              - principalId: 4c54c38ffa9b416ba5a6d6c8a20cbe7e
+                principalType: User
+              - principalId: 93061d15a5054f2b9948ae25724cf9d5
+                principalType: User

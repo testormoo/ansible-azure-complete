@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create a managed disk by importing an unmanaged blob from a different subscription.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/disks/{diskName}
+        resource_group: myResourceGroup
+        provider: Compute
+        resource_type: disks
+        resource_name: myDisk
+        body:

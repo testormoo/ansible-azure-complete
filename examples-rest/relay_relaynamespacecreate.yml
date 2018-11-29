@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: RelayNamespaceCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Relay/namespaces/{namespaceName}
+        resource_group: RG-eg
+        provider: Relay
+        resource_type: namespaces
+        resource_name: sdk-RelayNamespace-01
+        body:
+          sku:
+            name: Standard
+            tier: Standard
+          location: West US
+          tags:
+            tag1: value1
+            tag2: value2

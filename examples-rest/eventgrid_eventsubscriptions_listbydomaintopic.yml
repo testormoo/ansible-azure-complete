@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: EventSubscriptions_ListByDomainTopic
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventGrid/domains/{domainName}/topics/{topicName}/providers/Microsoft.EventGrid/eventSubscriptions
+        resource_group: examplerg
+        provider: EventGrid
+        resource_type: domains
+        resource_name: domain1
+        subresource:
+          - type: topics
+            name: topic1
+          - type: providers
+        provider: EventGrid
+          - type: eventSubscriptions

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Services_CheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataMigration/locations/{location}/checkNameAvailability
+        provider: DataMigration
+        resource_type: locations
+        resource_name: eastus
+        subresource:
+          - type: checkNameAvailability
+        body:
+          requestedName:
+            name: DmsSdkService
+            type: services

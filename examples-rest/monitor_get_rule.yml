@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: Get rule
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/scheduledQueryRules/{ruleName}
+        provider: insights
+        resource_type: scheduledQueryRules
+        resource_name: logalertfoo

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Suspend capacity
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}/suspend
+        resource_group: TestRG
+        provider: PowerBIDedicated
+        resource_type: capacities
+        resource_name: azsdktest
+        subresource:
+          - type: suspend
+        body:

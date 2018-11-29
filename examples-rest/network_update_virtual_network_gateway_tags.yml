@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Update Virtual Network Gateway Tags
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/{virtualNetworkGatewayName}
+        resource_group: rg1
+        provider: Network
+        resource_type: virtualNetworkGateways
+        resource_name: vpngw
+        body:
+          tags:
+            tag1: value1
+            tag2: value2

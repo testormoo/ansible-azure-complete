@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Create a Power BI output
+      azure_rm_resource:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/outputs/{outputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj2331
+        subresource:
+          - type: outputs
+            name: output3022
+        body:

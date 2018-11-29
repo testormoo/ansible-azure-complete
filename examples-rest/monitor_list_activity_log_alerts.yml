@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: List activity log alerts
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/activityLogAlerts
+        provider: insights
+        resource_type: activityLogAlerts
+- hosts: localhost
+  tasks:
+    - name: List activity log alerts
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.insights/activityLogAlerts
+        resource_group: Default-ActivityLogAlerts
+        provider: insights
+        resource_type: activityLogAlerts

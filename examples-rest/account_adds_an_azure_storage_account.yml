@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Adds an Azure Storage account
+      azure_rm_resource:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeAnalytics/accounts/{accountName}/storageAccounts/{storageAccountName}
+        resource_group: contosorg
+        provider: DataLakeAnalytics
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: storageAccounts
+            name: test_storage
+        body:
+          properties:
+            accessKey: 34adfa4f-cedf-4dc0-ba29-b6d1a69ab346
+            suffix: test_suffix

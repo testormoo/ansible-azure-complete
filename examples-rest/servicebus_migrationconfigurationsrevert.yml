@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: MigrationConfigurationsRevert
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/migrationConfigurations/{configName}/revert
+        resource_group: ResourceGroup
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-41
+        subresource:
+          - type: migrationConfigurations
+            name: $default
+          - type: revert
+        body:

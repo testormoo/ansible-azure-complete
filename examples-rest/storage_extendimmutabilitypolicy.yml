@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: ExtendImmutabilityPolicy
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts/{accountName}/blobServices/default/containers/{containerName}/immutabilityPolicies/default/extend
+        resource_group: res6238
+        provider: Storage
+        resource_type: storageAccounts
+        resource_name: sto232
+        subresource:
+          - type: blobServices
+          - type: default
+          - type: containers
+            name: container5023
+          - type: immutabilityPolicies
+          - type: default
+          - type: extend
+        body:
+          properties:
+            immutabilityPeriodSinceCreationInDays: 100

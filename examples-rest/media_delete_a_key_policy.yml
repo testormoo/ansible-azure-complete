@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Delete a Key Policy
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/contentKeyPolicies/{contentKeyPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: contentKeyPolicies
+            name: PolicyWithPlayReadyOptionAndOpenRestriction
+        body:

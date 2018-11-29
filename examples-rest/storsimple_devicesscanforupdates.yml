@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: DevicesScanForUpdates
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.StorSimple/managers/{managerName}/devices/{deviceName}/scanForUpdates
+        resource_group: ResourceGroupForSDKTest
+        provider: StorSimple
+        resource_type: managers
+        resource_name: hManagerForSDKTest4
+        subresource:
+          - type: devices
+            name: HBVT-02X525X2W0
+          - type: scanForUpdates
+        body:

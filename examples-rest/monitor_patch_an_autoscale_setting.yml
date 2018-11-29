@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Patch an autoscale setting
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/autoscalesettings/{autoscaleSettingName}
+        provider: insights
+        resource_type: autoscalesettings
+        resource_name: MySetting
+        body:

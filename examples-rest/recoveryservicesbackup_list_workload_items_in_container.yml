@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: List Workload Items in Container
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}/items
+        resource_group: testRg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupFabrics
+            name:
+          - type: protectionContainers
+            name:
+          - type: items

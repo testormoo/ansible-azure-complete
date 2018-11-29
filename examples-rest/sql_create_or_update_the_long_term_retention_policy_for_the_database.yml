@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update the long term retention policy for the database.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/backupLongTermRetentionPolicies/{policyName}
+        resource_group: resourceGroup
+        provider: Sql
+        resource_type: servers
+        resource_name: testserver
+        subresource:
+          - type: databases
+            name: testDatabase
+          - type: backupLongTermRetentionPolicies
+            name: default
+        body:
+          weeklyRetention: P1M
+          monthlyRetention: P1Y
+          yearlyRetention: P5Y
+          weekOfYear: 5

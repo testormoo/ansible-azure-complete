@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Patch Certificate
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/certificates/{name}
+        resource_group: testrg123
+        provider: Web
+        resource_type: certificates
+        resource_name: testc6282
+        body:

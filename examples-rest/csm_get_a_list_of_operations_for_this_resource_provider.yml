@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get a list of operations for this resource provider
+      azure_rm_resource_facts:
+        api_version: '2014-04-01-preview'
+        # url: /providers/microsoft.visualstudio/operations
+        provider: visualstudio
+        resource_type: operations

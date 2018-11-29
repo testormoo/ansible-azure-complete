@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: GET Operationalization Cluster
+      azure_rm_resource_facts:
+        api_version: '2017-08-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningCompute/operationalizationClusters/{clusterName}
+        resource_group: myResourceGroup
+        provider: MachineLearningCompute
+        resource_type: operationalizationClusters
+        resource_name: myCluster

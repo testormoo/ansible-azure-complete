@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get available operations
+      azure_rm_resource_facts:
+        api_version: '2017-10-01-preview'
+        # url: /providers/Microsoft.IoTSpaces/operations
+        provider: IoTSpaces
+        resource_type: operations

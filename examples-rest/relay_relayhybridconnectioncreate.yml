@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: RelayHybridConnectionCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Relay/namespaces/{namespaceName}/hybridConnections/{hybridConnectionName}
+        resource_group: RG-eg
+        provider: Relay
+        resource_type: namespaces
+        resource_name: sdk-RelayNamespace-01
+        subresource:
+          - type: hybridConnections
+            name: sdk-Relay-Hybrid-01
+        body:
+          properties:
+            requiresClientAuthorization: True

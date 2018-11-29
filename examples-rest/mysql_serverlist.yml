@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: ServerList
+      azure_rm_resource_facts:
+        api_version: '2017-04-30-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DBforMySQL/servers
+        provider: DBforMySQL
+        resource_type: servers

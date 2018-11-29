@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List Microsoft.Logic operations
+      azure_rm_resource_facts:
+        api_version: '2018-07-01-preview'
+        # url: /providers/Microsoft.Logic/operations
+        provider: Logic
+        resource_type: operations

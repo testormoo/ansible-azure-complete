@@ -1,0 +1,104 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update an autoscale setting
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/microsoft.insights/autoscalesettings/{autoscaleSettingName}
+        provider: insights
+        resource_type: autoscalesettings
+        resource_name: MySetting
+        body:
+          location: West US
+          tags:
+          properties:
+            profiles:
+              - name: adios
+                capacity:
+                  minimum: 1
+                  maximum: 10
+                  default: 1
+                rules:
+                  - metricTrigger:
+                      metricName: Percentage CPU
+                      metricResourceUri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+                      timeGrain: PT1M
+                      statistic: Average
+                      timeWindow: PT5M
+                      timeAggregation: Average
+                      operator: GreaterThan
+                      threshold: 10
+                    scaleAction:
+                      direction: Increase
+                      type: ChangeCount
+                      value: 1
+                      cooldown: PT5M
+                  - metricTrigger:
+                      metricName: Percentage CPU
+                      metricResourceUri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+                      timeGrain: PT2M
+                      statistic: Average
+                      timeWindow: PT5M
+                      timeAggregation: Average
+                      operator: GreaterThan
+                      threshold: 15
+                    scaleAction:
+                      direction: Decrease
+                      type: ChangeCount
+                      value: 2
+                      cooldown: PT6M
+                fixedDate:
+                  timeZone: UTC
+                  start: 2015-03-05T14:00:00Z
+                  end: 2015-03-05T14:30:00Z
+              - name: saludos
+                capacity:
+                  minimum: 1
+                  maximum: 10
+                  default: 1
+                rules:
+                  - metricTrigger:
+                      metricName: Percentage CPU
+                      metricResourceUri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+                      timeGrain: PT1M
+                      statistic: Average
+                      timeWindow: PT5M
+                      timeAggregation: Average
+                      operator: GreaterThan
+                      threshold: 10
+                    scaleAction:
+                      direction: Increase
+                      type: ChangeCount
+                      value: 1
+                      cooldown: PT5M
+                  - metricTrigger:
+                      metricName: Percentage CPU
+                      metricResourceUri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+                      timeGrain: PT2M
+                      statistic: Average
+                      timeWindow: PT5M
+                      timeAggregation: Average
+                      operator: GreaterThan
+                      threshold: 15
+                    scaleAction:
+                      direction: Decrease
+                      type: ChangeCount
+                      value: 2
+                      cooldown: PT6M
+                recurrence:
+                  frequency: Week
+                  schedule:
+                    timeZone: UTC
+                    days:
+                    hours:
+                    minutes:
+            enabled: True
+            targetResourceUri: /subscriptions/b67f7fec-69fc-4974-9099-a26bd6ffeda3/resourceGroups/TestingMetricsScaleSet/providers/Microsoft.Compute/virtualMachineScaleSets/testingsc
+            notifications:
+              - operation: Scale
+                email:
+                  sendToSubscriptionAdministrator: True
+                  sendToSubscriptionCoAdministrators: True
+                  customEmails:
+                webhooks:
+                  - serviceUri: http://myservice.com
+                    properties:

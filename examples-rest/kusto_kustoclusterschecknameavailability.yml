@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: KustoClustersCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-09-07-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/checkNameAvailability
+        provider: Kusto
+        resource_type: locations
+        resource_name: wus
+        subresource:
+          - type: checkNameAvailability
+        body:

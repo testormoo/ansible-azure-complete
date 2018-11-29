@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get Activity Logs with filter and select
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/microsoft.insights/eventtypes/management/values
+        provider: insights
+        resource_type: eventtypes
+        resource_type: management
+        resource_type: values

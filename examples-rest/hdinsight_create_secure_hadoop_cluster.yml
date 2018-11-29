@@ -1,0 +1,88 @@
+- hosts: localhost
+  tasks:
+    - name: Create Secure Hadoop cluster
+      azure_rm_resource:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HDInsight/clusters/{clusterName}
+        resource_group: rg1
+        provider: HDInsight
+        resource_type: clusters
+        resource_name: cluster1
+        body:
+          tags:
+            key1: val1
+          properties:
+            clusterVersion: 3.5
+            osType: Linux
+            tier: Premium
+            clusterDefinition:
+              kind: Hadoop
+              configurations:
+                gateway:
+                  restAuthCredential.isEnabled: True
+                  restAuthCredential.username: admin
+                  restAuthCredential.password: **********
+            storageProfile:
+              storageaccounts:
+                - name: mystorage
+                  isDefault: True
+                  container: containername
+                  key: storage account key
+            securityProfile:
+              directoryType: ActiveDirectory
+              domain: DomainName
+              organizationalUnitDN: OU=Hadoop,DC=hdinsight,DC=test
+              ldapsUrls:
+              domainUsername: DomainUsername
+              domainUserPassword: **********
+              clusterUsersGroupDNs:
+            computeProfile:
+              roles:
+                - name: headnode
+                  minInstanceCount: 1
+                  targetInstanceCount: 2
+                  hardwareProfile:
+                    vmSize: Standard_D3_V2
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********
+                      sshProfile:
+                        publicKeys:
+                          - certificateData: **********
+                  virtualNetworkProfile:
+                    id: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname
+                    subnet: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname/subnets/vnetsubnet
+                  scriptActions:
+                - name: workernode
+                  minInstanceCount: 1
+                  targetInstanceCount: 4
+                  hardwareProfile:
+                    vmSize: Standard_D3_V2
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********
+                      sshProfile:
+                        publicKeys:
+                          - certificateData: **********
+                  virtualNetworkProfile:
+                    id: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname
+                    subnet: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname/subnets/vnetsubnet
+                  scriptActions:
+                - name: zookeepernode
+                  minInstanceCount: 1
+                  targetInstanceCount: 3
+                  hardwareProfile:
+                    vmSize: Small
+                  osProfile:
+                    linuxOperatingSystemProfile:
+                      username: sshuser
+                      password: **********
+                      sshProfile:
+                        publicKeys:
+                          - certificateData: **********
+                  virtualNetworkProfile:
+                    id: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname
+                    subnet: /subscriptions/subId/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnetname/subnets/vnetsubnet
+                  scriptActions:

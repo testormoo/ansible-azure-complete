@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Create a new sync agent
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/syncAgents/{syncAgentName}
+        resource_group: syncagentcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncagentcrud-8475
+        subresource:
+          - type: syncAgents
+            name: syncagentcrud-3187
+        body:
+          properties:
+            syncDatabaseId: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/Default-SQL-Onebox/providers/Microsoft.Sql/servers/syncagentcrud-8475/databases/sync

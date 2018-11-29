@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Import bacpac into an existing database Min with SAS key
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/extensions/{extensionName}
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-5961
+        subresource:
+          - type: databases
+            name: testdb
+          - type: extensions
+            name: import
+        body:
+          properties:
+            operationMode: Import
+            storageKeyType: SharedAccessKey
+            storageKey: ?sr=b&sp=rw&se=2018-01-01T00%3A00%3A00Z&sig=sdfsdfklsdjflSLIFJLSIEJFLKSDJFDd/%2wdfskdjf3%3D&sv=2015-07-08
+            storageUri: https://test.blob.core.windows.net/bacpacs/testbacpac.bacpac
+            administratorLogin: dummyLogin
+            administratorLoginPassword: Un53cuRE!

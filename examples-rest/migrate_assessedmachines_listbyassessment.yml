@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: AssessedMachines_ListByAssessment
+      azure_rm_resource_facts:
+        api_version: '2018-02-02'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Migrate/projects/{projectName}/groups/{groupName}/assessments/{assessmentName}/assessedMachines
+        resource_group: myResourceGroup
+        provider: Migrate
+        resource_type: projects
+        resource_name: project01
+        subresource:
+          - type: groups
+            name: group01
+          - type: assessments
+            name: assessment01
+          - type: assessedMachines

@@ -1,0 +1,41 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a job step with all properties specified.
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}/jobs/{jobName}/steps/{stepName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+          - type: jobs
+            name: job1
+          - type: steps
+            name: step1
+        body:
+          properties:
+            stepId: 1
+            targetGroup: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/jobAgents/agent1/targetGroups/targetGroup1
+            credential: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/jobAgents/agent1/credentials/cred1
+            action:
+              type: TSql
+              source: Inline
+              value: select 2
+            output:
+              type: SqlDatabase
+              subscriptionId: 3501b905-a848-4b5d-96e8-b253f62d735a
+              resourceGroupName: group3
+              serverName: server3
+              databaseName: database3
+              schemaName: myschema1234
+              tableName: mytable5678
+              credential: /subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/group1/providers/Microsoft.Sql/servers/server1/jobAgents/agent1/credentials/cred0
+            executionOptions:
+              timeoutSeconds: 1234
+              retryAttempts: 42
+              initialRetryIntervalSeconds: 11
+              maximumRetryIntervalSeconds: 222
+              retryIntervalBackoffMultiplier: 3

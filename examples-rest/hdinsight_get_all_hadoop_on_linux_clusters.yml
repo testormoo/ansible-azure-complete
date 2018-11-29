@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Get All Hadoop on Linux clusters
+      azure_rm_resource_facts:
+        api_version: '2015-03-01-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.HDInsight/clusters
+        provider: HDInsight
+        resource_type: clusters

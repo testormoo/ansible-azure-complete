@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List jobs in a resource group
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ImportExport/jobs
+        resource_group: Default-Storage-WestUS
+        provider: ImportExport
+        resource_type: jobs

@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Retrieve a deleted vault
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/locations/{location}/deletedVaults/{vaultName}
+        provider: KeyVault
+        resource_type: locations
+        resource_name: westus
+        subresource:
+          - type: deletedVaults
+            name: sample-vault

@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get deployment step
+      azure_rm_resource_facts:
+        api_version: '2018-09-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DeploymentManager/steps/{stepName}
+        resource_group: myResourceGroup
+        provider: DeploymentManager
+        resource_type: steps
+        resource_name: deploymentStep1

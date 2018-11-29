@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: DPSListBySubscription
+      azure_rm_resource_facts:
+        api_version: '2018-01-22'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Devices/provisioningServices
+        provider: Devices
+        resource_type: provisioningServices

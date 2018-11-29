@@ -1,0 +1,22 @@
+- hosts: localhost
+  tasks:
+    - name: Update a server's threat detection policy with all parameters
+      azure_rm_resource:
+        api_version: '2018-06-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMariaDB/servers/{serverName}/securityAlertPolicies/{securityAlertPolicyName}
+        resource_group: securityalert-4799
+        provider: DBforMariaDB
+        resource_type: servers
+        resource_name: securityalert-6440
+        subresource:
+          - type: securityAlertPolicies
+            name: Default
+        body:
+          properties:
+            state: Enabled
+            emailAccountAdmins: True
+            emailAddresses:
+            disabledAlerts:
+            retentionDays: 5
+            storageAccountAccessKey: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+            storageEndpoint: https://mystorage.blob.core.windows.net

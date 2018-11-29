@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: QueueAuthorizationRuleCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/queues/{queueName}/authorizationRules/{authorizationRuleName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-7982
+        subresource:
+          - type: queues
+            name: sdk-Queues-2317
+          - type: authorizationRules
+            name: sdk-AuthRules-5800
+        body:
+          properties:
+            rights:

@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: ManagementConfigurationDelete
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationsManagement/ManagementConfigurations/{managementConfigurationName}
+        provider: OperationsManagement
+        resource_type: ManagementConfigurations
+        resource_name:
+        body:

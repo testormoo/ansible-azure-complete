@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: NameSpaceIpFilterRuleCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/ipfilterrules/{ipFilterRuleName}
+        resource_group: ResourceGroup
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5232
+        subresource:
+          - type: ipfilterrules
+            name: sdk-IPFilterRules-7337
+        body:
+          properties:
+            ipMask: 13.78.143.246/32
+            action: Accept
+            filterName: sdk-IPFilterRules-7337

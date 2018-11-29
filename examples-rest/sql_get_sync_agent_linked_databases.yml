@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Get sync agent linked databases
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/syncAgents/{syncAgentName}/linkedDatabases
+        resource_group: syncagentcrud-65440
+        provider: Sql
+        resource_type: servers
+        resource_name: syncagentcrud-8475
+        subresource:
+          - type: syncAgents
+            name: syncagentcrud-3187
+          - type: linkedDatabases

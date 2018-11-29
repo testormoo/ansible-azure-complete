@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Creates or updates the specified firewall rule. During update, the firewall rule with the specified name will be replaced with this new firewall rule
+      azure_rm_resource:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts/{accountName}/firewallRules/{firewallRuleName}
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: firewallRules
+            name: test_rule
+        body:
+          properties:
+            startIpAddress: 1.1.1.1
+            endIpAddress: 2.2.2.2

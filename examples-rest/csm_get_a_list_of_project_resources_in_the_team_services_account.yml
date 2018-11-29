@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get a list of project resources in the Team Services account
+      azure_rm_resource_facts:
+        api_version: '2014-04-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/microsoft.visualstudio/account/{rootResourceName}/project
+        resource_group: VS-Example-Group
+        provider: visualstudio
+        resource_type: account
+        resource_name: ExampleAccount
+        subresource:
+          - type: project

@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: CosmosDBOperationsList
+      azure_rm_resource_facts:
+        api_version: '2015-04-08'
+        # url: /providers/Microsoft.DocumentDB/operations
+        provider: DocumentDB
+        resource_type: operations

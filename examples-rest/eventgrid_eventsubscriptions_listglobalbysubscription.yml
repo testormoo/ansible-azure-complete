@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: EventSubscriptions_ListGlobalBySubscription
+      azure_rm_resource_facts:
+        api_version: '2018-09-15-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.EventGrid/eventSubscriptions
+        provider: EventGrid
+        resource_type: eventSubscriptions

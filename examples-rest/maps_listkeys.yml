@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: ListKeys
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Maps/accounts/{accountName}/listKeys
+        resource_group: myResourceGroup
+        provider: Maps
+        resource_type: accounts
+        resource_name: myMapsAccount
+        subresource:
+          - type: listKeys
+        body:

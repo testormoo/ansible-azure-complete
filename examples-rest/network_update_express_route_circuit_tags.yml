@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Update Express Route Circuit Tags
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/expressRouteCircuits/{circuitName}
+        resource_group: ertest
+        provider: Network
+        resource_type: expressRouteCircuits
+        resource_name: er1
+        body:
+          tags:
+            tag1: value1
+            tag2: value2

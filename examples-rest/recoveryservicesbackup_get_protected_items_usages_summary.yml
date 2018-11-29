@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Get Protected Items Usages Summary
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupUsageSummaries
+        resource_group: testRG
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testVault
+        subresource:
+          - type: backupUsageSummaries

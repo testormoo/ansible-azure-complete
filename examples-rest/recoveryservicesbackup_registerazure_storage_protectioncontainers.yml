@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: RegisterAzure Storage ProtectionContainers
+      azure_rm_resource:
+        api_version: ''
+        # url: /Subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.RecoveryServices/vaults/{vaultName}/backupFabrics/{fabricName}/protectionContainers/{containerName}
+        resource_group: test-rg
+        provider: RecoveryServices
+        resource_type: vaults
+        resource_name: testvault
+        subresource:
+          - type: backupFabrics
+            name: Azure
+          - type: protectionContainers
+            name: storagecontainer;Storage;test-rg;teststorage
+        body:
+          properties:
+            friendlyName: teststorage
+            backupManagementType: AzureStorage
+            sourceResourceId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/teststorage
+            containerType: StorageContainer

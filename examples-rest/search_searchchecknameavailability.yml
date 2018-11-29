@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: SearchCheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2015-08-19'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Search/checkNameAvailability
+        provider: Search
+        resource_type: checkNameAvailability
+        body:

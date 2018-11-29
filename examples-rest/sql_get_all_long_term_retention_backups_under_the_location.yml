@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Get all long term retention backups under the location.
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/locations/{locationName}/longTermRetentionBackups
+        provider: Sql
+        resource_type: locations
+        resource_name: japaneast
+        subresource:
+          - type: longTermRetentionBackups

@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Restart a HANA instance
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-11-03-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances/{hanaInstanceName}/restart
+        resource_group: myResourceGroup
+        provider: HanaOnAzure
+        resource_type: hanaInstances
+        resource_name: myHanaInstance
+        subresource:
+          - type: restart
+        body:

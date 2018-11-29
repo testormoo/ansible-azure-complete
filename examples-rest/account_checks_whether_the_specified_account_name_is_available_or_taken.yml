@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Checks whether the specified account name is available or taken
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataLakeAnalytics/locations/{location}/checkNameAvailability
+        provider: DataLakeAnalytics
+        resource_type: locations
+        resource_name: EastUS2
+        subresource:
+          - type: checkNameAvailability
+        body:
+          name: contosoadla
+          type: Microsoft.DataLakeAnalytics/accounts

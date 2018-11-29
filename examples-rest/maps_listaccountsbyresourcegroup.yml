@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: ListAccountsByResourceGroup
+      azure_rm_resource_facts:
+        api_version: '2018-05-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Maps/accounts
+        resource_group: myResourceGroup
+        provider: Maps
+        resource_type: accounts

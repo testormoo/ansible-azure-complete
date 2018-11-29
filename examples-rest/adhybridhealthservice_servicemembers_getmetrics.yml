@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: serviceMembers_getMetrics
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/services/{serviceName}/servicemembers/{serviceMemberId}/metrics/{metricName}/groups/{groupName}
+        provider: ADHybridHealthService
+        resource_type: services
+        resource_name: SampleName
+        subresource:
+          - type: servicemembers
+            name: SampleServiceMemberId
+          - type: metrics
+            name: SamplemetricName
+          - type: groups
+            name: SampleGroupName

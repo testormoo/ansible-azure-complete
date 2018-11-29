@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/locations/{ascLocation}/alerts/{alertName}/{alertUpdateActionType}
+        provider: Security
+        resource_type: locations
+        resource_name: westeurope
+        subresource:
+          - type: alerts
+            name: 2518770965529163669_F144EE95-A3E5-42DA-A279-967D115809AA
+            name: Dismiss
+        body:

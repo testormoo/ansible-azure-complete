@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: RouteFilterRuleUpdate
+      azure_rm_resource:
+        method: PATCH
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/routeFilters/{routeFilterName}/routeFilterRules/{ruleName}
+        resource_group: rg1
+        provider: Network
+        resource_type: routeFilters
+        resource_name: filterName
+        subresource:
+          - type: routeFilterRules
+            name: ruleName
+        body:

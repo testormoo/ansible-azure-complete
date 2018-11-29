@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Get an alert rule on resource group(s)
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Insights/metricAlerts/{ruleName}
+        resource_group: gigtest1
+        provider: Insights
+        resource_type: metricAlerts
+        resource_name: MetricAlertAtResourceGroupLevel

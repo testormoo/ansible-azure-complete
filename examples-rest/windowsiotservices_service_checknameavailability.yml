@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Service_CheckNameAvailability
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-02-16-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.WindowsIoT/checkDeviceServiceNameAvailability
+        provider: WindowsIoT
+        resource_type: checkDeviceServiceNameAvailability
+        body:

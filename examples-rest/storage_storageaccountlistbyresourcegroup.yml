@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: StorageAccountListByResourceGroup
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Storage/storageAccounts
+        resource_group: res6117
+        provider: Storage
+        resource_type: storageAccounts

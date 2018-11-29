@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: Gets the first page of Data Lake Analytics accounts, if any, within the current subscription. This includes a link to the next page, if any.
+      azure_rm_resource_facts:
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.DataLakeAnalytics/accounts
+        provider: DataLakeAnalytics
+        resource_type: accounts

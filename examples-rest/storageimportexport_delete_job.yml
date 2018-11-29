@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Delete job
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ImportExport/jobs/{jobName}
+        resource_group: Default-Storage-WestUS
+        provider: ImportExport
+        resource_type: jobs
+        resource_name: test-by1-import
+        body:

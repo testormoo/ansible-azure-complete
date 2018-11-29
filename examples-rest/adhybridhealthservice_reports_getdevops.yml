@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: reports_getDevOps
+      azure_rm_resource_facts:
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/reports/DevOps/IsDevOps
+        provider: ADHybridHealthService
+        resource_type: reports
+        resource_type: DevOps
+        resource_type: IsDevOps

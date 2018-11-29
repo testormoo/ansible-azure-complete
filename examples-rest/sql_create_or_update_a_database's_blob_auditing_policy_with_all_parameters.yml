@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Create or update a database's blob auditing policy with all parameters
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/auditingSettings/{blobAuditingPolicyName}
+        resource_group: blobauditingtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: blobauditingtest-6440
+        subresource:
+          - type: databases
+            name: testdb
+          - type: auditingSettings
+            name: default
+        body:
+          properties:
+            state: Enabled
+            storageAccountAccessKey: sdlfkjabc+sdlfkjsdlkfsjdfLDKFTERLKFDFKLjsdfksjdflsdkfD2342309432849328476458/3RSD==
+            storageEndpoint: https://mystorage.blob.core.windows.net
+            retentionDays: 6
+            storageAccountSubscriptionId: 00000000-1234-0000-5678-000000000000
+            isStorageSecondaryKeyInUse: False
+            auditActionsAndGroups:

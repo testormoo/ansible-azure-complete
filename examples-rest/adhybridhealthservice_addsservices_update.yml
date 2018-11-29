@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: addsServices_update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2014-01-01'
+        # url: /providers/Microsoft.ADHybridHealthService/addsservices/{serviceName}
+        provider: ADHybridHealthService
+        resource_type: addsservices
+        resource_name: sampleServiceName
+        body:

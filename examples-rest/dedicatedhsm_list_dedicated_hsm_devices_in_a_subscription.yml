@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: List dedicated HSM devices in a subscription
+      azure_rm_resource_facts:
+        api_version: '2018-10-31-preview'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.HardwareSecurityModules/dedicatedHSMs
+        provider: HardwareSecurityModules
+        resource_type: dedicatedHSMs

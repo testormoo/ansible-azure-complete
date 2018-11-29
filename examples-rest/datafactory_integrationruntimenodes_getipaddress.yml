@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: IntegrationRuntimeNodes_GetIpAddress
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/integrationRuntimes/{integrationRuntimeName}/nodes/{nodeName}/ipAddress
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: integrationRuntimes
+            name: exampleIntegrationRuntime
+          - type: nodes
+            name: Node_1
+          - type: ipAddress
+        body:

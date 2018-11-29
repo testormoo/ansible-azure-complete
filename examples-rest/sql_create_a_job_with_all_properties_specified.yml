@@ -1,0 +1,24 @@
+- hosts: localhost
+  tasks:
+    - name: Create a job with all properties specified
+      azure_rm_resource:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}/jobs/{jobName}
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+          - type: jobs
+            name: job1
+        body:
+          properties:
+            description: my favourite job
+            schedule:
+              startTime: 2015-09-24T18:30:01Z
+              endTime: 2015-09-24T23:59:59Z
+              type: Recurring
+              interval: PT5M
+              enabled: True

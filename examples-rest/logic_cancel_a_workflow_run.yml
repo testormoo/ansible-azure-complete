@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Cancel a workflow run
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/runs/{runName}/cancel
+        resource_group: test-resource-group
+        provider: Logic
+        resource_type: workflows
+        resource_name: test-workflow
+        subresource:
+          - type: runs
+            name: 08586676746934337772206998657CU22
+          - type: cancel
+        body:

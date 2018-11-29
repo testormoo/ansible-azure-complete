@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Creates a Streaming Policy with clear streaming
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/streamingPolicies/{streamingPolicyName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: streamingPolicies
+            name: UserCreatedClearStreamingPolicy
+        body:
+          properties:
+            noEncryption:
+              enabledProtocols:
+                download: True
+                dash: True
+                hls: True
+                smoothStreaming: True

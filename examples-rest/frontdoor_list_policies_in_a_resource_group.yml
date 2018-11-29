@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+    - name: List Policies in a Resource Group
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/FrontDoorWebApplicationFirewallPolicies
+        resource_group: rg1
+        provider: Network
+        resource_type: FrontDoorWebApplicationFirewallPolicies

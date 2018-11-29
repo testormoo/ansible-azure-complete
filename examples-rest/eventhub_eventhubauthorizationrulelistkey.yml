@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: EventHubAuthorizationRuleListKey
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/eventhubs/{eventHubName}/authorizationRules/{authorizationRuleName}/ListKeys
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-namespace-960
+        subresource:
+          - type: eventhubs
+            name: sdk-EventHub-532
+          - type: authorizationRules
+            name: sdk-Authrules-2513
+          - type: ListKeys
+        body:

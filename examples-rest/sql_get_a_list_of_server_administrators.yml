@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: get a list of server administrators
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/administrators
+        resource_group: sqlcrudtest-4799
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest-6440
+        subresource:
+          - type: administrators

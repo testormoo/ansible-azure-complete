@@ -1,0 +1,26 @@
+- hosts: localhost
+  tasks:
+    - name: ApiManagementCreateServiceWithSystemCertificates
+      azure_rm_resource:
+        api_version: '2018-01-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ApiManagement/service/{serviceName}
+        resource_group: rg1
+        provider: ApiManagement
+        resource_type: service
+        resource_name: apimService1
+        body:
+          location: Central US
+          tags:
+            tag1: value1
+            tag2: value2
+            tag3: value3
+          sku:
+            name: Basic
+            capacity: 1
+          properties:
+            publisherEmail: apim@autorestsdk.com
+            publisherName: autorestsdk
+            certificates:
+              - encodedCertificate: ************Base 64 Encoded Pfx Certificate************************
+                certificatePassword: **************Password of the Certificate************************************************
+                storeName: CertificateAuthority

@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: Get a database's automatic tuning settings
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/databases/{databaseName}/automaticTuning/current
+        resource_group: default-sql-onebox
+        provider: Sql
+        resource_type: servers
+        resource_name: testsvr11
+        subresource:
+          - type: databases
+            name: db1
+          - type: automaticTuning
+          - type: current

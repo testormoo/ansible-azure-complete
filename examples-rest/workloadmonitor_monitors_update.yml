@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Monitors_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-08-31-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceNamespace}/{resourceType}/{resourceName}/providers/Microsoft.WorkloadMonitor/monitors/{monitorId}
+        resource_group: viv_rg
+        provider: WorkloadMonitor
+        resource_type: monitors
+        resource_name: 1bbf53b8-2557-a521-f7c1-1023de57367a
+        body:

@@ -1,0 +1,29 @@
+- hosts: localhost
+  tasks:
+    - name: EventHubCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/eventhubs/{eventHubName}
+        resource_group: Default-NotificationHubs-AustraliaEast
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-5357
+        subresource:
+          - type: eventhubs
+            name: sdk-EventHub-6547
+        body:
+          properties:
+            messageRetentionInDays: 4
+            partitionCount: 4
+            status: Active
+            captureDescription:
+              enabled: True
+              encoding: Avro
+              intervalInSeconds: 120
+              sizeLimitInBytes: 10485763
+              destination:
+                name: EventHubArchive.AzureBlockBlob
+                properties:
+                  storageAccountResourceId: /subscriptions/e2f361f0-3b27-4503-a9cc-21cfba380093/resourceGroups/Default-Storage-SouthCentralUS/providers/Microsoft.ClassicStorage/storageAccounts/arjunteststorage
+                  blobContainer: container
+                  archiveNameFormat: {Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}

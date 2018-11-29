@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: GenerateRecommendations
+      azure_rm_resource:
+        method: POST
+        api_version: '2017-04-19'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Advisor/generateRecommendations
+        provider: Advisor
+        resource_type: generateRecommendations
+        body:

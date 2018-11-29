@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: ConsumerGroupCreate
+      azure_rm_resource:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EventHub/namespaces/{namespaceName}/eventhubs/{eventHubName}/consumergroups/{consumerGroupName}
+        resource_group: ArunMonocle
+        provider: EventHub
+        resource_type: namespaces
+        resource_name: sdk-Namespace-2661
+        subresource:
+          - type: eventhubs
+            name: sdk-EventHub-6681
+          - type: consumergroups
+            name: sdk-ConsumerGroup-5563
+        body:
+          properties:
+            userMetadata: New consumergroup

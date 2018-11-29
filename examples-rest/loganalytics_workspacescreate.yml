@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: WorkspacesCreate
+      azure_rm_resource:
+        api_version: '2015-11-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.OperationalInsights/workspaces/{workspaceName}
+        provider: OperationalInsights
+        resource_type: workspaces
+        resource_name: oiautorest6685
+        body:
+          properties:
+            sku:
+              name: PerNode
+            retentionInDays: 30
+          location: australiasoutheast
+          tags:
+            tag1: val1

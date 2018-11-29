@@ -1,0 +1,47 @@
+- hosts: localhost
+  tasks:
+    - name: MarketplacesList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Consumption/marketplaces
+        provider: Consumption
+        resource_type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/billingAccounts/{billingAccountId}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: billingAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/departments/{departmentId}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: departments
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: marketplaces
+- hosts: localhost
+  tasks:
+    - name: MarketplacesList
+      azure_rm_resource_facts:
+        api_version: '2018-10-01'
+        # url: /providers/Microsoft.Billing/enrollmentAccounts/{enrollmentAccountId}/providers/Microsoft.Consumption/marketplaces
+        provider: Billing
+        resource_type: enrollmentAccounts
+        resource_name: 123456
+        subresource:
+          - type: providers
+        provider: Consumption
+          - type: marketplaces

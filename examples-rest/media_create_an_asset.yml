@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Create an Asset
+      azure_rm_resource:
+        api_version: '2018-07-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Media/mediaServices/{accountName}/assets/{assetName}
+        resource_group: contoso
+        provider: Media
+        resource_type: mediaServices
+        resource_name: contosomedia
+        subresource:
+          - type: assets
+            name: ClimbingMountLogan
+        body:
+          properties:
+            description: A documentary showing the ascent of Mount Logan
+            storageAccountName: storage0

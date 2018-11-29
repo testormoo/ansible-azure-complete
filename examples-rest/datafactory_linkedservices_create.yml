@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: LinkedServices_Create
+      azure_rm_resource:
+        api_version: '2018-06-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataFactory/factories/{factoryName}/linkedservices/{linkedServiceName}
+        resource_group: exampleResourceGroup
+        provider: DataFactory
+        resource_type: factories
+        resource_name: exampleFactoryName
+        subresource:
+          - type: linkedservices
+            name: exampleLinkedService
+        body:

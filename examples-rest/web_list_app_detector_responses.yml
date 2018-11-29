@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List App Detector Responses
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{siteName}/detectors
+        resource_group: Sample-WestUSResourceGroup
+        provider: Web
+        resource_type: sites
+        resource_name: SampleApp
+        subresource:
+          - type: detectors

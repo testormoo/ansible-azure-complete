@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Forced failover of a failover group allowing data loss
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/failoverGroups/{failoverGroupName}/forceFailoverAllowDataLoss
+        resource_group: Default
+        provider: Sql
+        resource_type: servers
+        resource_name: failover-group-secondary-server
+        subresource:
+          - type: failoverGroups
+            name: failover-group-test-3
+          - type: forceFailoverAllowDataLoss
+        body:
+- hosts: localhost
+  tasks:
+    - name: Forced failover of a failover group allowing data loss
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/locations/{locationName}/instanceFailoverGroups/{failoverGroupName}/forceFailoverAllowDataLoss
+        resource_group: Default
+        provider: Sql
+        resource_type: locations
+        resource_name: Japan West
+        subresource:
+          - type: instanceFailoverGroups
+            name: failover-group-test-3
+          - type: forceFailoverAllowDataLoss
+        body:

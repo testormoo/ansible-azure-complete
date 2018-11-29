@@ -1,0 +1,15 @@
+- hosts: localhost
+  tasks:
+    - name: TopicAutorizationRuleGet
+      azure_rm_resource_facts:
+        api_version: '2017-04-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/{namespaceName}/topics/{topicName}/authorizationRules/{authorizationRuleName}
+        resource_group: ArunMonocle
+        provider: ServiceBus
+        resource_type: namespaces
+        resource_name: sdk-Namespace-6261
+        subresource:
+          - type: topics
+            name: sdk-Topics-1984
+          - type: authorizationRules
+            name: sdk-AuthRules-4310

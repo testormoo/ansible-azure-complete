@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: Attempts to enable a user managed Key Vault for encryption of the specified Data Lake Store account
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DataLakeStore/accounts/{accountName}/enableKeyVault
+        resource_group: contosorg
+        provider: DataLakeStore
+        resource_type: accounts
+        resource_name: contosoadla
+        subresource:
+          - type: enableKeyVault
+        body:

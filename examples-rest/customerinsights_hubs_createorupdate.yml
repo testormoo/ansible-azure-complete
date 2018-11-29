@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Hubs_CreateOrUpdate
+      azure_rm_resource:
+        api_version: '2017-04-26'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CustomerInsights/hubs/{hubName}
+        resource_group: TestHubRG
+        provider: CustomerInsights
+        resource_type: hubs
+        resource_name: sdkTestHub
+        body:
+          location: West US
+          properties:
+            hubBillingInfo:
+              skuName: B0
+              minUnits: 1
+              maxUnits: 5

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Completes a managed database restore
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Sql/locations/{locationName}/managedDatabaseRestoreAzureAsyncOperation/{operationId}/completeRestore
+        provider: Sql
+        resource_type: locations
+        resource_name: southeastasia
+        subresource:
+          - type: managedDatabaseRestoreAzureAsyncOperation
+            name: 111111111-2222-8888-5555-777777777777/completeRestore
+          - type: completeRestore
+        body:
+          lastBackupName: testdb1_log4

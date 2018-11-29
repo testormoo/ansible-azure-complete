@@ -1,0 +1,8 @@
+- hosts: localhost
+  tasks:
+    - name: EnvironmentsBySubscription
+      azure_rm_resource_facts:
+        api_version: '2017-11-15'
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.TimeSeriesInsights/environments
+        provider: TimeSeriesInsights
+        resource_type: environments

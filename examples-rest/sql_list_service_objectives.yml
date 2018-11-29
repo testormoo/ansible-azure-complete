@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: List service objectives
+      azure_rm_resource_facts:
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/serviceObjectives
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: sqlcrudtest
+        subresource:
+          - type: serviceObjectives

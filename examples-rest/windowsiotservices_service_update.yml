@@ -1,0 +1,12 @@
+- hosts: localhost
+  tasks:
+    - name: Service_Update
+      azure_rm_resource:
+        method: PATCH
+        api_version: '2018-02-16-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.WindowsIoT/deviceServices/{deviceName}
+        resource_group: res9407
+        provider: WindowsIoT
+        resource_type: deviceServices
+        resource_name: service8596
+        body:

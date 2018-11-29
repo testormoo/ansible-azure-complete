@@ -1,0 +1,10 @@
+- hosts: localhost
+  tasks:
+    - name: Retrieve a vault
+      azure_rm_resource_facts:
+        api_version: '2016-10-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}
+        resource_group: sample-resource-group
+        provider: KeyVault
+        resource_type: vaults
+        resource_name: sample-vault

@@ -1,0 +1,17 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: DELETE
+        api_version: '2018-07-15-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.DataMigration/services/{serviceName}/projects/{projectName}/files/{fileName}
+        resource_group: DmsSdkRg
+        provider: DataMigration
+        resource_type: services
+        resource_name: DmsSdkService
+        subresource:
+          - type: projects
+            name: DmsSdkProject
+          - type: files
+            name: x114d023d8
+        body:

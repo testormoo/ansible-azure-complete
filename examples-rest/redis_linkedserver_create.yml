@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    - name: LinkedServer_Create
+      azure_rm_resource:
+        api_version: '2018-03-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cache/Redis/{name}/linkedServers/{linkedServerName}
+        resource_group: rg1
+        provider: Cache
+        resource_type: Redis
+        resource_name: cache1
+        subresource:
+          - type: linkedServers
+            name: cache2
+        body:
+          properties:
+            linkedRedisCacheId: /subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Cache/Redis/cache2
+            linkedRedisCacheLocation: West US
+            serverRole: Secondary

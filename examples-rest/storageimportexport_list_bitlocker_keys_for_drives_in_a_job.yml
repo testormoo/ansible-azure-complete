@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - name: List BitLocker Keys for drives in a job
+      azure_rm_resource:
+        method: POST
+        api_version: '2016-11-01'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ImportExport/jobs/{jobName}/listBitLockerKeys
+        resource_group: Default-Storage-WestUS
+        provider: ImportExport
+        resource_type: jobs
+        resource_name: test-by1-import
+        subresource:
+          - type: listBitLockerKeys
+        body:

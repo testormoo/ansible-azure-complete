@@ -1,0 +1,13 @@
+- hosts: localhost
+  tasks:
+    - name: Create an Azure Data Lake Store output with JSON serialization
+      azure_rm_resource:
+        api_version: '2016-03-01'
+        # url: /subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/Microsoft.StreamAnalytics/streamingjobs/{jobName}/outputs/{outputName}
+        provider: StreamAnalytics
+        resource_type: streamingjobs
+        resource_name: sj3310
+        subresource:
+          - type: outputs
+            name: output5195
+        body:

@@ -1,0 +1,16 @@
+- hosts: localhost
+  tasks:
+    - name: Set trigger state
+      azure_rm_resource:
+        method: POST
+        api_version: '2018-07-01-preview'
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Logic/workflows/{workflowName}/triggers/{triggerName}/setState
+        resource_group: testResourceGroup
+        provider: Logic
+        resource_type: workflows
+        resource_name: testWorkflow
+        subresource:
+          - type: triggers
+            name: testTrigger
+          - type: setState
+        body:

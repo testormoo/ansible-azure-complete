@@ -1,0 +1,31 @@
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/providers/Microsoft.Security/locations/{ascLocation}/tasks/{taskName}/{taskUpdateActionType}
+        provider: Security
+        resource_type: locations
+        resource_name: westeurope
+        subresource:
+          - type: tasks
+            name: 62609ee7-d0a5-8616-9fe4-1df5cca7758d
+            name: Dismiss
+        body:
+- hosts: localhost
+  tasks:
+    - name: Call REST API
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Security/locations/{ascLocation}/tasks/{taskName}/{taskUpdateActionType}
+        resource_group: myRg
+        provider: Security
+        resource_type: locations
+        resource_name: westeurope
+        subresource:
+          - type: tasks
+            name: d55b4dc0-779c-c66c-33e5-d7bce24c4222
+            name: Dismiss
+        body:

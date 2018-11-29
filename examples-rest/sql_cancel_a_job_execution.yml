@@ -1,0 +1,20 @@
+- hosts: localhost
+  tasks:
+    - name: Cancel a job execution.
+      azure_rm_resource:
+        method: POST
+        api_version: ''
+        # url: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/jobAgents/{jobAgentName}/jobs/{jobName}/executions/{jobExecutionId}/cancel
+        resource_group: group1
+        provider: Sql
+        resource_type: servers
+        resource_name: server1
+        subresource:
+          - type: jobAgents
+            name: agent1
+          - type: jobs
+            name: job1
+          - type: executions
+            name: 5555-6666-7777-8888-999999999999
+          - type: cancel
+        body:
