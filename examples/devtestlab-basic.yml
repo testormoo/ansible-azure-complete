@@ -1,8 +1,5 @@
 ---
 - hosts: localhost
-  vars:
-    resource_group: testrgxyzabcmoooxxxxa
-    rpfx: zimsxxxabcmooo
   roles:
     - ../modules
 
@@ -55,6 +52,32 @@
     - debug:
         var: output
 
+    - name: Create instance of dev test labs artifacts source
+      azure_rm_devtestlabsartifactsource:
+        resource_group: "{{ resource_group }}"
+        lab_name: "lab{{ rpfx}}"
+        name: "artifacts{{ rpfx }}"
+        display_name: My Artifacts Source
+        location: eastus
+        uri: https://github.com/zikalino/ansible-hatchery.git
+        source_type: git_hub
+        folder_path: /tests
+        security_token: "{{ github_token }}"
+      register: artifacts_output
+
+    - debug:
+        msg: "{{ artifacts_output.id }}"
+
+    - name: Get facts of artifacts source
+      azure_rm_devtestlabsartifactsource_facts:
+        resource_group: "{{ resource_group }}"
+        lab_name: "lab{{ rpfx}}"
+        name: "artifacts{{ rpfx }}"
+      register: output
+    - debug:
+        var: output
+
+
     - name: Create instance of dev test labs virtual machine
       azure_rm_devtestlabsvirtualmachine:
         resource_group: "{{ resource_group }}"
@@ -76,6 +99,9 @@
           sku: 16.04-LTS
           os_type: Linux
           version: latest
+        artifacts:
+          - artifact_id: "{{ artifacts_output.id }}"
+
         allow_claim: no
       register: vm_output
       ignore_errors: yes
@@ -84,33 +110,6 @@
         resource_group: "{{ resource_group }}"
         lab_name: "lab{{ rpfx}}"
         name: "vm{{ rpfx }}"
-      register: output
-    - debug:
-        var: output
-
-    # artifacts source
-
-    - name: Create instance of dev test labs artifacts source
-      azure_rm_devtestlabsartifactsource:
-        resource_group: "{{ resource_group }}"
-        lab_name: "lab{{ rpfx}}"
-        name: "artifacts{{ rpfx }}"
-        location: eastus
-        uri: https://github.com/zikalino/ansible-hatchery.git
-        source_type: git_hub
-        folder_path: /tests
-        security_token: "{{ github_token }}"
-      register: output
-      ignore_errors: yes
-    #- name: Assert the state has changed
-    #  assert:
-    #    that:
-    #      - output.changed
-    - name: Get facts of artifacts source
-      azure_rm_devtestlabsartifactsource_facts:
-        resource_group: "{{ resource_group }}"
-        lab_name: "lab{{ rpfx}}"
-        name: "artifacts{{ rpfx }}"
       register: output
     - debug:
         var: output
