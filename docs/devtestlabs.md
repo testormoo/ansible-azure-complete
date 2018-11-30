@@ -103,6 +103,63 @@ By default following is created:
 
 ## Can I assign my own Virtual Network?
 
+Virtual Network can be assigned externally:
+
+```
+    - name: Create a virtual network
+      azure_rm_virtualnetwork:
+        name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        location: eastus
+        address_prefixes_cidr:
+            - 10.1.0.0/16
+            - 172.100.0.0/16
+        dns_servers:
+            - 127.0.0.1
+            - 127.0.0.2
+      register: vn_output
+    - name: Create a subnet A
+      azure_rm_subnet:
+        name: subnet{{ rpfx }}a
+        virtual_network_name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        address_prefix_cidr: 10.1.0.0/24
+      register: subnet_a_output
+
+    - name: Create a subnet B
+      azure_rm_subnet:
+        name: subnet{{ rpfx }}b
+        virtual_network_name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        address_prefix_cidr: 172.100.0.0/24
+      register: subnet_b_output
+
+    - name: Create instance of dev test labs virtual network
+      azure_rm_devtestlabsvirtualnetwork:
+        resource_group: "{{ resource_group }}"
+        lab_name: "lab{{ rpfx}}"
+        name: "vn{{ rpfx }}"
+        location: eastus
+        external_provider_resource_id: "{{ vn_output.state.id }}"
+```
+
+In such case, nothing else will be created by default:
+
+```
+        "virtual_networks": [
+            {
+                "allowed_subnets": [],
+                "created_date": "2018-11-30T07:04:53.628887Z",
+                "external_provider_resource_id": "/subscriptions/685ba005-af8d-4b04-8f16-a7bf38b2eb5a/resourceGroups/zimsmainrgxx/providers/Microsoft.Network/virtualNetworks/vnetabcxyz",
+                "id": "/subscriptions/685ba005-af8d-4b04-8f16-a7bf38b2eb5a/resourcegroups/zimsmainrgxx/providers/microsoft.devtestlab/labs/lababcxyz/virtualnetworks/vnabcxyz",
+                "name": "vnabcxyz",
+                "provisioning_state": "Succeeded",
+                "type": "Microsoft.DevTestLab/labs/virtualNetworks",
+                "unique_identifier": "e016ce14-da50-4a50-ab10-b86e1f9373c8"
+            }
+        ]
+```
+
 
 ## Creating Virtual Machine
 
