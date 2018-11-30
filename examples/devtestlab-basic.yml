@@ -100,16 +100,23 @@
           os_type: Linux
           version: latest
         artifacts:
-          - artifact_id: "{{ artifacts_output.id }}"
+          - artifact_id: "{{ artifacts_output.id }}/Artifacts/linux-install-mongodb"
+        network_interface:
+          virtual_network_id: moo
+        applicable_schedule:
+          location: eastus
+          lab_vms_shutdown:
+            location: eastus
 
         allow_claim: no
       register: vm_output
       ignore_errors: yes
     - name: Get facts of lab virtual machine
-      azure_rm_devtestlabsvirtualmachine:
+      azure_rm_devtestlabsvirtualmachine_facts:
         resource_group: "{{ resource_group }}"
         lab_name: "lab{{ rpfx}}"
         name: "vm{{ rpfx }}"
+        expand: artifacts,computeVm,networkInterface,applicableSchedule
       register: output
     - debug:
         var: output
