@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+  roles:
+    - ../modules
+
+  tasks:
+
+    - name: Create a resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: eastus
+
+    - name: Create a virtual network
+      azure_rm_virtualnetwork:
+        name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        location: eastus
+        address_prefixes_cidr:
+            - 10.1.0.0/16
+            - 172.100.0.0/16
+        dns_servers:
+            - 127.0.0.1
+            - 127.0.0.2
+      register: vn_output
+    - name: Create a subnet A
+      azure_rm_subnet:
+        name: subnet{{ rpfx }}a
+        virtual_network_name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        address_prefix_cidr: 10.1.0.0/24
+      register: subnet_a_output
+
+    - name: Create a subnet B
+      azure_rm_subnet:
+        name: subnet{{ rpfx }}b
+        virtual_network_name: vnet{{ rpfx }}
+        resource_group: "{{ resource_group }}"
+        address_prefix_cidr: 172.100.0.0/24
+      register: subnet_b_output
+
+    - name: Create instance of Lab
+      azure_rm_devtestlabslab:
+        resource_group: "{{ resource_group }}"
+        name: "lab{{ rpfx}}"
+        location: eastus
+        lab_storage_type: standard
+        premium_data_disks: no
+
+    - debug:
+        var: vn_output
+
+    - name: Create instance of dev test labs virtual network
+      azure_rm_devtestlabsvirtualnetwork:
+        resource_group: "{{ resource_group }}"
+        lab_name: "lab{{ rpfx}}"
+        name: "vn{{ rpfx }}"
+        location: eastus
+        external_provider_resource_id: "{{ vn_output.state.id }}"
+      register: output_vn
+
+    - name: Get facts of virtual network
+      azure_rm_devtestlabsvirtualnetwork_facts:
+        resource_group: "{{ resource_group }}"
+        lab_name: "lab{{ rpfx}}"
+        name: "vn{{ rpfx }}"
+      register: output
+    - debug:
+        var: output
+
