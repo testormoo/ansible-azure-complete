@@ -151,11 +151,11 @@ class AzureRMVirtualMachineFacts(AzureRMModuleBase):
 
     def format_response(self, item):
         d = item.as_dict()
-        d = {
-            'resource_group': self.resource_group,
-            'id': d.get('id', None),
-            'tags': d.get('tags', None)
-        }
+        #d = {
+        #    'resource_group': self.resource_group,
+        #    'id': d.get('id', None),
+        #    'tags': d.get('tags', None)
+        #}
         return d
 
 
